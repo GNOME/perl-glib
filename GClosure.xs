@@ -60,6 +60,9 @@ gperl_closure_marshal (GClosure * closure,
 	guint i;
 	GPerlClosure *pc = (GPerlClosure *)closure;
 	SV * target, * data;
+#ifndef PERL_IMPLICIT_CONTEXT
+	dSP;
+#else
 	SV **SP;
 
 	/* make sure we're executed by the same interpreter that created
@@ -67,6 +70,7 @@ gperl_closure_marshal (GClosure * closure,
 	PERL_SET_CONTEXT (marshal_data);
 
 	SPAGAIN;
+#endif
 
 	/*
 	warn ("Marshalling: params: %d\n", n_param_values);
@@ -161,11 +165,15 @@ gperl_closure_new (gchar * name,
 							NULL);
 	g_closure_add_invalidate_notifier ((GClosure*) closure, 
 					   NULL, gperl_closure_invalidate);
+#ifndef PERL_IMPLICIT_CONTEXT
+	g_closure_set_marshal ((GClosure*) closure, gperl_closure_marshal);
+#else
 	/* make sure the closure gets executed by the same interpreter that's
 	 * creating it now; gperl_closure_marshal will interpret the 
 	 * marshal_data as the proper aTHX. */
 	g_closure_set_meta_marshal ((GClosure*) closure, aTHX,
 	                            gperl_closure_marshal);
+#endif
 
 	/* 
 	 * we have to take full copies of these SVs, rather than just
@@ -263,7 +271,9 @@ gperl_callback_new (SV    * func,
 
 	callback->return_type = return_type;
 
+#ifdef PERL_IMPLICIT_CONTEXT
 	callback->priv = aTHX;
+#endif
 
 	return callback;
 }
@@ -300,11 +310,15 @@ gperl_callback_invoke (GPerlCallback * callback,
                        ...)
 {
 	va_list var_args;
+#ifndef PERL_IMPLICIT_CONTEXT
+	dSP;
+#else
 	SV ** SP;
 
 	PERL_SET_CONTEXT (callback->priv);
 
 	SPAGAIN;
+#endif
 
 	ENTER;
 	SAVETMPS;
