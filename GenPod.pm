@@ -336,8 +336,9 @@ our %basic_types = (
 	guint16  => 'unsigned',
 	guint32  => 'unsigned',
 	gulong   => 'unsigned',
-	gchar    => 'integer',
+	gshort   => 'integer',
 	guint    => 'integer',
+	gushort  => 'unsigned',
 	gfloat   => 'double',
 	gdouble  => 'double',
 	gchar    => 'string',
@@ -360,7 +361,11 @@ our %basic_types = (
 	GPerlFilename	=> 'localized file name',
 	GPerlFilename_const	=> 'localized file name',
 
-## TODO/FIXME:
+## TODO/FIXME:  we need a way to add to this hash at runtime, to alleviate
+##              the need for the terrible hack of putting other people's
+##              types down here.  the trick is figuring out how to get the
+##              mappings in from the command line (e.g., Makefile rules).
+##              A file, maybe?
 	GtkTargetList   => 'Gtk2::TargetList',
 	GdkAtom         => 'Gtk2::Gdk::Atom',
 	GdkBitmap       => 'Gtk2::Gdk::Bitmap',
