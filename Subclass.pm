@@ -204,9 +204,6 @@ sub import {
    my ($self, $superclass, %arg) = @_;
    my $class = caller;
 
-   my $signals    = $arg{signals}    || {};
-   my $properties = $arg{properties} || [];
-
    # the CHECK callback will be executed after the module is compiled
    my $check = sub {
       # "optionally" supply defaults
@@ -217,10 +214,9 @@ sub import {
    };
    eval "package $class; CHECK { &\$check }";
 
-   Glib::Type->register(
+   Glib::Type->register_object(
       $superclass, $class,
-      signals    => $signals,
-      properties => $properties,
+      %arg,
    );
 }
 
