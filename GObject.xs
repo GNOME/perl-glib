@@ -289,16 +289,6 @@ gperl_object_check_type (SV * sv,
 
 
 
-static void
-destroy_data (gpointer data)
-{
-#ifdef NOISY
-	warn ("destroy data\n");
-#endif
-	SvREFCNT_dec ((SV*)data);
-}
-
-
 /*
  * helper for list_properties
  *
@@ -369,7 +359,8 @@ g_object_set_data (object, key, data)
 	SV * data
     CODE:
 	g_object_set_data_full (object, key,
-	                        gperl_sv_copy (data), gperl_sv_free);
+	                        gperl_sv_copy (data),
+				(GDestroyNotify) gperl_sv_free);
 
 
 SV *
@@ -496,7 +487,7 @@ get_pointer (object)
 	RETVAL
 
 SV *
-g_object__new (class, object_class, ...)
+g_object_new (class, object_class, ...)
 	SV * class
 	const char * object_class
     PREINIT:
@@ -504,6 +495,7 @@ g_object__new (class, object_class, ...)
 	GParameter * params = NULL;
 	GType object_type;
 	GObject * object;
+	GObjectClass *oclass = NULL;
     CODE:
 	object_type = gperl_object_type_from_package (object_class);
 	if (!object_type)
@@ -514,15 +506,14 @@ g_object__new (class, object_class, ...)
 		       " type `%s'", g_type_name (object_type));
 	if (items > 2) {
 		int i;
-		GObjectClass * class;
-		if (NULL == (class = g_type_class_ref (object_type)))
+		if (NULL == (oclass = g_type_class_ref (object_type)))
 			croak ("could not get a reference to type class");
 		n_params = (items - 2) / 2;
 		params = g_new0 (GParameter, n_params);
 		for (i = 0 ; i < n_params ; i++) {
 			const char * key = SvPV_nolen (ST (2+i*2+0));
 			GParamSpec * pspec;
-			pspec = g_object_class_find_property (class, key);
+			pspec = g_object_class_find_property (oclass, key);
 			if (!pspec) 
 				/* FIXME this bails out, but does not clean up 
 				 * properly. */
@@ -551,7 +542,8 @@ g_object__new (class, object_class, ...)
 			g_value_unset (&params[i].value);
 		g_free (params);
 	}
-	g_type_class_unref (class);
+	if (oclass)
+		g_type_class_unref (oclass);
 
     OUTPUT:
 	RETVAL
