@@ -50,7 +50,7 @@ our @gend_pods = ();
 
 Scan the I<@xs_files> and return a hash describing the pod files that will
 be created.  This is in the format wanted by WriteMakefile(). If @ARGV contains
-the string --disable-apidoc an empty list will be returned and thus no apidoc 
+the string C<disable-apidoc> an empty list will be returned and thus no apidoc
 pod will be generated speeding up the build process.
 
 =cut
@@ -126,7 +126,7 @@ There is a special Makefile variable POD_DEPENDS that should be set to the
 list of files that need to be created before the doc.pl step is run, include
 files.
 
-There is also a variable BLIB_DONE which should be used as a dependancy
+There is also a variable BLIB_DONE which should be used as a dependency
 anywhere a rule needs to be sure that a loadable and working module resides in
 the blib directory before running.
 

@@ -141,7 +141,7 @@ sub package {
 =item HASHREF = $parser->pkgdata
 
 The data hash corresponding to the current package, honoring the most recently
-encounter C<=for object> directive.  Ensures that it exists.
+encountered C<=for object> directive.  Ensures that it exists.
 Returns a reference to the member of the main data structure, so modifications
 are permanent and useful.
 
@@ -750,7 +750,7 @@ sub deep_copy_ref {
 
 =item $parser->clean_out_empty_pods
 
-Looks throught the data memeber of the parser and removes any keys (and
+Looks through the data member of the parser and removes any keys (and
 associated values) when no pod, enums, and xsubs exist for the package.
 
 =cut

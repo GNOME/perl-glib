@@ -76,7 +76,7 @@ C<xsdocparse>.  This function creates an file containing Perl code that may be
 eval'd or require'd to recreate the parsed data structures, which are a list of
 pods from the verbatim C portion of the XS file (the xs api docs), and a hash
 of the remaining data, keyed by package name, and including the pods and xsubs
-read from the rest of each xs file following the first MODULE line.
+read from the rest of each XS file following the first MODULE line.
 
 Several custom POD directives are recognized in the XSubs section.  Note that
 each one is sought as a paragraph starter, and must follow a C<=cut> directive.
@@ -512,8 +512,8 @@ is one of the following will be placed at a specified position. In the case of
 pod that is to be placed after a particular section that doesn't exist, that
 pod will be still be placed there.
 
-This function is called at all of the specified points throught the process of
-generated pod for a page. Any pod matching the I<position> passed will be
+This function is called at all of the specified points through out the process
+of generating pod for a page. Any pod matching the I<position> passed will be
 returned, undef if no matches were found.  If I<position> is undef all pods
 without sepcific postion information will be returned. I<pods> is a reference
 to an array of pod hashes.
@@ -752,12 +752,12 @@ global variable AUTHORS should be set to the text to appear just after the year
 of the Copyright line, it defaults to Gtk2-Perl Team. The package gloabal
 variable MAIN_MOD should be set to a pod link pointing towards the main file
 for a package in which the full copyright appears. Finally the package global
-YEAR maybe set to the year to place in the copyright, default is to use current
-year.
+variable YEAR maybe set to the year to place in the copyright, default is to
+use current year.
 
 To set AUTHORS, COPYRIGHT, and/or MAIN_MOD do something similar to the
 following in the first part of your postamble section in Makefile.PL. All of
-the weird escaping is require because this is going through several levels of
+the weird escaping is required because this is going through several levels of
 variable expansion. All occurances of <br> are replaced with newlines.
 
   POD_SET=\\\$\$Glib::GenPod::COPYRIGHT='Copyright 1999 team-foobar<br>LGPL';
