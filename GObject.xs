@@ -22,17 +22,26 @@
 #include "gperl.h"
 
 typedef struct _ClassInfo ClassInfo;
+typedef struct _SinkFunc  SinkFunc;
 
 struct _ClassInfo {
-	GType gtype;
-	const char * class;
-	char * package;
+	GType   gtype;
+	char  * package;
 };
 
-static GHashTable * types_by_type = NULL;
+struct _SinkFunc {
+	GType               gtype;
+	GPerlObjectSinkFunc func;
+};
+
+static GHashTable * types_by_type    = NULL;
 static GHashTable * types_by_package = NULL;
 
+/* store outside of the class info maps any options we expect to be sparse;
+ * this will save us a fair amount of space. */
 static GHashTable * nowarn_by_type = NULL;
+static GArray     * sink_funcs     = NULL;
+
 
 ClassInfo *
 class_info_new (GType gtype,
@@ -42,7 +51,6 @@ class_info_new (GType gtype,
 
 	class_info = g_new0 (ClassInfo, 1);
 	class_info->gtype = gtype;
-	class_info->class = g_type_name (gtype);
 	class_info->package = g_strdup (package);
 
 	return class_info;
@@ -52,7 +60,6 @@ void
 class_info_destroy (ClassInfo * class_info)
 {
 	if (class_info) {
-		/* do NOT free the class name */
 		if (class_info->package)
 			g_free (class_info->package);
 		g_free (class_info);
@@ -150,6 +157,61 @@ gperl_register_object (GType gtype,
 	}
 }
 
+/* 
+ * why do we need sink funcs in Glib?  because if we create a GtkObject
+ * (or any other type of object which uses a different way to claim
+ * ownership) via Glib::Object->new, the upstream wrappers, such as
+ * gtk2perl_new_object, will *not* be called.  having sink funcs down
+ * here enables us always to do the right thing.
+ *
+ * this stuff is directly inspired by pygtk.  i didn't actually copy
+ * and paste the code, but it sure looks like i did, down to the names.
+ * hey, they were the obvious names!
+ *
+ * for the record, i think this is a rather dodgy way to do sink funcs 
+ * --- it presumes that you'll find the right one first; i prepend new
+ * registrees in the hopes that this will work out, but nothing guarantees
+ * that this will work.  to do it right, the wrappers need to have
+ * some form of inherited vtable or something...  but i've had enough
+ * problems just getting the object caching working, so i can't really
+ * mess with that right now.
+ */
+void
+gperl_register_sink_func (GType gtype,
+                          GPerlObjectSinkFunc func)
+{
+	SinkFunc sf;
+	if (!sink_funcs)
+		sink_funcs = g_array_new (FALSE, FALSE, sizeof (SinkFunc));
+	sf.gtype = gtype;
+	sf.func  = func;
+	g_array_prepend_val (sink_funcs, sf);
+}
+
+/*
+ * helper for gperl_new_object; do whatever you have to do to this
+ * object to ensure that the calling code now owns the object.  assumes
+ * the object has already been ref'd once.  to do this, we look up the 
+ * proper sink func; if none has been registered for this type, then
+ * just call g_object_unref.
+ */
+static void
+gperl_object_take_ownership (GObject * object)
+{
+	if (sink_funcs) {
+		int i;
+		for (i = 0 ; i < sink_funcs->len ; i++)
+			if (g_type_is_a (G_OBJECT_TYPE (object),
+			                 g_array_index (sink_funcs,
+			                                SinkFunc, i).gtype)) {
+				g_array_index (sink_funcs,
+				               SinkFunc, i).func (object);
+				return;
+			}
+	}
+	g_object_unref (object);
+}
+
 void
 gperl_object_set_no_warn_unreg_subclass (GType gtype,
                                          gboolean nowarn)
@@ -157,7 +219,8 @@ gperl_object_set_no_warn_unreg_subclass (GType gtype,
 	if (!nowarn_by_type) {
 		if (!nowarn)
 			return;
-		nowarn_by_type = g_hash_table_new (g_direct_hash, g_direct_equal);
+		nowarn_by_type = g_hash_table_new (g_direct_hash,
+		                                   g_direct_equal);
 	}
 	g_hash_table_insert (nowarn_by_type, (gpointer)gtype, (gpointer)nowarn);
 }
@@ -187,7 +250,8 @@ gperl_object_package_from_type (GType gtype)
 		else
 			return NULL;
 	} else
-		croak ("internal problem: gperl_object_package_from_type called before any classes were registered");
+		croak ("internal problem: gperl_object_package_from_type "
+		       "called before any classes were registered");
 }
 
 /*
@@ -206,7 +270,8 @@ gperl_object_type_from_package (const char * package)
 		else
 			return 0;
 	} else
-		croak ("internal problem: gperl_object_type_from_package called before any classes were registered");
+		croak ("internal problem: gperl_object_type_from_package "
+		       "called before any classes were registered");
 }
 
 /*
@@ -214,7 +279,7 @@ gperl_object_type_from_package (const char * package)
  */
 SV *
 gperl_new_object (GObject * object,
-                  gboolean noinc)
+                  gboolean own)
 {
 	SV * sv;
 	GType gtype;
@@ -246,8 +311,9 @@ gperl_new_object (GObject * object,
 
 	sv = newSV (0);		
 	sv_setref_pv (sv, package, object);
-	if (!noinc)
-		g_object_ref (object);
+	g_object_ref (object);
+	if (own)
+		gperl_object_take_ownership (object);
 #ifdef NOISY
 	warn ("gperl_new_object (%p)[%d] => %s (%p)[%d]", 
 	      object, object->ref_count,
@@ -532,8 +598,9 @@ g_object_new (class, object_class, ...)
 	}
 
 	object = g_object_newv (object_type, n_params, params);	
-	/* WARNING! this is not correct for GtkObjects! */
-	RETVAL = gperl_new_object (object, TRUE); /* noinc! */
+
+	/* this wrapper *must* own this object! */
+	RETVAL = gperl_new_object (object, TRUE);
 
     //cleanup: /* C label, not the XS keyword */
 	if (n_params) {

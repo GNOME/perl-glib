@@ -314,6 +314,31 @@ const char * gperl_boxed_package_from_type (GType type);
 void gperl_register_object (GType gtype, const char * package);
 
 /**
+ * gperl_register_sink_func:
+ * @gtype: #GType of the class for which to register a sink func
+ * @func: pointer to a function which knows how to take ownership of any
+ *        object derived from @gtype.  This function will be called by
+ *        gperl_new_object() when noinc is TRUE.
+ *
+ * the perl wrapper always refs a GObject.  to have the wrapper claim 
+ * ownership of the object, you unref the object after ref'ing it.  however,
+ * different GObject subclasses have different ways to claim ownership;
+ * for example, GtkObject simply requires you to call gtk_object_sink().
+ * to make this concept generic, this function allows you to register a 
+ * function to be called when then wrapper should claim ownership of the
+ * object.  the @func registered for a given @type will be called on any
+ * object for which g_type_isa (G_TYPE_OBJECT (object), type) succeeds.
+ *
+ * If no sinkfunc is found for an object, g_object_unref() will be used.
+ * 
+ * note -- this is rather hokey right now, simply using an array of functions,
+ * as inspired by pygtk.  this should be done in a more robust fashion.
+ */
+typedef void (*GPerlObjectSinkFunc) (GObject *);
+void gperl_register_sink_func (GType               gtype,
+                               GPerlObjectSinkFunc func);
+
+/**
  * gperl_object_set_no_warn_unreg_subclass:
  * @gtype: #GType of the class whose flag to set
  * @nowarn: #TRUE to disable warnings.
@@ -354,8 +379,9 @@ GType gperl_object_type_from_package (const char * package);
 /**
  * gperl_new_object:
  * @object: #GObject to wrap
- * @noinc: if #TRUE, g_object_ref() will *not* be called on the object.
- *    normally, the object will be ref'ed.  see discussion for more info.
+ * @own: if #TRUE, the first matching sink function will be called on the
+ *    object after ref'ing it, so that that perl wrapper owns the GObject.
+ *    see discussion for more info.
  *
  * Use this function to create a perl wrapper for a GObject.  If the object
  * has never been wrapped before, a new wrapper will be created and added
@@ -367,36 +393,39 @@ GType gperl_object_type_from_package (const char * package);
  * it out, but disabling the code gets rid of some bizarre bugs.  currently,
  * the code ALWAYS creates a new wrapper SV.
  *
- * The wrapper will be blessed into class corresponding to G_OBJECT_TYPE();
- * if that class has not been registered via gperl_register_object(), this 
- * function will emit a warning to that effect (with warn()), and attempt
- * to bless it into the first known class in the object's ancestry.  Since
- * Glib::Object is already registered, you'll get a Glib::Object if you are lazy,
- * and thus this function can fail only if @object isn't descended from 
- * #GObject, in which case it croaks.
+ * The wrapper will be blessed into the package corresponding to the GType
+ * returned by calling G_OBJECT_TYPE() on the @object; if that class has not
+ * been registered via gperl_register_object(), this function will emit a
+ * warning to that effect (with warn()), and attempt to bless it into the
+ * first known class in the object's ancestry.  Since Glib::Object is
+ * already registered, you'll get a Glib::Object if you are lazy, and thus
+ * this function can fail only if @object isn't descended from #GObject,
+ * in which case it croaks.  (In reality, if you pass a non-GObject to this
+ * function, you'll be lucky if you don't get a segfault, as there's not
+ * really a way to trap that.)  In practice these warnings can be unavoidable,
+ * so you can use gperl_object_set_no_war_unreg_subclass() to quell them
+ * on a class-by-class basis.
  *
- * Normally, you will call gperl_new_object() with @noinc set to #FALSE,
- * which means that g_object_ref() will be called on the object.  This is
- * the correct behavior for objects owned by someone else.  This ref will
- * be removed in the Glib::Object::DESTROY method, invoked when the wrapper
- * SV is garbage-collected by perl.  The object should continue to exist
- * in this situation.
+ * Next, the object will be ref'd with g_object_ref(), because the wrapper
+ * will hold a hard reference on the object.  This reference is released by
+ * the Glib::Object::DESTROY method, which is invoked when the last reference
+ * to the perl wrapper goes away and it is garbage collected by the 
+ * interpreter.  This is the correct behavior for objects owned by someone
+ * else, as it allows the object to continue to exist.
  *
- * However, when perl is calling a GObject constructor (any function which
- * returns a new GObject), you do NOT want to ref the object, because the
- * calling perl code owns the object's initial reference.  In this situation,
- * call gperl_new_object() with @noinc set to #TRUE, and the object will
- * be destroyed when the wrapper is garbage collected (unless some other
- * code takes a reference on it).
+ * However, when perl code is calling a GObject constructor (any function 
+ * which returns a new GObject), you do NOT want the object to outlive the
+ * wrapper.  In this situation, call gperl_new_object() with @own set to
+ * %TRUE; this will cause the first matching sink function to be called
+ * on the GObject to claim ownership of that object, so that it will be
+ * destroyed with the perl wrapper (unless some other code takes a reference
+ * on it first).  The default sink func is g_object_unref(); other types
+ * should supply the proper function; e.g., GtkObject should use 
+ * gtk_object_sink here.
  *
- * NOTE: GtkObject uses the idea of a floating reference to handle the
- * ownership problem, and the Gtk2 module adds a wrapper around this function
- * to handle GtkObject's idiosyncrasies.  use Gtk2's gtk2perl_new_gtkobject()
- * to wrap GtkObject subclasses.
- * 
  * returns: blessed scalar wrapper, or #&PL_sv_undef if object was #NULL
  */
-SV * gperl_new_object (GObject * object, gboolean noinc);
+SV * gperl_new_object (GObject * object, gboolean own);
 
 /**
  * gperl_get_object:
