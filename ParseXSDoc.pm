@@ -64,6 +64,7 @@ sub xsdocparse {
 	foreach my $filename (@filenames) {
 		$parser->parse_file ($filename);
 	}
+	$parser->canonicalize_xsubs;
 	$parser->swizzle_pods;
 
 	use POSIX qw(strftime);
@@ -298,7 +299,7 @@ sub parse_file {
 				$xsub->{pod} = $lastpod;
 				$lastpod = undef;
 			}
-			push @{ $self->pkgdata->{xsubs} }, split_aliases ($xsub);
+			push @{ $self->pkgdata->{xsubs} }, $xsub;
 
 		} else {
 			# this is probably xsub function body, comment, or
@@ -580,9 +581,23 @@ sub sanitize_type {
 }
 
 
+sub canonicalize_xsubs {
+	my $self = shift;
+
+	return undef unless 'HASH' eq ref $self->{data};
+
+	# make sure that each package contains an xsub hash for each
+	# xsub, whether an alias or not.
+	foreach my $package (keys %{$self->{data}}) {
+		my $pkgdata = $self->{data}{$package};
+		next unless $pkgdata or $pkgdata->{xsubs};
+		my $xsubs = $pkgdata->{xsubs};
+		@$xsubs = map { split_aliases ($_) } @$xsubs;
+	}
+}
+
 sub split_aliases {
 	my $xsub = shift;
-
 	return $xsub unless exists $xsub->{alias};
 	return $xsub unless 'HASH' eq ref $xsub->{alias};
 	my %aliases = %{ $xsub->{alias} };
@@ -593,7 +608,10 @@ sub split_aliases {
 			%$xsub,
 			symname => $a,
 			pod => undef,
-			args => [ $xsub->{args} ? @{ $xsub->{args} } : () ],
+			# we do a deep copy on the args, so that changes to one do not
+			# affect another.  in particular, adding docs or hiding an arg
+			# in one xsub shouldn't affect another.
+			args => deep_copy_ref ($xsub->{args}),
 		};
 		$seen{ $aliases{$a} }++;
 	}
@@ -602,6 +620,22 @@ sub split_aliases {
 	}
 
 	return @xsubs;
+}
+
+
+sub deep_copy_ref {
+		my $ref = shift;
+		return undef if not $ref;
+		my $reftype = ref $ref;
+		if ('ARRAY' eq $reftype) {
+				my @newary = map { deep_copy_ref ($_) } @$ref;
+				return \@newary;
+		} elsif ('HASH' eq $reftype) {
+				my %newhash = map { $_, deep_copy_ref ($ref->{$_}) } keys %$ref;
+				return \%newhash;
+		} else {
+				return $ref;
+		}
 }
 
 

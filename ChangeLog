@@ -1,3 +1,11 @@
+2003/11/02 02:15 muppetman
+
+	* ParseXSDoc.pm: split_aliases wasn't properly deep-copying args
+	arrays.  since that's not exactly something that you'd want to do
+	unless you are going to generate docs from the parser results,
+	moved the splitting of aliases from parse_file() to xsdocparse()
+	as canonicalize_xsubs().
+
 2003/11/01 01:15 muppetman
 
 	* typemap: input (Perl-to-C) typemap for T_GPERL_GENERIC_WRAPPER
