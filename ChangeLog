@@ -1,3 +1,13 @@
+2004/03/05 00:28 (-0500) muppetman
+
+	* Makefile.PL: add version checks to the import attempts for our
+	black-sheep ExtUtils modules; more recent versions actually support
+	the version checks.
+
+	* MakeHelper.pm: use almost excessive validation to detect whether
+	ExtUtils::Depends is of sufficient vintage, and bail out if not,
+	using the same trick as Makefile.PL to coax CPAN into updating.
+
 2004/03/04 09:52 (-0500) muppetman
 
 	* MakeHelper.pm: fix a bug in the MY::const_cccmd override which
