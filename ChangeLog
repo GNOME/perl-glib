@@ -1,3 +1,9 @@
+2003/06/26 18:51 pcg
+
+        * GParamSpec.xs: replace dashes by underscores when returning pspec
+        names.
+        * t/4.t, t/5.t: new testcases.
+
 2003/06/26 13:00 muppetman
 
 	* GObject.xs: undo the removal of recursive package lookups, so
@@ -14,7 +20,6 @@
         * GType.xs: implement standard class "methods" as functions.
         Implement properties using an array, not a hash.
         * Subclass.pm: new file, still under construction.
-        * t/4.t: new testcase.
 
 2003/06/24 23:16 muppetman
 

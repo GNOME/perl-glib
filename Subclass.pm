@@ -19,6 +19,8 @@
 
 package Glib::Object::Subclass;
 
+use Glib;
+
 =head1 NAME
 
 Glib::Object::Subclass - create gobject classes in perl
@@ -26,25 +28,25 @@ Glib::Object::Subclass - create gobject classes in perl
 =head1 SYNOPSIS
 
   use Glib::Object::Subclass
-     Glib::Object::,        # parent class
-     SIGNALS    =>
+     Glib::Object,        # parent class
+     signals    =>
         {
             something_changed => {
                flags       => [qw(run-first)],
-               return_type => 'none',
+               return_type => undef,
                param_types => [],
             },
 
         },
-        PROPERTIES => [
-           Glib::ParamSpec->string (
-              'some_string',
-              'Some String Property',
-              'This property is a string that is used as an example',
-              'default value',
-              [qw/readable writable/]
-           ),
-        ];
+     properties => [
+        Glib::ParamSpec->string (
+           'some_string',
+           'Some String Property',
+           'This property is a string that is used as an example',
+           'default value',
+           [qw/readable writable/]
+        ),
+     ];
 
 =head1 DESCRIPTION
 
@@ -69,10 +71,21 @@ normal perl objects.
 
 =back
 
+=head2 USAGE
+
+This module works similar to the C<use base> pragma in that it registers
+the current package as a subclass of some other class (which must be a
+GObjectClass implemented either in C or some other language).
+
+TODO: document it.
+
 =head2 OBJECT METHODS AND FUNCTIONS
 
 The following methods are either added to your class on request (not
-implemented), or by default unless your own class implements them itself.
+yet implemented), or by default unless your own class implements them
+itself. This means that all these methods and functions will get sensible
+default implementations unless explicitly overwritten by you (by defining
+your own version).
 
 Except for C<new>, all of the following are I<functions> and no
 I<methods>. That means that you should I<not> call the superclass
@@ -88,10 +101,6 @@ to set properties on the newly created object. This is done because many
 C<new> methods inherited by Gtk2 or other libraries don't have C<new>
 methods suitable for subclassing.
 
-=cut
-
-#*new = \&Glib::Object::new; # be efficient
-
 =item INIT_INSTANCE $self                                 [not a method]
 
 C<INIT_INSTANCE> is called on each class in the hierarchy as the object is
@@ -101,16 +110,16 @@ will leave the object untouched.
 
 =cut
 
-=item GET_PROPERTY $self, $prop_id, $pspec                [not a method]
+=item GET_PROPERTY $self, $pspec                          [not a method]
 
 Get a property value, see C<SET_PROPERTY>.
 
 The default implementation looks like this:
 
-   my ($self, $prop_id, $pspec) = @_;
+   my ($self, $pspec) = @_;
    return $self->{$pspec->get_name};
 
-=item SET_PROPERTY $self, $prop_id, $pspec, $newval       [not a method]
+=item SET_PROPERTY $self, $newval                         [not a method]
 
 C<GET_PROPERTY> and C<SET_PROPERTY> are called whenever somebody does
 C<< $object->get ($propname) >> or C<< $object->set ($propname => $newval) >>
@@ -126,21 +135,8 @@ values named for the parameter name.
 
 The default C<SET_PROPERTY> looks like this:
 
-   my ($self, $prop_id, $pspec, $newval) = @_;
+   my ($self, $pspec, $newval) = @_;
    $self->{$pspec->get_name} = $newval;
-
-=cut
-
-sub GET_PROPERTY {
-	my ($self, $prop_id, $pspec) = @_;
-	return $self->{$pspec->get_name};
-}
-
-sub SET_PROPERTY {
-	my ($self, $prop_id, $pspec, $newval) = @_;
-	#warn "Glib::Object::Base::SET_PROPERTY : @_";
-	$self->{$pspec->get_name} = $newval;
-}
 
 =item FINALIZE_INSTANCE $self                             [not a method]
 
@@ -156,8 +152,6 @@ of construction.
 
 The default finalizer does nothing.
 
-=cut
-
 =item $object->DESTROY           [DO NOT OVERWRITE]
 
 Don't I<ever> overwrite, use C<FINALIZE_INSTANCE> instead.
@@ -172,6 +166,38 @@ do that. Especially watch out for other classes in your ISA tree.
 =back
 
 =cut
+
+*new = \&Glib::Object::new;
+
+sub GET_PROPERTY {
+   my ($self, $pspec) = @_;
+   $self->{$pspec->get_name};
+}
+
+sub SET_PROPERTY {
+   my ($self, $pspec, $newval) = @_;
+   $self->{$pspec->get_name} = $newval;
+}
+
+sub import {
+   my ($self, $superclass, %arg) = @_;
+   my $class = caller;
+
+   my $signals    = $arg{signals}    || {};
+   my $properties = $arg{properties} || [];
+
+   # "optionally" supply defaults
+   for (qw(new GET_PROPERTY SET_PROPERTY)) {
+      defined &{"$class\::$_"}
+         or *{"$class\::$_"} = \&$_;
+   }
+
+   Glib::Type->register(
+      $superclass, $class,
+      signals    => $signals,
+      properties => $properties,
+   );
+}
 
 1;
 

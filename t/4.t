@@ -13,7 +13,7 @@ sub Foo::FINALIZE_INSTANCE {
 }
 
 sub Foo::SET_PROPERTY {
-   print "ok $_[3]\n";
+   print "ok $_[2]\n";
 }
 
 sub Foo::GET_PROPERTY {

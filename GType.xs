@@ -433,16 +433,8 @@ newSVGChar (const gchar * str)
  * and the perl code can use SUPER to get to the parent class' methods.
  *
  * we can use hard-coded object method names to avoid the need to pass
- * function pointers around.  similarly, we don't need to worry about a
- * finalize method --- perl's DESTROY will suffice.
- *                            ^^^^^^^ NO, it won't!
- *     DESTROY will be called on each wrapper, not on the actual C
- *     object which will be created by Glib::Object->new.
+ * function pointers around.
  * 
- * the object will be a C object, so the perl code will have to use
- * user data keys to store data.  that's also easy, and a perl-level
- * AUTOLOAD can be used to write cleaner accessors.
- *
  * then there's the hard part -- overriding virtual functions.
  * when called from perl, this is not a problem, as the standard perl 
  * method lookup works great, but when called from C, as with something
@@ -684,7 +676,6 @@ gperl_type_get_property (GObject * object,
 
                   PUSHMARK (SP);
                   XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-                  XPUSHs (sv_2mortal (newSVuv (property_id))),
                   XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
                   PUTBACK;
 
@@ -725,7 +716,6 @@ gperl_type_set_property (GObject * object,
 
                   PUSHMARK (SP);
                   XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-                  XPUSHs (sv_2mortal (newSVuv (property_id))),
                   XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
                   XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
                   PUTBACK;

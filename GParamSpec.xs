@@ -81,7 +81,18 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
 ## stuff from gparam.h
 
-const gchar* g_param_spec_get_name (GParamSpec * pspec)
+SV *
+g_param_spec_get_name (GParamSpec * pspec)
+	CODE:
+        char *c;
+        RETVAL = newSVpv (g_param_spec_get_name (pspec), 0);
+
+        for (c = SvPV_nolen (RETVAL); c <= SvEND (RETVAL); c++)
+                if (*c == '-')
+                        *c = '_';
+        
+	OUTPUT:
+        RETVAL
 
 const gchar* g_param_spec_get_nick (GParamSpec * pspec)
 
