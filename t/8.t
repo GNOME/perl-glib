@@ -1,8 +1,7 @@
 #!env perl -w
 
 use Test::More
-	tests => 12,
-	todo => 3;
+	tests => 20;
 
 BEGIN { use_ok 'Glib'; }
 
@@ -34,38 +33,60 @@ sub second { $_[0]->signal_emit ('second'); }
 ############
 package main;
 
-ok(1);
+# keep stderr quiet, redirect it to stdout...
+$SIG{__WARN__} = sub { print $_[0]; };
 
-$TODO = "exception handling is b0rken";
+$tag = Glib->install_exception_handler (sub {
+		$_[0] =~ s/\n/\\n/g;
+		ok (1, "trapped exception '$_[0]'");
+		# this should be ignored, too, and should NOT create an
+		# infinite loop.
+		die "oh crap, another exception!\nthis one has multiple lines!\nappend something";
+		1 });
+
+ok( $tag, 'installed exception handler' );
+
+ok( Glib->install_exception_handler (sub {
+		if ($_[0] =~ /ouch/) {
+			ok (1, 'saw ouch, uninstalling');
+			return 0;
+		} else {
+			ok (0, 'additional handler still installed');
+			return 1;
+		}
+		}),
+    'installed an additional handler' );
 
 {
    my $my = new MyClass;
    $my->signal_connect (first => sub { 
 			ok (1, 'in first handler, calling second');
 			$_[0]->second;
-			TODO: { ok (0, "shouldn't get here, either"); }
+			ok (1, "handler may die, but we shouldn't");
 		});
    $my->signal_connect (second => sub {
 			ok (1, "in second handler, dying with 'ouch\\n'");
 			die "ouch\n";
-			TODO: { ok (0, "should NEVER get here"); }
+			ok (0, "should NEVER get here");
 		});
 
+   ok (1, 'calling second');
+   $my->second;
+   ok (1, "handler may die, but we shouldn't be affected");
+
+   # expect identical behavior in eval context 
    eval {
    	ok (1, 'calling second in eval');
 	$my->second;
-	TODO: { ok (0, "after second in eval --- shouldn't get here"); }
+	ok (1, "handler may die, but we shouldn't be affected");
    };
-   is ($@, "ouch\n", "should catch the exception from second out here");
+   is ($@, "", "exception should be cleared already");
 
    # super double gonzo...
-   eval {
-   	ok (1, "calling first in eval");
-	$my->first;
-	TODO: { ok (0, "after first in eval --- shouldn't get here"); }
-   };
+   ok (1, "calling first");
+   $my->first;
    ok (1, "after eval");
-#   print " # calling first out of eval, expect this to kill the program";
-#   $my->first;
+   print " # calling first out of eval, expect this to kill the program";
+   $my->first;
 }
 

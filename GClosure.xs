@@ -68,6 +68,7 @@ gperl_closure_marshal (GClosure * closure,
 	guint i;
 	GPerlClosure *pc = (GPerlClosure *)closure;
 	SV * data;
+	SV * instance;
 #ifndef PERL_IMPLICIT_CONTEXT
 	dSP;
 #else
@@ -93,8 +94,6 @@ gperl_closure_marshal (GClosure * closure,
 		 * if the closure is set for swap data, we need to swap
 		 * out param_values[0] (the "instance") with pc->data.
 		 */
-		SV * instance;
-
 		if (GPERL_CLOSURE_SWAP_DATA (pc)) {
 			/* swap instance and data */
 			data     = gperl_sv_from_value (param_values);
@@ -137,77 +136,17 @@ gperl_closure_marshal (GClosure * closure,
 		XPUSHs (data);
 	PUTBACK;
 
-	/*
-	 * to eval or not to eval: this is the question.
-	 *
-	 * if PL_in_eval is zero, we are not in eval context, and an 
-	 * exception in the callback should kill the program.
-	 *
-	 * if PL_in_eval is nonzero, then we are being called somewhere 
-	 * inside an eval block, and an exception in the callback should 
-	 * return control to the innermost surrounding eval.  that's 
-	 * implemented easily enough, by simply calling call_sv without
-	 * G_EVAL.
-	 *
-	 * however, a few critically important parts of glib and gtk+ are
-	 * implemented with recursive functions which store their state on
-	 * the C stack.  eval and die are implemented with setjmp and 
-	 * longjmp, which have a side effect of throwing away stuff on the
-	 * C stack; since C doesn't have built-in objects, the stack isn't
-	 * so much unwound as it is just lopped off.  that means we'll never
-	 * return to the cleanup code necessary for g_signal_emit and
-	 * gtk_main, which can result in some very nasty things happening.
-	 *
-	 * the only fix for this is to note that we have an error, and 
-	 * return normally from this function into the calling g_signal_emit,
-	 * and hope that our error condition gets picked up by somebody
-	 * soon enough for things to make sense.
-	 *
-	 * thus we are required to break from the standard and expected
-	 * behavior of perl exceptions in order to keep glib and gtk from
-	 * dying a horrible, flaming death and taking the perl interpreter
-	 * down with it.
-	 *
-	 * to sum up, we need to set G_EVAL in flags to call_sv when:
-	 *
-	 *   PL_in_eval is true
-	 *   and
-	 *      we are in a signal invocation
-	 *      or
-	 *      somebody has let us know somehow that there's a function
-	 *            we need to call (thierry's gtk_main stuff)
-	 */
-	/*
-	 * since we're implementing GPerlClosure here for ourselves, we can
-	 * be reasonably assured that invocation_hint will be set to a
-	 * GSignalInvocationHint* if we're being called from g_signal_emit,
-	 * and otherwise NULL.
-	 */
-
 	flags = return_value ? G_SCALAR : G_DISCARD;
-	flags |= invocation_hint && PL_in_eval ? G_EVAL : 0;
 
-	call_sv (pc->callback, flags);
+	call_sv (pc->callback, flags | G_EVAL);
 
-	SPAGAIN;
+	if (SvTRUE (ERRSV))
+		gperl_run_exception_handlers ();
 
-	if (invocation_hint && PL_in_eval && SvTRUE (ERRSV)) {
-		GSignalInvocationHint * ihint =
-			(GSignalInvocationHint*) invocation_hint;
-		gpointer instance = g_value_get_object (param_values);
-#ifdef NOISY
-		warn ("**** caught exception '%s' in signal emission"
-		      " for %s(0x%p)::%s",
-		      SvPV_nolen (ERRSV),
-		      G_OBJECT_TYPE_NAME (instance), instance,
-		      g_signal_name (ihint->signal_id));
-#endif
-		g_signal_stop_emission (instance,
-					ihint->signal_id,
-					ihint->detail);
-
-	} else if (return_value && G_VALUE_TYPE (return_value))
+	if (return_value && G_VALUE_TYPE (return_value)) {
+		SPAGAIN;
 		gperl_value_from_sv (return_value, POPs);
+	}
 
 	/*
 	 * clean up 
@@ -411,6 +350,8 @@ A typical callback handler would look like this:
           return retval;
   }
 
+
+
 =cut
 void
 gperl_callback_invoke (GPerlCallback * callback,
@@ -531,9 +472,229 @@ dump_callback (GPerlCallback * c)
 
 #endif
 
+
+
+
+
+
+=back
+
+=head2 Exception Handling
+
+Like Event, Tk, and most other callback-using, event-based perl modules,
+Glib traps exceptions that happen in callbacks.  To enable your code to
+do something about these exceptions, Glib stores a list of exception
+handlers which will be called on the trapped exceptions.  This is
+completely distinct from the $SIG{__DIE__} mechanism provided by Perl
+itself, for various reasons (not the least of which is that the Perl
+docs and source code say that $SIG{__DIE__} is intended for running as
+the program is about to exit, and other behaviors may be removed in the
+future (apparently a source of much debate on p5p)).
+
+=over
+
+=cut
+
+
+typedef struct {
+	gulong     tag;
+	GClosure * closure;
+} ExceptionHandler;
+
+static GSList * exception_handlers = NULL;
+G_LOCK_DEFINE_STATIC (exception_handlers);
+
+/* this is modified only behind the exception_handlers lock. */
+static gboolean in_exception_handler = FALSE;
+
+
+
+
+=item int gperl_install_exception_handler (GClosure * closure)
+
+Install a GClosure to be executed when gperl_closure_invoke() traps an
+exception.  The closure should return boolean (TRUE if the handler should
+remain installed) and expect to receive a perl scalar.  This scalar will be
+a private copy of ERRSV ($@) which the handler can mangle to its heart's
+content.
+
+The return value is an integer id tag that may be passed to
+gperl_removed_exception_handler().
+
+=cut
+int
+gperl_install_exception_handler (GClosure * closure)
+{
+	static int tag = 0;
+	ExceptionHandler * h;
+
+	h = g_new0 (ExceptionHandler, 1);
+
+	G_LOCK (exception_handlers);
+
+	h->tag = ++tag;
+	h->closure = g_closure_ref (closure);
+	g_closure_sink (closure);
+
+	exception_handlers = g_slist_append (exception_handlers, h);
+
+	G_UNLOCK (exception_handlers);
+
+	return h->tag;
+}
+
+void
+exception_handler_free (ExceptionHandler * h)
+{
+	g_closure_unref (h->closure);
+	g_free (h);
+}
+
+static void
+remove_exception_handler_unlocked (int tag)
+{
+	GSList * i;
+
+	for (i = exception_handlers ; i != NULL ; i = i->next) {
+		ExceptionHandler * h = (ExceptionHandler*) i->data;
+		if (h->tag == tag) {
+			exception_handler_free (h);
+			exception_handlers =
+				g_slist_delete_link (exception_handlers, i);
+			break;
+		}
+	}
+}
+
+
+=item void gperl_remove_exception_handler (int tag)
+
+Remove the exception handler identified by I<tag>, as returned by
+gperl_install_exception_handler().  If I<tag> cannot be found, this
+does nothing.
+
+WARNING:  this function locks a global data structure, so do NOT call
+it recursively.  also, calling this from within an exception handler will
+result in a deadlock situation.  if you want to remove your handler just
+have it return FALSE.
+
+=cut
+void
+gperl_remove_exception_handler (int tag)
+{
+	G_LOCK (exception_handlers);
+	remove_exception_handler_unlocked (tag);
+	G_UNLOCK (exception_handlers);
+}
+
+
+static void
+warn_of_ignored_exception (const char * message)
+{
+	/* there's a bit of extra nastiness here to strip the trailing
+	 * newline from the contents of ERRSV for printing.
+	 * TODO verify that this is not clobbering $_.
+	 */
+	ENTER;
+	SAVETMPS;
+	sv_setsv (DEFSV, ERRSV);
+	eval_pv ("s/^/***   /mg", FALSE);
+	eval_pv ("s/\n$//s", FALSE);
+	warn ("*** %s:\n"
+	      "%s\n"
+	      "***  ignoring",
+	      message,
+	      SvPV_nolen (DEFSV));
+
+	FREETMPS;
+	LEAVE;
+}
+
+=item void gperl_run_exception_handlers (void)
+
+Invoke whatever exception handlers are installed.  You will need this if
+you have written a custom marshaler.  Uses the value of the global ERRSV.
+
+=cut
+void
+gperl_run_exception_handlers (void)
+{
+	GSList * i, * this;
+	int n_run = 0;
+	/* to avoid problems with handlers that fiddle with the value of
+	 * the global $@, we'll pass a copy of $@ to all the handlers
+	 * on the stack.  this way we know they all get the same one, and
+	 * they can do whatever they want to it without actually affecting
+	 * anyone else. */
+	SV * errsv = newSVsv (ERRSV);
+
+	if (in_exception_handler) {
+		warn_of_ignored_exception ("died in an exception handler");
+		return;
+	}
+
+	G_LOCK (exception_handlers);
+
+	++in_exception_handler;
+
+	/* call any registered handlers */
+	for (i = exception_handlers ; i != NULL ; /* in loop */) {
+		ExceptionHandler * h = (ExceptionHandler *) i->data;
+		GValue param_values = {0, };
+		GValue return_value = {0, };
+		g_value_init (&param_values, GPERL_TYPE_SV);
+		g_value_init (&return_value, G_TYPE_BOOLEAN);
+		/* this will duplicate errsv each time, so that all
+		 * callbacks get the same value. */
+		g_value_set_boxed (&param_values, errsv);
+		g_closure_invoke (h->closure, &return_value,
+		                  1, &param_values, NULL);
+		this = i;
+		i = i->next;
+		g_assert (i != this);
+		if (!g_value_get_boolean (&return_value)) {
+#ifdef NOISY
+			warn ("handler %d returned FALSE, removing\n", h->tag);
+#endif
+			exception_handler_free (h);
+			exception_handlers =
+			      g_slist_delete_link (exception_handlers, this);
+		}
+		g_value_unset (&param_values);
+		g_value_unset (&return_value);
+		++n_run;
+	}
+
+	--in_exception_handler;
+
+	G_UNLOCK (exception_handlers);
+
+	if (n_run == 0) 
+		warn_of_ignored_exception ("unhandled exception in callback");
+
+	/* and clear the error */
+	sv_setsv (ERRSV, &PL_sv_undef);
+	SvREFCNT_dec (errsv);
+}
+
 =back
 
 =cut
 
-/* ExtUtils::ParseXS requires at least one MODULE line to be present */
+MODULE = Glib::Closure	PACKAGE = Glib	PREFIX = gperl_
+
+int
+gperl_install_exception_handler (SV * class, SV * func, SV * data=NULL)
+    C_ARGS:
+	gperl_closure_new (func, data, 0)
+
+void
+gperl_remove_exception_handler (SV * class, int tag)
+    C_ARGS:
+	tag
+
+
+ ##
+ ## end on the native package
+ ##
 MODULE = Glib::Closure	PACKAGE = Glib::Closure	PREFIX = g_closure_
