@@ -8,6 +8,7 @@ package Glib::GenPod;
 #use strict;
 #use warnings;
 use Glib;
+use Data::Dumper;
 
 use base Exporter;
 
@@ -21,6 +22,7 @@ our @EXPORT = qw(
 	podify_methods
 );
 
+our %methods;
 
 =head1 NAME
 
@@ -464,9 +466,26 @@ sub podify_methods
 	my $str = '';
 	my $n = 0;
 
+	my $method;
+	my $package;
 	#$str .= "=over\n\n";
 	foreach (@$xsubs) {
-		next if $_->{symname} =~ /^(.*::)?DESTROY$/;
+		# if we haven't seen this pkg yet, get all of it's methods
+		$package = $_->{package};
+		methods ($package) unless ($methods{$package});
+
+		# skip unless the method is avaiable
+		$method = $_->{symname};
+		$method =~ s/.*:://;
+		unless (exists $methods{$package}{$method})
+		{
+			# this print should only be temporary
+			print STDERR "missing: $package $method\n";
+			next;
+		}
+		# skip if it's a DESTROY
+		next if ($method eq 'DESTROY');
+		
 		$str .= xsub_to_pod ($_, '=head2');
 		++$n;
 	}
@@ -768,13 +787,10 @@ sub convert_return_type_to_name {
 	return $type;
 }
 
-
-
 sub mkdir_p {
 	use File::Spec;
 	my $path = shift;
 	my $p = '';
-	use Data::Dumper;
 	my @dirs = File::Spec->splitdir ($path);
 	my $p = shift @dirs;
 	do {
@@ -782,6 +798,32 @@ sub mkdir_p {
 		$p = File::Spec->catdir ($p, shift @dirs);
 	} while (@dirs);
 }
+
+=item methods(package)
+
+Given a package name this function retrieves all methods registered to it. Used 
+to see what's bound so we know what xsubs to output into the pod files since 
+all xsubs reguardless of ifdef's will be in doc.pl.
+
+=cut
+
+# based on (and/or copied from) code at: http://dev.perl.org/perl6/rfc/335.html
+sub methods 
+{
+	my ($package) = @_;
+	$package = ref $package || $package;
+
+	no strict 'refs';
+		
+	# Based on methods_via() in perl5db.pl
+	for my $method (grep {not /^[(_]/ and 
+			defined &{${"${package}::"}{$_}}} 
+			keys %{"${package}::"}) 
+	{
+		$methods{$package}{$method} = 1;
+	}
+}
+
 
 1;
 __END__

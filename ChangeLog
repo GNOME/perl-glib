@@ -1,3 +1,10 @@
+2003/11/06 21:29 (-0500) rwmcfa1
+
+	* GenPod.pm: using the old methods trick i've come up with a way to 
+	only have xsubs pod for package methods that are bound. so ifdef'd out
+	code (stuff that's not available in the compiled against version) won't
+	be put into the pods. one more doc issue down.
+
 2003/11/06 16:53 (-0500) muppetman
 
 	* MakeHelper.pm: make the pod index have actual links.
