@@ -120,6 +120,39 @@ gperl_register_error_domain (GQuark domain,
 	gperl_set_isa (package, "Glib::Error");
 }
 
+struct FindData {
+	const char * package;
+	ErrorInfo * info;
+};
+
+static void
+find_package (gpointer key,
+              ErrorInfo * info,
+              struct FindData * find_data)
+{
+	if (g_str_equal (find_data->package, info->package))
+		find_data->info = info;
+}
+
+static ErrorInfo *
+error_info_from_package (const char * package)
+{
+	struct FindData find_data;
+	find_data.package = package;
+	find_data.info = NULL;
+	g_hash_table_foreach (errors_by_domain,
+	                      (GHFunc) find_package,
+	                      &find_data);
+	return find_data.info;
+}
+
+static ErrorInfo *
+error_info_from_domain (GQuark domain)
+{
+	return (ErrorInfo*) g_hash_table_lookup (errors_by_domain,
+	                                         GUINT_TO_POINTER (domain));
+}
+
 =item SV * gperl_sv_from_gerror (GError * error)
 
 You should rarely, if ever, need to call this function.  This is what turns
@@ -136,9 +169,7 @@ gperl_sv_from_gerror (GError * error)
 	if (!error)
 		return newSVsv (&PL_sv_undef);
 
-	info = (ErrorInfo*)
-		g_hash_table_lookup (errors_by_domain,
-		                     GUINT_TO_POINTER (error->domain));
+	info = error_info_from_domain (error->domain);
 
 	hv = newHV ();
 	hv_store (hv, "domain", 6,
@@ -163,6 +194,89 @@ gperl_sv_from_gerror (GError * error)
 	return sv_bless (newRV_noinc ((SV*) hv), gv_stashpv (package, TRUE)); 
 }
 
+
+=item gperl_gerror_from_sv (SV * sv, GError ** error)
+
+You should rarely need this function.  This parses a perl data
+structure into a GError.  If I<sv> is undef, sets *I<error> to NULL,
+otherwise, allocates a new GError with C<g_error_new_literal()> and
+writes through I<error>; the caller is responsible for calling
+C<g_error_free()>.  (gperl_croak_gerror() does this, for example.)
+
+=cut
+void
+gperl_gerror_from_sv (SV * sv, GError ** error)
+{
+	ErrorInfo * info = NULL;
+	const char * package;
+	GError scratch;
+	HV * hv;
+	SV ** svp;
+
+	/* undef is legal */
+	if (!sv || !SvOK (sv)) {
+		*error = NULL;
+		return;
+	}
+
+	/*
+	 * now we must parse a hash.
+	 */
+	if (!SvROK (sv) || SvTYPE (SvRV (sv)) != SVt_PVHV)
+		croak ("expecting undef or a hash reference for a GError");
+
+	/*
+	 * error domain.  prefer the type into which the object is blessed,
+	 * fall back to the 'domain' key.
+	 */
+	package = sv_reftype (SvRV (sv), TRUE);
+	hv = (HV*) SvRV (sv);
+	if (package)
+		info = error_info_from_package (package);
+	if (!info) {
+		const char * domain;
+		GQuark qdomain;
+		svp = hv_fetch (hv, "domain", 6, FALSE);
+		if (!svp || !SvOK (sv))
+			g_error ("key 'domain' not found in plain hash for GError");
+		domain = SvPV_nolen (*svp);
+		qdomain = g_quark_try_string (domain);
+		if (!qdomain)
+			g_error ("%s is not a valid quark, did you remember to register an error domain?", domain);
+
+		info = error_info_from_domain (qdomain);
+	}
+	if (!info)
+		croak ("%s is neither a Glib::Error derivative nor a valid GError domain",
+		       SvPV_nolen (sv));
+		
+	scratch.domain = info->domain;
+
+	/*
+	 * error code.  prefer the 'value' key, fall back to 'code'.
+	 */
+	svp = hv_fetch (hv, "value", 5, FALSE);
+	if (svp && SvOK (*svp))
+		scratch.code = gperl_convert_enum (info->error_enum, *svp);
+	else {
+		svp = hv_fetch (hv, "code", 4, FALSE);
+		if (!svp || !SvOK (*svp))
+			croak ("error hash contains neither a 'value' nor 'code' key; no error valid error code found");
+		scratch.code = SvIV (*svp);
+	}
+
+	/*
+	 * the message is the easy part.
+	 */
+	svp = hv_fetch (hv, "message", 7, FALSE);
+	if (!svp || !SvOK (*svp))
+		croak ("error has contains no error message");
+	scratch.message = SvGChar (*svp);
+
+	*error = g_error_new_literal (scratch.domain,
+	                              scratch.code,
+	                              scratch.message);
+}
 
 =item void gperl_croak_gerror (const char * ignored, GError * err)
 
@@ -247,15 +361,14 @@ BOOT:
   };
   if ($@) {
      print "$@\n";
-     if ('' eq ref $@) {
+     if (Glib::Error::matches ($@, 'Gtk2::Gdk::Pixbuf::Error',
+                                   'unknown-format')) {
+        change_format_and_try_again ();
+     } elsif (Glib::Error::matches ($@, 'Glib::File::Error', 'noent')) {
+        change_source_dir_and_try_again ();
+     } else {
         # don't know how to handle this
         die $@;
-     } elsif ($@->isa ('Gtk2::Gdk::Pixbuf::Error')
-              and $@->value eq 'unknown-format') {
-        change_format_and_try_again ();
-     } elsif ($@->isa ('Glib::File::Error')
-              and $@->value eq 'noent') {
-        change_source_dir_and_try_again ();
      }
   }
 
@@ -333,3 +446,121 @@ for readability.
 int code (SV * error)
 
 #endif
+
+=for apidoc Glib::Error::throw
+=for signature scalar = Glib::Error::throw ($class, $code, $message)
+=for signature scalar = $class->throw ($code, $message)
+=for arg code (GEnum) an enumeration value, depends on I<$class>
+
+Throw an exception with a Glib::Error exception object.
+Equivalent to C<< croak (Glib::Error::new ($class, $code, $message)); >>.
+
+=cut
+
+=for apidoc
+=for signature scalar = Glib::Error::new ($class, $code, $message)
+=for signature scalar = $class->new ($code, $message)
+=for arg code (GEnum) an enumeration value, depends on I<$class>
+
+Create a new exception object of type I<$class>, where I<$class> is associated
+with a GError domain.  I<$code> should be a value from the enumeration type
+associated with this error domain.  I<$message> can be anything you like, but
+should explain what happened from the point of view of a user.
+
+=cut
+SV *
+new (const char * class, SV * code, const gchar * message)
+    ALIAS:
+	Glib::Error::throw = 1
+    PREINIT:
+	ErrorInfo * info = NULL;
+    CODE:
+	info = error_info_from_package (class);
+	if (!info) {
+		GQuark d;
+		if (0 != (d = g_quark_try_string (class)))
+			info = error_info_from_domain (d);
+	}
+	if (info) {
+		/* this is rather wasteful, as it converts one way and
+		 * then back, but that effectively launders everything
+		 * for us. */
+		GError error;
+		error.domain = info->domain;
+		error.code = gperl_convert_enum (info->error_enum, code);
+		error.message = (gchar*)message;
+		RETVAL = gperl_sv_from_gerror (&error);
+	} else {
+		warn ("%s is neither a Glib::Error derivative nor a valid GError domain",
+		      class);
+		RETVAL = newSVGChar (message);
+	}
+	if (ix == 1) {
+		/* go ahead and throw it. */
+		SvSetSV (ERRSV, RETVAL);
+		croak (Nullch);
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc __function__
+=for arg package class name to register as a Glib::Error.
+=for arg enum_package class name of the enum type to use for this domain's error codes.
+Register a new error domain.  Glib::Error will be added @I<package>::ISA for
+you.  I<enum_package> must be a valid Glib::Enum type, either from a C library
+or registered with C<< Glib::Type::register_enum >>.  After registering an
+error domain, you can create or throw exceptions of this type.
+=cut
+void
+register (char * package, char * enum_package)
+    PREINIT:
+	GQuark qdomain;
+	GType enum_type;
+    CODE:
+	enum_type = gperl_fundamental_type_from_package (enum_package);
+	if (!enum_type)
+		croak ("%s is not registered as a Glib enum", enum_package);
+
+	ENTER;
+	SAVESPTR (DEFSV);
+	sv_setpv (DEFSV, package);
+	eval_pv ("$_ = lc $_; s/::/-/g;", G_VOID);
+	qdomain = g_quark_from_string (SvPV_nolen (DEFSV));
+	LEAVE;
+
+	gperl_register_error_domain (qdomain, enum_type, package);
+
+
+=for apidoc
+Returns true if the exception in I<$error> matches the given I<$domain> and
+I<$code>.  I<$domain> may be a class name or domain quark (that is, the real
+string used in C).  I<$code> may be an integer value or an enum nickname;
+the enum type depends on the value of I<$domain>.
+=cut
+gboolean
+matches (SV * error, const char * domain, SV * code)
+    PREINIT:
+	GError * real_error;
+	ErrorInfo * info;
+	int real_code;
+    CODE:
+	gperl_gerror_from_sv (error, &real_error);
+	info = error_info_from_package (domain);
+	if (!info) {
+		GQuark q = g_quark_try_string (domain);
+		if (!q)
+			croak ("%s is not a valid error domain", domain);
+		info = error_info_from_domain (q);
+	}
+	if (!info)
+		croak ("%s is not a registered error domain", domain);
+	real_code = looks_like_number (code)
+	          ? SvIV (code)
+	          : gperl_convert_enum (info->error_enum, code);
+	RETVAL = g_error_matches (real_error, info->domain, real_code);
+	if (real_error)
+		g_error_free (real_error);
+    OUTPUT:
+	RETVAL
+

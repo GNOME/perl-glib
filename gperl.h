@@ -57,15 +57,6 @@ void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
 		_gperl_call_XS (aTHX_ name, cv, mark);	\
 	}
 
-/* it is rare that you should ever want or need this function. */
-SV * gperl_sv_from_gerror (GError * error);
-
-void gperl_croak_gerror (const char * ignored, GError * err);
-
-void gperl_register_error_domain (GQuark domain,
-                                  GType error_enum,
-                                  const char * package);
-
 gpointer gperl_alloc_temp (int nbytes);
 gchar *gperl_filename_from_sv (SV *sv);
 SV *gperl_sv_from_filename (const gchar *filename);
@@ -103,6 +94,19 @@ void gperl_register_fundamental (GType gtype, const char * package);
 
 GType gperl_fundamental_type_from_package (const char * package);
 const char * gperl_fundamental_package_from_type (GType gtype);
+
+/*
+ * GErrors as exception objects
+ */
+/* it is rare that you should ever want or need these two functions. */
+SV * gperl_sv_from_gerror (GError * error);
+void gperl_gerror_from_sv (SV * sv, GError ** error);
+
+void gperl_register_error_domain (GQuark domain,
+                                  GType error_enum,
+                                  const char * package);
+
+void gperl_croak_gerror (const char * ignored, GError * err);
 
 /*
  * inheritance management
