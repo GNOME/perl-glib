@@ -1,7 +1,9 @@
-2003/06/26 01:11 pcg
+2003/06/26 11:49 pcg
 
         * META.yml: Add module meta-data in YAML for CPAN.
         * Glib.pm: podify and clean up docs.
+        * README.api-changes: added, please add any observations
+        on suboptimal API translations here.
 
 2003/06/24 23:16 muppetman
 

@@ -1,0 +1,18 @@
+This document should contain proposed API changes that should be done
+before the 1.0 release.
+
+If you see a problem that needs attention, or have comments, put it down
+here. These are just suggestions.
+
+- Gtk2::Pango->scale... unlike C, perl has no problems with floating point,
+  so it would be very normal to represent the fixed-point pango values
+  as normal perl scalars (5100 => 5.1). This would need to be done everywhere,
+  so we need to be sure that no generic interface (get) exports these.
+
+  Rationale: fixed point is just a specific representation for an abstract
+  value space. Pango works in fractional device units, and, while a
+  natural representation for this in C is a scaled integer, the natural
+  representation in pelr would be a scalar. Plus, the current perl api is
+  already quite unlike C (no PANGO_SCALE constant but a *method*), and
+  looks quite clumsy even compared to C.
+
