@@ -21,6 +21,8 @@
 
 #include "gperl.h"
 
+#define NOISY
+
 typedef struct _ClassInfo ClassInfo;
 typedef struct _SinkFunc  SinkFunc;
 
@@ -317,9 +319,7 @@ gperl_new_object (GObject * object,
 
         if (!obj) {
                 /* create the perl object */
-                MAGIC *magic;
                 const char *package;
-                gpointer *old_dispose;
                 GType gtype = G_OBJECT_TYPE (object);
 
                 package = gperl_object_package_from_type (gtype);
@@ -374,6 +374,12 @@ gperl_new_object (GObject * object,
                  * thus will eventually trigger gobject destruction, which
                  * in turn will trigger perl wrapper destruction. */
 
+#ifdef NOISY
+		warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
+		      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
+		      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+		      sv);
+#endif
         } else {
                 /* create the wrapper to return, increases the combined refcount by one. */
                 sv = newRV_inc (obj);
@@ -382,12 +388,14 @@ gperl_new_object (GObject * object,
 	if (own)
 		gperl_object_take_ownership (object);
 
+/*
 #ifdef NOISY
-	warn ("gperl_new_object (%p)[%d] => %s (%p)", 
-	      object, object->ref_count,
+	warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
+	      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
 	      sv);
 #endif
+*/
 	return sv;
 }
 
@@ -424,31 +432,6 @@ gperl_object_check_type (SV * sv,
 }
 
 
-
-/*
- * helper for list_properties
- *
- * this flags type isn't hasn't type information as the others, I
- * suppose this is because it's too low level 
- */
-static SV *
-newSVGParamFlags (GParamFlags flags)
-{
-	AV * flags_av = newAV ();
-	if ((flags & G_PARAM_READABLE) != 0)
-		av_push (flags_av, newSVpv ("readable", 0));
-	if ((flags & G_PARAM_WRITABLE) != 0)
-		av_push (flags_av, newSVpv ("writable", 0));
-	if ((flags & G_PARAM_CONSTRUCT) != 0)
-		av_push (flags_av, newSVpv ("construct", 0));
-	if ((flags & G_PARAM_CONSTRUCT_ONLY) != 0)
-		av_push (flags_av, newSVpv ("construct-only", 0));
-	if ((flags & G_PARAM_LAX_VALIDATION) != 0)
-		av_push (flags_av, newSVpv ("lax-validation", 0));
-	if ((flags & G_PARAM_PRIVATE) != 0)
-		av_push (flags_av, newSVpv ("private", 0));
-	return newRV_noinc ((SV*) flags_av);
-}
 
 /* helper for g_object_[gs]et_parameter */
 static void
@@ -634,6 +617,7 @@ g_object_new (class, ...)
 	GObject * object;
 	GObjectClass *oclass = NULL;
     CODE:
+#define FIRST_ARG	1
 	object_type = gperl_object_type_from_package (class);
 	if (!object_type)
 		croak ("%s is not registered with gperl as an object type",
@@ -641,14 +625,14 @@ g_object_new (class, ...)
 	if (G_TYPE_IS_ABSTRACT (object_type))
 		croak ("cannot create instance of abstract (non-instantiatable)"
 		       " type `%s'", g_type_name (object_type));
-	if (items > 2) {
+	if (items > FIRST_ARG) {
 		int i;
 		if (NULL == (oclass = g_type_class_ref (object_type)))
 			croak ("could not get a reference to type class");
-		n_params = (items - 2) / 2;
+		n_params = (items - FIRST_ARG) / 2;
 		params = g_new0 (GParameter, n_params);
 		for (i = 0 ; i < n_params ; i++) {
-			const char * key = SvPV_nolen (ST (2+i*2+0));
+			const char * key = SvPV_nolen (ST (FIRST_ARG+i*2+0));
 			GParamSpec * pspec;
 			pspec = g_object_class_find_property (oclass, key);
 			if (!pspec) 
@@ -659,7 +643,7 @@ g_object_new (class, ...)
 			g_value_init (&params[i].value,
 			              G_PARAM_SPEC_VALUE_TYPE (pspec));
 			if (!gperl_value_from_sv (&params[i].value, 
-			                          ST (2+i*2+1)))
+			                          ST (FIRST_ARG+i*2+1)))
 				/* FIXME and neither does this */
 				croak ("could not convert value for property %s",
 				       key);
