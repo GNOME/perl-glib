@@ -7,6 +7,7 @@
         * GObject.xs: add gperl_object_package_from_type_recursive.
 	* gperl.h: make gperl_sv_from_value arg const.
         * GType.xs: implement standard class "methods" as functions.
+        Implement properties using an array, not a hash.
 
 2003/06/24 23:16 muppetman
 

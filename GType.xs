@@ -646,21 +646,16 @@ add_signals (GType instance_type, HV * signals)
 }
 
 static void
-add_properties (GType instance_type, HV * properties)
+add_properties (GType instance_type, AV * properties)
 {
 	GObjectClass *oclass;
-	HE * he;
+        int propid;
 
 	oclass = g_type_class_ref (instance_type);
 
-	hv_iterinit (properties);
-	while (NULL != (he = hv_iternext (properties))) {
-		I32 keylen;
-		char * key = hv_iterkey (he, &keylen);
-		SV * value = hv_iterval (properties, he);
-		g_object_class_install_property (oclass, atoi (key),
-		                                 SvGParamSpec (value));
-	}
+        for (propid = 0; propid <= av_len (properties); propid++)
+		g_object_class_install_property (oclass, propid + 1,
+		                                 SvGParamSpec (*av_fetch (properties, propid, 1)));
 
 	g_type_class_unref (oclass);
 }
@@ -918,10 +913,17 @@ g_type_register (class, parent_package, new_package, ...);
 
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
-		if (strEQ (key, "signals"))
-			add_signals (new_type, (HV*)SvRV (ST (i+1)));
-		if (strEQ (key, "properties"))
-			add_properties (new_type, (HV*)SvRV (ST (i+1)));
+		if (strEQ (key, "signals")) {
+                        if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVHV)
+                                add_signals (new_type, (HV*)SvRV (ST (i+1)));
+                        else
+                          	croak ("signals must be a hash of signalname => signalspec pairs");
+                }
+		if (strEQ (key, "properties")) {
+                        if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVAV)
+                                add_properties (new_type, (AV*)SvRV (ST (i+1)));
+                        else
+                          	croak ("properties must be an array of GParamSpecs");
+                }
 	}
-	//warn ("leaving g_type_register");
 
