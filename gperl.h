@@ -136,6 +136,9 @@ gint gperl_convert_flags (GType type, SV * val);
 /* convert a bitfield to a list of strings. */
 SV * gperl_convert_back_flags (GType type, gint val);
 
+/* register a fundamental type (enums, flags...) */
+void gperl_register_fundamental (GType gtype, const char * package);
+
 /*
  * inheritance management
  */

@@ -1,3 +1,7 @@
+2003/08/09 23:57 pcg
+
+	* gperl.h: export gperl_register_fundamental.
+
 2003/08/09 02:09 muppetman
 
 	* GBoxed.xs, t/2.t: removed a FIXME
