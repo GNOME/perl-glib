@@ -394,7 +394,7 @@ gperl_new_object (GObject * object,
 
 	/* take the easy way out if we can */
 	if (!object) {
-#if 0 
+#ifdef NOISY
 		warn ("gperl_new_object (NULL) => undef"); 
 #endif
 		return &PL_sv_undef;
