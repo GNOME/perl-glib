@@ -1,4 +1,4 @@
-#
+##
 # $Header$
 #
 
@@ -10,9 +10,7 @@ use warnings;
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
-use Test::More tests => 9;
+use Test::More tests => 15;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -25,6 +23,26 @@ ok (!Glib->CHECK_VERSION(50,0,0), 'CHECK_VERSION fail');
 ok (defined (Glib::MAJOR_VERSION), 'MAJOR_VERSION');
 ok (defined (Glib::MINOR_VERSION), 'MINOR_VERSION');
 ok (defined (Glib::MICRO_VERSION), 'MICRO_VERSION');
+
+print "user name: ".Glib::get_user_name."\n";
+print "real name: ".Glib::get_real_name."\n";
+print "home dir: ".Glib::get_home_dir."\n";
+print "tmp dir: ".Glib::get_tmp_dir."\n";
+ok (defined (Glib::get_user_name), "Glib::get_user_name");
+ok (defined (Glib::get_real_name), "Glib::get_real_name");
+ok (defined (Glib::get_home_dir), "Glib::get_home_dir");
+ok (defined (Glib::get_tmp_dir), "Glib::get_tmp_dir");
+
+SKIP: {
+  skip 1, "set_application_name is new in glib 2.2.0"
+    unless Glib->CHECK_VERSION (2,2,0);
+  # this will not hold after Gtk2::init, since gtk_init() calls
+  # gdk_parse_args() which calls g_set_prgname(argv[0]).
+  is (Glib::get_application_name (), undef, 'before any calls to anything');
+  my $appname = 'Flurble Foo 2, Electric Boogaloo';
+  Glib::set_application_name ($appname);
+  is (Glib::get_application_name (), $appname);
+}
 
 __END__
 

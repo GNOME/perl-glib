@@ -23,30 +23,107 @@
 
 MODULE = Glib::Utils	PACKAGE = Glib	PREFIX = g_
 
-=for object Glib::Version
+=for object Glib::Utils Miscellaneous utility functions
 =cut
 
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  use Glib;
+  Glib::set_application_name (Glib::get_real_name."'s Cool Program");
+
+  print "app name is ".Glib::get_application_name()."\n";
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Here are some useful miscellaneous utilities.
+GLib is a portability library, providing portable utility functions for
+C programs.  As such, most of these functions seem to violate the Glib
+binding principle of not duplicating functionality that Perl already
+provides, but there's a distinction for each one, i swear.  The functions
+for dealing with user information are provided on all GLib-supported
+platforms, not just where POSIX (which provides similar information) is
+available, and even work on platforms where %ENV may not include the
+expected information.  Also, the "application name" referred to by
+(set|get)_application_name is a human readable name, distinct from the
+actual program name provided by Perl's own $0.
+
+=cut
+
+### FIXME
+### we should have a pod section called FUNCTIONS.
+
+=for apidoc Glib::get_real_name __function__
+Get the current user's real name.
+=cut
+
+=for apidoc Glib::get_home_dir __function__
+Find the current user's home directory, by system-dependent/appropriate
+means.
+=cut
+
+=for apidoc Glib::get_tmp_dir __function__
+Get the temp dir as appropriate for the current system.  See the GLib docs
+for info on how it works.
+=cut
+
+=for apidoc __function__
+Get the current user's name by whatever system-dependent means necessary.
+=cut
+const gchar *
+g_get_user_name ()
+    ALIAS:
+	Glib::get_real_name = 1
+	Glib::get_home_dir  = 2
+	Glib::get_tmp_dir   = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = g_get_user_name (); break;
+	    case 1: RETVAL = g_get_real_name (); break;
+	    case 2: RETVAL = g_get_home_dir ();  break;
+	    case 3: RETVAL = g_get_tmp_dir ();   break;
+	    default:
+		RETVAL = NULL;
+		g_assert_not_reached ();
+	}
+    OUTPUT:
+	RETVAL
+
+##=for apidoc __function__
+##Set GLib's global program name.  Glib will set this to the value of $0 for
+##you when it loads; this function is provided to give you a way to set the
+##internal variable used by the GLib C library, since it knows nothing about
+##$0.
+##=cut
+##gchar_own * g_get_prgname ();
 ##
-## are these effectively replaced by perl equivalents?    :
-##
-#G_CONST_RETURN gchar* g_get_user_name        (void);
-#G_CONST_RETURN gchar* g_get_real_name        (void);
-#G_CONST_RETURN gchar* g_get_home_dir         (void);
-#G_CONST_RETURN gchar* g_get_tmp_dir          (void);
-#gchar*                g_get_prgname          (void);
-#void                  g_set_prgname          (const gchar *prgname);
-#G_CONST_RETURN gchar* g_get_application_name (void);
-#void                  g_set_application_name (const gchar *application_name);
-#
-#
-## Check if a file name is an absolute path
+##=for apidoc __function__
+##=cut
+##void g_set_prgname (const gchar *prgname);
+
+#if GLIB_CHECK_VERSION(2, 2, 0)
+
+=for apidoc __function__
+Get the human-readable application name set by C<set_application_name>.
+=cut
+const gchar * g_get_application_name ();
+
+=for apidoc __function__
+Set the human-readable application name.
+=cut
+void g_set_application_name (const gchar *application_name);
+
+#endif
+
+###
+### This stuff is functionality provided by File::Spec and friends.
+### Thus we will not bind it.
+###
 #gboolean              g_path_is_absolute   (const gchar *file_name);
-#
-## In case of absolute paths, skip the root part
 #G_CONST_RETURN gchar* g_path_skip_root     (const gchar *file_name);
-#
-#
-## The returned strings are newly allocated with g_malloc()
 #gchar*                g_get_current_dir    (void);
 #gchar*                g_path_get_basename  (const gchar *file_name);
 #gchar*                g_path_get_dirname   (const gchar *file_name);
@@ -54,22 +131,141 @@ MODULE = Glib::Utils	PACKAGE = Glib	PREFIX = g_
 #
 ## Look for an executable in PATH, following execvp() rules
 #gchar*  g_find_program_in_path  (const gchar *program);
-#
-#
-## Glib version.
-## we prefix variable declarations so they can
-## properly get exported in windows dlls.
-##
-#GLIB_VAR const guint glib_major_version;
-#GLIB_VAR const guint glib_minor_version;
-#GLIB_VAR const guint glib_micro_version;
-#GLIB_VAR const guint glib_interface_age;
-#GLIB_VAR const guint glib_binary_age;
 
-=for apidoc Glib::MAJOR_VERSION __function__
-Provides access to the version information that Glib was compiled against.
-Essentially equivalent to the #define's GLIB_MAJOR_VERSION.
+###
+### Version information
+###
+
+## this is a ridiculous amount of doc for six numbers and one checker method.
+
+=for object Glib::Version Library Versioning Utilities
 =cut
+
+=for position SYNOPSIS
+
+=head1 SYNOPSIS
+
+  # require at least version 1.021 of the Glib module
+  use Glib '1.021';
+
+  # g_set_application_name() was introduced in GLib 2.2.0, and
+  # first supported by version 1.040 of the Glib Perl module.
+  if ($Glib::VERSION >= 1.040 and Glib->CHECK_VERSION (2,2,0)) {
+     Glib::set_application_name ('My Cool Program');
+  }
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+Both the Glib module and the GLib C library are works-in-progress, and 
+their interfaces grow over time.  As more features are added to each, 
+and your code uses those new features, you will introduce 
+version-specific dependencies, and naturally, you'll want to be able to 
+code around them.  Enter the versioning API.
+
+For simple Perl modules, a single version number is sufficient; 
+however, Glib is a binding to another software library, and this 
+introduces some complexity.  We have three versions that fully specify 
+the API available to you.
+
+=over
+
+=item Perl Bindings Version
+
+Perl modules use a version number, and Glib is no exception.  
+I<$Glib::VERSION> is the version of the current Glib module.  By ad hoc 
+convention, gtk2-perl modules generally use version numbers in the form 
+x.yyz, where even yy values denote stable releases and z is a 
+patchlevel.
+
+   $Glib::VERSION
+   use Glib 1.040; # require at least version 1.040
+
+=item Compile-time ("Bound") Library Version
+
+This is the version of the GLib C library that was available when the 
+Perl module was compiled and installed.  These version constants are 
+equivalent to the version macros provided in the GLib C headers.  GLib 
+uses a major.minor.micro convention, where even minor versions are 
+stable.  (gtk2-perl does not officially support unstable versions.)
+
+   Glib::MAJOR_VERSION
+   Glib::MINOR_VERSION
+   Glib::MICRO_VERSION
+   Glib->CHECK_VERSION($maj,$min,$mic)
+
+=item Run-time ("Linked") Library Version
+
+This is the version of the GLib C library that is available at run 
+time; it may be newer than the compile-time version, but should never 
+be older.  These are equivalent to the version variables exported by 
+the GLib C library.
+
+   Glib::major_version
+   Glib::minor_version
+   Glib::micro_version
+
+=back
+
+=head2 Which one do I use when?
+
+Where do you use which version?  It depends entirely on what you're 
+doing.  Let's explain by example:
+
+=over
+
+=item o Use the Perl module version for bindings support issues
+
+You need to register a new enum for use as the type of an object 
+property.  This is something you can do with all versions of the 
+underlying C library, but which wasn't supported in the Glib Perl 
+module until $Glib::VERSION >= 1.040.
+
+=item o Use the bound version for library features
+
+You want to call Glib::set_application_name to set a human-readable name
+for your application (which is used by various parts of Gtk2 and Gnome2).
+g_set_application_name() (the underlying C function) was added in version
+2.2.0 of glib, and support for it was introduced into the Glib Perl module
+in Glib version 1.040.  However, you can build the Perl module against any
+stable 2.x.x version of glib, so you might not have that function available
+even if your Glib module is new enough!
+  Thus, you need to check two things to see if the this function is 
+available:
+
+   if ($Glib::VERSION >= 1.040 && Glib->CHECK_VERSION (2,2,0)) {
+       # it's available, and we can call it!
+       Glib::set_application_name ('My Cool Application');
+   }
+
+Now what happens if you installed the Perl module when your system had 
+glib 2.0.6, and you upgraded glib to 2.4.1?  Wouldn't g_set_application_name() 
+be available?  Well, it's there, under the hood, but the bindings were 
+compiled when it wasn't there, so you won't be able to call it! 
+That's why we check the "bound" or compile-time version.  By the way, to 
+enable support for the new function, you'd need to reinstall (or upgrade)
+the Perl module.
+
+=item o Use the linked version for runtime work-arounds
+
+Suppose there's a function whose API did not change, but whose 
+implementation had a bug in one version that was fixed in another 
+version.  To determine whether you need to apply a workaround, you 
+would check the version that is actually being used at runtime.
+
+   if (Glib::major_version == 2 &&
+       Glib::minor_version == 2 &&
+       Glib::micro_version == 1) {
+      # work around bug that exists only in glib 2.2.1.
+   }
+
+In practice, such situations are very rare.
+
+=back
+
+=cut
+
 
 =for apidoc Glib::MINOR_VERSION __function__
 Provides access to the version information that Glib was compiled against.
@@ -96,6 +292,10 @@ Provides access to the version information that Glib is linked against.
 Essentially equivalent to the global variable glib_micro_version.
 =cut
 
+=for apidoc __function__
+Provides access to the version information that Glib was compiled against.
+Essentially equivalent to the #define's GLIB_MAJOR_VERSION.
+=cut
 guint
 MAJOR_VERSION ()
     ALIAS:
