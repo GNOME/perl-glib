@@ -83,8 +83,11 @@ gpointer
 gperl_alloc_temp (int nbytes)
 {
 	dTHR;
+	SV * s;
 
-	SV * s = sv_2mortal (NEWSV (0, nbytes));
+	g_return_val_if_fail (nbytes > 0, NULL);
+
+	s = sv_2mortal (NEWSV (0, nbytes));
 	memset (SvPVX (s), 0, nbytes);
 	return SvPVX (s);
 }
