@@ -182,7 +182,8 @@ gperl_register_boxed (GType gtype,
 						         NULL);
 	}
 	boxed_info = boxed_info_new (gtype, package, wrapper_class);
-	g_hash_table_insert (info_by_gtype, (gpointer) gtype, boxed_info);
+	g_hash_table_insert (info_by_gtype,
+	                     GUINT_TO_POINTER (gtype), boxed_info);
 	g_hash_table_insert (info_by_package, (gchar*)package, boxed_info);
 
 	/* GBoxed types are plain structures, so it would be really
@@ -242,7 +243,7 @@ gperl_boxed_package_from_type (GType type)
 	G_LOCK (info_by_gtype);
 
 	boxed_info = (BoxedInfo*)
-		g_hash_table_lookup (info_by_gtype, (gpointer)type);
+		g_hash_table_lookup (info_by_gtype, GUINT_TO_POINTER (type));
 
 	G_UNLOCK (info_by_gtype);
 
@@ -408,7 +409,7 @@ gperl_new_boxed (gpointer boxed,
 	G_LOCK (info_by_gtype);
 
 	boxed_info = (BoxedInfo*)
-		g_hash_table_lookup (info_by_gtype, (gpointer) gtype);
+		g_hash_table_lookup (info_by_gtype, GUINT_TO_POINTER (gtype));
 
 	G_UNLOCK (info_by_gtype);
 
@@ -460,12 +461,12 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 
 	G_LOCK (info_by_gtype);
 	boxed_info = g_hash_table_lookup (info_by_gtype,
-	                                  (gpointer)gtype);
+	                                  GUINT_TO_POINTER (gtype));
 	G_UNLOCK (info_by_gtype);
 
 	if (!boxed_info)
 		croak ("internal problem: GType %s (%d) has not been registered with GPerl",
-			gtype, g_type_name (gtype));
+			g_type_name (gtype), gtype);
 
 	unwrap = boxed_info->wrapper_class
 	       ? boxed_info->wrapper_class->unwrap

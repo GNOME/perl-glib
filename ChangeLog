@@ -1,3 +1,8 @@
+2004/01/13 23:56 (-0500) muppetman
+
+	* GBoxed.xs, GObject.xs, GType.xs, GValue.xs: more 64-bit safety
+	stuff -- use GINT_TO_POINTER and GPOINTER_TO_INT where appropriate.
+
 2004/01/13 23:36 (-0500) muppetman
 
 	* GObject.xs, GType.xs, Glib.xs, typemap, AUTHORS: patch

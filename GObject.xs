@@ -142,7 +142,8 @@ gperl_register_object (GType gtype,
 							  NULL);
 	}
 	class_info = class_info_new (gtype, package);
-	g_hash_table_insert (types_by_type, (gpointer)class_info->gtype, class_info);
+	g_hash_table_insert (types_by_type,
+	                     GUINT_TO_POINTER (class_info->gtype), class_info);
 	g_hash_table_insert (types_by_package, class_info->package, class_info);
 	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */
 
@@ -186,8 +187,8 @@ gperl_register_object (GType gtype,
 
 			parent_class_info = (ClassInfo *) 
 			              g_hash_table_lookup (types_by_type,
-			                       (gpointer)g_type_parent
-			                               (class_info->gtype));
+			                    GUINT_TO_POINTER (g_type_parent
+			                               (class_info->gtype)));
 
 			if (parent_class_info) {
 				gperl_set_isa (class_info->package,
@@ -366,7 +367,8 @@ gperl_object_package_from_type (GType gtype)
 		G_LOCK (types_by_type);
 
 		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+			g_hash_table_lookup (types_by_type,
+			                     GUINT_TO_POINTER (gtype));
 
 		G_UNLOCK (types_by_type);
 
@@ -397,7 +399,8 @@ gperl_object_stash_from_type (GType gtype)
 		G_LOCK (types_by_type);
 
 		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+			g_hash_table_lookup (types_by_type, 
+			                     GUINT_TO_POINTER (gtype));
 
 		G_UNLOCK (types_by_type);
 
