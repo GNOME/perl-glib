@@ -318,7 +318,7 @@ sub xsdoc2pod
 			or die "can't open $index for writing: $!\b";
 		select INDEX;
 
-		foreach (@files) {
+		foreach (sort {$a->{name} cmp $b->{name}} @files) {
 			print join("\t", $_->{file},
 				   $_->{name},
 				   $_->{blurb} ? $_->{blurb} : () ) . "\n";
