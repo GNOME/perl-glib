@@ -1,5 +1,7 @@
 2003/11/07 20:13 pcg
 
+        * GType.xs: test SvPOK instead of SVt_PV, as many scalars
+          can be valid strings.
 	* GType.xs: apply muppet's patch to bless flags, modified to
           - implement overloaded operations on flags.
           - change the flag test from "set & mask" to "set & mask == mask",

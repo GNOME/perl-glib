@@ -343,7 +343,7 @@ gint
 gperl_convert_flags (GType type,
 		     SV * val)
 {
-	if (SvTYPE (val) == SVt_PV)
+	if (SvPOK (val))
 		return gperl_convert_flag_one (type, SvPV_nolen (val));
 	if (SvROK (val) && SvTYPE (SvRV(val)) == SVt_PVAV) {
 		AV* vals = (AV*) SvRV(val);
