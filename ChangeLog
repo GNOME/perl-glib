@@ -1,3 +1,12 @@
+2004/01/15 23:20 (-0500) muppetman
+
+	* Glib.pm, README: stable bugfix release 1.021
+
+	* GType.xs, gperl_marshal.h, t/7.t, t/8.t: preserve $@ across
+	closure invocations.  (merged from HEAD)
+
+	* GType.xs: fix some documentation that was woefully incorrect.
+
 2004/01/13 23:56 (-0500) muppetman
 
 	* GBoxed.xs, GObject.xs, GType.xs, GValue.xs: more 64-bit safety
