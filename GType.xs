@@ -103,7 +103,6 @@ gperl_try_convert_enum (GType type,
 	char *val_p = SvPV_nolen(sv);
 	if (*val_p == '-') val_p++;
 	vals = gperl_type_enum_get_values (type);
-	// fprintf(stderr, "VAL: %x (%s), %d\n", val_p, val_p, SvIV(val));
 	while (vals && vals->value_nick && vals->value_name) {
 		if (streq_enum (val_p, vals->value_nick) || 
 		    streq_enum (val_p, vals->value_name)) {
@@ -119,17 +118,10 @@ gint
 gperl_convert_enum (GType type, SV * val)
 {
 	SV * r;
+	int ret;
 	GEnumValue * vals;
-	char * val_p = SvPV_nolen (val);
-	if (*val_p == '-') val_p++;
-	vals = gperl_type_enum_get_values (type);
-	// fprintf(stderr, "VAL: %x (%s), %d\n", val_p, val_p, SvIV(val));
-	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_nick) || 
-		    streq_enum (val_p, vals->value_name))
-			return vals->value;
-		vals++;
-	}
+	if (gperl_try_convert_enum (type, val, &ret))
+		return ret;
 	
 	/*
 	 * This is an error, val should be included in the enum type.
@@ -148,7 +140,10 @@ gperl_convert_enum (GType type, SV * val)
 			sv_catpv (r, ", ");
 	}
 	croak ("FATAL: invalid enum %s value %s, expecting: %s",
-	       g_type_name (type), val_p, SvPV_nolen (r));
+	       g_type_name (type), SvPV_nolen (val), SvPV_nolen (r));
+
+	/* not reached */
+	return 0;
 }
 
 SV *
@@ -178,20 +173,34 @@ gperl_convert_back_enum (GType type,
 	       val, g_type_name (type));
 }
 
+gboolean
+gperl_try_convert_flag (GType type,
+                        const char * val_p,
+                        gint * val)
+{
+	SV *r;
+	GFlagsValue * vals = gperl_type_flags_get_values (type);
+	while (vals && vals->value_nick && vals->value_name) {
+		if (streq_enum (val_p, vals->value_name) || 
+		    streq_enum (val_p, vals->value_nick)) {
+                        *val = vals->value;
+                        return TRUE;
+		}
+		vals++;
+	}
+        
+        return FALSE;
+}
+
 gint
 gperl_convert_flag_one (GType type, 
 			const char * val_p)
 {
 	SV *r;
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
-	/*fprintf(stderr, "%s: type<%s> val_p<%s>\n", __FUNCTION__, g_type_name(type), val_p);*/
-	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_name) || 
-		    streq_enum (val_p, vals->value_nick)) {
-			return vals->value;
-		}
-		vals++;
-	}
+	gint ret;
+	if (gperl_try_convert_flag (type, val_p, &ret))
+		return ret;
 
 	/* This is an error, val should be included in the flags type, die */
 	vals = gperl_type_flags_get_values (type);
@@ -207,6 +216,9 @@ gperl_convert_flag_one (GType type,
 	}
 	croak ("FATAL: invalid flags %s value %s, expecting: %s",
 	       g_type_name (type), val_p, SvPV_nolen (r));
+
+	/* not reached */
+	return 0;
 }
 
 
