@@ -1,3 +1,9 @@
+2004/09/11 15:23 (-0400) muppetman
+
+	* README, NEWS, Glib.pm: stable release 1.060
+
+	* Makefile.PL: remove the "unstable" warning.
+
 2004/08/29 14:19 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: unstable development release 1.055

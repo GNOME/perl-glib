@@ -1,3 +1,52 @@
+Overview of Changes in Glib 1.060
+=================================
+
+ Since 1.04x (the previous stable series)
+ ----------------------------------------
+  * Documentation fixes and improvements, including bugfixes in the
+    documentation generation system.
+  * Improved error messages in several places.
+  * Code cleanup.
+  * Thread compatibility enhancements
+    - Disabled internal stash caching, which was broken to begin with.
+    - Added the ability to track Glib::Object instances so the bindings can
+      maintain proper reference counts when the interpreter clones a new
+      thread.  This feature must be enabled manually by calling
+      Glib->set_threadsafe(TRUE) before creating threads or GObjects.
+  * More fundamental types are registered, e.g. Glib::UChar, Glib::Float, etc.
+    This allows all paramspec types to be specified as package names.
+    Glib::UInt was previously misspelled as Glib::Uint; the old name is still
+    allowed, but the new name will be returned from Glib in all instances.
+  * The OUTPUT variant of T_GPERL_GENERIC_WRAPPER can now handle leading
+    "const" and trailing asterisks, like the INPUT variant.
+  * Greatly expanded GParamSpec support.
+    - Glib::ParamSpec instances are now blessed hash references containing a
+      few special keys (same as the hashes previously returned from
+      Glib::Object::list_properties()) to retain backwards compatibility.
+    - There are now accessors for all the member variables of the various
+      GParamSpec subclasses (e.g., GParamInt's minimum, maximum, and default
+      value); this tree is mapped as Glib::Param::<type>.
+    - Glib::ParamSpec->param() now works.
+    - All of this makes the Glib::Object "notify" signal usable.
+  * Glib::Object subclassing enhancements
+    - Glib::Object::Subclass can now be used in evals and other situations,
+      thanks to the removal of the CHECK block.  This change is otherwise
+      transparent.
+    - Added fallback and explicit handlers for Glib::Object properties;
+      the fallback handlers store the property data in the instance variable
+      under the hash key with the same name as the property.  Explicit
+      handlers may be specified at object creation time.  See the docs for
+      Glib::Type::register_object() for details.
+  * API additions:
+    - Glib::Object::notify()
+    - char_own typedef and typemap.
+    - Glib::MakeHelper::select_files_by_version() and
+      Glib::MakeHelper::read_source_list_file() for use by Makefile.PLs.
+
+ Since 1.055
+ -----------
+  * Release prep.
+
 Overview of Changes in Glib 1.055
 =================================
 
