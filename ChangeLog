@@ -1,3 +1,11 @@
+2004/02/04 02:33 (-0500) muppetman
+
+	* GBoxed.xs, GObject.xs, GType.xs: GType is not a guint, it's a
+	gulong; therefore, GUINT_TO_POINTER/GPOINTER_TO_UINT are not valid
+	for GTypes.  use direct casts, instead.  this fixes nasty problems
+	on alpha.  thanks to Mark Brockschmidt for finding the bug and
+	loaning me machine time to solve it.
+
 2004/02/04 01:21 (-0500) muppetman
 
 	* GType.xs: call method _INSTALL_OVERRIDES on newly registered
