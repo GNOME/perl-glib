@@ -36,6 +36,7 @@ glong		T_IV
 gulong		T_UV
 gchar		T_IV
 gchar *		T_GCHAR
+gchar_own *	T_GCHAR_OWN
 const gchar *	T_GCHAR
 guchar		T_UV
 guchar *	T_PV
@@ -93,6 +94,14 @@ T_GCHAR
 	/* same as newSVGChar(), but not in a function */
 	sv_setpv ((SV*)$arg, $var);
 	SvUTF8_on ($arg);
+
+T_GCHAR_OWN
+	/* used when we can directly own the returned string. */
+	/* we have to copy in the case when perl's malloc != gtk's malloc,
+         * so best copy all the time. */
+	sv_setpv ((SV*)$arg, $var);
+	SvUTF8_on ($arg);
+        g_free ($var);
 
 T_G_TYPE_OBJECT
 	$arg = newSVGObject ($var);

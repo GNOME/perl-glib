@@ -450,6 +450,7 @@ GObject * gperl_get_object_check (SV * sv, GType gtype);
 SV * gperl_object_check_type (SV * sv, GType gtype);
 
 /* typedefs and macros for use with the typemap */
+typedef gchar gchar_own;
 typedef GObject GObject_ornull;
 typedef GObject GObject_noinc;
 
