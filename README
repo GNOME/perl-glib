@@ -19,10 +19,12 @@ place of GSList or GList objects.  Some concepts have been eliminated;
 you need never worry about reference-counting on GObjects or GBoxed
 structures.  Other concepts have been converted to a perlish analogy;
 the GType id will never be seen in perl, as the package name serves
-that purpose.  [FIXME link to a document describing this stuff in detail.]
+that purpose.  See the main Glib manpage for more information.
 
 This module also provides facilities for creating wrappers for other
-GObject-based libraries.  [FIXME link to a developer's doc]
+GObject-based libraries.  The documentation page of the gtk2-perl
+project's website has information about this stuff; see
+http://gtk2-perl.sourceforge.net/
 
 INSTALLATION
 
