@@ -62,6 +62,9 @@ void gperl_croak_gerror (const char * prefix, GError * err);
 
 gpointer gperl_alloc_temp (int nbytes);
 
+
+/* internal trickery */
+gpointer gperl_type_class (GType type);
 /*
  * enums and flags
  */
