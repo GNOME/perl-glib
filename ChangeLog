@@ -1,3 +1,9 @@
+2004/01/13 22:41 (-0500) muppetman
+
+	* AUTHORS, Glib.xs, GObject.xs, GType.xs, typemap: applied
+	patch (with extra fuzz) from Jacek Konieczny <jajcus at bnet dot pl>
+	to clean up warnings on 64-bit platforms.
+
 2004/01/13 22:20 (-0500) muppetman
 
 	* ParseXSDoc.pm: support continuation lines in xsubs.  this borks line
