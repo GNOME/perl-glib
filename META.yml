@@ -1,10 +1,12 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Glib
-version:      unknown
+version:      1.062
 version_from: Glib.pm
 installdirs:  site
 requires:
+    ExtUtils::Depends:             0.200
+    ExtUtils::PkgConfig:           1.00
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.16
+generated_by: ExtUtils::MakeMaker version 6.25

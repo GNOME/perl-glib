@@ -1,6 +1,6 @@
 # $Header$
 
-Glib version 1.061
+Glib version 1.062
 ==================
 
 This module provides perl access to Glib and GLib's GObject libraries.
@@ -76,7 +76,7 @@ from source:
 
 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under

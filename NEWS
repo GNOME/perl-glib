@@ -1,3 +1,11 @@
+Overview of Changes in Glib 1.062
+=================================
+
+* Properly create META.yml.  [muppet]
+* Fix exports and some documentation.  [muppet]
+* Fix RPM generation on x86_64.  [Ross]
+* Fix test failure with newer versions of Test::More.  [Ross]
+
 Overview of Changes in Glib 1.061
 =================================
 
