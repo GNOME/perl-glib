@@ -1,3 +1,8 @@
+2003/08/28 19:50 muppetman
+
+	merged changes from the exceptions branch.  gtk2-perl now attempts to
+	do reasonable handling of exceptions in callbacks.
+
 2003/08/28 17:45 muppetman
 
 	* GSignal.xs: clean up comments, bind signal_handler_is_connected

@@ -12,7 +12,7 @@ are doing all your tests in order, but our stuff will jump around.
 
 =cut
 
-print "1..15\n";
+print "1..20\n";
 
 use Glib;
 
@@ -84,9 +84,14 @@ sub func_b {
    $my->something_changed;
    print "ok 9\n";
 
-   # attempting to marshal the wrong number of params should croak
+   # attempting to marshal the wrong number of params should croak.
+   # this is part of the emission process going wrong, not a handler,
+   # so it's a bug in the calling code, and thus we shouldn't eat it.
    eval { $my->test_marshaler (); };
-   print ($@ ? "ok 10\n" : "not ok 10 # expected to croak but didn't\n");
+   print ($@ =~ m/Incorrect number/
+          ? "ok 10 # signal_emit barfs on bad input\n"
+	  : "not ok 10 # expected to croak but didn't\n");
+
    $my->test_marshaler (qw/foo bar baz/, $my);
    print "ok 11\n";
    $id = $my->signal_connect (test_marshaler => sub {
@@ -103,9 +108,49 @@ sub func_b {
    print ($id ? "ok 12\n" : "not ok\n");
    $my->test_marshaler (qw/foo bar baz/, $my);
    print "ok 14\n";
+
+   $my->signal_handler_disconnect ($id);
+
+   # here's a signal handler that has an exception.
+   # we should be able to emit the signal all we like without catching
+   # exceptions here, because we don't care what other people may have
+   # connected to the signal.  the signal can be caught with an installed
+   # exception handler.
+   $id = $my->signal_connect (test_marshaler => sub { die "ouch" });
+
+   $tag = Glib->install_exception_handler (sub {
+	   	if ($tag) {
+		   	print "ok 16 # caught exception $_[0]\n";
+		} else {
+			print "not ok # handler didn't uninstall itself\n";
+		}
+	   	0  # returning FALSE uninstalls
+	   }, [qw/foo bar baz/]);
+   print ""
+       . ($tag
+          ? "ok 15 # installed exception handler with tag $tag"
+	  : "not ok 15 # got no tag back from install_exception_handler?!?")
+       . "\n";
+
+   $my->test_marshaler (qw/foo bar baz/, $my);
+   print "ok 17 # still alive after an exception in a callback\n";
+   $tag = 0;
+
+   # that was a single-shot -- the exception handler shouldn't run again.
+   {
+   local $SIG{__WARN__} = sub {
+	   if ($_[0] =~ m/unhandled/m) {
+	   	print "ok 18 # unhandled exception just warns\n"
+	   } else {
+		print "not ok # got something unexpected in __WARN__: $_[0]\n";
+	   }
+	};
+   $my->test_marshaler (qw/foo bar baz/, $my);
+   print "ok 19\n";
+   }
 }
 
-print "ok 15\n";
+print "ok 20\n";
 
 
 
