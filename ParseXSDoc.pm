@@ -130,14 +130,15 @@ sub package {
 
 =item HASHREF = $parser->pkgdata
 
-The data hash corresponding to the current package.  Ensures that it exists.
+The data hash corresponding to the current package, honoring the most recently
+encounter C<=for object> directive.  Ensures that it exists.
 Returns a reference to the member of the main data structure, so modifications
 are permanent and useful.
 
 =cut
 sub pkgdata {
 		my $self = shift;
-		my $pkg = $self->package;
+		my $pkg = $self->{object} || $self->package;
 		my $pkgdata = $self->{data}{$pkg};
 		if (not defined $pkgdata) {
 				$pkgdata = {};
@@ -177,9 +178,10 @@ sub parse_file {
 	# seek the first MODULE line *outside* comments.
 	# collect any pod we encounter; only certain ones are 
 	# precious to us...  my... preciousssss... ahem.
-	$self->{module} = undef;
+	$self->{module}  = undef;
 	$self->{package} = undef;
-	$self->{prefix} = undef;
+	$self->{prefix}  = undef;
+	$self->{object}  = undef;
 	while (<IN>) {
 		chomp;
 		# in the verbatim C section before the first MODULE line,
@@ -257,7 +259,7 @@ sub parse_file {
 			# we're interested in certain pod directives at
 			# this point...
 			if (/^=for\s+object(?:\s+([\w\:]*))?(.*)/) {
-				$self->{package} = $1;
+				$self->{object} = $1;
 				if ($2) {
 					$self->pkgdata->{blurb} = $2;
 					$self->pkgdata->{blurb} =~ s/^\s*-\s*//;
@@ -358,6 +360,7 @@ sub is_module_line {
 		$self->{module}  = $1;
 		$self->{package} = $2 || $self->{module};
 		$self->{prefix}  = $3;
+		$self->{object}  = undef;
 		return 1;
 	} else {
 		return 0;
