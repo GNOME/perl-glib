@@ -1870,9 +1870,36 @@ L<Glib::ParamSpec>.  This list may be empty; if it is not, the functions
 C<GET_PROPERTY> and C<SET_PROPERTY> in I<$new_package> will be called to
 get and set the values.  Note that an object property is just a mechanism
 for getting and setting a value -- it implies no storage.  As a convenience,
-Glib::Object::Subclass provides a default implementation of GET_PROPERTY
-and SET_PROPERTY which use the property nicknames as hash keys in the object
-variable for storage.
+however, Glib::Object provides fallbacks for GET_PROPERTY and SET_PROPERTY
+which use the property nicknames as hash keys in the object variable for
+storage.
+
+Additionally, you may specify ParamSpecs as a describing hash instead of
+as an object; this form allows you to supply explicit getter and setter
+methods which override GET_PROPERY and SET_PROPERTY.  The getter and setter
+are both optional in the hash form.  For example:
+
+   Glib::Type->register_object ('Glib::Object', 'Foo',
+      properties => [
+         # specified normally
+         Glib::ParamSpec->string (...),
+         # specified explicitly
+         {
+            pspec => Glib::ParamSpec->int (...),
+            set => sub {
+               my ($object, $newval) = @_;
+               ...
+            },
+            get => sub {
+               my ($object) = @_;
+               ...
+               return $val;
+            },
+         },
+      ]
+   );
+
+You can mix the two declaration styles as you like.
 
 =item interfaces => ARRAYREF
 
