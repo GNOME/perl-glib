@@ -1,3 +1,7 @@
+2003/06/25 09:25 muppetman
+
+	* GValue.xs: add a MODULE directive to appease ExtUtils::ParseXS
+
 2003/06/20 11:29 muppetman
 
 	* README, Makefile.PL: bump version number for 0.24 release
