@@ -513,6 +513,82 @@ lookup_known_package_recursive (const char * package)
 }
 
 
+#if GLIB_CHECK_VERSION (2, 4, 0)
+
+
+static SV*
+strv_wrap (GType        gtype,
+	   const char * package,
+	   gpointer     boxed,
+	   gboolean     own)
+{
+	AV * av;
+	int i;
+	gchar ** strv;
+
+	if (!boxed)
+		return &PL_sv_undef;
+
+	strv = (gchar**) boxed;
+
+	av = newAV ();
+
+	for (i = 0 ; strv[i] != NULL ; i++)
+		av_push (av, newSVGChar (strv[i]));
+
+	if (own)
+		g_strfreev (strv);
+
+	return newRV_noinc ((SV*)av);
+}
+
+static gpointer
+strv_unwrap (GType        gtype,
+	     const char * package,
+	     SV         * sv)
+{
+	gchar ** strv = NULL;
+
+	/* pass undef */
+	if (!sv || !SvOK (sv))
+		return NULL;
+
+	if (SvROK (sv)) {
+		AV * av;
+		int n;
+
+		/* only allow a reference to an array */
+		if (SvTYPE (SvRV (sv)) != SVt_PVAV)
+			croak ("expecting a reference to an array of strings for Glib::Strv");
+		av = (AV*) SvRV (sv);
+		n = av_len (av) + 1;
+		if (n > 0) {
+			int i;
+			strv = gperl_alloc_temp ((n + 1) * sizeof (gchar *));
+			for (i = 0 ; i < n ; i++)
+				strv[i] = SvGChar (*av_fetch (av, i, FALSE));
+			strv[n] = NULL;
+		}
+		
+	} else {
+		/* stringify anything else, assuming it's a one-element list */
+		strv = gperl_alloc_temp (2 * sizeof (gchar*));
+		strv[0] = SvGChar (sv);
+		strv[1] = NULL;
+	}
+
+	return strv;
+}
+
+static GPerlBoxedWrapperClass strv_wrapper_class = {
+	strv_wrap,
+	strv_unwrap,
+	NULL
+};
+
+#endif
+
+
 
 MODULE = Glib::Boxed	PACKAGE = Glib::Boxed
 
@@ -520,6 +596,11 @@ BOOT:
 	gperl_register_boxed (G_TYPE_BOXED, "Glib::Boxed", NULL);
 	gperl_register_boxed (G_TYPE_STRING, "Glib::String", NULL);
 	gperl_set_isa ("Glib::String", "Glib::Boxed");
+#if GLIB_CHECK_VERSION (2, 4, 0)
+	gperl_register_boxed (G_TYPE_STRV, "Glib::Strv", &strv_wrapper_class);
+	/*gperl_set_isa ("Glib::Strv", "Glib::Boxed");*/
+#endif
+
 
 =for object Glib::Boxed Generic wrappers for C structures
 =cut

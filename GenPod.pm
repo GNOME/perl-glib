@@ -406,6 +406,10 @@ our %basic_types = (
 	GPerlFilename_const	=> 'localized file name',
 );
 
+unless (Glib->CHECK_VERSION (2, 4, 0)) {
+	$basic_types{'Glib::Strv'} = 'ref to array of strings';
+}
+
 =item add_types (@filenames)
 
 Parse the given I<@filenames> for entries to add to the C<%basic_types> used
