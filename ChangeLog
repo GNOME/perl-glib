@@ -1,3 +1,10 @@
+2003/11/18 17:21 (-0500) muppetman
+
+	* Glib.xs: use GPerlFilename_const in the right place to hush the
+	compiler.  also use the length returned from g_filename_(to|from)_utf8
+	to avoid having  to call strlen() in gperl_sv_from_filename and
+	gperl_filename_from_sv.
+
 2003/11/18 01:09 (-0500) muppetman
 
 	* GType.xs: interfaces can have signals as well; adjust logic to
