@@ -1,3 +1,10 @@
+2003/08/15 09:35 muppetman
+
+	* debian/*, AUTHORS: patch from James Curbo adding maintainence
+	files for debian packages.
+
+	* MANIFEST, README, Glib.pm: updated for 0.94 release
+
 2003/08/14 16:54 muppetman
 
 	* apidoc.pl, Makefile.PL: use a simple perl script instead of shell
