@@ -26,6 +26,7 @@ MakeHelper.pm
 MANIFEST
 MANIFEST.SKIP
 META.yml			Module meta-data in YAML
+NEWS
 ParseXSDoc.pm
 perl-Glib.spec.in
 ppport.h

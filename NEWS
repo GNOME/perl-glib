@@ -1,0 +1,29 @@
+Overview of Changes in Glib 1.031
+=================================
+
+* New typemaps for gshort and gushort. [Torsten]
+* Updates to Glib::MakeHelper fix some build issues. [Ross]
+* Robustness fixes in the doc system's xs parser. [muppet]
+
+Overview of Changes from Glib 1.02x to 1.030
+============================================
+
+* MakeHelper's utilities now allow "disable-doc" on a Makefile.PL command-line
+  to disable doc generation.  This works for all Glib::MakeHelper-based
+  projects.
+* It is now possible to register new GFlags and GEnum types from Perl.
+  These are typically useful as types for object properties of perl-derived
+  GObjects.
+* We now compile cleanly and pass tests on x86_64 platforms.  Some
+  tests are skipped until bugfixes in glib hit mainstream.
+  Thanks to Jacek Konieczny.
+* Added documentation for tie_properties.
+* ParseXSDoc now supports continuation lines in xsubs, and properly hides
+  things that want to be hidden.
+* Invocation of signal and event handlers no longer clobbers $@ at the
+  application level.  Thanks to Thierry Vignaud.
+* Added version information APIs.
+* Added filename_to_uri and filename_from_uri, but they have problems with
+  localization.  Need help debugging this.
+* Glib is now a proper Exporter, and can export the filename utilities.
+  We also allow method invocation of those functions to quell controversy.
