@@ -35,6 +35,7 @@ use constant {
 	G_PRIORITY_HIGH_IDLE    =>  100,
 	G_PRIORITY_DEFAULT_IDLE =>  200,
 	G_PRIORITY_LOW	        =>  300,
+	G_PARAM_READWRITE       => [qw/readable writable/],
 };
 
 # export nothing by default.
@@ -48,6 +49,7 @@ our %EXPORT_TAGS = (
 			G_PRIORITY_HIGH_IDLE
 			G_PRIORITY_DEFAULT_IDLE
 			G_PRIORITY_LOW
+			G_PARAM_READWRITE
 			/],
 	functions => [qw/
 			filename_to_unicode
@@ -430,6 +432,7 @@ you can also get all of them with the export tag "all".
   G_PRIORITY_HIGH_IDLE
   G_PRIORITY_DEFAULT_IDLE
   G_PRIORITY_LOW
+  G_PARAM_READWRITE
 
 =item Tag: functions
 
