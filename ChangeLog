@@ -1,3 +1,8 @@
+2003/11/07 12:57 (-0500) rwmcfa1
+
+	* GenPod.pm: instead of usings methods trick, use ->can, improves 
+	things quite a bit.
+
 2003/11/06 21:29 (-0500) rwmcfa1
 
 	* GenPod.pm: using the old methods trick i've come up with a way to 
