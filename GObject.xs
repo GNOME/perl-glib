@@ -1019,12 +1019,14 @@ g_object_list_properties (object_or_class_name)
 		props = g_object_class_list_properties (object_class, &n_props);
 		g_type_class_unref (object_class);
 	}
+#if GLIB_CHECK_VERSION(2,3,2) /* TODO/FIXME: exact version, or 2.4 ??? */
 	else if (G_TYPE_IS_INTERFACE (type))
 	{
 		gpointer iface = g_type_default_interface_ref (type);
 		props = g_object_interface_list_properties (iface, &n_props);
 		g_type_default_interface_unref (iface);
 	}
+#endif
 	else
 		XSRETURN_EMPTY;
 #ifdef NOISY
