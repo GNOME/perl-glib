@@ -1,3 +1,12 @@
+2004/01/13 22:20 (-0500) muppetman
+
+	* ParseXSDoc.pm: support continuation lines in xsubs.  this borks line
+	number handling, and is far more permissive than xsubpp, but xsubpp
+	will be the thing that causes people's code to break, and to do the
+	line number handling correctly would require far too much code tearup.
+	also, honor __hide__ correctly on =for apidoc comments that supply
+	a symbol name (by removing the end-of-line anchor from the regex).
+
 2004/01/09 14:33 (-0500) rwmcfa1
 
 	* AUTHORS: mailing list addr correction.
