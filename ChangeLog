@@ -1,3 +1,12 @@
+2003/09/11 22:30 muppetman
+
+	* Subclass.pm: documentation about creating properties, creating
+	signals, and overriding class closures.
+
+	* gperl.h: more than one file needs gperl_type_class
+
+	* GType.xs: unused variable
+
 2003/09/11 21:50 muppetman
 
 	* GSignal.xs, Glib.exports, gperl.h: implement
