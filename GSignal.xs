@@ -30,6 +30,25 @@
 #include "gperl.h"
 
 /*
+ * here's a nice G_LOCK-like front-end to GStaticRecMutex.  we need this 
+ * to keep other threads from fiddling with the closures list while we're
+ * modifying it.
+ */
+#ifdef G_THREADS_ENABLED
+# define GPERL_REC_LOCK_DEFINE_STATIC(name)	\
+	GStaticRecMutex G_LOCK_NAME (name) = G_STATIC_REC_MUTEX_INIT
+# define GPERL_REC_LOCK(name)	\
+	g_static_rec_mutex_lock (&G_LOCK_NAME (name))
+# define GPERL_REC_UNLOCK(name)	\
+	g_static_rec_mutex_unlock (&G_LOCK_NAME (name))
+#else
+# define GPERL_REC_LOCK_DEFINE_STATIC(name) extern void glib_dummy_decl (void)
+# define GPERL_REC_LOCK(name)
+# define GPERL_REC_UNLOCK(name)
+#endif
+
+
+/*
 GLib doesn't include a GFlags type for GSignalFlags, so we have to do
 this by hand.  watch for fallen cruft.
 */
@@ -79,12 +98,13 @@ newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
 	return newRV_noinc ((SV*)hv);
 }
 
+
 /*
 now back to our regularly-scheduled bindings.
 */
 
-
 static GSList * closures = NULL;
+GPERL_REC_LOCK_DEFINE_STATIC (closures);
 
 static void
 forget_closure (SV * callback,
@@ -93,7 +113,9 @@ forget_closure (SV * callback,
 #ifdef NOISY
 	warn ("forget_closure %p / %p", callback, closure);
 #endif
+	GPERL_REC_LOCK (closures);
 	closures = g_slist_remove (closures, closure);
+	GPERL_REC_UNLOCK (closures);
 }
 
 static void
@@ -103,10 +125,71 @@ remember_closure (GPerlClosure * closure)
 	warn ("remember_closure %p / %p", closure->callback, closure);
 	warn ("   callback %s\n", SvPV_nolen (closure->callback));
 #endif
+	GPERL_REC_LOCK (closures);
 	closures = g_slist_prepend (closures, closure);
+	GPERL_REC_UNLOCK (closures);
 	g_closure_add_invalidate_notifier ((GClosure *) closure,
 	                                   closure->callback,
 	                                   (GClosureNotify) forget_closure);
+}
+
+=item void gperl_signal_set_marshaller_for (GType instance_type, char * detailed_signal, GClosureMarshal marshaller)
+
+You need this function only in rare cases, usually as workarounds for bad
+signal parameter types.  Use the given I<marshaller> to marshal all handlers
+for I<detailed_signal> on I<instance_type>.  C<gperl_signal_connect> will look
+for marshallers registered here, and apply them to the GPerlClosure it creates
+for the given callback being connected.  The marshaller function is no fun to
+write, and should follow C<gperl_closure_marshal> (private function in
+GClosure.xs) very closely; in particular, if C<PERL_IMPLICIT_CONTEXT> is
+defined, the C<marshal_data> parameter will be the perl interpreter that
+should be used to invoke the callback.  Use the Source, Luke.
+
+=cut
+static GHashTable * marshallers = NULL;
+G_LOCK_DEFINE_STATIC (marshallers);
+
+typedef struct {
+	GType           instance_type;
+	GClosureMarshal marshaller;
+} MarshallerData;
+
+static MarshallerData *
+marshaller_data_new (GType itype, GClosureMarshal func)
+{
+	MarshallerData * data = g_new0 (MarshallerData, 1);
+	data->instance_type = itype;
+	data->marshaller = func;
+	return data;
+}
+
+void
+gperl_signal_set_marshaller_for (GType instance_type,
+                                 char * detailed_signal,
+                                 GClosureMarshal marshaller)
+{
+	g_return_if_fail (instance_type != 0);
+	g_return_if_fail (detailed_signal != NULL);
+	G_LOCK (marshallers);
+	if (!marshaller && !marshallers) {
+		/* nothing to do */
+	} else {
+		if (!marshallers)
+			marshallers =
+				g_hash_table_new_full (g_str_hash,
+				                       g_str_equal,
+				                       g_free,
+				                       g_free);
+		if (marshaller)
+			g_hash_table_insert
+					(marshallers,
+					 g_strdup (detailed_signal),
+					 marshaller_data_new (instance_type,
+					                      marshaller));
+		else
+			g_hash_table_remove (marshallers, detailed_signal);
+	}
+	G_UNLOCK (marshallers);
 }
 
 =item gulong gperl_signal_connect (SV * instance, char * detailed_signal, SV * callback, SV * data, GConnectFlags flags)
@@ -127,15 +210,33 @@ gperl_signal_connect (SV * instance,
                       SV * callback, SV * data,
                       GConnectFlags flags)
 {
+	GObject * object;
 	GPerlClosure * closure;
+	GClosureMarshal marshaller = NULL;
+
+	object = gperl_get_object (instance);
+
+	G_LOCK (marshallers);
+	if (marshallers) {
+		MarshallerData * data = (MarshallerData*)
+			g_hash_table_lookup (marshallers, detailed_signal);
+		if (data) {
+			if (g_type_is_a (G_OBJECT_TYPE (object),
+			                 data->instance_type))
+				marshaller = data->marshaller;
+		}
+	}
+	G_UNLOCK (marshallers);
 
 	closure = (GPerlClosure *)
-			gperl_closure_new (callback, data,
-			                   flags & G_CONNECT_SWAPPED);
+			gperl_closure_new_with_marshaller
+			                     (callback, data,
+			                      flags & G_CONNECT_SWAPPED,
+			                      marshaller);
 
 	/* after is true only if we're called as signal_connect_after */
 	closure->id =
-		g_signal_connect_closure (gperl_get_object (instance),
+		g_signal_connect_closure (object,
 		                          detailed_signal,
 		                          (GClosure*) closure, 
 		                          flags & G_CONNECT_AFTER);
@@ -204,6 +305,7 @@ foreach_closure_matched (gpointer instance,
 		/* this is a little hairy because the callback may disconnect
 		 * a closure, which would modify the list while we're iterating
 		 * over it. */
+		GPERL_REC_LOCK (closures);
 		i = closures;
 		while (i != NULL) {
 			GPerlClosure * c = (GPerlClosure*) i->data;
@@ -215,6 +317,7 @@ foreach_closure_matched (gpointer instance,
 				               NULL, NULL);
 			}
 		}
+		GPERL_REC_UNLOCK (closures);
 	} else {
 		/* we're not matching against a closure, so we can just
 		 * pass this on through. */
