@@ -1,7 +1,6 @@
 AUTHORS
 ChangeLog
 Changes
-Depends.pm
 GBoxed.xs
 GClosure.xs
 Glib.pm

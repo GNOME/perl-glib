@@ -1,3 +1,9 @@
+2003/06/19 00:44 pcg
+
+	* Depends.pm: moved to ExtUtils-Depends module.
+	* Makefile.PL: add ExtUtils-Depends as prerequisite, please
+	install the ExtUtils::Depends module seperately from cvs.
+
 2003/06/16 14:21 muppetman
 
 	* GBoxed.xs, gperl.h: converted GBoxed to use vtable-based wrappers;
