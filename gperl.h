@@ -188,7 +188,7 @@ gboolean gperl_value_from_sv (GValue * value, SV * sv);
  *    the conversion.  FIXME this really ought to always succeed; a failed
  *    conversion should be considered a bug or unimplemented code!
  */
-SV * gperl_sv_from_value (GValue * value);
+SV * gperl_sv_from_value (const GValue * value);
 
 /*
  * GBoxed
@@ -320,14 +320,14 @@ void gperl_register_object (GType gtype, const char * package);
  *        object derived from @gtype.  This function will be called by
  *        gperl_new_object() when noinc is TRUE.
  *
- * the perl wrapper always refs a GObject.  to have the wrapper claim 
- * ownership of the object, you unref the object after ref'ing it.  however,
- * different GObject subclasses have different ways to claim ownership;
- * for example, GtkObject simply requires you to call gtk_object_sink().
- * to make this concept generic, this function allows you to register a 
- * function to be called when then wrapper should claim ownership of the
- * object.  the @func registered for a given @type will be called on any
- * object for which g_type_isa (G_TYPE_OBJECT (object), type) succeeds.
+ * To have the perl wrapper claim ownership of the object, you unref
+ * the object after ref'ing it. however, different GObject subclasses
+ * have different ways to claim ownership; for example, GtkObject simply
+ * requires you to call gtk_object_sink(). to make this concept generic,
+ * this function allows you to register a function to be called when then
+ * wrapper should claim ownership of the object. the @func registered
+ * for a given @type will be called on any object for which g_type_isa
+ * (G_TYPE_OBJECT (object), type) succeeds.
  *
  * If no sinkfunc is found for an object, g_object_unref() will be used.
  * 
@@ -366,6 +366,7 @@ void gperl_object_set_no_warn_unreg_subclass (GType gtype, gboolean nowarn);
  *    has not been registered.
  */
 const char * gperl_object_package_from_type (GType gtype);
+HV * gperl_object_stash_from_type (GType gtype);
 /**
  * gperl_object_type_from_package:
  * @package: package name to look up
@@ -383,17 +384,16 @@ GType gperl_object_type_from_package (const char * package);
  *    object after ref'ing it, so that that perl wrapper owns the GObject.
  *    see discussion for more info.
  *
- * Use this function to create a perl wrapper for a GObject.  If the object
- * has never been wrapped before, a new wrapper will be created and added
- * to a private key under the object's qdata.  If the object already has a
- * wrapper pointer in its qdata, that scalar will be ref'd
- * (with SvREFCNT_inc()) and returned instead. FIXME that's not really true.
- * when i try to return existing wrappers (a la the pygtk bindings), the
- * wrapper SV rarely still points to the proper object.  can't quite figure
- * it out, but disabling the code gets rid of some bizarre bugs.  currently,
- * the code ALWAYS creates a new wrapper SV.
+ * Use this function to get the perl part of a GObject.  If the object
+ * has never been seen by perl before, a new, empty perl object will
+ * be created and added to a private key under the object's qdata.  If
+ * the object already has a perl part, a new reference to it will be
+ * created. The gobject + perl object together form a combined objectt hat
+ * is properly refcounted, i.e. both parts will stay alive as long as at
+ * least one of them is alive, only when both perl object and gobject are
+ * no longer referenced will both be freed.
  *
- * The wrapper will be blessed into the package corresponding to the GType
+ * The perl object will be blessed into the package corresponding to the GType
  * returned by calling G_OBJECT_TYPE() on the @object; if that class has not
  * been registered via gperl_register_object(), this function will emit a
  * warning to that effect (with warn()), and attempt to bless it into the
@@ -403,26 +403,17 @@ GType gperl_object_type_from_package (const char * package);
  * in which case it croaks.  (In reality, if you pass a non-GObject to this
  * function, you'll be lucky if you don't get a segfault, as there's not
  * really a way to trap that.)  In practice these warnings can be unavoidable,
- * so you can use gperl_object_set_no_war_unreg_subclass() to quell them
+ * so you can use gperl_object_set_no_warn_unreg_subclass() to quell them
  * on a class-by-class basis.
  *
- * Next, the object will be ref'd with g_object_ref(), because the wrapper
- * will hold a hard reference on the object.  This reference is released by
- * the Glib::Object::DESTROY method, which is invoked when the last reference
- * to the perl wrapper goes away and it is garbage collected by the 
- * interpreter.  This is the correct behavior for objects owned by someone
- * else, as it allows the object to continue to exist.
- *
- * However, when perl code is calling a GObject constructor (any function 
- * which returns a new GObject), you do NOT want the object to outlive the
- * wrapper.  In this situation, call gperl_new_object() with @own set to
+ * However, when perl code is calling a GObject constructor (any function
+ * which returns a new GObject), call gperl_new_object() with @own set to
  * %TRUE; this will cause the first matching sink function to be called
  * on the GObject to claim ownership of that object, so that it will be
- * destroyed with the perl wrapper (unless some other code takes a reference
- * on it first).  The default sink func is g_object_unref(); other types
- * should supply the proper function; e.g., GtkObject should use 
- * gtk_object_sink here.
- *
+ * destroyed when the perl object goes out of scope. The default sink func
+ * is g_object_unref(); other types should supply the proper function;
+ * e.g., GtkObject should use gtk_object_sink here.
+ * 
  * returns: blessed scalar wrapper, or #&PL_sv_undef if object was #NULL
  */
 SV * gperl_new_object (GObject * object, gboolean own);
@@ -433,7 +424,7 @@ SV * gperl_new_object (GObject * object, gboolean own);
  *
  * retrieve the GObject pointer from a perl wrapper variable.
  *
- * returns: #GObject pointer, or NULL if @sv was #PL_sv_undef
+ * returns: #GObject pointer, or NULL if @sv is not linked to a gobject.
  */
 GObject * gperl_get_object (SV * sv);
 
@@ -637,5 +628,31 @@ void            gperl_callback_invoke  (GPerlCallback * callback,
                                         ...);
 
 
+/*
+ * gparamspec.h / GParamSpec.xs
+ *
+ * functions to get GParamSpecs in and out of perl.
+ */
+SV * newSVGParamSpec (GParamSpec * pspec);
+GParamSpec * SvGParamSpec (SV * sv);
+SV * newSVGParamFlags (GParamFlags flags);
+GParamFlags SvGParamFlags (SV * sv);
+
+/*
+ * helpful debugging stuff
+ */
+#define GPERL_OBJECT_VITALS(o) \
+	((o)							\
+	  ? form ("%s(%p)[%d]", G_OBJECT_TYPE_NAME (o), (o),	\
+		  G_OBJECT (o)->ref_count)			\
+	  : "NULL")
+#define GPERL_WRAPPER_VITALS(w)	\
+	((SvTRUE (w))					\
+	  ? (SvROK (w))					\
+	    (? form ("SvRV(%p)->%s(%p)[%d]", (w),	\
+		     sv_reftype (SvRV (w), TRUE),	\
+		     SvRV (w), SvREFCNT (SvRV (w)))	\
+	     : "[not a reference!]")			\
+	  : "undef")
 
 #endif /* _GPERL_H_ */
