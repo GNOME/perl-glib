@@ -55,19 +55,140 @@ projects.
 
 =head1 DESCRIPTION
 
-This wrapper attempts to provide a perlish interface while remaining
+This wrapper attempts to provide a perlish interface while remaining 
 as true as possible to the underlying C API, so that any reference
 materials you can find on using GLib may still apply to using the
-libraries from perl.  Where GLib's functionality overlaps perl's,
-perl's is favored; for example, you will find perl lists and arrays in
-place of GSList or GList objects.  Some concepts have been eliminated;
-you need never worry about reference-counting on GObjects or GBoxed
-structures.  Other concepts have been converted to a perlish analogy;
-the GType id will never be seen in perl, as the package name serves
-that purpose.  [FIXME link to a document describing this stuff in detail.]
+libraries from perl.  This module also provides facilities for creating
+wrappers for other GObject-based libraries.  The L<SEE ALSO> section
+contains pointers to all sorts of good information.
 
-This module also provides facilities for creating wrappers for other
-GObject-based libraries.
+=head1 PERL VERSUS C
+
+GLib provides to C programs many of the same facilities Perl offers
+natively.  Where GLib's functionality overlaps Perl's, Perl's is favored.
+Some concepts have been eliminated entirely, as Perl is a higher-level
+language than C.  In other instances we've had to add or change APIs to
+make sense in Perl.  Here's a quick run-down:
+
+=head2 Perl Already Does That
+
+The GLib types GList (a doubly-linked list), GSList (singly-linked list),
+GHashTable, GArray, etc have all been replaced by native Perl datatypes.  In
+fact, many functions which take GLists or arrays simply accept lists on the
+Perl stack.  For the most part, GIOChannels are no more functional than Perl
+file handles, so you won't see any GIOChannels.  GClosures are not visible at
+the Perl level, because Perl code references do the same thing.  Just about any
+function taking either a C function pointer or a GClosure will accept a code
+reference in Perl.  (In fact, you can probably get away with just a subroutine
+name in many spots, provided you aren't using strict subs.)
+
+=head2 Don't Worry About That
+
+Some concepts have been eliminated; you need never worry about
+reference-counting on GObjects or having to free GBoxed structures.  Perl is a
+garbage-collected language, and we've put a lot of work into making the
+bindings take care of memory for you in a way that feels natural to a Perl
+developer.  You won't see GValues in Perl (that's just a C structure with Perl
+scalar envy, anyway).
+
+=head2 This Is Now That
+
+Other GLib concepts have been converted to an analogous Perl concept.
+
+The GType id will never be seen in Perl, as the package name serves that
+purpose.  Several packages corresponding to the GTypes of the fundamental types
+have been registered for you:
+
+ G_TYPE_STRING     Glib::String
+ G_TYPE_INT        Glib::Int
+ G_TYPE_UINT       Glib::Uint
+ G_TYPE_DOUBLE     Glib::Double
+ G_TYPE_BOOLEAN    Glib::Boolean
+
+The remaining fundamentals (char/uchar, short, float, etc) are left off, since
+perl really only has ints, uints, and doubles anyway.  Oh, and we created a
+GBoxed type for Perl scalars so you can use scalars where any boxed type would
+be allowed (e.g. GtkTreeModel columns):
+
+ Glib::Scalar
+
+Functions that can return false and set a GError in C raise an exception in
+Perl (using the string from the GError for $@).  Exceptions are a sticky issue,
+so they get their own section.
+
+Enumerations and flags are treated as strings and arrays of strings,
+respectively.  GLib provides a way to register nicknames for enumeration
+values, and the Perl bindings use these nicknames for the real values, so that
+we never have to deal with numbers in Perl.  This can get a little cumbersome
+for bitfields, but it's very nice when you forget a flag value, as the bindings
+will tell you what values are accepted when you pass something invalid. Also,
+the bindings consider the - and _ characters to be equivalent, so that signal
+and property names can be properly stringified by the => operator.  For
+example, the following are equivalent:
+
+  # property foo-matic of type FooType, using the
+  # value FOO_SOMETHING_COOL.  its nickname would be
+  # 'something-cool'.  you may use either the full
+  # name or the nickname when supplying values to perl.
+  $object->set ('foo-matic', 'FOO_SOMETHING_COOL');
+  $object->set ('foo_matic', 'something_cool');
+  $object->set (foo_matic => 'something-cool');
+
+Beware that Perl will always return to you the nickname form, with the dash.
+
+=head2 It's All the Same
+
+For the most part, the remaining bits of GLib are unchanged.  GMainLoop is now
+Glib::MainLoop, GObject is now Glib::Object, GBoxed is now Glib::Boxed, etc.
+
+=head1 EXCEPTIONS
+
+The C language doesn't support exceptions; GLib is a C library, and of course
+doesn't support exceptions either.  In Perl, we use die and eval to raise
+and trap exceptions as a rather common practice.  So, the bindings have to
+work a little black magic behind the scenes to keep GLib from exploding when
+the Perl program uses exceptions.  Unfortunately, a little of this magic
+has to leak out to where you can see it at the Perl level.
+
+Signal and event handlers are run in an eval context; if an exception occurs
+in such a handler and you don't catch it, Perl will report that an error
+occurred, and then go on about its business like nothing happened.
+
+You may register subroutines as exception handlers, to be called when such
+an exception is trapped.  Another function removes them for you.
+
+  $tag = Glib->install_exception_handler (\&my_handler);
+  Glib->remove_exception_handler ($tag);
+
+The exception handler will get a fresh copy of the $@ of the offending
+exception on the argument stack, and is expected to return non-zero if the
+handler is to remain installed.  If it returns false, the handler will be
+removed.
+
+  sub my_handler {
+      if ($_[0] =~ m/ftang quisinart/) {
+           clean_up_after_ftang ();
+      }
+      1; # live to fight another day
+  }
+
+You can register as many handlers as you like; they will all run
+independently.
+
+An important thing to remember is that exceptions do not cross main loops.
+In fact, exceptions are completely distinct from main loops.  If you need
+to quit a main loop when an exception occurs, install a handler that quits
+the main loop, but also ask yourself if you are using exceptions for flow
+control or exception handling.
+
+=head1 LOG MESSAGES
+
+GLib's g_log function provides a flexible mechanism for reporting messages,
+and most GLib-based C libraries use this mechanism for warnings, assertions,
+critical messages, etc.  The Perl bindings offer a mechanism for routing
+these messages through Perl's native system, warn() and die().  Extensions
+should register the log domains they wrap for this to happen fluidly.
+[FIXME say more here]
 
 =head1 SEE ALSO
 
