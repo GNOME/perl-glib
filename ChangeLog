@@ -1,5 +1,19 @@
 2003/10/25 21:44 rwmcfa1
 
+        * GType.xs: can't call newSVpv if package name is not valid, shouldn't
+        happen so croak on that error. some improved error checking to make
+        sure that we have a valid interface and that our class is
+        instantiatable, may need to double check.
+
+        * apidoc.pl: get rid of the groups stuff since it's not used
+
+        * xsdocparse.pl: get rid of the groups stuff since it's not used.
+
+        * GenPod.pm: initial import
+        added blurb retrieval
+
+	* xsdoc2pod.pl: initial import
+
 2003/10/24 17:18 muppetman
 
 	* xsdocparse.pl: new file.  program extracts pod and xsub signatures
