@@ -44,6 +44,9 @@ gperl_closure_new
 gperl_callback_new
 gperl_callback_destroy
 gperl_callback_invoke
+gperl_install_exception_handler
+gperl_remove_exception_handler
+gperl_run_exception_handlers
 newSVGParamSpec
 SvGParamSpec
 newSVGParamFlags
