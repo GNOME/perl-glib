@@ -1,6 +1,7 @@
 2003/12/04 22:28 (-0500) muppetman
 
 	* Glib.pm, README: bump version to 1.014 for release
+	* MANIFEST: t/6.t doesn't exist on this branch
 
 2003/12/04 13:13 (-0500) rwmcfa1
 
