@@ -76,11 +76,11 @@ gperl_value_from_sv (GValue * value,
 			break;
 		case G_TYPE_CHAR:
 			tmp = SvGChar (sv);
-			g_value_set_char(value, tmp ? tmp[0] : 0);
+			g_value_set_char (value, (char)(tmp ? tmp[0] : 0));
 			break;
 		case G_TYPE_UCHAR:
 			tmp = SvPV_nolen (sv);
-			g_value_set_uchar(value, tmp ? tmp[0] : 0);
+			g_value_set_uchar (value, (guchar)(tmp ? tmp[0] : 0));
 			break;
 		case G_TYPE_BOOLEAN:
 			/* undef is also false. */
@@ -105,7 +105,7 @@ gperl_value_from_sv (GValue * value,
 			g_value_set_uint64(value, SvIV(sv));
 			break;
 		case G_TYPE_FLOAT:
-			g_value_set_float(value, SvNV(sv));
+			g_value_set_float(value, (gfloat)SvNV(sv));
 			break;
 		case G_TYPE_DOUBLE:
 			g_value_set_double(value, SvNV(sv));
@@ -192,10 +192,12 @@ gperl_sv_from_value (const GValue * value)
 			return newSVuv(g_value_get_ulong(value));
 
 		case G_TYPE_INT64:
-			return newSViv(g_value_get_int64(value));
+			/* in reality, i think this only makes sense on
+			 * a 64-bit machine. */
+			return newSViv((IV)g_value_get_int64(value));
 
 		case G_TYPE_UINT64:
-			return newSVuv(g_value_get_uint64(value));
+			return newSVuv((UV)g_value_get_uint64(value));
 
 		case G_TYPE_FLOAT:
 			return newSVnv(g_value_get_float(value));

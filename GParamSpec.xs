@@ -135,8 +135,8 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
     	switch (ix) {
 	    case 1:
 		RETVAL = g_param_spec_char (name, nick, blurb,
-		                            minimum, maximum, default_value,
-		                            flags);
+		                            (char)minimum, (char)maximum,
+		                            (char)default_value, flags);
 		break;
 	    case 2:
 		RETVAL = g_param_spec_int (name, nick, blurb,
@@ -184,8 +184,8 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
     	switch (ix) {
 	    case 1:
 		RETVAL = g_param_spec_uchar (name, nick, blurb,
-		                             minimum, maximum, default_value,
-		                             flags);
+		                             (guchar)minimum, (guchar)maximum,
+		                             (guchar)default_value, flags);
 		break;
 	    case 2:
 		RETVAL = g_param_spec_uint (name, nick, blurb,
@@ -216,10 +216,10 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 	const gchar *blurb
 	gboolean default_value
 	GParamFlags flags
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	name, nick, blurb, default_value, flags
+    CLEANUP:
+	UNUSED(class);
 
 
 #### gunichar not in typemap
@@ -249,8 +249,8 @@ g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, 
 	UNUSED(class);
 	if (ix == 1)
 		RETVAL = g_param_spec_float (name, nick, blurb,
-		                             minimum, maximum, default_value,
-					     flags);
+		                             (float)minimum, (float)maximum,
+					     (float)default_value, flags);
 	else
 		RETVAL = g_param_spec_double (name, nick, blurb,
 		                              minimum, maximum, default_value,
@@ -267,10 +267,10 @@ g_param_spec_string (class, name, nick, blurb, default_value, flags)
 	const gchar *blurb
 	const gchar *default_value
 	GParamFlags flags
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	name, nick, blurb, default_value, flags
+    CLEANUP:
+	UNUSED(class);
 
 ###  GParamSpec* g_param_spec_param (const gchar *name, const gchar *nick, const gchar *blurb, GType param_type, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_boxed (const gchar *name, const gchar *nick, const gchar *blurb, GType boxed_type, GParamFlags flags) 

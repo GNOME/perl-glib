@@ -87,13 +87,12 @@ MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
 GMainContext *
 g_main_context_new (class)
 	SV * class
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	/*void*/
     CLEANUP:
 	g_main_context_unref (RETVAL); /* release the typemap's ref, so the 
 	                                  wrapper owns the object */
+	UNUSED(class);
 
 void
 DESTROY (maincontext)
@@ -108,10 +107,10 @@ DESTROY (maincontext)
 GMainContext *
 g_main_context_default (class)
 	SV * class
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	/*void*/
+    CLEANUP:
+	UNUSED(class);
 
 gboolean g_main_context_iteration (GMainContext *context, gboolean may_block);
 
@@ -178,12 +177,11 @@ g_main_loop_new (class, context=NULL, is_running=FALSE)
 	SV * class
 	GMainContext *context
 	gboolean is_running
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	context, is_running
     CLEANUP:
 	g_main_loop_ref (RETVAL);
+	UNUSED(class);
 
 void
 DESTROY (mainloop)
@@ -274,10 +272,10 @@ gboolean
 g_source_remove (class, tag)
 	SV * class
 	guint tag
-    PREINIT:
-	UNUSED(class);
     C_ARGS:
 	tag
+    CLEANUP:
+	UNUSED(class);
 
  ##gboolean g_source_remove_by_user_data        (gpointer       user_data);
  ##gboolean g_source_remove_by_funcs_user_data  (GSourceFuncs  *funcs,

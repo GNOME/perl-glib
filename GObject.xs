@@ -280,7 +280,7 @@ gperl_object_take_ownership (GObject * object)
 	G_LOCK (sink_funcs);
 
 	if (sink_funcs) {
-		int i;
+		guint i;
 		for (i = 0 ; i < sink_funcs->len ; i++)
 			if (g_type_is_a (G_OBJECT_TYPE (object),
 			                 g_array_index (sink_funcs,
@@ -376,6 +376,7 @@ gperl_object_package_from_type (GType gtype)
 	} else
 		croak ("internal problem: gperl_object_package_from_type "
 		       "called before any classes were registered");
+	return NULL; /* not reached */
 }
 
 
@@ -406,6 +407,7 @@ gperl_object_stash_from_type (GType gtype)
 	} else
 		croak ("internal problem: gperl_object_stash_from_type "
 		       "called before any classes were registered");
+	return NULL; /* not reached */
 }
 
 
@@ -436,6 +438,7 @@ gperl_object_type_from_package (const char * package)
 	} else
 		croak ("internal problem: gperl_object_type_from_package "
 		       "called before any classes were registered");
+	return 0; /* not reached */
 }
 
 /*

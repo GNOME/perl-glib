@@ -270,6 +270,7 @@ gperl_convert_back_enum (GType type,
 	}
 	croak ("FATAL: could not convert value %d to enum type %s",
 	       val, g_type_name (type));
+	return NULL; /* not reached */
 }
 
 =item gboolean gperl_try_convert_flag (GType type, const char * val_p, gint * val)
@@ -352,6 +353,7 @@ gperl_convert_flags (GType type,
 	}
 	croak ("FATAL: invalid flags %s value %s, expecting a string scalar or an arrayref of strings", 
 	       g_type_name (type), SvPV_nolen (val));
+	return 0; /* not reached */
 }
 
 =item SV * gperl_convert_back_flags (GType type, gint val)
@@ -643,7 +645,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		/* get the object passed as the first argument to the closure */
 		object = g_value_get_object (&param_values[0]);
 		g_return_if_fail (object != NULL && G_IS_OBJECT (object));
-		EXTEND (SP, 1 + n_param_values);
+		EXTEND (SP, (int) (1 + n_param_values));
 		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
 
 		/* push parameter values onto the stack */
@@ -968,7 +970,7 @@ add_signals (GType instance_type, HV * signals)
 			 * the class closure for this signal.
 			 */
 			GClosure * closure;
-			if (!signal)
+			if (!signal_id)
 				croak ("can't override class closure for "
 				       "unknown signal %s", signal_name);
 			closure = gperl_closure_new (value, NULL, FALSE);

@@ -133,7 +133,7 @@ gperl_alloc_temp (int nbytes)
 	dTHR;
 
 	SV * s = sv_2mortal (newSVpv ("", 0));
-	SvGROW (s, nbytes);
+	SvGROW (s, (unsigned)nbytes);
 	memset (SvPV (s, PL_na), 0, nbytes);
 	return SvPV (s, PL_na);
 }
