@@ -423,3 +423,5 @@ dump_callback (GPerlCallback * c)
 
 #endif
 
+/* ExtUtils::ParseXS requires at least one MODULE line to be present */
+MODULE = Glib::Closure	PACKAGE = Glib::Closure	PREFIX = g_closure_
