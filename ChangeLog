@@ -1,3 +1,10 @@
+2004/02/17 15:32 (-0500) muppetman
+
+	* GBoxed.xs, GObject.xs, GParamSpec.xs, GSignal.xs, GType.xs,
+	GUtils.xs, GValue.xs, Glib.pm, Glib.xs, MakeHelper.pm, Makefile.PL,
+	Subclass.pm, gperl.h, typemap: update copyright notices; add 2004 to
+	the stuff that has been modified this year.
+
 2004/02/12 19:00 (-0500) muppetman
 
 	* Glib.pm, Makefile.PL, README, NEWS: unstable release 1.035
