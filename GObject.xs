@@ -389,39 +389,48 @@ g_object_get_data (object, key)
 	RETVAL
 
 
-SV *
-g_object_get (object, name)
+void
+g_object_get (object, ...)
 	GObject * object
-	char * name
     ALIAS:
 	Glib::Object::get = 0
 	Glib::Object::get_property = 1
     PREINIT:
 	GValue value = {0,};
-    CODE:
-	init_property_value (object, name, &value);
-	g_object_get_property (object, name, &value);
-	RETVAL = gperl_sv_from_value (&value);
-	g_value_unset (&value);
-    OUTPUT:
-	RETVAL
+	int i;
+    PPCODE:
+	EXTEND (SP, items-1);
+	for (i = 1; i < items; i++) {
+		char *name = SvPV_nolen (ST (i));
+		init_property_value (object, name, &value);
+		g_object_get_property (object, name, &value);
+		PUSHs (sv_2mortal (gperl_sv_from_value (&value)));
+		g_value_unset (&value);
+	}
 
 void
-g_object_set (object, name, newval)
+g_object_set (object, ...)
 	GObject * object
-	char * name
-	SV * newval
     ALIAS:
 	Glib::Object::set = 0
 	Glib::Object::set_property = 1
     PREINIT:
 	GValue value = {0,};
+	int i;
     CODE:
-	init_property_value (object, name, &value);
-	gperl_value_from_sv (&value, newval);
-	g_object_set_property (object, name, &value);
-	g_value_unset (&value);
+	if (0 != ((items - 1) % 2))
+		croak ("set method expects name => value pairs "
+		       "(odd number of arguments detected)");
 
+	for (i = 1; i < items; i += 2) {
+		char *name = SvPV_nolen (ST (i));
+		SV *newval = ST (i + 1);
+
+		init_property_value (object, name, &value);
+		gperl_value_from_sv (&value, newval);
+		g_object_set_property (object, name, &value);
+		g_value_unset (&value);
+	}
 
 void
 g_object_list_properties (object)
