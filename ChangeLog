@@ -1,3 +1,10 @@
+2004/11/29 21:28 (+0100) kaffeetisch
+
+	* Makefile.PL: Correct the unstable warning message to say 1.06x
+	instead of 1.04x.
+
+	* Glib.pm, META.yml, NEWS, README: Unstable release 1.071.
+
 2004/11/01 21:22 (+0100) kaffeetisch
 
 	* Glib.pm, META.yml, Makefile.PL, NEWS, README: Unstable release

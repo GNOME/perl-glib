@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.071
+=================================
+
+* Correct a warning message.  [Torsten]
+
 Overview of changes in Glib 1.070
 =================================
 
