@@ -190,6 +190,9 @@ typedef GObject GObject_noinc;
 /*
  * GSignal.xs
  */
+SV * newSVGSignalFlags (GSignalFlags flags);
+GSignalFlags SvGSignalFlags (SV * sv);
+SV * newSVGSignalInvocationHint (GSignalInvocationHint * ihint);
 
 gulong gperl_signal_connect (SV            * instance,
                              char          * detailed_signal,

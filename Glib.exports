@@ -39,6 +39,8 @@ gperl_new_object
 gperl_get_object
 gperl_get_object_check
 gperl_object_check_type
+newSVGSignalFlags
+SvGSignalFlags
 gperl_signal_connect
 gperl_closure_new
 gperl_callback_new

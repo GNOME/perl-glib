@@ -29,6 +29,61 @@
 
 #include "gperl.h"
 
+/*
+GLib doesn't include a GFlags type for GSignalFlags, so we have to do
+this by hand.  watch for fallen cruft.
+*/
+
+static GType
+g_signal_flags_get_type (void)
+{
+  static GType etype = 0;
+  if ( etype == 0 ) {
+    static const GFlagsValue values[] = {
+      { G_SIGNAL_RUN_FIRST,    "G_SIGNAL_RUN_FIRST",   "run-first" },
+      { G_SIGNAL_RUN_LAST,     "G_SIGNAL_RUN_LAST",    "run-last" },
+      { G_SIGNAL_RUN_CLEANUP,  "G_SIGNAL_RUN_CLEANUP", "run-cleanup" },
+      { G_SIGNAL_NO_RECURSE,   "G_SIGNAL_NO_RECURSE",  "no-recurse" },
+      { G_SIGNAL_DETAILED,     "G_SIGNAL_DETAILED",    "detailed" },
+      { G_SIGNAL_ACTION,       "G_SIGNAL_ACTION",      "action" },
+      { G_SIGNAL_NO_HOOKS,     "G_SIGNAL_NO_HOOKS",    "no-hooks" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("GSignalFlags", values);
+  }
+  return etype;
+}
+
+SV *
+newSVGSignalFlags (GSignalFlags flags)
+{
+	return gperl_convert_back_flags (g_signal_flags_get_type (), flags);
+}
+
+GSignalFlags
+SvGSignalFlags (SV * sv)
+{
+	return gperl_convert_flags (g_signal_flags_get_type (), sv);
+}
+
+SV *
+newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
+{
+	HV * hv = newHV ();
+	hv_store (hv, "signal_name", 11,
+	          newSVGChar (g_signal_name (ihint->signal_id)), 0);
+	hv_store (hv, "detail", 6,
+	          newSVGChar (g_quark_to_string (ihint->detail)), 0);
+	hv_store (hv, "run_type", 8,
+	          newSVGSignalFlags (ihint->run_type), 0);
+	return newRV_noinc ((SV*)hv);
+}
+
+/*
+now back to our regularly-scheduled bindings.
+*/
+
+
 static GSList * closures = NULL;
 
 static void
@@ -222,7 +277,7 @@ g_signal_emit (instance, name, ...)
 	GQuark detail;
 	GSignalQuery query;
 	GValue * params;
-    CODE:
+    PPCODE:
 #define ARGOFFSET 2
 	if (!g_signal_parse_name (name, G_OBJECT_TYPE (instance), &signal_id,
 				  &detail, TRUE))
@@ -259,8 +314,9 @@ g_signal_emit (instance, name, ...)
 	 * and push it onto the return stack. */
 	if (query.return_type != G_TYPE_NONE) {
 		/* signal returns a value, woohoo! */
-		GValue ret;
-		memset (&ret, 0, sizeof (GValue));
+		GValue ret = {0,};
+		g_value_init (&ret, query.return_type);
+		g_signal_emitv (params, signal_id, detail, &ret);
 		EXTEND (SP, 1);
 		PUSHs (sv_2mortal (gperl_sv_from_value (&ret)));
 		g_value_unset (&ret);
@@ -432,16 +488,6 @@ g_signal_handler_is_connected (object, handler_id)
 ##    OUTPUT:
 ##	RETVAL
 
-
-##/* --- chaining for language bindings --- */
-##void	g_signal_override_class_closure	      (guint		  signal_id,
-##					       GType		  instance_type,
-##					       GClosure		 *class_closure);
-##void	g_signal_chain_from_overridden	      (const GValue      *instance_and_params,
-##					       GValue            *return_value);
-##
-
-
  ### the *_by_func functions all have the same signature, and thus are
  ### handled by do_stuff_by_func.
 
@@ -473,3 +519,63 @@ do_stuff_by_func (instance, func, data=NULL)
     OUTPUT:
 	RETVAL
 
+
+
+
+##/* --- chaining for language bindings --- */
+##void	g_signal_override_class_closure	      (guint		  signal_id,
+##					       GType		  instance_type,
+##					       GClosure		 *class_closure);
+##void	g_signal_chain_from_overridden	      (const GValue      *instance_and_params,
+##					       GValue            *return_value);
+void
+g_signal_chain_from_overridden (GObject * instance, ...)
+    PREINIT:
+	GSignalInvocationHint * ihint;
+	GSignalQuery query;
+	GValue * instance_and_params = NULL,
+	         return_value = {0,};
+	guint i;
+    PPCODE:
+
+	ihint = g_signal_get_invocation_hint (instance);
+	if (!ihint)
+		croak ("could not find signal invocation hint for %s(0x%p)",
+		       G_OBJECT_TYPE_NAME (instance), instance);
+
+	g_signal_query (ihint->signal_id, &query);
+
+	if (items != 1 + query.n_params)
+		croak ("incorrect number of parameters for signal %s, "
+		       "expected %d, got %d",
+		       g_signal_name (ihint->signal_id),
+		       1 + query.n_params,
+		       items);
+
+	instance_and_params = g_new0 (GValue, 1 + query.n_params);
+
+	g_value_init (&instance_and_params[0], G_OBJECT_TYPE (instance));
+	g_value_set_object (&instance_and_params[0], instance);
+
+	for (i = 0 ; i < query.n_params ; i++) {
+		g_value_init (&instance_and_params[i+1],
+		              query.param_types[i]
+			         & ~G_SIGNAL_TYPE_STATIC_SCOPE);
+		gperl_value_from_sv (&instance_and_params[i+1], ST (i+1));
+	}
+
+	if (query.return_type != G_TYPE_NONE)
+		g_value_init (&return_value,
+		              query.return_type
+			         & ~G_SIGNAL_TYPE_STATIC_SCOPE);
+	
+	g_signal_chain_from_overridden (instance_and_params, &return_value);
+
+	for (i = 0 ; i < 1 + query.n_params ; i++)
+		g_value_unset (instance_and_params+i);
+	g_free (instance_and_params);
+
+	if (G_TYPE_NONE != (query.return_type & ~G_SIGNAL_TYPE_STATIC_SCOPE)) {
+		XPUSHs (sv_2mortal (gperl_sv_from_value (&return_value)));
+		g_value_unset (&return_value);
+	}
