@@ -1,3 +1,13 @@
+Overview of Changes in Glib 1.042
+=================================
+
+* Documentation improvements.  [muppet, Torsten]
+  - Fix grammar and spelling throughout.
+  - Improve the docs for Glib::Object::Subclass and the documentation
+    generation system itself.
+  - Add the main module of the extension to the generated see also list.
+* Don't clobber $_ when warning of unhandled exceptions.  [muppet]
+
 Overview of Changes in 1.041
 ============================
 

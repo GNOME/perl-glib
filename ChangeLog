@@ -1,3 +1,7 @@
+2004/04/11 22:57 (-0400) muppetman
+
+	* Glib.pm, README, NEWS: stable release 1.042
+
 2004/04/11 22:40 (-0400) muppetman
 
 	* GenPod.pm: document the __hide__, __gerror__, and __function__
