@@ -63,21 +63,6 @@ of gmain.h in here, commented out.
 
 */
 
-#if 0
-
-###MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
-
-## FIXME we could probably create a GEnum for these if anybody really cared
-##/* Standard priorities */
-##
-###define G_PRIORITY_HIGH            -100
-###define G_PRIORITY_DEFAULT          0
-###define G_PRIORITY_HIGH_IDLE        100
-###define G_PRIORITY_DEFAULT_IDLE     200
-###define G_PRIORITY_LOW	            300
-
-#endif
-
 MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
 
 =for object Glib::MainLoop
@@ -236,6 +221,10 @@ gboolean g_main_loop_is_running (GMainLoop * loop);
 
 GMainContext * g_main_loop_get_context (GMainLoop * loop);
 
+ ### NOTE: stuff behind G_DISABLE_DEPRECATED shall not be bound.
+ ###       i've left their declarations here as a reminder that we didn't
+ ###       forget them, they're just not supposed to be included.
+ ###
  ##/* ============== Compat main loop stuff ================== */
  ##
  ###ifndef G_DISABLE_DEPRECATED

@@ -600,6 +600,10 @@ newSVGChar (const gchar * str)
  */
 
 /* TODO/FIXME: utf8 safe??? */
+/* muppetman: no, it's not utf8-safe, as it treats the string like ascii.
+ *            we implicitly assume in many places that package names will
+ *            be ascii; in practice this is the case, but it *is* possible
+ *            to get non-ascii package names. */
 static char *
 sanitize_package_name (const char * pkg_name)
 {
@@ -1756,7 +1760,7 @@ g_type_register_enum (class, name, ...)
 	 * your script can't register the enums properly, it probably won't
 	 * live much longer.
 	 */
-	values = g_new0 (GEnumValue, items-1);
+	values = g_new0 (GEnumValue, items-1); /* leak (see above) */
 	for (i = 0; i < items-2; i++)
 	{
 		sv = (SV*)ST (i+2);
