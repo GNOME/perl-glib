@@ -1,3 +1,19 @@
+Overview of Changes in Glib 1.039
+=================================
+
+* Add missing symbols to the exports list, so we have half a hope of not
+  totally barfing on win32.  [muppet]
+* Code sweep for FIXMEs resulted in miscellaneous bugfixes and cleanups.
+  - Clean up properly when croaking on bad property name in Glib::Object::new.
+  - Use the same 'bad property' message in Glib::Object::set and "::new.
+  - Document the fact that Glib::ParamSpec::param_spec is unimplemented.
+* Document functions that can throw Glib::Error exceptions.  [Ross]
+* Glib::MakeHelper enhancements  [muppet]
+  - verify that ExtUtils::Depends is >= 0.2
+  - Don't generate broken makefiles if there are no C or XS files to compile.
+* Using Data::Dumper on an object with tied write-only properties no longer
+  results in an crash.  [Ross]
+
 Overview of Changes in Glib 1.038
 =================================
 

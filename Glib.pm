@@ -61,7 +61,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.038';
+our $VERSION = '1.039';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -502,7 +502,8 @@ the sourcecode of the original gtk-perl and pygtk projects.  Marc Lehmann
 E<lt>pcg at goof dot comE<gt> did lots of great work on the magic of making
 Glib::Object wrapper and subclassing work like they should.  Ross McFarland
 <rwmcfa1 at neces dot com> wrote quite a bit of the documentation generation
-tools.
+tools.  Torsten Schoenfeld <kaffeetisch at web dot de> contributed little
+patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 

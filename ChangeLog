@@ -1,3 +1,12 @@
+2004/03/11 22:40 (-0500) muppetman
+
+	* Glib.pm, NEWS, README, Makefile.PL: beta release 1.039
+
+	* Glib.exports: sort the list, to make it easier to spot missing
+	symbols.  add missing symbols.
+
+	* GBoxed.xs: fix dubious logic in parameter test.
+
 2004/03/11 21:51 (-0500) muppetman
 
 	* README: minor fixups.
