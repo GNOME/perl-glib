@@ -1,3 +1,11 @@
+2003/11/16 20:32 (-0500) muppetman
+
+	* gperl_marshal.h: add similar macros for GPerlCallback, to make sure
+	that the callback is executed by the correct interpreter.
+
+	* GClosure.xs: use the new GPerlCallback helper macros in
+	gperl_marshal.h
+
 2003/11/16 02:44 (-0500) muppetman
 
 	* GClosure.xs, GType.xs: clean up the stack properly after call_sv
