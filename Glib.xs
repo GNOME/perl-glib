@@ -143,6 +143,45 @@ gperl_alloc_temp (int nbytes)
 	return SvPV (s, PL_na);
 }
 
+=item gboolean gperl_str_eq (const char * a, const char * b);
+
+Compare a pair of ascii strings, considering '-' and '_' to be equivalent.
+Used for things like enum value nicknames and signal names.
+
+=cut
+gboolean
+gperl_str_eq (const char * a,
+              const char * b)
+{
+	while (*a && *b) {
+		if (*a == *b ||
+		    ((*a == '-' || *a == '_') && (*b == '-' || *b == '_'))) {
+			a++;
+			b++;
+		} else
+			return FALSE;
+	}
+	return *a == *b;
+}
+
+=item guint gperl_str_hash (gconstpointer key)
+
+Like g_str_hash(), but considers '-' and '_' to be equivalent.
+
+=cut
+guint
+gperl_str_hash (gconstpointer key)
+{
+	const char *p = key;
+	guint h = *p;
+
+	if (h)
+		for (p += 1; *p != '\0'; p++)
+			h = (h << 5) - h + (*p == '-' ? '_' : *p);
+
+	return h;
+}
+
 
 =back
 

@@ -62,6 +62,9 @@ void gperl_croak_gerror (const char * prefix, GError * err);
 
 gpointer gperl_alloc_temp (int nbytes);
 
+gboolean gperl_str_eq (const char * a, const char * b);
+guint    gperl_str_hash (gconstpointer key);
+
 
 /* internal trickery */
 gpointer gperl_type_class (GType type);
@@ -81,6 +84,9 @@ SV * gperl_convert_back_flags (GType type, gint val);
 /* register a fundamental type (enums, flags...) */
 void gperl_register_fundamental (GType gtype, const char * package);
 
+GType gperl_fundamental_type_from_package (const char * package);
+const char * gperl_fundamental_package_from_type (GType gtype);
+
 /*
  * inheritance management
  */
@@ -89,7 +95,9 @@ void gperl_set_isa (const char * child_package, const char * parent_package);
 /* unshift @{$parent_package}::ISA, $child_package */
 void gperl_prepend_isa (const char * child_package, const char * parent_package);
 
-/* these work regardless of what the actual type is (GBoxed or GObject) */
+/* these work regardless of what the actual type is (GBoxed, GObject, GEnum,
+ * or GFlags).  in general it's safer to use the most specific one, but this
+ * is handy when you don't care. */
 GType gperl_type_from_package (const char * package);
 const char * gperl_package_from_type (GType type);
 

@@ -136,21 +136,6 @@ gperl_fundamental_package_from_type (GType gtype)
  * enum and flags handling (mostly from the original gtk2_perl code)
  */
 
-static gboolean
-streq_enum (register const char * a,
-	    register const char * b)
-{
-	while (*a && *b) {
-		if (*a == *b ||
-		    ((*a == '-' || *a == '_') && (*b == '-' || *b == '_'))) {
-			a++;
-			b++;
-		} else
-			return FALSE;
-	}
-	return *a == *b;
-}
-
 static GEnumValue *
 gperl_type_enum_get_values (GType enum_type)
 {
@@ -189,8 +174,8 @@ gperl_try_convert_enum (GType type,
 	if (*val_p == '-') val_p++;
 	vals = gperl_type_enum_get_values (type);
 	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_nick) ||
-		    streq_enum (val_p, vals->value_name)) {
+		if (gperl_str_eq (val_p, vals->value_nick) ||
+		    gperl_str_eq (val_p, vals->value_name)) {
 			*val = vals->value;
 			return TRUE;
 		}
@@ -288,8 +273,8 @@ gperl_try_convert_flag (GType type,
 {
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_name) ||
-		    streq_enum (val_p, vals->value_nick)) {
+		if (gperl_str_eq (val_p, vals->value_name) ||
+		    gperl_str_eq (val_p, vals->value_nick)) {
                         *val = vals->value;
                         return TRUE;
 		}
@@ -1545,8 +1530,6 @@ void
 list_values (class, const char * package)
     PREINIT:
 	GType type;
-	char * p;
-	HV * hv;
     PPCODE:
 	type = gperl_fundamental_type_from_package (package);
 	if (!type)
