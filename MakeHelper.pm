@@ -69,11 +69,16 @@ our @gend_pods = ();
 =item HASH = Glib::MakeHelper->do_pod_files (@xs_files)
 
 Scan the I<@xs_files> and return a hash describing the pod files that will
-be created.  This is in the format wanted by WriteMakefile().
+be created.  This is in the format wanted by WriteMakefile(). If @ARGV contains
+the string --disable-apidoc an empty list will be returned and thus no apidoc 
+pod will be generated speeding up the build process.
 
 =cut
 sub do_pod_files
 {
+	return () if (grep /disable[-_]apidoc/i, @ARGV);
+	print STDERR "Including ApiDoc pod.\n";
+
 	shift; # package name
 
 	# try to get it from pwd first, then fall back to installed
