@@ -330,9 +330,11 @@ should register the log domains they wrap for this to happen fluidly.
 
 =head1 SEE ALSO
 
-How to create your own gobject subclasses:
+L<Glib::Object::Subclass> explains how to create your own gobject subclasses
+in Perl.
 
-  Glib::Objects::Subclass
+L<Glib::index> lists the automatically-generated API reference for the
+various packages in Glib.
 
 This module is the basis for the Gtk2 module, so most of the references
 you'll be able to find about this one are tied to that one.  The perl
@@ -348,9 +350,13 @@ GLib-based C libraries to perl.
   Glib::PkgConfig - simple interface to pkg-config for developers
   Glib::devel - Binding developer's overview of Glib's internals
   Glib::xsapi - internal API reference for GPerl
+  Glib::ParseXSDoc - extract API docs from xs sources.
+  Glib::GenPod - turn the output of Glib::ParseXSDoc into POD
+  Glib::MakeHelper - Makefile.PL utilities for Glib-based extensions
+
   Yet another document, available separately, ties it all together:
     http://gtk2-perl.sourceforge.net/doc/binding_howto.pod.html
-
+  
 For gtk2-perl itself, see its website at
 
   gtk2-perl - http://gtk2-perl.sourceforge.net/
