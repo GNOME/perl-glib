@@ -135,7 +135,7 @@ gperl_sv_from_filename (const gchar *filename)
 	gssize len;
         gchar *str = g_filename_to_utf8 (filename, -1, NULL, &len, &error);
 
-        if (!filename)
+        if (!str)
         	gperl_croak_gerror (NULL, error);
 
         sv = newSVpv (str, len);
