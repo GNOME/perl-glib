@@ -55,7 +55,8 @@ gperl_value_from_sv (GValue * value,
 				return FALSE;
 			break;
 		case G_TYPE_BOOLEAN:
-			g_value_set_boolean(value, SvIV(sv));
+			/* undef is also false. */
+			g_value_set_boolean (value, SvTRUE (sv));
 			break;
 		case G_TYPE_INT:
 			g_value_set_int(value, SvIV(sv));

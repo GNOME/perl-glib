@@ -1,3 +1,8 @@
+2003/06/11 09:25 muppetman
+
+	* GValue.xs: undef is also false; use SvTRUE instead of SvIV when
+	evaluating an SV as a gboolean to allow undef to pass quietly.
+
 2003/06/09 13:49 muppetman
 
 	* gperl.h, typemap: corrected broken handling for GObject output
