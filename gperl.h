@@ -106,16 +106,34 @@ gpointer gperl_alloc_temp (int nbytes);
 /*
  * enums and flags
  */
-// FIXME document these symbols!
+/* return FALSE if sv can't be mapped to a valid member of the registered
+ * enum type, otherwise, return TRUE and val gets the new value. */
 gboolean gperl_try_convert_enum (GType type, SV * sv, gint * val);
+/* croak if val is not part of type, otherwise return corresponding value */
 gint gperl_convert_enum (GType type, SV * val);
+/* return a scalar which is the nickname of the enum value val, or the integer
+ * of val if val is not a member of the enum. */
 SV * gperl_convert_back_enum_pass_unknown (GType type, gint val);
+/* return a scalar which is the nickname of the enum value val, or croak if
+ * val is not a member of the enum. */
 SV * gperl_convert_back_enum (GType type, gint val);
+
+/* like gperl_try_convert_enum, but for GFlags. */
+gboolean gperl_try_convert_flag (GType type, const char * val_p, gint * val);
+/* croak if val is not part of type, otherwise return corresponding value */
 gint gperl_convert_flag_one (GType type, const char * val_p);
+/* collapse a list of strings to an integer with all the correct bits set,
+ * croak if anything is invalid. */
 gint gperl_convert_flags (GType type, SV * val);
+/* convert a bitfield to a list of strings. */
 SV * gperl_convert_back_flags (GType type, gint val);
 
+/*
+ * inheritance management
+ */
+/* push @{$parent_package}::ISA, $child_package */
 void gperl_set_isa (const char * child_package, const char * parent_package);
+/* unshift @{$parent_package}::ISA, $child_package */
 void gperl_prepend_isa (const char * child_package, const char * parent_package);
 
 /* these work regardless of what the actual type is (GBoxed or GObject) */
