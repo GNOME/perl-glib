@@ -80,7 +80,7 @@ of gmain.h in here, commented out.
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
 
-=for object Glib::MainLoop
+=for object Glib::MainLoop An event source manager
 =cut
 
 =for position DESCRIPTION

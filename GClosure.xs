@@ -666,7 +666,7 @@ gperl_run_exception_handlers (void)
 
 MODULE = Glib::Closure	PACKAGE = Glib	PREFIX = gperl_
 
-=for object Glib::Signal
+=for object Glib::Signal Object customization and general purpose notification
 
 =cut
 

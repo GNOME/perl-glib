@@ -1406,6 +1406,8 @@ gperl_type_base_init (gpointer class)
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
+=for object Glib::Type Utilities for dealing with the GLib Type system
+
 =for flags Glib::SignalFlags
 =cut
 

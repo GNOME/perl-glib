@@ -158,6 +158,9 @@ gperl_handle_logs_for (const gchar * log_domain)
 
 MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
+=for object Glib::Log A flexible logging mechanism
+=cut
+
 BOOT:
 	gperl_handle_logs_for (NULL);
 	/* gperl_handle_logs_for ("main"); */

@@ -1,3 +1,8 @@
+2004/02/27 22:12 (-0500) muppetman
+
+	* GClosure.xs, GLog.xs, GMainLoop.xs, GType.xs: short descriptions
+	for the NAME sections
+
 2004/02/27 14:38 (-0500) rwmcfa1
 
 	* GenPod.pm: mystery solved, Exporter needed quotes around it in the use
