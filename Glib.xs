@@ -159,3 +159,4 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__Signal);
 	GPERL_CALL_BOOT (boot_Glib__MainLoop);
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
+	GPERL_CALL_BOOT (boot_Glib__IO__Channel);

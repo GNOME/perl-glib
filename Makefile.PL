@@ -48,6 +48,7 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
 	GClosure.xs
 	GSignal.xs
 	GMainLoop.xs
+	GIOChannel.xs
 	GParamSpec.xs
    );
    %pm_files = (
