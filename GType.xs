@@ -664,6 +664,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
+		SV * save_errsv;
 		int flags;
 		dSP;
 
@@ -687,6 +688,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		/* now call it */
 		/* note: keep this as closely sync'ed as possible with the
 		 * definition of GPERL_CLOSURE_MARSHAL_CALL. */
+		save_errsv = sv_2mortal (newSVsv (ERRSV));
 		flags = G_EVAL | (return_value ? G_SCALAR : G_VOID|G_DISCARD);
 		call_method (SvPV_nolen (method_name), flags);
 		SPAGAIN;
@@ -697,6 +699,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 			gperl_value_from_sv (return_value, POPs);
 			PUTBACK;
 		}
+		SvSetSV (ERRSV, save_errsv);
 
 		FREETMPS;
 		LEAVE;

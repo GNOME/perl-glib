@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More
-	tests => 20;
+	tests => 32;
 
 BEGIN { use_ok 'Glib'; }
 
@@ -57,6 +57,7 @@ ok( Glib->install_exception_handler (sub {
 			ok (1, "handler may die, but we shouldn't");
 		});
    $my->signal_connect (second => sub {
+			ok (!$@, "signal handlers are eval'd so \$@ should always be empty");
 			ok (1, "in second handler, dying with 'ouch\\n'");
 			die "ouch\n";
 			ok (0, "should NEVER get here");
@@ -80,6 +81,14 @@ ok( Glib->install_exception_handler (sub {
    ok (1, "after eval");
    print " # calling first out of eval - should not result in crash\n";
    $my->first;
+
+   # more exception trapping behavior tests
+   $@ = undef;
+   $my->second;
+   is ($@, undef, 'exception value should remain unchanged');
+   $@ = 'neener';
+   $my->first;
+   is ($@, 'neener', 'exception value should remain unchanged');
 }
 
 
