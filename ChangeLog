@@ -1,3 +1,17 @@
+2003/11/07 20:13 pcg
+
+	* GType.xs: apply muppet's patch to bless flags, modified to
+          - implement overloaded operations on flags.
+          - change the flag test from "set & mask" to "set & mask == mask",
+            which hopefully fixes the GdkModifier problem.
+          - since the testsuites of both glib and gtk work fine, as
+            well as my apps, I checked it in (low-risk-patch).
+        * Glib.pm: add overload glue + documentation.
+        * In a second, future step, we might want to replace GFlags by
+          bless(RV(IV)) while keeping the user-api intact. This might
+          break some obscure parts in Gtk2, so... this is a later step
+          that can be done without user-visible-changes.
+
 2003/11/07 12:57 (-0500) rwmcfa1
 
 	* GenPod.pm: instead of usings methods trick, use ->can, improves 

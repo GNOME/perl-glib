@@ -43,6 +43,17 @@ sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
 bootstrap Glib $VERSION;
 
+package Glib::Flags;
+
+use overload
+   'bool' => \&bool,
+   '+'    => \&union,
+   '-'    => \&sub,
+   '>='   => \&ge,
+   '*'    => \&intersect,
+   '/'    => \&xor,
+   '""'   => sub { "[ @{$_[0]} ]" };
+   
 package Glib::Object::Property;
 
 use Carp;
@@ -104,29 +115,21 @@ sub tie_properties
 			if (exists ($self->{$name}) 
 				and not tied $self->{$name});
 
-		my $flags = "@{$prop->{flags}}";
-		if ($flags =~ /readable/)
-		{
-			if ($flags =~ /writable/)
-			{
-				tie $self->{$name}, 
-					'Glib::Object::Property::ReadWrite',
-					$self, $name;
-			}
-			else
-			{
-				tie $self->{$name}, 
-					'Glib::Object::Property::Readable',
-					$self, $name;
-			}
-		}
-		elsif ($flags =~ /writeable/)
-		{
+		if ($prop->{flags} >= ["readable", "writable"]) {
+                        tie $self->{$name}, 
+                                'Glib::Object::Property::ReadWrite',
+                                $self, $name;
+                } elsif ($prop->{flags} >= "readable") {
+                        tie $self->{$name}, 
+                                'Glib::Object::Property::Readable',
+                                $self, $name;
+                } elsif ($prop->{flags} >= "writable") {
 			tie $self->{$name}, 
 				'Glib::Object::Property::Writable',
 				$self, $name;
+                } else {
+                        # if it's not readable and not writable what is it?
 		}
-		# if it's not readable and not writable what is it?
 	}
 }
 
@@ -218,7 +221,7 @@ so they get their own section.
 Enumerations and flags are treated as strings and arrays of strings,
 respectively.  GLib provides a way to register nicknames for enumeration
 values, and the Perl bindings use these nicknames for the real values, so that
-we never have to deal with numbers in Perl.  This can get a little cumbersome
+we never have to deal with numbers in Perl. This can get a little cumbersome
 for bitfields, but it's very nice when you forget a flag value, as the bindings
 will tell you what values are accepted when you pass something invalid. Also,
 the bindings consider the - and _ characters to be equivalent, so that signal
@@ -234,6 +237,40 @@ example, the following are equivalent:
   $object->set (foo_matic => 'something-cool');
 
 Beware that Perl will always return to you the nickname form, with the dash.
+
+Flags have some additional magic abilities in the form of overloaded
+operators:
+
+  +  union of two flagsets ("add")
+  -  difference of two flagsets ("sub")
+  *  intersection of two bitsets ("and")
+  /  symmetric difference ("xor", you will rarely need this)
+  >= contains-operator (is the left set a superset of the right set?)
+
+In addition, flags in boolean context indicate wether they are empty or
+not, which allows you to write common operations naturally:
+
+  $widget->set_events ($widget->get_events - "motion_notify_mask");
+  $widget->set_events ($widget->get_events - ["motion_notify_mask", "button_press_mask"]);
+
+  # shift pressed (both work, it's a matter of taste)
+  if ($event->state >= "shift-mask") { ...
+  if ($event->state * "shift-mask") { ...
+
+  # either shift OR control pressed?
+  if ($event->state * ["shift-mask", "control-mask"]) { ...
+
+  # both shift AND control be pressed?
+  if ($event->state >= ["shift-mask", "control-mask"]) { ...
+
+In general, C<+> and C<-> work as expected to add or remove flags. To test
+wether I<any> bits are set in a mask, you use C<$mask * ...>, and to test
+wether I<all> bits are set in a mask, you use C<$mask >= ...>.
+
+When dereferenced as an array C<@$flags> or C<$flags->[...]>, you
+can access the flag values directly as strings, and when stringified
+C<"$flags"> a flags value will output a human-readable version of it's
+contents.
 
 =head2 It's All the Same
 

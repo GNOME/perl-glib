@@ -93,6 +93,9 @@ gperl_register_fundamental (GType gtype, const char * package)
 	g_hash_table_insert (types_by_package, p, (gpointer)gtype);
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
+
+	if (g_type_is_a (gtype, G_TYPE_FLAGS))
+		gperl_set_isa (package, "Glib::Flags");
 }
 
 =item GType gperl_fundamental_type_from_package (const char * package)
@@ -365,14 +368,21 @@ SV *
 gperl_convert_back_flags (GType type,
 			  gint val)
 {
+	const char * package;
+	SV * rv;
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	AV * flags = newAV ();
 	while (vals && vals->value_nick && vals->value_name) {
-		if (vals->value & val)
+		if ((val & vals->value) == vals->value)
 			av_push (flags, newSVpv (vals->value_nick, 0));
 		vals++;
 	}
-	return newRV_noinc ((SV*) flags);
+	rv = newRV_noinc ((SV*) flags);
+	package = gperl_fundamental_package_from_type (type);
+	if (package)
+		return sv_bless (rv, gv_stashpv (package, TRUE));
+	else
+		return rv;
 }
 
 =back
@@ -1594,3 +1604,70 @@ package_from_cname (class, const char * cname)
 	}
     OUTPUT:
 	RETVAL
+
+
+
+MODULE = Glib::Type	PACKAGE = Glib::Flags
+
+int
+bool (SV *a, SV *b, int swap)
+    CODE:
+        RETVAL = !!gperl_convert_flags (
+                     gperl_fundamental_type_from_package (
+                       sv_reftype (SvRV (a), TRUE)
+                     ),
+                     a
+                   );
+    OUTPUT:
+        RETVAL
+
+int
+ge (SV *a, SV *b, int swap)
+    CODE:
+{
+	GType gtype;
+	char *package;
+        gint a_, b_;
+
+	package = sv_reftype (SvRV (a), TRUE);
+	gtype = gperl_fundamental_type_from_package (package);
+        a_ = gperl_convert_flags (gtype, swap ? b : a);
+        b_ = gperl_convert_flags (gtype, swap ? a : b);
+
+        RETVAL = (a_ & b_) == b_;
+}
+    OUTPUT:
+        RETVAL
+
+SV *
+union (SV *a, SV *b, int swap)
+    ALIAS:
+        sub = 1
+        intersect = 2
+        xor = 3
+        all = 4
+    CODE:
+{
+	GType gtype;
+	char *package;
+        gint a_, b_;
+
+	package = sv_reftype (SvRV (a), TRUE);
+	gtype = gperl_fundamental_type_from_package (package);
+        a_ = gperl_convert_flags (gtype, swap ? b : a);
+        b_ = gperl_convert_flags (gtype, swap ? a : b);
+
+        fprintf (stderr, "%d %lx %lx => ",ix, a_, b_);
+        switch (ix) {
+          case 0: a_ |= b_; break;
+          case 1: a_ &=~b_; break;
+          case 2: a_ &= b_; break;
+          case 3: a_ ^= b_; break;
+        }
+        fprintf (stderr, "%lx\n", a_);
+
+        RETVAL = gperl_convert_back_flags (gtype, a_);
+}
+    OUTPUT:
+        RETVAL
+
