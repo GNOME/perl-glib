@@ -1,3 +1,8 @@
+2003/12/09 13:26 (-0500) rwmcfa1
+
+	* GType.xs: another pass at getting things going. created 
+	sanitize_package_name, used it where app.
+
 2003/12/08 22:44 (-0500) rwmcfa1
 
 	* GType.xs: implemented first pass at register_enum and register_flags

@@ -599,6 +599,20 @@ newSVGChar (const gchar * str)
  * lots of boilerplate translations and such.
  */
 
+/* TODO/FIXME: utf8 safe??? */
+static char *
+sanitize_package_name (const char * pkg_name)
+{
+	char * s;
+	char * ctype_name;
+
+	ctype_name = g_strdup (pkg_name);
+	for (s = ctype_name; *s != '\0' ; s++)
+		if (*s == ':')
+			*s = '_';
+	return ctype_name;
+}
+			
 static void
 gperl_signal_class_closure_marshal (GClosure *closure,
 				    GValue *return_value,
@@ -1451,10 +1465,7 @@ g_type_register (class, parent_package, new_package, ...);
 
 	/* and now register with the gtype system */
 	/* mangle the name to remove illegal characters */
-	new_type_name = g_strdup (new_package);
-	for (s = new_type_name ; *s != '\0' ; s++)
-		if (*s == ':')
-			*s = '_';
+	new_type_name = sanitize_package_name (new_package);
 	new_type = g_type_register_static (parent_type, new_type_name,
 	                                   &type_info, 0);
 #ifdef NOISY
@@ -1784,12 +1795,12 @@ g_type_register_enum (class, name, ...)
 	const char * name
     PREINIT:
 	int           i = 0;
+	char       *  ctype_name;
 	SV         *  sv;
 	SV         ** av2sv;
+	GType         type;
 	GEnumValue *  values = NULL;
     CODE:
-	fprintf (stderr, "Registering enum: %s with %d values\n", 
-		 name, items-2);
 	values = g_new0 (GEnumValue, items-1);
 	for (i = 0; i < items-2; i++)
 	{
@@ -1805,7 +1816,7 @@ g_type_register_enum (class, name, ...)
 			if (av2sv && *av2sv && SvOK(*av2sv))
 				values[i].value_name = SvPV_nolen (*av2sv);
 			else
-				fprintf (stderr, "uh-oh\n");
+				croak ("invalid enum name and value pair, no name provided");
 			/* custom value */
 			av2sv = av_fetch (av, 1, 0);
 			if (av2sv && *av2sv && SvOK(*av2sv))
@@ -1814,17 +1825,22 @@ g_type_register_enum (class, name, ...)
 			/* just copy name into nick, they'll be the same */
 			values[i].value_nick = values[i].value_name;
 		}
-		else
+		else if (SvOK (sv))
 		{
 			/* name syntax */
 			values[i].value_name = SvPV_nolen (sv);
 			values[i].value_nick = values[i].value_name;
 		}
-		fprintf (stderr, "\titem(%d): %s\t%d\n", i, 
-				values[i].value_name, values[i].value);
+		else
+			croak ("invalid type flag name");
 	}
-	g_enum_register_static (name, values);
-	/* can we/should we free values, what can be done, mem man in general */
+	ctype_name = sanitize_package_name (name);
+	type = g_enum_register_static (ctype_name, values);
+	gperl_register_fundamental (type, name);
+/*	gperl_type_class (flags_type)->class_finalize = ; */
+	
+	/* TODO: can we/should we free values, what can be done, mem man in general */
+	g_free (ctype_name);
 
 =for apidoc
 =for arg name name of enum type being registered
@@ -1842,12 +1858,12 @@ g_type_register_flags (class, name, ...)
 	const char * name
     PREINIT:
 	int           i = 0;
+	char       *  ctype_name;
 	SV         *  sv;
 	SV         ** av2sv;
+	GType          type;
 	GFlagsValue *  values = NULL;
     CODE:
-	fprintf (stderr, "Registering flags: %s with %d values\n", 
-		 name, items-2);
 	values = g_new0 (GFlagsValue, items-1);
 	for (i = 0; i < items-2; i++)
 	{
@@ -1863,7 +1879,7 @@ g_type_register_flags (class, name, ...)
 			if (av2sv && *av2sv && SvOK(*av2sv))
 				values[i].value_name = SvPV_nolen (*av2sv);
 			else
-				fprintf (stderr, "uh-oh\n");
+				croak ("invalid flag name and value pair, no name provided");
 			/* custom value */
 			av2sv = av_fetch (av, 1, 0);
 			if (av2sv && *av2sv && SvOK(*av2sv))
@@ -1872,17 +1888,21 @@ g_type_register_flags (class, name, ...)
 			/* just copy name into nick, they'll be the same */
 			values[i].value_nick = values[i].value_name;
 		}
-		else
+		else if (SvOK (sv))
 		{
 			/* name syntax */
 			values[i].value_name = SvPV_nolen (sv);
 			values[i].value_nick = values[i].value_name;
 		}
-		fprintf (stderr, "\titem(%d): %s\t0x%08x\n", i, 
-				values[i].value_name, values[i].value);
+		else
+			croak ("invalid type flag name");
 	}
-	g_flags_register_static (name, values);
-	/* can we/should we free values, what can be done, mem man in general */
+	ctype_name = sanitize_package_name (name);
+	type = g_flags_register_static (ctype_name, values);
+	gperl_register_fundamental (type, name);
+
+	/* TODO: can we/should we free values, what can be done, mem man in general */
+	g_free (ctype_name);
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 
