@@ -348,8 +348,7 @@ gperl_new_object (GObject * object,
                  * built-in objects.
                  */
 
-                /* this virtually increases the combined object's refcount. the actual
-                 * increment is g_object_ref below. */
+                /* this increases the combined object's refcount. */
                 obj = (SV *)newHV ();
                 /* attach magic */
                 sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
@@ -390,7 +389,7 @@ gperl_new_object (GObject * object,
                 /* create the wrapper to return, increases the combined refcount by one. */
                 sv = newSVsv (obj);
 
-                /* and decrease it again. */
+                /* and decrease it again, so we effectively increaed it by one in this block. */
                 SvREFCNT_dec (SvRV (obj));
 
         } else {
