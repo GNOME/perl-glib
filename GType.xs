@@ -1609,7 +1609,7 @@ list_values (class, const char * package)
 			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
 		}
 	} else {
-		croak ("%s is neither enum nor flags type");
+		croak ("%s is neither enum nor flags type", package);
 	}
 
 

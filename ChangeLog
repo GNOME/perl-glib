@@ -19,6 +19,9 @@
 	* ParseXSDoc.pm: allow the token \b__hide__\b on the =for apidoc
 	line to hide an xsub.
 
+	* GType.xs: fix a little bug in list_values causes segfaults if you
+	pass in type that's neither a flags nor enum type.
+
 2003/11/12 20:45 pcg
 
 	* gperl.h, typemap: Add GPerlFilename_const.
