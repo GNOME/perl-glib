@@ -55,61 +55,6 @@ sub dl_load_flags { 0x01 }
 
 bootstrap Glib $VERSION;
 
-
-#
-# additional base class for perl-derived objects.
-# it provides some default implementations for the required methods.
-# FIXME the docs here belong in POD.
-#
-package Glib::Object::Base;
-
-# default constructor just passes everything on
-sub new { Glib::Object::new (@_); }
-
-# INIT_INSTANCE is called on each class in the ascestry, as the object
-# is being created (i.e., from g_object_new()).  use this function to
-# initialize any member data.
-# the default initializer does nothing.
-sub INIT_INSTANCE {} #warn "Glib::Object::Base::INIT_INSTANCE : @_" }
-
-# GET_PROPERTY and SET_PROPERTY are called whenever somebody does
-# $object->get (name) or $object->set (name=>$newval).  this is your
-# hook that allows you to store/fetch any way you need to (maybe you
-# have to calculate something or read a file).
-#   GET_PROPERTY is different from a C get_property method in that
-# this perl method returns the retrieved value.  for symmetry, the
-# newval and pspec args on SET_PROPERTY are swapped from the C usage.
-#   the default get and set methods store property data in the object
-# as hash values named for the parameter name.
-sub GET_PROPERTY {
-	my ($self, $prop_id, $pspec) = @_;
-	#warn "Glib::Object::Base::GET_PROPERTY : @_";
-	return $self->{$pspec->get_name};
-}
-sub SET_PROPERTY {
-	my ($self, $prop_id, $pspec, $newval) = @_;
-	#warn "Glib::Object::Base::SET_PROPERTY : @_";
-	$self->{$pspec->get_name} = $newval;
-}
-
-# FINALIZE_INSTANCE is called as the GObject is being finalized, that
-# is, as it's being really destroyed.  this is independent of DESTROY
-# on the perl object; in fact, you must NOT override DESTROY (it's not
-# useful to you, in any case).
-#   use this hook to release anything you have to clean up manually. 
-# FINALIZE is an overridden method, so keep in mind that you will have
-# to chain manually to $self->SUPER::FINALIZE_INSTANCE.
-#   default finalizer has nothing to do, and does not chain, so as to
-# avoid an infinite loop (it chains at a lower level).
-sub FINALIZE_INSTANCE {
-	#warn "Glib::Object::Base::FINALIZE_INSTANCE : @_";
-}
-
-package Glib;
-
-1;
-__END__
-
 =head1 NAME
 
 Glib - Perl wrappers for the GLib utility and Object libraries
@@ -143,6 +88,125 @@ that purpose.  [FIXME link to a document describing this stuff in detail.]
 
 This module also provides facilities for creating wrappers for other
 GObject-based libraries.  [FIXME link to a developer's doc]
+
+=head2 THE Glib::Object::Base CLASS
+
+This class is automatically added as a base class to perl classes derived
+from GTypes.
+
+It provides some default implementations for the methods required for all
+GObjects.
+
+=over 4
+
+=cut
+
+package Glib::Object::Base;
+
+=item $class->new (attr => value, ...)
+
+The default constructor just calls C<Glib::Object::new>, which allows you
+to set properties on the newly created object. This is done because many
+C<new> methods inherited by Gtk2 or other libraries don't have C<new>
+methods suitable for subclassing.
+
+=cut
+
+*new = \&Glib::Object::new; # be efficient
+
+=item INIT_INSTANCE $object    [not a method]
+
+C<INIT_INSTANCE> is called on each class in the hierarchy as the object is
+being created (i.e., from C<Glib::Object::new> or our default C<new>). Use
+this function to initialize any member data. The default implementation
+will leave the object untouched.
+
+Remember that this is a I<function>, not a method, so calling the
+superclass is actually wrong.
+
+=cut
+
+sub INIT_INSTANCE {}
+
+=item $object->GET_PROPERTY ($prop_id, $pspec)
+
+Get a property value, see C<SET_PROPERTY>.
+
+The default implementation looks like this:
+
+   my ($self, $prop_id, $pspec) = @_;
+   return $self->{$pspec->get_name};
+
+=item $object->SET_PROPERTY ($prop_id, $pspec, $newval)
+
+C<GET_PROPERTY> and C<SET_PROPERTY> are called whenever somebody does
+C<< $object->get ($propname) >> or C<< $object->set ($propname => $newval) >>
+(from other languages, too). This is your hook that allows you to
+store/fetch properties in any way you need to (maybe you have to calculate
+something or read a file).
+
+C<GET_PROPERTY> is different from a C get_property method in that the
+perl method returns the retrieved value. For symmetry, the C<$newval>
+and C<$pspec> args on C<SET_PROPERTY> are swapped from the C usage. The
+default get and set methods store property data in the object as hash
+values named for the parameter name.
+
+Remember to call the SUPER method for unhandled properties.
+
+The default C<SET_PROPERTY> looks like this:
+
+   my ($self, $prop_id, $pspec, $newval) = @_;
+   $self->{$pspec->get_name} = $newval;
+
+=cut
+
+sub GET_PROPERTY {
+	my ($self, $prop_id, $pspec) = @_;
+	return $self->{$pspec->get_name};
+}
+
+sub SET_PROPERTY {
+	my ($self, $prop_id, $pspec, $newval) = @_;
+	#warn "Glib::Object::Base::SET_PROPERTY : @_";
+	$self->{$pspec->get_name} = $newval;
+}
+
+=item $object->FINALIZE_INSTANCE [method]
+
+C<FINALIZE_INSTANCE> is called as the GObject is being finalized, that is, as
+it's being really destroyed. This is independent of DESTROY on the perl
+object; in fact, you must I<NOT> override C<DESTROY> (it's not useful to
+you, in any case, as it is being called multiple times!).
+
+Use this hook to release anything you have to clean up manually.
+FINALIZE_INSTANCE is an overridden method, so keep in mind that you will
+have to chain manually to $self->SUPER::FINALIZE_INSTANCE.
+
+Default finalizer has nothing to do, and does not chain, so as to avoid an
+infinite loop (it chains at a lower level).
+
+=cut
+
+sub FINALIZE_INSTANCE {
+	# nop
+}
+
+=item $object->DESTROY
+
+Don't I<ever> overwrite, use C<FINALIZE_INSTANCE> instead.
+
+The DESTROY method of all perl classes derived from GTypes is
+implemented in the Glib module and (ab-)used for it's own internal
+purposes. Overwriting it is not useful as it will be called
+E<multiple> times, and often long before the object actually gets
+destroyed. Overwriting might be very harmful to your program, so I<never>
+do that. Especially watch out for other classes in your ISA tree.
+
+=back
+
+=cut
+
+1;
 
 
 =head1 SEE ALSO
