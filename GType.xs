@@ -110,7 +110,8 @@ gperl_fundamental_type_from_package (const char * package)
 {
 	GType res;
 	G_LOCK (types_by_package);
-	res = (GType) g_hash_table_lookup (types_by_package, package);
+	res = (GType) GPOINTER_TO_UINT
+			(g_hash_table_lookup (types_by_package, package));
 	G_UNLOCK (types_by_package);
 	return res;
 }

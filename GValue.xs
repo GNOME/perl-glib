@@ -114,7 +114,8 @@ gperl_value_from_sv (GValue * value,
 			g_value_set_string(value, SvGChar(sv));
 			break;
 		case G_TYPE_POINTER:
-			g_value_set_pointer(value, (gpointer) SvIV(sv));
+			g_value_set_pointer (value,
+			                     GINT_TO_POINTER (SvIV (sv)));
 			break;
 		case G_TYPE_BOXED:
 			/* SVs need special treatment! */
@@ -126,6 +127,7 @@ gperl_value_from_sv (GValue * value,
 				g_value_set_boxed (value, gperl_get_boxed_check (sv, G_VALUE_TYPE(value)));
 			break;
 		case G_TYPE_PARAM:
+			/* FIXME is this right? */
 			g_value_set_param(value, (gpointer) SvIV(sv));
 			break;
 		case G_TYPE_OBJECT:
