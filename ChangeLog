@@ -1,3 +1,11 @@
+2004/03/17 17:09 (+0100) kaffeetisch
+
+	* gperl.h (SvGObject_ornull): Use SvOK instead of SvTRUE.
+
+	* gperl.h
+	* typemap: Add typemaps for "const char_ornull *" and
+	"char_ornull *".
+
 2004/03/13 22:05 (-0500) muppetman
 
 	* MakeHelper.pm: portability fixes; ask Config what make program we're
