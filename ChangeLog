@@ -1,3 +1,10 @@
+2003/09/05 00:51 muppetman
+
+	* Glib.pm: more pod (too much?  should it be in a separate doc?)
+
+	* t/a.t, Glib.exports, Glib.xs, Makefile.PL, gperl.h, MANIFEST:
+	add support for routing g_log messages through perl
+
 2003/09/01 19:52 muppetman
 
 	* Glib.pm: don't set dl_load_flags on darwin, it generates a warning.

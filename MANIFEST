@@ -35,6 +35,7 @@ t/6.t
 t/7.t
 t/8.t
 t/9.t
+t/a.t
 typemap
 xsapi.pod.head
 xsapi.pod.foot
