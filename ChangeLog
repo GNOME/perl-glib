@@ -1,3 +1,7 @@
+2004/03/01 12:17 (-0500) rwmcfa1
+
+	* GMainLoop.xs: g_main_depth bound as Glib::main_depth (ver 2.4)
+
 2004/02/27 22:12 (-0500) muppetman
 
 	* GClosure.xs, GLog.xs, GMainLoop.xs, GType.xs: short descriptions

@@ -78,6 +78,21 @@ of gmain.h in here, commented out.
 
 #endif
 
+MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
+
+=for object Glib::MainLoop
+=cut
+
+#if GLIB_CHECK_VERSION(2,3,4) /* TODO/FIXME: exact version, or 2.4 ??? */
+
+=for apidoc __function__
+=cut
+int g_main_depth ()
+    C_ARGS:
+	/* void */
+
+#endif
+
 MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
 
 =for object Glib::MainLoop An event source manager
