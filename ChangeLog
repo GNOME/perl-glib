@@ -1,3 +1,7 @@
+2003/11/12 20:45 pcg
+
+	* gperl.h, typemap: Add GPerlFilename_const.
+
 2003/11/12 02:48 pcg
 
         * gperl.h, Glib.xs, typemap: Implement GPerlFilename type and

@@ -59,8 +59,9 @@ GIOCondition	T_G_TYPE_IO_CONDITION
 GMainContext*	T_G_MAIN_CONTEXT
 GMainLoop*	T_G_MAIN_LOOP
 
-GPerlFilename	T_GPERL_FILENAME
-GPerlFilename_own T_GPERL_FILENAME_OWN
+GPerlFilename		T_GPERL_FILENAME
+GPerlFilename_const	T_GPERL_FILENAME
+GPerlFilename_own	T_GPERL_FILENAME_OWN
 
 #####
 INPUT
