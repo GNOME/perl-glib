@@ -1,3 +1,9 @@
+2005/01/08 23:45 (-0400) muppetman
+
+	* GMainLoop.xs, t/9.t: Ensure that asynchronous signals, deferred by
+	perl's safe signal handling, are delivered on time when a main loop
+	is running.  Thanks to Jan Hudec.
+
 2005/01/04 15:15 (-0400) rwmcfa1
 
 	* t/1.t: we need to make it clear to perl that g_get_user_data_dir and

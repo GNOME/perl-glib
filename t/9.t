@@ -6,7 +6,7 @@
 
 use Config;
 
-print "1..14\n";
+print "1..16\n";
 
 use Glib;
 
@@ -107,9 +107,34 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 	$loop->run;
 }
 
+
+# 1.072 fixes the long-standing "bug" that perl's safe signal handling
+# caused asynchronous signals not to be delivered while a main loop is
+# running (because control stays in C).  let's make sure that we can
+# get a 1 second alarm before a 2 second timeout has a chance to fire.
+{
+	$loop = Glib::MainLoop->new;
+	$SIG{ALRM} = sub {
+		print "ok 15 # ALRM handler\n";
+		$loop->quit;
+	};
+	my $timeout_fired = 0;
+	Glib::Timeout->add (2000, sub {
+		$timeout_fired++;
+		$loop->quit;
+		0;
+	});
+	alarm 1;
+	$loop->run;
+	print ""
+	    . ($timeout_fired ? "not ok" : "ok")
+	    . " 16 # 1 sec alarm handler fires before 2 sec timeout\n";
+}
+
+
 __END__
 
-Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under

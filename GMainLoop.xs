@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the full
- * list)
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -63,7 +63,83 @@ of gmain.h in here, commented out.
 
 */
 
+
+/*
+ * Since 5.7.3, perl uses "safe" signal handling by default.
+ * (As gtk2-perl requires at least 5.8.0, this is relevant to us.)
+ * To protect the interpreter from having signal handlers run during
+ * important and otherwise uninterruptible operations, when something
+ * is installed in %SIG, perl installs a sigaction handler that simply
+ * sets a flag saying that a signal is pending; then, at "strategic"
+ * points in later operation, it checks that flag.  This is done using
+ * the PERL_ASYNC_CHECK() macro after each op.
+ *
+ * This is important, because while a glib main loop is running, it generally
+ * sleeps in a poll(), and control does not normally return to perl.  That
+ * causes pending signals to pile up, and looks to the user as though the
+ * signals are being ignored.
+ *
+ * To solve this, the bindings will always install an event source which
+ * watches PL_sig_pending, and calls the PERL_ASYNC_CHECK() macro whenever
+ * we see it go true.  Since an async signal will wake up a poll(), this
+ * will always run at just the right time, so no delays or other performance
+ * penalties result.
+ *
+ * Thanks to Jan Hudec for the implementation idea:
+ * http://mail.gnome.org/archives/gtk-perl-list/2004-December/msg00034.html
+ */
+
+static gboolean
+async_watcher_prepare (GSource * source,
+		       gint * timeout)
+{
+	PERL_UNUSED_VAR (source);
+	/* wait as long as you like.  we rely on the fact that the
+	 * poll will be awoken by the receipt of an async signal. */
+	*timeout = -1;
+	return FALSE;
+}
+static gboolean
+async_watcher_check (GSource * source)
+{
+	PERL_UNUSED_VAR (source);
+	return PL_sig_pending;
+}
+static gboolean
+async_watcher_dispatch (GSource     * source,
+                        GSourceFunc   callback,
+                        gpointer      user_data)
+{
+	PERL_UNUSED_VAR (source);
+	PERL_UNUSED_VAR (callback);
+	PERL_UNUSED_VAR (user_data);
+	/* this checks PL_sig_pending again, but that's probably not
+	 * a bad thing -- it's conceivable that since the check, some
+	 * other handler has triggered a perl callback, which would've
+	 * cause perl to dispatch the signal handlers, and if we didn't
+	 * recheck here we'd redispatch. */
+	PERL_ASYNC_CHECK ();
+	return TRUE;
+}
+static void
+async_watcher_install (void)
+{
+	static GSourceFuncs async_watcher_funcs = {
+		async_watcher_prepare,
+		async_watcher_check,
+		async_watcher_dispatch,
+		NULL
+	};
+	GSource * async_watcher =
+		g_source_new (&async_watcher_funcs, sizeof (GSource));
+	g_source_attach (async_watcher, NULL);
+}
+
+
 MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
+
+BOOT:
+	async_watcher_install ();
 
 =for object Glib::MainLoop
 =cut
@@ -104,6 +180,11 @@ Under the hood, Gtk+ adds event sources for GdkEvents to dispatch events to
 your widgets.  In fact, Gtk2 provides an abstraction of Glib::MainLoop (See
 C<< Gtk2->main >> and friends), so you may rarely have cause to use
 Glib::MainLoop directly.
+
+Note: As of version 1.080, the Glib module uses a custom event source to
+ensure that perl's safe signal handling and the glib polling event loop
+play nicely together.  It is no longer necessary to install a timeout to
+ensure that async signals get handled in a timely manner.
 
 =cut
  
