@@ -518,8 +518,9 @@ $SIG{__WARN__} = sub {
 		shift @thisxsub; $lineno++;
 	}
 
-	warn "$filename:$lineno: WTF : args string is empty\n"
-		if not defined $args;
+	# we'll get empty arg strings on non-methods.
+	#warn "$filename:$lineno: WTF : args string is empty\n"
+	#	if not defined $args;
 
 	my %args = ();
 	my @argstr = split /\s*,\s*/, $args;
