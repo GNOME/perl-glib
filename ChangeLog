@@ -17,7 +17,7 @@
 
 	* AUTHORS: mailing list addr correction.
 
-2004/01/08 21:22 (-0500) muppetman
+2004/01/08 21:22 (-0500) rwmcfa1
 
 	* Glib.xs: bit the bullet and made filename_to_unicode and 
 	filename_from_bullet work with either :: or -> syntaxes.
