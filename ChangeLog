@@ -14,6 +14,16 @@
 
 	* TODO: updates
 
+2003/08/13 18:15 muppetman
+
+	* xsapi.pod.foot, xsapi.pod.head: new files
+
+	* GBoxed.xs, GClosure.xs, GObject.xs, GSignal.xs, GType.xs, GValue.xs,
+	Glib.xs, Makefile.PL, gperl.h: moved all the gtk-doc commentary in
+	gperl.h into embedded pod in the various XS files; now we can extract
+	all the pod from the XS files and convert that into an installable
+	API reference document, Glib::xsapi.
+
 2003/08/12 12:06 rwmcfa1
 
 	* PkgConfig.pm: can now take multiple pkg name parameters, see t/6.t
