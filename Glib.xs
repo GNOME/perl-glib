@@ -270,13 +270,9 @@ BOOT:
 =cut
 const char *
 filename_from_unicode (const char * class_or_filename, const char *filename=NULL)
+    PROTOTYPE: $
     CODE:
-    	fprintf(stderr, "items: %d, (%s), (%s)\n", items, 
-			class_or_filename, filename);
-	if (items < 2)
-	        RETVAL = class_or_filename;
-	else
-	        RETVAL = filename;
+	RETVAL = items < 2 ? class_or_filename : filename;
     OUTPUT:
         RETVAL
 
@@ -284,13 +280,59 @@ filename_from_unicode (const char * class_or_filename, const char *filename=NULL
 =cut
 GPerlFilename_const
 filename_to_unicode (const char * class_or_filename, const char *filename=NULL)
+    PROTOTYPE: $
     CODE:
-    	fprintf(stderr, "items: %d, (%s), (%s)\n", items, 
-			class_or_filename, filename);
-	if (items < 2)
-	        RETVAL = class_or_filename;
-	else
-	        RETVAL = filename;
+	RETVAL = items < 2 ? class_or_filename : filename;
     OUTPUT:
         RETVAL
- 
+
+void
+filename_from_uri (...)
+    PROTOTYPE: $
+    PREINIT:
+	gchar * filename;
+	const char * uri;
+	char * hostname;
+	GError * error = NULL;
+    PPCODE:
+	/* support multiple call syntaxes. */
+	//uri = items < 2 ? SvGChar (ST (0)) : SvGChar (ST (1));
+	uri = items < 2 ? SvPVutf8_nolen (ST (0)) : SvPVutf8_nolen (ST (1));
+	filename = g_filename_from_uri (uri,
+	                                GIMME_V == G_ARRAY ? &hostname : NULL, 
+	                                &error);
+	if (!filename)
+		gperl_croak_gerror (NULL, error);
+	PUSHs (sv_2mortal (newSVpv (filename, 0)));
+	if (GIMME_V == G_ARRAY && hostname)
+		XPUSHs (sv_2mortal (newSVpv (hostname, 0)));
+	g_free (filename);
+	if (hostname) g_free (hostname);
+
+gchar_own *
+filename_to_uri (...)
+    PROTOTYPE: $$
+    PREINIT:
+	char * filename = NULL;
+	char * hostname = NULL;
+	GError * error = NULL;
+    CODE:
+	// FIXME FIXME this is broken somehow
+	if (items == 2) {
+		filename = SvPV_nolen (ST (0));
+		hostname = SvOK (ST (1)) ? SvPV_nolen (ST (1)) : NULL;
+	} else if (items == 3) {
+		filename = SvPV_nolen (ST (1));
+		hostname = SvOK (ST (2)) ? SvPV_nolen (ST (2)) : NULL;
+	} else {
+		croak ("Usage: Glib::filename_to_uri (filename, hostname)\n"
+		       " -or-  Glib->filename_to_uri (filename, hostname)\n"
+		       "  wrong number of arguments");
+	}
+	RETVAL = g_filename_to_uri (filename, hostname, &error);
+	warn ("retval %s\n", RETVAL);
+	if (!RETVAL)
+		gperl_croak_gerror (NULL, error);
+	warn ("made it out, %s", RETVAL);
+    OUTPUT:
+	RETVAL

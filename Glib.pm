@@ -23,22 +23,21 @@ package Glib;
 use 5.008;
 use strict;
 use warnings;
-
+use Exporter;
 require DynaLoader;
-our @ISA = qw(DynaLoader);
+our @ISA = qw(DynaLoader Exporter);
+
+# export nothing by default.
+# export functions by request.
+our @EXPORT_OK = qw(
+	filename_to_unicode
+	filename_from_unicode
+	filename_to_uri
+	filename_from_uri
+);
+our %EXPORT_TAGS = ( all => [@EXPORT_OK] );
 
 our $VERSION = '1.030';
-
-# this is the 'lite' version of what we could get Exporter to do for us.
-# we export nothing, so it seems silly to drag in all of Exporter::Heavy
-# just for a version check.
-sub import {
-	my $pkg = shift;
-	foreach (@_) {
-		no strict;
-		$pkg->VERSION ($_);
-	}
-}
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -306,9 +305,15 @@ to manage filenames returned by a GLib/Gtk+ function, or when you feed
 filenames into GLib/Gtk+ functions that have their source outside your
 program (e.g. commandline arguments, readdir results etc.).
 
+These functions are available as exports by request (see L</Exports>),
+and also support method invocation syntax for pathological consistency
+with the OO syntax of the rest of the bindings.
+
 =over 4
 
-=item $filename = Glib->filename_to_unicode $filename_in_local_encoding
+=item $filename = filename_to_unicode $filename_in_local_encoding
+
+=item $filename = Glib->filename_to_unicode ($filename_in_local_encoding)
 
 Convert a perl string that supposedly contains a filename in local
 encoding into a filename represented as unicode, the same way that GLib
@@ -316,16 +321,18 @@ does it internally.
 
 Example:
 
-   $gtkfilesel->set_filename (Glib->filename_to_unicode $ARGV[1]);
+   $gtkfilesel->set_filename (filename_to_unicode $ARGV[1]);
 
-=item $filename_in_local_encoding = Glib->filename_from_unicode $filename
+=item $filename_in_local_encoding = filename_from_unicode $filename
+
+=item $filename_in_local_encoding = Glib->filename_from_unicode ($filename)
 
 Converts a perl string containing a filename into a filename in the local
 encoding in the same way GLib does it.
 
 Example:
 
-   open MY, "<", Glib->filename_from_unicode $gtkfilesel->get_filename;
+   open MY, "<", filename_from_unicode $gtkfilesel->get_filename;
 
 =back
 
@@ -383,6 +390,17 @@ critical messages, etc.  The Perl bindings offer a mechanism for routing
 these messages through Perl's native system, warn() and die().  Extensions
 should register the log domains they wrap for this to happen fluidly.
 [FIXME say more here]
+
+=head1 Exports
+
+For the most part, gtk2-perl avoids exporting things.  Nothing is exported by
+default, but some functions in Glib are available by request; you can also get
+all of them with the export tag "all".
+
+  filename_from_unicode
+  filename_to_unicode
+  filename_from_uri
+  filename_to_uri
 
 =head1 SEE ALSO
 
