@@ -7,6 +7,9 @@ use Gtk2;
 my $datafile = shift @ARGV;
 my $outdir   = shift @ARGV || 'pod.dir';
 
+die "usage: $0 datafile [outdir]\n"
+	unless defined $datafile;
+
 our ($xspods, $data);
 require $datafile;
 
@@ -30,7 +33,7 @@ foreach my $package (sort keys %$data)
 	$ret = podify_ancestors ($package);
 	if ($ret)
 	{
-		print "=head1 HEIRARCHY\n\n$ret";
+		print "=head1 HIERARCHY\n\n$ret";
 	}
 	
 	$ret = podify_interfaces ($package);
