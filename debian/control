@@ -1,13 +1,13 @@
 Source: libglib-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 3.0.16), perl (>= 5.8.0-7), libextutils-depends-perl (>= 0.1)
+Build-Depends: debhelper (>= 3.0.16), perl (>= 5.8.0-7), libglib2.0-dev (>= 2.2.0), libextutils-depends-perl (>= 0.1), libextutils-pkgconfig-perl
 Maintainer: James Curbo <hannibal@adtrw.org>
 Standards-Version: 3.6.0
 
 Package: libglib-perl
 Architecture: any
-Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}, libextutils-depends-perl (>= 0.1)
+Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description:  Perl wrappers for the GLib utility and Object libraries
  This wrapper attempts to provide a perlish interface while remaining
  as true as possible to the underlying C API, so that any reference
