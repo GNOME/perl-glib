@@ -577,7 +577,7 @@ exception_handler_free (ExceptionHandler * h)
 }
 
 static void
-remove_exception_handler_unlocked (int tag)
+remove_exception_handler_unlocked (guint tag)
 {
 	GSList * i;
 
@@ -593,7 +593,7 @@ remove_exception_handler_unlocked (int tag)
 }
 
 
-=item void gperl_remove_exception_handler (int tag)
+=item void gperl_remove_exception_handler (guint tag)
 
 Remove the exception handler identified by I<tag>, as returned by
 gperl_install_exception_handler().  If I<tag> cannot be found, this
@@ -606,7 +606,7 @@ have it return FALSE.
 
 =cut
 void
-gperl_remove_exception_handler (int tag)
+gperl_remove_exception_handler (guint tag)
 {
 	G_LOCK (exception_handlers);
 	remove_exception_handler_unlocked (tag);
@@ -717,7 +717,7 @@ gperl_install_exception_handler (SV * class, SV * func, SV * data=NULL)
 	UNUSED(class);
 
 void
-gperl_remove_exception_handler (SV * class, int tag)
+gperl_remove_exception_handler (SV * class, guint tag)
     C_ARGS:
 	tag
     CLEANUP:

@@ -268,7 +268,7 @@ void            gperl_callback_invoke  (GPerlCallback * callback,
  */
 
 int  gperl_install_exception_handler (GClosure * closure);
-void gperl_remove_exception_handler  (int tag);
+void gperl_remove_exception_handler  (guint tag);
 void gperl_run_exception_handlers    (void);
 
 /*
