@@ -62,9 +62,13 @@ GMainLoop*	T_G_MAIN_LOOP
 #####
 INPUT
 
-# a general-purpose typemap...
+# a general-purpose typemap... strips any trailing star and/or leading "const",
+# leaving only the type name in the form SvMyType.  this allows you to make a
+# typedef such as "typedef MyType MyType_ornull", and SvMyType_ornull will be
+# called for those.
 T_GPERL_GENERIC_WRAPPER
-	$var = Sv${(my $ntype = $type) =~ s/\s*\*//; \$ntype} ($arg);
+	$var = Sv${(my $ntype = $type) =~ s/(?:const\s+)?([:\w]+)(?:\s*\*)$/$1/x;
+	           \$ntype} ($arg);
 
 T_GCHAR
 	/* same as SvGChar(), but not in a function */

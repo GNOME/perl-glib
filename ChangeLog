@@ -1,3 +1,10 @@
+2003/11/01 01:15 muppetman
+
+	* typemap: input (Perl-to-C) typemap for T_GPERL_GENERIC_WRAPPER
+	now uses a more robust regex -- strip leading const\s+ and ensure
+	that we strip the trailing \s*\* from the very end.  requested
+	by kaffee.  the output typemap is unchanged.
+
 2003/10/30 13:47 rwmcfa1
 
 	* Glib.pm: added tie_properties stuff
