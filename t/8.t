@@ -1,5 +1,8 @@
 #!env perl -w
 
+use strict;
+use warnings;
+
 use Test::More
 	tests => 20;
 
@@ -36,7 +39,7 @@ package main;
 # keep stderr quiet, redirect it to stdout...
 $SIG{__WARN__} = sub { print $_[0]; };
 
-$tag = Glib->install_exception_handler (sub {
+my $tag = Glib->install_exception_handler (sub {
 		$_[0] =~ s/\n/\\n/g;
 		ok (1, "trapped exception '$_[0]'");
 		# this should be ignored, too, and should NOT create an

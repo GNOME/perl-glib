@@ -1,8 +1,13 @@
 print "1..10\n";
 
+use strict;
+use warnings;
+
 use Glib;
 
 print "ok 1\n";
+
+my $init_self;
 
 sub Foo::INIT_INSTANCE {
    $init_self = $_[0]*1;
@@ -12,6 +17,8 @@ sub Foo::INIT_INSTANCE {
 sub Foo::FINALIZE_INSTANCE {
    print "ok 9\n";
 }
+
+my $setprop_self;
 
 sub Foo::SET_PROPERTY {
    $setprop_self = $_[0]*1;

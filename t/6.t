@@ -2,6 +2,8 @@
 # $Header$
 #
 
+use strict;
+use warnings;
 
 #########################
 

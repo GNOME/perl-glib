@@ -1,3 +1,7 @@
+2003/09/11 10:35 rwmcfa1
+
+	* t/[1234568a].t: use strict and warnings, fixes to make doing so work.
+
 2003/09/06 19:23 rwmcfa1
 
 	* Makefile.PL: dist-rpms build target added
