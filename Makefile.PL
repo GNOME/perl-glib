@@ -5,6 +5,7 @@
 use 5.008;
 use ExtUtils::MakeMaker;
 use Cwd;
+use File::Spec;
 
 # dependent modules will be able to 'use' these normally; for us, they
 # aren't installed yet, so we have to cheat.
@@ -52,7 +53,8 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
    # generated files.
    $glib->set_inc ($glibcfg{cflags} . $gthreadcfg{cflags} . ' -I. ');
    $glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
-   $glib->add_typemaps (cwd().'/typemap');
+   my $cwd = cwd();
+   $glib->add_typemaps (map {File::Spec->catfile($cwd,$_)} 'typemap');
    $glib->add_headers ('"gperl.h"');
    $glib->install (qw(gperl.h));
    $glib->save_config ('build/IFiles.pm');
