@@ -47,10 +47,10 @@ package Glib::Flags;
 
 use overload
    'bool' => \&bool,
-   '+'    => \&union,
+   '+'    => \&union,     '|'    => \&union,
    '-'    => \&sub,
    '>='   => \&ge,
-   '*'    => \&intersect,
+   '*'    => \&intersect, '&'    => \&intersect,
    '/'    => \&xor,
    '""'   => sub { "[ @{$_[0]} ]" };
    
@@ -241,9 +241,9 @@ Beware that Perl will always return to you the nickname form, with the dash.
 Flags have some additional magic abilities in the form of overloaded
 operators:
 
-  +  union of two flagsets ("add")
+  +  union of two flagsets ("add", | is also accepted)
   -  difference of two flagsets ("sub")
-  *  intersection of two bitsets ("and")
+  *  intersection of two bitsets ("and", & is also accepted)
   /  symmetric difference ("xor", you will rarely need this)
   >= contains-operator (is the left set a superset of the right set?)
 
