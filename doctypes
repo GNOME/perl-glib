@@ -12,3 +12,4 @@ GMainContext	Glib::MainContext thingamabob
 GMainLoop	Glib::MainLoop
 GParamSpec	Glib::ParamSpec
 GParamFlags	Glib::ParamFlags
+gunichar	character
