@@ -1,3 +1,10 @@
+2004/05/16 17:44 (-0400) rwmcfa1
+
+	* GObject.xs: code to allow gobject tracking which and threadsafeness.
+	needs lots of testing, documentation, and needs a way to tell if thread
+	support was compiled into perl. right now it's enabled (if compiled in)
+	by calling Glib::Object->set_threadsafe.
+
 2004/05/16 11:25 (-0400) muppetman
 
 	* GObject.xs: disable stash caching.  this fixes a few bizarre

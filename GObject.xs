@@ -65,6 +65,15 @@ static GArray     * sink_funcs     = NULL;
 
 static GQuark wrapper_quark; /* this quark stores the object's wrapper sv */
 
+/* what should be done here */
+#define GPERL_THREAD_SAFE !GPERL_DISABLE_THREADSAFE
+
+#if GPERL_THREAD_SAFE
+/* keep a list of all gobjects */
+static gboolean     perl_gobject_tracking = FALSE;
+static GHashTable * perl_gobjects = NULL;
+G_LOCK_DEFINE_STATIC (perl_gobjects);
+#endif
 
 /* thread safety locks for the modifiables above */
 G_LOCK_DEFINE_STATIC (types_by_type);
@@ -604,6 +613,18 @@ gperl_new_object (GObject * object,
 	if (own)
 		gperl_object_take_ownership (object);
 
+#if GPERL_THREAD_SAFE
+	if(perl_gobject_tracking)
+	{
+		G_LOCK (perl_gobjects);
+//g_printerr ("adding object: 0x%p - %d\n", object, object->ref_count);
+		if (!perl_gobjects)
+			perl_gobjects = g_hash_table_new (g_direct_hash, g_direct_equal);
+		g_hash_table_insert (perl_gobjects, (gpointer)object, (gpointer)1);
+		G_UNLOCK (perl_gobjects);
+	}
+#endif
+
 	return sv;
 }
 
@@ -711,7 +732,51 @@ init_property_value (GObject * object,
 
 =cut
 
+#if GPERL_THREAD_SAFE
+static void
+_inc_ref_and_count (GObject * key, gint value, gpointer user_data)
+{
+	PERL_UNUSED_VAR (user_data);
+	g_object_ref (key);
+	g_hash_table_replace (perl_gobjects, key, (gpointer)++value);
+}
+#endif
+
+
 MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
+
+#if GPERL_THREAD_SAFE
+
+void
+CLONE (gchar * class)
+    PREINIT:
+	GSList * tmp;
+    CODE:
+    	if (perl_gobject_tracking && strcmp (class, "Glib::Object") == 0)
+	{
+		G_LOCK (perl_gobjects);
+//g_printerr ("we're in clone: %s\n", class);
+		g_hash_table_foreach (perl_gobjects, 
+				      (GHFunc)_inc_ref_and_count, NULL);
+		G_UNLOCK (perl_gobjects);
+	}
+
+#endif
+
+=for apidoc set_threadsafe
+Enables/disables threadsafe gobject tracking. Returns whether or not tracking
+will be successful and thus whether using perl ithreads will be possible. 
+=cut
+gboolean
+set_threadsafe (class, gboolean threadsafe)
+    CODE:
+#if GPERL_THREAD_SAFE
+	RETVAL = perl_gobject_tracking = threadsafe;
+#else
+	RETVAL = FALSE;
+#endif 
+    OUTPUT:
+	RETVAL
 
 =for object Glib::Object Bindings for GObject
 =cut
@@ -759,6 +824,27 @@ DESTROY (SV *sv)
         } else {
                 SvREFCNT_inc (SvRV (sv));
         }
+#if GPERL_THREAD_SAFE
+	if(perl_gobject_tracking)
+	{
+		gint count;
+		G_LOCK (perl_gobjects);
+		count = (int)g_hash_table_lookup (perl_gobjects, object);
+		count--;
+		if (count > 0)
+		{
+//g_printerr ("decing: %p - %d\n", object, count);
+			g_hash_table_replace (perl_gobjects, object, 
+					      (gpointer)count);
+		}
+		else
+		{
+//g_printerr ("removing: %p\n", object);
+			g_hash_table_remove (perl_gobjects, object);
+		}
+		G_UNLOCK (perl_gobjects);
+	}
+#endif
         g_object_unref (object);
 #ifdef NOISY
         warn ("DESTROY> (%p)[%d] => %s (%p)[%d]", 
@@ -766,7 +852,6 @@ DESTROY (SV *sv)
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
 #endif
-
 
 =for apidoc
 
