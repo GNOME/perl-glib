@@ -1,4 +1,4 @@
-2004/02/04 13:38 (-0500) rwmcfa1
+2004/02/05 13:38 (-0500) rwmcfa1
 
 	* GObject.xs: fixed apidoc on ... param of Glib::Object->new
 
