@@ -64,6 +64,7 @@ gperl_closure_marshal (GClosure * closure,
 		       gpointer invocation_hint,
 		       gpointer marshal_data)
 {
+	int flags;
 	guint i;
 	GPerlClosure *pc = (GPerlClosure *)closure;
 	SV * data;
@@ -136,17 +137,77 @@ gperl_closure_marshal (GClosure * closure,
 		XPUSHs (data);
 	PUTBACK;
 
-	if (return_value && G_VALUE_TYPE (return_value)) {
-		i = call_sv (pc->callback, G_SCALAR);
+	/*
+	 * to eval or not to eval: this is the question.
+	 *
+	 * if PL_in_eval is zero, we are not in eval context, and an 
+	 * exception in the callback should kill the program.
+	 *
+	 * if PL_in_eval is nonzero, then we are being called somewhere 
+	 * inside an eval block, and an exception in the callback should 
+	 * return control to the innermost surrounding eval.  that's 
+	 * implemented easily enough, by simply calling call_sv without
+	 * G_EVAL.
+	 *
+	 * however, a few critically important parts of glib and gtk+ are
+	 * implemented with recursive functions which store their state on
+	 * the C stack.  eval and die are implemented with setjmp and 
+	 * longjmp, which have a side effect of throwing away stuff on the
+	 * C stack; since C doesn't have built-in objects, the stack isn't
+	 * so much unwound as it is just lopped off.  that means we'll never
+	 * return to the cleanup code necessary for g_signal_emit and
+	 * gtk_main, which can result in some very nasty things happening.
+	 *
+	 * the only fix for this is to note that we have an error, and 
+	 * return normally from this function into the calling g_signal_emit,
+	 * and hope that our error condition gets picked up by somebody
+	 * soon enough for things to make sense.
+	 *
+	 * thus we are required to break from the standard and expected
+	 * behavior of perl exceptions in order to keep glib and gtk from
+	 * dying a horrible, flaming death and taking the perl interpreter
+	 * down with it.
+	 *
+	 * to sum up, we need to set G_EVAL in flags to call_sv when:
+	 *
+	 *   PL_in_eval is true
+	 *   and
+	 *      we are in a signal invocation
+	 *      or
+	 *      somebody has let us know somehow that there's a function
+	 *            we need to call (thierry's gtk_main stuff)
+	 */
+	/*
+	 * since we're implementing GPerlClosure here for ourselves, we can
+	 * be reasonably assured that invocation_hint will be set to a
+	 * GSignalInvocationHint* if we're being called from g_signal_emit,
+	 * and otherwise NULL.
+	 */
 
-		SPAGAIN;
-		if (i != 1)
-			croak ("Big trouble -- call_sv (..., G_SCALAR) returned %i != 1", i);
-		else
-			gperl_value_from_sv (return_value, POPs);
+	flags = return_value ? G_SCALAR : G_DISCARD;
+	flags |= invocation_hint && PL_in_eval ? G_EVAL : 0;
 
-	} else
-		call_sv (pc->callback, G_DISCARD);
+	call_sv (pc->callback, flags);
+
+	SPAGAIN;
+
+	if (invocation_hint && PL_in_eval && SvTRUE (ERRSV)) {
+		GSignalInvocationHint * ihint =
+			(GSignalInvocationHint*) invocation_hint;
+		gpointer instance = g_value_get_object (param_values);
+#ifdef NOISY
+		warn ("**** caught exception '%s' in signal emission"
+		      " for %s(0x%p)::%s",
+		      SvPV_nolen (ERRSV),
+		      G_OBJECT_TYPE_NAME (instance), instance,
+		      g_signal_name (ihint->signal_id));
+#endif
+		g_signal_stop_emission (instance,
+					ihint->signal_id,
+					ihint->detail);
+
+	} else if (return_value && G_VALUE_TYPE (return_value))
+		gperl_value_from_sv (return_value, POPs);
 
 	/*
 	 * clean up 

@@ -1,3 +1,13 @@
+2003/08/26 00:48 muppetman
+
+	* GClosure.xs, t/8.t, t/9.t: hacking away at reasonable exception
+	handling.  not quite right from a perl developer's point of view (we
+	must allow signal emissions to return normally if the handler croaks
+	inside an eval), but then neither is dumping core because the 
+	exception skipped some of glib's cleanup code.  to reflect this
+	dubious status, a good number of the tests in 8.t fail, and are 
+	marked as todos.
+
 2003/08/22 01:11 muppetman
 
 	* Glib.pm, README, META.yml, debian/changelog, MANIFEST:
