@@ -1,5 +1,12 @@
 2003/09/11 23:10 rwmcfa1
 
+        * gperl.h: added UNUSED macro
+
+        * ChangeLog, GClosure.xs, GLog.xs, GMainLoop.xs, GObject.xs,
+        GParamSpec.xs, GType.xs: make use of UNUSED macro to quite warnings
+        about class and/or ix being unused, other slight/small warnings fixed
+        when -Wall
+
 2003/09/11 22:30 muppetman
 
 	* Subclass.pm: documentation about creating properties, creating
