@@ -193,22 +193,71 @@ SV * gperl_sv_from_value (GValue * value);
 /*
  * GBoxed
  */
-typedef const char * (*GPerlBoxedPackageFunc) (GType gtype, gpointer boxed);
+
+typedef struct _GPerlBoxedWrapperClass GPerlBoxedWrapperClass;
+
+/*
+ * turn a boxed pointer into an SV.  gtype is the type of the boxed pointer,
+ * and package is the package to which that gtype is registered (the lookup
+ * has already been done for you at this point).  if own is true, the wrapper
+ * is responsible for freeing the object; if it is false, some other code 
+ * owns the object and you must NOT free it.
+ */ 
+typedef SV*      (*GPerlBoxedWrapFunc)    (GType        gtype,
+					   const char * package,
+					   gpointer     boxed,
+					   gboolean     own);
+/*
+ * turn an SV into a boxed pointer.  like GPerlBoxedWrapFunc, gtype and package
+ * are the registered type pair, already looked up for you (in the process of
+ * finding the proper wrapper class).  sv is the sv to unwrap.
+ */
+typedef gpointer (*GPerlBoxedUnwrapFunc)  (GType        gtype,
+					   const char * package,
+					   SV         * sv);
+/* 
+ * this will be called by Glib::Boxed::DESTROY, when the wrapper is destroyed.
+ * it is a hook that allows you to destroy an object owned by the wrapper;
+ * note, however, that you will have had to keep track yourself of whether
+ * the object was to be freed.
+ */
+typedef void     (*GPerlBoxedDestroyFunc) (SV         * sv);
+
+struct _GPerlBoxedWrapperClass {
+	GPerlBoxedWrapFunc    wrap;
+	GPerlBoxedUnwrapFunc  unwrap;
+	GPerlBoxedDestroyFunc destroy;
+};
+
+/* get a pointer to the default wrapper class; handy if you want to use
+ * the normal wrapper, with minor modifications.  note that you can just
+ * pass NULL to gperl_register_boxed(), so you really only need this in
+ * fringe cases. */
+GPerlBoxedWrapperClass * gperl_default_boxed_wrapper_class (void);
+
 /**
  * gperl_register_boxed:
  * @gtype: #GType to register
  * @package: name of the package corresponding to @gtype.  This may not be
  *    #NULL, as it is needed for reverse lookups even when a @get_package
  *    function is specified.
- * @get_package: pointer to a function returning the name of the package into which
- *    a given boxed object should be blessed.  if not #NULL, this will be called
- *    in gperl_new_boxed() to retrieve the package name on the fly instead of using
- *    a hard-coded one.  this is useful if the boxed type is polymorphic but only
- *    the base type has a GType, a la GdkEvent.
+ * @wrapper_class: pointer to a function table for manipulating the perl
+ *    wrappers for this boxed type.  you can pass %NULL to use the default
+ *    wrapper (same as returned by gperl_default_boxed_wrapper_class()).
+ *
+ * In normal usage, the standard opaque wrapper supplied by the library is 
+ * sufficient and correct.  In some cases, however, you want a boxed type to
+ * map directly to a native perl type; for example, some struct may be more
+ * appropriately represented as a hash in perl.  Since the most necessary place
+ * for this conversion to happen is in gperl_value_from_sv() and 
+ * gperl_sv_from_value(), the only reliable and robust way to implement this is
+ * a hook into gperl_get_boxed() and gperl_new_boxed(); that is exactly the 
+ * purpose of @wrap_func and @unwrap_func.
  */
 void gperl_register_boxed (GType gtype,
 			   const char * package,
-			   GPerlBoxedPackageFunc get_package);
+			   GPerlBoxedWrapperClass * wrapper_class);
+
 /** 
  * gperl_new_boxed:
  * @boxed: pointer to wrap up.  may not be #NULL.

@@ -1,3 +1,13 @@
+2003/06/16 14:21 muppetman
+
+	* GBoxed.xs, gperl.h: converted GBoxed to use vtable-based wrappers;
+	this allows client code to install new wrapper classes that make
+	gperl_sv_from_value and gperl_value_from_sv call the right code
+	to convert boxed types in custom ways.  GPerlBoxedPackageFunc has
+	disappeared and the call signature for gperl_register_boxed has
+	changed (well, the meaning of that one extra parameter -- if you
+	already passed NULL, there's nothing to worry about).
+
 2003/06/13 14:12 muppetman
 
 	* GObject.xs: rename Glib::Object->_new to Glib::Object->new -- it
