@@ -138,6 +138,7 @@ gperl_alloc_temp (int nbytes)
 	return SvPV (s, PL_na);
 }
 
+
 =back
 
 =cut
@@ -157,6 +158,7 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__Boxed);
 	GPERL_CALL_BOOT (boot_Glib__Object);
 	GPERL_CALL_BOOT (boot_Glib__Signal);
+	GPERL_CALL_BOOT (boot_Glib__Closure);
 	GPERL_CALL_BOOT (boot_Glib__MainLoop);
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
