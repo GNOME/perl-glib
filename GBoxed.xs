@@ -415,7 +415,7 @@ gperl_new_boxed (gpointer boxed,
 	G_UNLOCK (info_by_gtype);
 
 	if (!boxed_info)
-		croak ("GType %s (%d) is not registerer with gperl",
+		croak ("GType %s (%d) is not registered with gperl",
 		       g_type_name (gtype), gtype);
 
 	wrap = boxed_info->wrapper_class
