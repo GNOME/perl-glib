@@ -16,51 +16,58 @@ use base Exporter;
 # more sensible names for the basic types
 %basic_types = (
 	# the perl wrappers for the GLib fundamentals
-	'Glib::Scalar'  => '$scalar',
-	'Glib::String'  => '$string',
-	'Glib::Int'     => '$integer',
-	'Glib::Uint'    => '$unsigned',
-	'Glib::Double'  => '$double',
-	'Glib::Boolean' => '$boolean',
+	'Glib::Scalar'  => 'scalar',
+	'Glib::String'  => 'string',
+	'Glib::Int'     => 'integer',
+	'Glib::Uint'    => 'unsigned',
+	'Glib::Double'  => 'double',
+	'Glib::Boolean' => 'boolean',
+
+	# sometimes we can get names that are already mapped...
+	# e.g., from =for arg lines.  pass them unbothered.
+	scalar     => 'scalar',
+	subroutine => 'subroutine',
+	integer    => 'integer',
+	string     => 'string',
 
 	# other C names which may sneak through
-	boolean => '$boolean',
-	int     => '$integer',
-	char    => '$integer',
-	uint    => '$integer',
-	float   => '$double',
-	double  => '$double',
-	char    => '$string',
+	boolean => 'boolean',
+	int     => 'integer',
+	char    => 'integer',
+	uint    => 'integer',
+	float   => 'double',
+	double  => 'double',
+	char    => 'string',
 
-	gboolean => '$boolean',
-	gint     => '$integer',
-	gint8    => '$integer',
-	gint16   => '$integer',
-	gint32   => '$integer',
-	guint8   => '$integer',
-	guint16  => '$integer',
-	guint32  => '$integer',
-	gchar    => '$integer',
-	guint    => '$integer',
-	gfloat   => '$double',
-	gdouble  => '$double',
-	gchar    => '$string',
+	gboolean => 'boolean',
+	gint     => 'integer',
+	gint8    => 'integer',
+	gint16   => 'integer',
+	gint32   => 'integer',
+	guint8   => 'integer',
+	guint16  => 'integer',
+	guint32  => 'integer',
+	gchar    => 'integer',
+	guint    => 'integer',
+	gfloat   => 'double',
+	gdouble  => 'double',
+	gchar    => 'string',
 
-	SV       => '$scalar',
-	UV       => '$integer',
-	IV       => '$integer',
+	SV       => 'scalar',
+	UV       => 'integer',
+	IV       => 'integer',
 
-	gchar_length => '$gchar_length',
+	gchar_length => 'gchar_length',
 
 # TODO/FIXME:
 	GIOCondition	=> 'GIOCondition',
 	GMainContext	=> 'GMainContext',
 	GMainLoop	=> 'GMainLoop',
 	GParamSpec	=> 'GParamSpec',
-	GtkTargetList   => '$Gtk2::TargetList',
-	GdkAtom         => '$Gtk2::Gdk::Atom',
-	GdkBitmap       => '$Gtk2::Gdk::Bitmap',
-	GdkNativeWindow => '$Gtk2::Gdk::NativeWindow',
+	GtkTargetList   => 'Gtk2::TargetList',
+	GdkAtom         => 'Gtk2::Gdk::Atom',
+	GdkBitmap       => 'Gtk2::Gdk::Bitmap',
+	GdkNativeWindow => 'Gtk2::Gdk::NativeWindow',
 );
 
 sub podify_properties {
@@ -70,9 +77,14 @@ sub podify_properties {
 # FIXME:	warn $@ unless ();
 	return undef unless (@properties or not defined ($@));
 
+	# we have a non-zero number of properties, but there may still be
+	# none for this particular class.  keep a count of how many
+	# match this class, so we can return undef if there were none.
+	my $nmatch = 0;
 	my $str = "=over\n\n";
 	foreach my $p (sort { $a->{name} cmp $b->{name} } @properties) {
 		next unless $p->{owner_type} eq $package;
+		++$nmatch;
 		$stat = join " / ",  @{ $p->{flags} };
 		$type = exists $basic_types{$p->{type}}
 		      ? $basic_types{$p->{type}}
@@ -82,7 +94,7 @@ sub podify_properties {
 	}
 	$str .= "=back\n\n";
 
-	$str
+	return $nmatch ? $str : undef;
 }
 
 sub podify_values {
@@ -140,6 +152,17 @@ sub podify_interfaces {
 	return '  '.join ("\n  ", @int)."\n\n";
 }
 
+
+=item convert_type
+
+Convert a C type name to a Perl type name.
+
+Uses Glib::GenPod::basic_types to look for some known basic types,
+and uses Glib::Type->package_from_cname to look up the registered
+package corresponding to a C type name.  If no suitable mapping can
+be found, this just returns the input string.
+
+=cut
 sub convert_type {
 	my $typestr = shift;
 
@@ -173,8 +196,12 @@ sub convert_type {
 		{
 			$perl_type = Glib::Type->package_from_cname ($ctype);
 			1;
-		};
-		warn "$@" if ($@);
+		} or do {
+			$@ =~ s/\s*at (.*) line \d+\.$/./;
+			warn "$@";
+			# fall back gracefully.
+			$perl_type = $ctype;
+		}
 	}
 
 	if ($variant && $variant =~ m/ornull/) {
@@ -203,6 +230,14 @@ sub podify_methods
 	$str;
 }
 
+
+=item xsub_to_pod
+
+Convert an xsub hash into a string of pod describing it.  Includes the
+call signature, argument listing, and description, honoring special
+switches in the description pod (arg and signature overrides).
+
+=cut
 sub xsub_to_pod {
 	my $xsub = shift;
 	my $alias = shift || $xsub->{symname};
@@ -215,6 +250,7 @@ sub xsub_to_pod {
 	if (defined $xsub->{pod}) {
 		@podlines = @{ $xsub->{pod}{lines} };
 	} elsif ('ARRAY' eq ref $pods) {
+		###print "ARRAY\n";
 		for (my $i = 0 ; $i < @$pods ; $i++) {
 			if ($pods->[$i][0] =~ /^=for\s+apidoc\s+([:\w]+)\s*$/
 			    and ($1 eq $alias))
@@ -232,20 +268,18 @@ sub xsub_to_pod {
 	# stuff in the pods overrides whatever we'd generate.
 	my @signatures = ();
 	if (@podlines) {
-		# look for =signature lines in the pod; strip them if
-		# found.  since we're modifying the list while traversing
+		# since we're modifying the list while traversing
 		# it, go back to front.
 		for (my $i = $#podlines ; $i >= 0 ; $i--) {
-			if ($podlines[$i] =~ s/^=signature\s+//) {
+			if ($podlines[$i] =~ s/^=(for\s+)?signature\s+//) {
 				unshift @signatures, $podlines[$i];
 				splice @podlines, $i, 1;
-			} elsif ($podlines[$i] =~ /^=arg
+			} elsif ($podlines[$i] =~ /^=(?:for\s+)?arg
 			                           \s+
 			                           (\$?[\w.]+)   # arg name
 			                           (?:\s*\(([^)]*)\))? # type
 			                           \s*
 			                           (.*)$/x) { # desc
-				#warn " =arg $1 $2 $3\n";
 				$xsub->{args} = [] if not exists $xsub->{args};
 				my ($a, undef) =
 					grep { $_->{name} eq $1 }
@@ -262,7 +296,7 @@ sub xsub_to_pod {
 	}
 
 	#
-	# the call signature.
+	# the call signature(s).
 	#
 	push @signatures, compile_signature ($alias, $xsub)
 		unless @signatures;
@@ -306,6 +340,12 @@ sub xsub_to_pod {
 	$str
 }
 
+=item compile_signature
+
+Given an xsub hash, return a string with the call signature for that
+xsub.
+
+=cut
 sub compile_signature {
 	my ($method, $xsub) = @_;
 
@@ -325,7 +365,12 @@ sub compile_signature {
 	}
 
 	# compile the arg list string
-	my $argstr = join ", ", map { fixup_arg_name ($_->{name}) } @args;
+	my $argstr = join ", ", map {
+			fixup_arg_name ($_->{name})
+			. (defined $_->{default}
+			   ? '='.fixup_default ($_->{default})
+			   : '')
+		} @args;
 
 	# compile the return list string
 	my @outlist = map { $_->{name} } @{ $xsub->{outlist} };
@@ -348,16 +393,49 @@ sub compile_signature {
 	"$retstr$obj\->$method ".($argstr ? "($argstr)" : "");
 }
 
+=item fixup_arg_name
+
+Prepend a $ to anything that's not the literal ellipsis string '...'.
+
+=cut
 sub fixup_arg_name {
 	my $name = shift;
 	my $sigil = $name eq '...' ? '' : '$';
 	return $sigil.$name;
 }
 
-sub convert_arg_type { Glib::GenPod::convert_type (@_) }
+=item fixup_default
 
+Mangle default parameter values from C to Perl values.  Mostly, this
+does NULL => undef.
+
+=cut
+sub fixup_default {
+	my $value = shift;
+	return (defined ($value) 
+	        ? ($value eq 'NULL' ? 'undef' : $value)
+		: '');
+}
+
+=item convert_arg_type
+
+C type to Perl type conversion for argument types.
+
+=cut
+sub convert_arg_type { convert_type (@_) }
+
+
+=item convert_return_type_to_name
+
+C type to Perl type conversion for return types.  basically, turn a 
+type name into a variable name by stripping the prefix, lowercasing,
+and prepending a $.  things that don't have :: in them are not turned
+into variables -- e.g., 'list' and 'string' come back unadulterated,
+but 'Glib::Object' gets turned into $object.
+
+=cut
 sub convert_return_type_to_name {
-	my $type = Glib::GenPod::convert_type (@_);
+	my $type = convert_type (@_);
 	if ($type =~ s/^.*:://) {
 		$type = '$' . lc $type;
 	}
