@@ -467,8 +467,7 @@ sub podify_methods
 	#$str .= "=over\n\n";
 	foreach (@$xsubs) {
 		next if $_->{symname} =~ /^(.*::)?DESTROY$/;
-		#$str .= "=item ".xsub_to_pod ($_);
-		$str .= "=head2 ".xsub_to_pod ($_);
+		$str .= xsub_to_pod ($_, '=head2');
 		++$n;
 	}
 	#$str .= "=back\n\n";
@@ -547,7 +546,7 @@ sub convert_type {
 }
 
 
-=item $string = xsub_to_pod ($xsub)
+=item $string = xsub_to_pod ($xsub, $sigprefix='')
 
 Convert an xsub hash into a string of pod describing it.  Includes the
 call signature, argument listing, and description, honoring special
@@ -556,7 +555,8 @@ switches in the description pod (arg and signature overrides).
 =cut
 sub xsub_to_pod {
 	my $xsub = shift;
-	my $alias = shift || $xsub->{symname};
+	my $sigprefix = shift || '';
+	my $alias = $xsub->{symname};
 	my $str;
 
 	# ensure that if there's pod for this xsub, we have it now.
@@ -630,7 +630,7 @@ sub xsub_to_pod {
 		unless @signatures;
 
 	foreach (@signatures) {
-		$str .= "$_\n\n";
+		$str .= "$sigprefix $_\n\n";
 	}
 
 	#
@@ -758,17 +758,13 @@ sub convert_arg_type { convert_type (@_) }
 
 =item convert_return_type_to_name
 
-C type to Perl type conversion for return types.  basically, turn a 
-type name into a variable name by stripping the prefix, lowercasing,
-and prepending a $.  things that don't have :: in them are not turned
-into variables -- e.g., 'list' and 'string' come back unadulterated,
-but 'Glib::Object' gets turned into $object.
+C type to Perl type conversion suitable for return types.
 
 =cut
 sub convert_return_type_to_name {
 	my $type = convert_type (@_);
 	if ($type =~ s/^.*:://) {
-		$type = '$' . lc $type;
+		$type = lc $type;
 	}
 	return $type;
 }
