@@ -374,6 +374,19 @@ MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 ## heavily borrowed from gtk-perl and goran's code in gtk2-perl, which
 ## was inspired by pygtk's pyobject.c::pygobject_emit
 
+=for apidoc
+
+=signature retval = $object->signal_emit ($name, ...)
+
+=arg name (string) the name of the signal
+
+=arg ... (list) any arguments to pass to handlers.
+
+Emit the signal I<name> on I<$object>.  The number and types of additional
+arguments in I<...> are determined by the signal; similarly, the presence
+and type of return value depends on the signal being emitted.
+
+=cut
 void
 g_signal_emit (instance, name, ...)
 	GObject * instance
@@ -496,6 +509,32 @@ void g_signal_stop_emission_by_name (GObject * instance, const gchar * detailed_
 ##					       gpointer		  data,
 ##					       GClosureNotify	  destroy_data,
 ##					       GConnectFlags	  connect_flags);
+
+=for apidoc Glib::Object::signal_connect
+
+=arg callback (subroutine) 
+
+=arg data (scalar) arbitrary data to be passed to each invocation of I<callback>
+
+Register I<callback> to be called on each emission of I<$detailed_signal>.
+Returns an identifier that may be used to remove this handler with
+C<< $object->signal_handler_disconnect >>.
+
+=cut
+
+=for apidoc Glib::Object::signal_connect_after
+
+Like C<signal_connect>, except that I<$callback> will be run after the default
+handler.
+
+=cut
+
+=for apidoc Glib::Object::signal_connect_swapped
+
+Like C<signal_connect>, except that I<$data> and I<$object> will be swapped
+on invocation of I<$callback>.
+
+=cut
 
 gulong
 g_signal_connect (instance, detailed_signal, callback, data=NULL)
