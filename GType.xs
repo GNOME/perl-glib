@@ -870,11 +870,11 @@ parse_signal_hash (GType instance_type,
 	PERL_UNUSED_VAR (signal_name);
 
 	svp = hv_fetch (hv, "flags", 5, FALSE);
-	if (svp && (*svp) && SvTRUE (*svp))
+	if (svp && (*svp) && SvOK (*svp))
 		s->flags = SvGSignalFlags (*svp);
 
 	svp = hv_fetch (hv, "param_types", 11, FALSE);
-	if (svp && (*svp) && SvTRUE (*svp) && SvROK (*svp)
+	if (svp && (*svp) && SvROK (*svp)
 	    && SvTYPE (SvRV (*svp)) == SVt_PVAV) {
 		guint i;
 		AV * av = (AV*) SvRV (*svp);
@@ -893,7 +893,7 @@ parse_signal_hash (GType instance_type,
 
 	svp = hv_fetch (hv, "class_closure", 13, FALSE);
 	if (svp && *svp) {
-		if (SvTRUE (*svp))
+		if (SvOK (*svp))
 			s->class_closure =
 				gperl_closure_new (*svp, NULL, FALSE);
 		/* else the class closure is NULL */
@@ -902,7 +902,7 @@ parse_signal_hash (GType instance_type,
 	}
 
 	svp = hv_fetch (hv, "return_type", 11, FALSE);
-	if (svp && (*svp) && SvTRUE (*svp)) {
+	if (svp && (*svp) && SvOK (*svp)) {
 		s->return_type = gperl_type_from_package (SvPV_nolen (*svp));
 		if (!s->return_type)
 			croak ("unknown or unregistered return type %s",
@@ -980,7 +980,7 @@ add_signals (GType instance_type, HV * signals)
 				croak ("failed to create signal %s",
 				       signal_name);
 
-		} else if ((SvPOK (value) && SvTRUE (value)) ||
+		} else if ((SvPOK (value) && SvLEN (value) > 0) ||
 		           (SvROK (value) && SvTYPE (SvRV (value)) == SVt_PVCV)) {
 			/*
 			 * a subroutine reference or method name to override

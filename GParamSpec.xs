@@ -250,9 +250,12 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 	name, nick, blurb, default_value, flags
 
 
-#### gunichar not in typemap
 ###  GParamSpec* g_param_spec_unichar (const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
-#
+GParamSpec*
+g_param_spec_unichar (const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
+    C_ARGS:
+	name, nick, blurb, default_value, flags
+
 ###  GParamSpec* g_param_spec_enum (const gchar *name, const gchar *nick, const gchar *blurb, GType enum_type, gint default_value, GParamFlags flags) 
 GParamSpec*
 g_param_spec_enum (class, const gchar *name, const gchar *nick, const gchar *blurb, const char * enum_type, SV * default_value, GParamFlags flags)

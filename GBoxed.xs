@@ -150,14 +150,14 @@ specified, I<wrapper_class> will be used to wrap and unwrap objects of this
 type; you may pass NULL to use the default wrapper (the same one returned by
 gperl_default_boxed_wrapper_class()).
 
-In normal usage, the standard opaque wrapper supplied by the library is 
-sufficient and correct.  In some cases, however, you want a boxed type to
-map directly to a native perl type; for example, some struct may be more
+In normal usage, the standard opaque wrapper supplied by the library is
+sufficient and correct.  In some cases, however, you want a boxed type to map
+directly to a native perl type; for example, some struct may be more
 appropriately represented as a hash in perl.  Since the most necessary place
-for this conversion to happen is in gperl_value_from_sv() and 
-gperl_sv_from_value(), the only reliable and robust way to implement this is
-a hook into gperl_get_boxed() and gperl_new_boxed(); that is exactly the 
-purpose of I<wrapper_class>.  See C<GPerlBoxedWrapperClass>.
+for this conversion to happen is in gperl_value_from_sv() and
+gperl_sv_from_value(), the only reliable and robust way to implement this 
+is a hook into gperl_get_boxed_check() and gperl_new_boxed(); that is
+exactly the purpose of I<wrapper_class>.  See C<GPerlBoxedWrapperClass>.
 
 =cut
 void
@@ -454,7 +454,7 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 	BoxedInfo * boxed_info;
 	GPerlBoxedUnwrapFunc unwrap;
 
-	if (!sv || !SvTRUE (sv))
+	if (!sv || !SvOK (sv))
 		croak ("variable not allowed to be undef where %s is wanted",
 		       g_type_name (gtype));
 
@@ -482,12 +482,98 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 
 =cut
 
+
+
+static BoxedInfo *
+lookup_known_package_recursive (const char * package)
+{
+	BoxedInfo * boxed_info =
+		g_hash_table_lookup (info_by_package, package);
+
+	if (!boxed_info) {
+		int i;
+		char * isa_name = form ("%s::ISA", package);
+		AV * isa = get_av (isa_name, FALSE);
+		if (!isa)
+			return NULL;
+		for (i = 0 ; i <= av_len (isa); i++) {
+			SV ** sv = av_fetch (isa, i, FALSE);
+			char * p = sv ? SvPV_nolen (*sv) : NULL;
+			if (p) {
+				boxed_info =
+					lookup_known_package_recursive (p);
+				if (boxed_info)
+					break;
+			}
+		}
+	}
+
+	return boxed_info;
+}
+
+
+
 MODULE = Glib::Boxed	PACKAGE = Glib::Boxed
 
 BOOT:
 	gperl_register_boxed (G_TYPE_BOXED, "Glib::Boxed", NULL);
 	gperl_register_boxed (G_TYPE_STRING, "Glib::String", NULL);
 	gperl_set_isa ("Glib::String", "Glib::Boxed");
+
+=for object Glib::Boxed Generic wrappers for C structures
+
+=head1 DESCRIPTION
+
+Glib::Boxed is a generic wrapper mechanism for arbitrary C structures.
+For the most part you don't care about this as a Perl developer, but it
+is important to know that all Glib::Boxed descendents can be copied with
+the C<copy> method.
+
+=cut
+
+=for apidoc
+=for signature copy_of_boxed = $boxed->copy
+Create and return a new copy of I<$boxed>.
+=cut
+SV *
+copy (SV * sv)
+    PREINIT:
+	BoxedInfo * boxed_info;
+	GPerlBoxedWrapperClass * class;
+	gpointer boxed;
+	char * package;
+    CODE:
+	/* the sticky part is that we have to decipher from the SV what gtype
+	 * we actually have; but the SV may have been blessed into some
+	 * other type.  however, if we got here, then Glib::Boxed is in the
+	 * @ISA somewhere, so we should be able to walk the inheritance
+	 * tree until we find a valid GType. */
+	package = sv_reftype (SvRV (sv), TRUE);
+	G_LOCK (info_by_package);
+	boxed_info = lookup_known_package_recursive (package);
+	G_UNLOCK (info_by_package);
+
+	if (!boxed_info)
+		croak ("can't find boxed class registration info for %s\n",
+		       package);
+
+	class = boxed_info->wrapper_class
+	      ? boxed_info->wrapper_class
+	      : &_default_wrapper_class;
+
+	if (!class->wrap)
+		croak ("no function to wrap boxed objects of type %s / %s",
+		       g_type_name (boxed_info->gtype), boxed_info->package);
+	if (!class->unwrap)
+		croak ("no function to unwrap boxed objects of type %s / %s",
+		       g_type_name (boxed_info->gtype), boxed_info->package);
+
+	boxed = class->unwrap (boxed_info->gtype, boxed_info->package, sv);
+	
+	RETVAL = class->wrap (boxed_info->gtype, boxed_info->package, 
+	                      g_boxed_copy (boxed_info->gtype, boxed), TRUE);
+    OUTPUT:
+	RETVAL
 
 void
 DESTROY (sv)
@@ -511,12 +597,6 @@ DESTROY (sv)
 	      SvPV_nolen (sv),
 	      class,
 	      boxed_info ? g_type_name (boxed_info->gtype) : NULL);
-#endif
-#if 0
-	if (!boxed_info) {
-		warn ("no boxed_info type matches this boxed subclass.  assuming it's a default wrapper.  This is not necessarily a good idea.");
-		destroy = _default_wrapper_class.destroy;
-	} else
 #endif
 	destroy = boxed_info
 	        ? (boxed_info->wrapper_class

@@ -101,7 +101,7 @@ T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
 
 T_G_MAIN_CONTEXT
-	if (!$arg || !SvTRUE ($arg) || !SvROK ($arg)) {
+	if (!$arg || !SvOK ($arg) || !SvROK ($arg)) {
 		$var = NULL;
 	} else {
 		$var = ($type) SvIV (SvRV ($arg));
