@@ -176,18 +176,36 @@ You'll be interested in the following values for I<flags>:
      C<dGPERL_CLOSURE_MARSHAL_ARGS>) will contain the number of
      items on the return stack.
 
+As the callback is always run with G_EVAL, call_sv() will clobber ERRSV
+($@); since closures are typically part of a mechanism that is transparent
+to the layer of Perl code that calls them, we save and restore ERRSV.  Thus,
+code like
+
+  eval { something that fails }
+  $button->clicked;
+  # $@ still has value from eval above
+
+works as expected.
+
 See C<call_sv> in L<perlcall> for more information.
 
 =cut
 */
 #define GPERL_CLOSURE_MARSHAL_CALL(flags)	\
+	{							\
+	/* copy is needed to keep the old value alive. */	\
+	/* mortal so it will die if not stolen by SvSetSV. */	\
+	SV * save_errsv = sv_2mortal (newSVsv (ERRSV));		\
 	count = call_sv (pc->callback, (flags) | G_EVAL);	\
 	SPAGAIN;						\
 	if (SvTRUE (ERRSV)) {					\
 		gperl_run_exception_handlers ();		\
+		SvSetSV (ERRSV, save_errsv);			\
 		FREETMPS;					\
 		LEAVE;						\
 		return;						\
+	}							\
+	SvSetSV (ERRSV, save_errsv);				\
 	}
 
 

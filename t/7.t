@@ -18,7 +18,7 @@ my apologies for the extreme density and ugliness of this code.
 
 =cut
 
-print "1..33\n";
+print "1..34\n";
 
 use Glib;
 
@@ -52,7 +52,7 @@ use Glib::Object::Subclass
           # more complicated/sophisticated value returner
           list_returner => {
              class_closure => sub {
-                       print "ok 31 # hello from the class closure\n";
+                       print "ok 32 # hello from the class closure\n";
                        -1
              },
              flags         => 'run-last',
@@ -81,6 +81,7 @@ use Glib::Object::Subclass
    ;
 
 sub do_test_marshaler {
+	print "# \$@ $@\n";
 	print "# do_test_marshaller: @_\n";
 	return 2.718;
 }
@@ -99,7 +100,7 @@ sub do_emit {
 }
 
 sub do_returner {
-	print "ok 23\n";
+	print "ok 24\n";
 	-1.5;
 }
 
@@ -173,9 +174,15 @@ sub func_b {
    # here's a signal handler that has an exception.
    # we should be able to emit the signal all we like without catching
    # exceptions here, because we don't care what other people may have
-   # connected to the signal.  the signal can be caught with an installed
-   # exception handler.
-   $id = $my->signal_connect (test_marshaler => sub { die "ouch" });
+   # connected to the signal.  the signal's exception can be caught with
+   # an installed exception handler.
+   $id = $my->signal_connect (test_marshaler => sub {
+                              # signal handlers are always eval'd, so
+                              # $@ should be empty.
+                              warn "internal problem: \$@ is not empty in "
+                                 . "signal handler!!!" if $@;
+                              die "ouch"
+                              });
 
    my $tag;
    $tag = Glib->install_exception_handler (sub {
@@ -192,49 +199,60 @@ sub func_b {
 	  : "not ok 15 # got no tag back from install_exception_handler?!?")
        . "\n";
 
+   # the exception in the signal handler should not affect the value of
+   # $@ at this code layer.
+   $@ = 'neener neener neener';
+   print "# before invocation: \$@ $@\n";
    $my->test_marshaler (qw/foo bar/, 4154, $my);
+   print "# after invocation: \$@ $@\n";
    print "ok 17 # still alive after an exception in a callback\n";
+   print "".($@ eq 'neener neener neener'
+	     ? 'ok 18 # $@ is preserved across signal invocations'
+	     : 'not ok # $@ not preserved correctly across signal invocation'
+	       ."\n   # expected 'neener neener neener'\n"
+	       .  "   # got '$@'\n"
+	    )."\n";
    $tag = 0;
 
    # that was a single-shot -- the exception handler shouldn't run again.
    {
    local $SIG{__WARN__} = sub {
 	   if ($_[0] =~ m/unhandled/m) {
-	   	print "ok 19 # unhandled exception just warns\n"
+	   	print "ok 20 # unhandled exception just warns\n"
 	   } elsif ($_[0] =~ m/isn't numeric/m) {
-	   	print "ok 18 # string value isn't numeric\n"
+	   	print "ok 19 # string value isn't numeric\n"
 	   } else {
 		print "not ok # got something unexpected in __WARN__: $_[0]\n";
 	   }
 	};
    $my->test_marshaler (qw/foo bar baz/, $my);
-   print "ok 20\n";
+   print "ok 21\n";
    }
 
    use Data::Dumper;
-   $my->signal_connect (returner => sub { print "ok 22\n"; 0.5 });
+   $my->signal_connect (returner => sub { print "ok 23\n"; 0.5 });
    # the class closure should be called in between these two
-   $my->signal_connect_after (returner => sub { print "ok 24\n"; 42.0 });
-   print "ok 21\n";
+   $my->signal_connect_after (returner => sub { print "ok 25\n"; 42.0 });
+   print "ok 22\n";
    my $ret = $my->returner;
    # we should have the return value from the last handler
-   print $ret == 42.0 ? "ok 25\n" : "not ok # expected 42.0, got $ret\n";
+   print $ret == 42.0 ? "ok 26\n" : "not ok # expected 42.0, got $ret\n";
 
    # now with our special accumulator
-   $my->signal_connect (list_returner => sub { print "ok 27\n"; 10 });
-   $my->signal_connect (list_returner => sub { print "ok 28\n"; '15' });
-   $my->signal_connect (list_returner => sub { print "ok 29\n"; [20] });
-   $my->signal_connect (list_returner => sub { print "ok 30\n"; {thing => 25} });
+   $my->signal_connect (list_returner => sub { print "ok 28\n"; 10 });
+   $my->signal_connect (list_returner => sub { print "ok 29\n"; '15' });
+   $my->signal_connect (list_returner => sub { print "ok 30\n"; [20] });
+   $my->signal_connect (list_returner => sub { print "ok 31\n"; {thing => 25} });
    # class closure should before the "connect_after" ones,
    # and this one will stop everything by returning the magic value.
-   $my->signal_connect_after (list_returner => sub { print "ok 32 # stopper\n"; 42 });
+   $my->signal_connect_after (list_returner => sub { print "ok 33 # stopper\n"; 42 });
    # if this one is called, the accumulator isn't working right
    $my->signal_connect_after (list_returner => sub { print "not ok # shouldn't get here\n"; 0 });
-   print "ok 26\n";
+   print "ok 27\n";
    print Dumper( $my->list_returner );
 }
 
-print "ok 33\n";
+print "ok 34\n";
 
 
 
