@@ -1,3 +1,39 @@
+Overview of Changes in Glib 1.050
+=================================
+
+* New unstable development branch.
+
+* Greatly expanded GParamSpec support. [muppet]
+  - Glib::ParamSpec instances are now blessed hash references containing a
+    few special keys (same as the hashes previously returned from
+    Glib::Object::list_properties()) to retain backwards compatibility.
+  - There are now accessors for all the member variables of the various
+    GParamSpec subclasses (e.g., GParamInt's minimum, maximum, and default
+    value); this tree is mapped as Glib::Param::<type>.
+  - Glib::ParamSpec->param() now works.
+  - All of this makes the Glib::Object "notify" signal usable.
+* More fundamental types are registered, e.g. Glib::UChar, Glib::Float, etc.
+  This allows all paramspec types to be specified as package names.
+  Glib::UInt was previously misspelled as Glib::Uint; the old name is still
+  allowed, but the new name will be returned from Glib in all instances.
+  This needs testing to see if it breaks anything.  [muppet]
+* Added autodetection of flags and enum types to the doc generation code, so
+  that all enum and flags types used in the methods and functions listed on
+  a page are documented on that page.  The "=for enum" directives are still
+  honored, and may be used to add descriptive text to the listings.  [Ross]
+* Added code to allow Glib::Object tracking, which allows the binding to
+  maintain proper reference counts on GObjects when the perl interpreter
+  clones a new thread.  Needs lots of testing, documentation, and needs a way
+  to tell if thread support was compiled into perl.  Right now it's enabled
+  (if compiled in) by calling Glib::Object->set_threadsafe.  [Ross]
+* Disable Glib::Object stash caching, which fixes a few bizarre things that
+  go wrong when using perl threads.  [muppet]
+* Add missing Glib::Object::notify() (to emit notify singals).  [muppet]
+* As always, incremental documentation improvements.  [Torsten]
+* Improved type-checking error messages, using the new helper function
+  gperl_format_variable_for_output().  [Torsten]
+* Various odds and ends of minor cleanup and commentary.  [Torsten, muppet]
+
 Overview of Changes in Glib 1.042
 =================================
 

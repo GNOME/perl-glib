@@ -1,5 +1,11 @@
 2004/06/02 13:41 (-0400) muppetman
 
+	Unstable development release 1.050
+
+	* NEWS: updated.
+
+2004/06/02 13:41 (-0400) muppetman
+
 	* GParamSpec.xs: cast to hush compiler warning.
 
 2004/06/01 11:44 (-0400) muppetman
