@@ -746,7 +746,6 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	GPerlCallback * callback = (GPerlCallback *)data;
 	dSP;
 	SV * sv;
-	HV * hv;
 	int n;
 	gboolean retval;
 
