@@ -8,11 +8,13 @@ our $VERSION = '0.02';
 
 # FIXME/TODO
 #use strict;
-#use warnings;
+use warnings;
 use Carp;
-use Glib;
+use File::Spec;
 use Data::Dumper;
 use POSIX qw(strftime);
+
+use Glib;
 
 use base Exporter;
 
@@ -32,6 +34,8 @@ our $AUTHORS = 'Gtk2-Perl Team';
 our $MAIN_MOD = 'L<Gtk2>';
 our $YEAR = strftime "%Y", gmtime;
 
+our ($xspods, $data);
+	
 =head1 NAME
 
 Glib::GenPod - POD generation utilities for Glib-based modules
@@ -172,7 +176,6 @@ this function's code as a starting point for your own pretty-printer.
 =cut
 sub xsdoc2pod
 {
-	use File::Spec;
 	my $datafile = shift();
 	my $outdir   = shift() || 'blib/lib';
 	my $index    = shift;
@@ -182,7 +185,6 @@ sub xsdoc2pod
 	die "usage: $0 datafile [outdir]\n"
 		unless defined $datafile;
 
-	our ($xspods, $data);
 	require $datafile;
 
 	my @files = ();
@@ -315,7 +317,8 @@ sub xsdoc2pod
 
 		foreach (@files) {
 			print join("\t", $_->{file},
-			                  $_->{name}, $_->{blurb}) . "\n";
+				   $_->{name},
+				   $_->{blurb} ? $_->{blurb} : () ) . "\n";
 		}
 		
 		close INDEX;
@@ -569,7 +572,8 @@ sub podify_pods
 		foreach (@$pods)
 		{
 			$ret .= join ("\n", @{$_->{lines}})."\n\n"
-				if ($_->{position} eq $position);
+				if (exists ($_->{position}) and 
+				    $_->{position} eq $position);
 		}
 	}
 	else
@@ -725,13 +729,16 @@ sub podify_see_alsos
 	my $alsos = shift;
 
 	# get rid of ourself
-	unshift (@$parents);
+	pop (@$parents);
 	
 	# if there are no parents
-	return undef unless (scalar (@$parents) || scalar (@$alsos));
+	return undef unless (($parents && scalar (@$parents)) ||
+			     ($alsos && scalar (@$alsos)));
 	
 	# create the see also list
-	'L<'.join ('>, L<', @$parents, @$alsos).">
+	'L<'.join ('>, L<',
+		   ($parents ? @$parents : ()), 
+		   ($alsos ? @$alsos : ())).">
 "
 }
 
@@ -792,7 +799,7 @@ sub preprocess_pod
 				else
 				{
 					carp "\n\nunable to open $2 for inclusion, at ".
-					     $parser->{filename}.':'.($. - @lines);
+					     $_->{filename}.':'.$_->{line};
 				}
 			}
 		}
@@ -948,7 +955,8 @@ sub xsub_to_pod {
 	#
 	# list all the arg types.
 	#
-	my @args = @{ $xsub->{args} };
+	my @args;
+	@args = @{ $xsub->{args} } if ($xsub->{args});
 	shift @args unless $xsub->{function};
 
 	$str .= "=over\n\n" if @args;
@@ -994,7 +1002,8 @@ xsub.
 sub compile_signature {
 	my $xsub = shift;
 
-	my @args = @{ $xsub->{args} };
+	my @args;
+	@args = @{ $xsub->{args} } if ($xsub->{args});
 
 	my $call;
 
@@ -1092,7 +1101,6 @@ sub convert_return_type_to_name {
 }
 
 sub mkdir_p {
-	use File::Spec;
 	my $path = shift;
 	my @dirs = File::Spec->splitdir ($path);
 	my $p = shift @dirs;

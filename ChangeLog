@@ -1,3 +1,11 @@
+2004/02/27 13:58 (-0500) rwmcfa1
+
+	* GenPod.pm: use warnings now used. Also turned on strict to get rid of
+	all of it's complaints, but even after all of them are gone it dies
+	with Unknown error, so use strict is commented out.  lots and lots and 
+	lots of warnings fixed, some of which were flat out bugs. one of which 
+	was user visible, SEE ALSO's was wrong.
+
 2004/02/27 02:00 (-0500) muppetman
 
 	* Glib.pm, README, NEWS: unstable release 1.037
