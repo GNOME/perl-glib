@@ -1195,12 +1195,128 @@ gperl_type_instance_init (GObject * instance)
         }
 }
 
+static GQuark gperl_type_reg_quark (void) G_GNUC_CONST;
+static GQuark
+gperl_type_reg_quark (void)
+{
+	static GQuark q = 0;
+	if (!q)
+		q = g_quark_from_static_string ("__gperl_type_reg");
+	return q;
+}
+
 static void
 gperl_type_class_init (GObjectClass * class)
 {
 	class->finalize     = gperl_type_finalize;
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
+}
+
+static void
+gperl_type_base_init (gpointer class)
+{
+	/*
+	 * tricksey little hobbitses...
+	 * 
+	 * we use the same function pointer for all perl-derived types'
+	 * base_init functions.  since we get the class structure and 
+	 * nothing else, we have no way of knowing which class is actually
+	 * being booted.  thus, we resort to trickery.
+	 * 
+	 * we know that class initialization class class_init for your new
+	 * type, then goes inside out calling the base_inits for the types
+	 * in your ancestry.  that means we'll get into this function once
+	 * for each type in a particular class instance's lineage.
+	 * 
+	 * so, we keep a private hash of class structures we have seen
+	 * before, containing a list of the types remaining to be initialized.
+	 * each time we get in here, we find the first perl-derived type
+	 * (as marked by Glib::Type::register as something which will use
+	 * this function), and look for the INIT_BASE function in that type's
+	 * package.  we pop items from the list so that we don't use them
+	 * twice.  when we've hit the end of the list, we forget that class
+	 * instance to save memory; this is safe because we should never
+	 * get back in here for that instance anyway.
+	 * 
+	 * remember that we must pass to the method the package corresponding
+	 * to the bottom of the hierarchy, so that client code knows what
+	 * class we are actually initializing.  otherwise, INIT_BASE methods
+	 * implemented in XS would find the wrong GTypeClass and mangle things
+	 * rather badly.
+	 * 
+	 * many thanks to Brett Kosinski for devising this evil^Wclever scheme.
+	 */
+	static GStaticRecMutex base_init_lock = G_STATIC_REC_MUTEX_INIT;
+	static GHashTable * seen = NULL;
+	GSList * types;
+	GType t;
+
+	g_static_rec_mutex_lock (&base_init_lock);
+
+	if (!seen)
+		seen = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	types = g_hash_table_lookup (seen, class);
+
+	if (!types) {
+		/* haven't seen this class instance before */
+		t = G_TYPE_FROM_CLASS (class);
+		do {
+			types = g_slist_prepend (types, (gpointer)t);
+		} while (0 != (t = g_type_parent (t)));
+	}
+
+	g_assert (types);
+
+	/* start at the head of the list of types and find the next 
+	 * perl-created type. */
+	while (types != NULL &&
+	       !g_type_get_qdata ((GType)types->data,
+	                          gperl_type_reg_quark())) {
+		types = g_slist_delete_link (types, types);
+	}
+
+	t = types ? (GType) types->data : 0;
+
+	/* and shift this one off so we don't use it again. */
+	types = g_slist_delete_link (types, types);
+
+	/* clean up now, while we're thinking about it */
+	if (types)
+		g_hash_table_replace (seen, class, types);
+	else
+		g_hash_table_remove (seen, class);
+
+	if (t) {
+		const char * package;
+		HV * stash;
+		SV ** slot;
+
+		package = gperl_package_from_type (t);
+		g_assert (package != NULL);
+
+		stash = gv_stashpv (package, FALSE);
+		g_assert (stash != NULL);
+
+        	slot = hv_fetch (stash, "INIT_BASE", sizeof ("INIT_BASE")-1, 0);
+
+		if (slot && GvCV (*slot)) {
+	                dSP;
+	                ENTER;
+	                SAVETMPS;
+	                PUSHMARK (SP);
+			/* remember, use the bottommost package name! */
+	                XPUSHs (sv_2mortal (newSVpv
+				(g_type_name (G_TYPE_FROM_CLASS (class)), 0)));
+	                PUTBACK;
+	                call_sv ((SV*) GvCV (*slot), G_VOID|G_DISCARD);
+	                FREETMPS;
+	                LEAVE;
+	        }
+	}
+
+	g_static_rec_mutex_unlock (&base_init_lock);
 }
 
 /* make sure we close the open list to keep from freaking out pod readers... */
@@ -1314,6 +1430,7 @@ g_type_register (class, parent_package, new_package, ...);
     CODE:
 	/* start with a clean slate */
 	memset (&type_info, 0, sizeof (GTypeInfo));
+	type_info.base_init = (GBaseInitFunc) gperl_type_base_init;
 	type_info.class_init = (GClassInitFunc) gperl_type_class_init;
 	type_info.instance_init = (GInstanceInitFunc) gperl_type_instance_init;
 
@@ -1350,6 +1467,9 @@ g_type_register (class, parent_package, new_package, ...);
 
 	/* and with the bindings */
 	gperl_register_object (new_type, new_package);
+
+	/* mark this type as "one of ours". */
+	g_type_set_qdata (new_type, gperl_type_reg_quark (), (gpointer) TRUE);
 
 	/* now look for things we should initialize presently, e.g.
 	 * signals and properties and interfaces and such, things that
