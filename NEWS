@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.070
+=================================
+
+* Add support for GParamSpecUnichar.  [Torsten]
+* Generate a correct META.yml.  [muppet]
+
 Overview of Changes in Glib 1.061
 =================================
 

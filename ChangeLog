@@ -1,3 +1,8 @@
+2004/11/01 21:22 (+0100) kaffeetisch
+
+	* Glib.pm, META.yml, Makefile.PL, NEWS, README: Unstable release
+	1.070.
+
 2004/10/24 11:55 (-0400) rwmcfa1
 
 	* MANIFEST.SKIP: updates
