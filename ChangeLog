@@ -1,3 +1,13 @@
+2004/06/04 12:53 (-0400) muppetman
+
+	* Glib.xs, GLog.xs, AUTHORS: patch from Albert Chin keeps us honest
+	in ANSI/C89 compatibility, to allow compilation on IRIX.
+	C++ comments are not allowed in C files (some were on dead code, so
+	i just removed them in applying the patch); and C89 doesn't allow for
+	non-static member initialization (the FOO_TYPE_BAR macros usually
+	evalulate to function calls, so we have to do the param_types arrays
+	the hard and ugly way.)
+
 2004/04/11 22:57 (-0400) muppetman
 
 	* Glib.pm, README, NEWS: stable release 1.042
