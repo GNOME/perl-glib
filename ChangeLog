@@ -1,3 +1,9 @@
+2003/12/04 00:12 (-0500) muppetman
+
+	* Glib.pm: credit where credit is due
+	* Glib.pm: bump version to 1.030 to keep cvs head ahead of the
+	stable series.
+
 2003/12/02 23:49 (-0500) rwmcfa1
 
 	* : Merged from rel-1-02-branch

@@ -27,7 +27,7 @@ use warnings;
 require DynaLoader;
 our @ISA = qw(DynaLoader);
 
-our $VERSION = '1.013';
+our $VERSION = '1.030';
 
 # this is the 'lite' version of what we could get Exporter to do for us.
 # we export nothing, so it seems silly to drag in all of Exporter::Heavy
@@ -428,7 +428,9 @@ of Göran Thyni, E<lt>gthyni at kirra dot netE<gt> and Guillaume Cottenceau
 E<lt>gc at mandrakesoft dot comE<gt> on the first gtk2-perl module, and from
 the sourcecode of the original gtk-perl and pygtk projects.  Marc Lehmann
 E<lt>pcg at goof dot comE<gt> did lots of great work on the magic of making
-Glib::Object wrapper and subclassing work like they should.
+Glib::Object wrapper and subclassing work like they should.  Ross McFarland
+<rwmcfa1 at neces dot com> wrote quite a bit of the documentation generation
+tools.
 
 =head1 COPYRIGHT AND LICENSE
 
