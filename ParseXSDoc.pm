@@ -383,17 +383,21 @@ sub preprocess_pods {
 		foreach (@{$pkgdata->{pods}})
 		{
 			my $firstline = $_->{lines}[0];
-			$_->{position} = $1 if ($firstline =~ /=for\s+position\s+(\w+)/);
+			if ($firstline) {
+				$_->{position} = $1 if ($firstline =~ /=for\s+position\s+(\w+)/);
+			}
 		}
-		
+
 		next unless $pkgdata->{xsubs};
 
 		# look for magic keywords in the =for apidoc
 		foreach (@{$pkgdata->{xsubs}})
 		{
 			my $firstline = $_->{pod}{lines}[0];
-			$_->{function} = 1 if ($firstline =~ /__function__/);
-			$_->{hidden} = 1 if ($firstline =~ /__hide__/);
+			if ($firstline) {
+				$_->{function} = ($firstline =~ /__function__/);
+				$_->{hidden} = ($firstline =~ /__hide__/);
+			}
 		}
 	}
 }

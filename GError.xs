@@ -356,6 +356,8 @@ BOOT:
 	                             GPERL_TYPE_THREAD_ERROR,
 	                             "Glib::Thread::Error");
 
+	PERL_UNUSED_VAR (file);
+
 =for object Glib::Error Exception Objects based on GError
 =cut
 

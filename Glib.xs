@@ -392,9 +392,7 @@ filename_to_uri (...)
 		       "  wrong number of arguments");
 	}
 	RETVAL = g_filename_to_uri (filename, hostname, &error);
-	warn ("retval %s\n", RETVAL);
 	if (!RETVAL)
 		gperl_croak_gerror (NULL, error);
-	warn ("made it out, %s", RETVAL);
     OUTPUT:
 	RETVAL
