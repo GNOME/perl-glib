@@ -1,3 +1,11 @@
+2004/01/14 00:21 (-0500) muppetman
+
+	* GBoxed.xs, GType.xs, GValue.xs: more spots where we should use
+	GINT_TO_POINTER and friends
+
+	* t/9.t, t/a.t: skip tests that exercise glib bugs on x86_64; we
+	need version API in the bindings to do this correctly.
+
 2004/01/13 22:41 (-0500) muppetman
 
 	* AUTHORS, Glib.xs, GObject.xs, GType.xs, typemap: applied
