@@ -1,3 +1,7 @@
+2004/05/16 01:44 (-0400) muppetman
+
+	* GObject.xs: add missing Glib::Object::notify().
+
 2004/05/11 19:35 (+0200) kaffeetisch
 
 	* GClosure.xs: Fix a debug message.

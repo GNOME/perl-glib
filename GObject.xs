@@ -955,6 +955,13 @@ g_object_set (object, ...)
 
 =for apidoc
 
+Emits a "notify" signal for the property I<$property> on I<$object>.
+
+=cut
+void g_object_notify (GObject * object, const gchar * property_name)
+
+=for apidoc
+
 Stops emission of "notify" signals on I<$object>. The signals are queued
 until C<thaw_notify> is called on I<$object>.
 
