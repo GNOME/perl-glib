@@ -1,3 +1,11 @@
+2003/10/23 15:51 muppetman
+
+	* GType.xs: Glib::Type->list_values ($enum_or_flags_package).
+	also takes a C type name, e.g., "GtkWidgetFlags", in case the type
+	is registered with glib but not with the bindings.
+	* GObject.xs: fix list_properties to allow package names instead
+	of just objects.
+
 2003/10/18 02:36 muppetman
 
 	* Glib.pm: bump version for devel series
@@ -116,6 +124,8 @@
 	special marshaller to use for all invocations of a particular named
 	signal on a particular class; this is intended to allow workarounds
 	for unhelpfully defined signal parameter types.
+
+	* Glib.pm: bumped version to rc2, since we export new C-level APIs.
 
 2003/09/11 23:33 muppetman
 

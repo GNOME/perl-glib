@@ -1281,3 +1281,43 @@ g_type_register (class, parent_package, new_package, ...);
                 }
 	}
 
+
+void
+list_values (class, const char * package)
+    PREINIT:
+	GType type;
+	char * p;
+	HV * hv;
+    PPCODE:
+	type = gperl_fundamental_type_from_package (package);
+	if (!type)
+		type = g_type_from_name (package);
+	if (!type)
+		croak ("%s is not registered with either GPerl or GLib",
+		       package);
+	/* 
+	 * unfortunately, GFlagsValue and GEnumValue different structures
+	 * that happen to have identical definitions, so even though it
+	 * is very inviting to use the same code for them, it's not
+	 * technically a good idea.
+	 */
+	if (G_TYPE_IS_ENUM (type)) {
+		GEnumValue * v = gperl_type_enum_get_values (type);
+		for ( ; v && v->value_nick && v->value_name ; v++) {
+			HV * hv = newHV ();
+			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
+			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
+			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
+		}
+	} else if (G_TYPE_IS_FLAGS (type)) {
+		GFlagsValue * v = gperl_type_flags_get_values (type);
+		for ( ; v && v->value_nick && v->value_name ; v++) {
+			HV * hv = newHV ();
+			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
+			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
+			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
+		}
+	} else {
+		croak ("%s is neither enum nor flags type");
+	}
+

@@ -829,22 +829,52 @@ g_object_set (object, ...)
 	}
 
 void
-g_object_list_properties (object)
-	GObject * object
+g_object_list_properties (class)
+	SV * class
     PREINIT:
+	GType type;
+	GObjectClass * object_class = NULL;
 	GParamSpec ** props;
 	guint n_props = 0, i;
     PPCODE:
-	props = g_object_class_list_properties (G_OBJECT_GET_CLASS (object),
-						&n_props);
+	if (class && SvOK (class) && SvROK (class)) {
+		GObject * object = SvGObject (class);
+		if (!object)
+			croak ("wha?  NULL object in list_properties");
+		type = G_OBJECT_TYPE (object);
+	} else {
+		type = gperl_object_type_from_package (SvPV_nolen (class));
+		if (!type)
+			croak ("package %s is not registered with GPerl",
+			       SvPV_nolen (class));
+	}
+	/* classes registered by perl are kept alive by the bindings.
+	 * those coming straight from C are not.  if we had an actual
+	 * object, the class will be alive, but if we just had a package,
+	 * the class may not exist yet.  thus, we'll have to do an honest
+	 * ref here, rather than a peek. */
+	object_class = g_type_class_ref (type);
+	props = g_object_class_list_properties (object_class, &n_props);
 #ifdef NOISY
 	warn ("list_properties: %d properties\n", n_props);
 #endif
 	for (i = 0; i < n_props; i++) {
+		GType type;
 		const gchar * pv;
 		HV * property = newHV ();
-		hv_store (property, "name",  4, newSVpv (g_param_spec_get_name (props[i]), 0), 0);
-		hv_store (property, "type",  4, newSVpv (g_type_name (props[i]->value_type), 0), 0);
+
+		hv_store (property, "name",  4,
+		          newSVpv (g_param_spec_get_name (props[i]), 0), 0);
+
+		/* map type names to package names, if possible */
+		pv = gperl_package_from_type (props[i]->value_type);
+		if (!pv) pv = g_type_name (props[i]->value_type);
+		hv_store (property, "type",  4, newSVpv (pv, 0), 0);
+
+		pv = gperl_package_from_type (props[i]->owner_type);
+		if (!pv) pv = g_type_name (props[i]->owner_type);
+		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
+
 		/* this one can be NULL, it seems */
 		pv = g_param_spec_get_blurb (props[i]);
 		if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
@@ -853,6 +883,7 @@ g_object_list_properties (object)
 		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
 	}
 	g_free(props);
+	g_type_class_unref (object_class);
 
 ###
 ### rudimentary support for foreign objects.
