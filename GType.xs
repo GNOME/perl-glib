@@ -377,15 +377,12 @@ void
 gperl_sv_free (SV * sv)
 {
 	SvREFCNT_dec (sv);
-	//warn ("%s: %s - %d", __FUNCTION__, SvPV_nolen (sv), SvREFCNT (sv));
 }
 
 SV *
 gperl_sv_copy (SV * sv)
 {
-	SvREFCNT_inc (sv);
-	//warn ("%s: %s - %d", __FUNCTION__, SvPV_nolen (sv), SvREFCNT (sv));
-	return sv;
+	return newSVsv (sv);
 }
 
 GType
