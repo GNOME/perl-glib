@@ -308,7 +308,7 @@ program (e.g. commandline arguments, readdir results etc.).
 
 =over 4
 
-=item $filename = Glib::filename_to_unicode $filename_in_local_encoding
+=item $filename = Glib->filename_to_unicode $filename_in_local_encoding
 
 Convert a perl string that supposedly contains a filename in local
 encoding into a filename represented as unicode, the same way that GLib
@@ -316,16 +316,16 @@ does it internally.
 
 Example:
 
-   $gtkfilesel->set_filename (Glib::filename_to_unicode $ARGV[1]);
+   $gtkfilesel->set_filename (Glib->filename_to_unicode $ARGV[1]);
 
-=item $filename_in_local_encoding = Glib::filename_from_unicode $filename
+=item $filename_in_local_encoding = Glib->filename_from_unicode $filename
 
 Converts a perl string containing a filename into a filename in the local
 encoding in the same way GLib does it.
 
 Example:
 
-   open MY, "<", Glib::filename_from_unicode $gtkfilesel->get_filename;
+   open MY, "<", Glib->filename_from_unicode $gtkfilesel->get_filename;
 
 =back
 

@@ -1,3 +1,16 @@
+2004/01/08 21:22 (-0500) muppetman
+
+	* Glib.xs: bit the bullet and made filename_to_unicode and 
+	filename_from_bullet work with either :: or -> syntaxes.
+
+	* Glib.pm: doc'd ^ as using the -> syntax.
+
+	there was great discussion on the list about this issue (in a more 
+	general sense) bascially early on the decision/mandate was made that
+	the -> syntax was to be used everywhere. right or wrong it's to late
+	change now that stable stuff has hit the world. the above functions
+	work either way, so we're safe.
+
 2003/12/31 02:03 (-0500) muppetman
 
 	* GValue.xs: paranoia -- check for sv==NULL before passing to SvOK.

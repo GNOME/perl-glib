@@ -269,20 +269,28 @@ BOOT:
 =for apidoc __hide__
 =cut
 const char *
-filename_from_unicode (GPerlFilename filename)
-	PROTOTYPE: $
-	CODE:
-        RETVAL = filename;
-	OUTPUT:
+filename_from_unicode (const char * class_or_filename, const char *filename=NULL)
+    CODE:
+    	fprintf(stderr, "items: %d, (%s), (%s)\n", items, 
+			class_or_filename, filename);
+	if (items < 2)
+	        RETVAL = class_or_filename;
+	else
+	        RETVAL = filename;
+    OUTPUT:
         RETVAL
-        
+
 =for apidoc __hide__
 =cut
 GPerlFilename_const
-filename_to_unicode (const char *filename)
-	PROTOTYPE: $
-	CODE:
-        RETVAL = filename;
-	OUTPUT:
+filename_to_unicode (const char * class_or_filename, const char *filename=NULL)
+    CODE:
+    	fprintf(stderr, "items: %d, (%s), (%s)\n", items, 
+			class_or_filename, filename);
+	if (items < 2)
+	        RETVAL = class_or_filename;
+	else
+	        RETVAL = filename;
+    OUTPUT:
         RETVAL
  
