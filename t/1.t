@@ -54,13 +54,13 @@ SKIP: {
   skip "new 2.6 stuff", 6
     unless Glib->CHECK_VERSION (2,6,0);
 
-  ok (defined Glib::get_user_data_dir);
-  ok (defined Glib::get_user_config_dir);
-  ok (defined Glib::get_user_cache_dir);
+  ok (defined Glib::get_user_data_dir ());
+  ok (defined Glib::get_user_config_dir ());
+  ok (defined Glib::get_user_cache_dir ());
 
-  ok (defined Glib::get_system_data_dirs);
-  ok (defined Glib::get_system_config_dirs);
-  ok (defined Glib::get_language_names);
+  ok (defined Glib::get_system_data_dirs ());
+  ok (defined Glib::get_system_config_dirs ());
+  ok (defined Glib::get_language_names ());
 }
 
 __END__

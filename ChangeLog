@@ -1,3 +1,9 @@
+2005/01/04 15:15 (-0400) rwmcfa1
+
+	* t/1.t: we need to make it clear to perl that g_get_user_data_dir and
+	friends are functions or we'll get syntax errors and test failures when
+	no symbols with those names are found (even though they'll be skipped.)
+
 2005/01/02 16:31 (+0100) kaffeetisch
 
 	* GParamSpec.xs, TODO: Remove documentation that doesn't apply
