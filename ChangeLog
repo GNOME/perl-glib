@@ -1,4 +1,8 @@
-2004/02/-- --:-- (-0500) muppetman
+2004/02/26 10:16 (-0500) muppetman
+
+	* t/1.t: correct the skip count.  bad muppet.
+
+2004/02/26 09:30 (-0500) muppetman
 
 	* README: fix the spelling of license; update the sandbox instructions.
 

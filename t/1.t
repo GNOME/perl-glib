@@ -34,7 +34,7 @@ ok (defined (Glib::get_home_dir), "Glib::get_home_dir");
 ok (defined (Glib::get_tmp_dir), "Glib::get_tmp_dir");
 
 SKIP: {
-  skip 1, "set_application_name is new in glib 2.2.0"
+  skip "set_application_name is new in glib 2.2.0", 2
     unless Glib->CHECK_VERSION (2,2,0);
   # this will not hold after Gtk2::init, since gtk_init() calls
   # gdk_parse_args() which calls g_set_prgname(argv[0]).
