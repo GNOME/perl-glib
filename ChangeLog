@@ -1,3 +1,7 @@
+2003/07/18 12:05 muppetman
+
+	* Glib.pm, README, META.yml
+
 2003/07/17 11:44 muppetman
 
 	* GBoxed.xs, GObject.xs, GTypes.xs, Glib.xs, Makefile.PL: add the
