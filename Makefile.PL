@@ -103,9 +103,7 @@ package MY;
 # rule to build the documentation
 sub postamble {
 	return "
-build/xsapi.pod: @main::xs_files xsapi.pod.head xsapi.pod.foot
-	cat xsapi.pod.head > \$@
-	podselect @main::xs_files >> \$@
-	cat xsapi.pod.foot >> \$@
+build/xsapi.pod: @main::xs_files xsapi.pod.head xsapi.pod.foot apidoc.pl
+	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot @main::xs_files > \$@
 ";
 }
