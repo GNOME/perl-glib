@@ -295,16 +295,10 @@ This involves some elaborate guessing, which perl currently avoids, but
 Glib and Gtk+ do. The following functions expose the conversion algorithm
 that glib uses.
 
-Examples:
-
-   open MY, "<", Glib::filename_from_unicode $filesel->get_filename;
-
-   $filesel->set_filename (Glib::filename_to_unicode $ARGV[1]);
-
-These functions are only neecssary when you want to use perl functions 
-to manage filenames return by a glib/gtk+ function, or when you feed
+These functions are only neecssary when you want to use perl functions
+to manage filenames returned by a glib/gtk+ function, or when you feed
 filenames into glib/gtk+ functions that have their source outside your
-program (e.g. comamndline arguments).
+program (e.g. commandline arguments).
 
 =over 4
 
@@ -313,10 +307,18 @@ program (e.g. comamndline arguments).
 Convert a perl strings that supposedly contains a filename into a filename
 in the local encoding, the same way that glib or gtk+ do it internally.
 
+Example:
+
+   $filesel->set_filename (Glib::filename_to_unicode $ARGV[1]);
+
 =item $filename_in_local_encoding = Glib::filename_from_unicode $filename
 
 Converts a perl string containing a filename in the local encoding into a
 perl string in the same way glib ot gtk+ do it.
+
+Example:
+
+   open MY, "<", Glib::filename_from_unicode $filesel->get_filename;
 
 =back
 
