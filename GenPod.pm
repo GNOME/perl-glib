@@ -4,6 +4,8 @@
 
 package Glib::GenPod;
 
+our $VERSION = '0.01';
+
 # FIXME/TODO
 #use strict;
 #use warnings;

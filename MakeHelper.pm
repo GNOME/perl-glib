@@ -1,8 +1,10 @@
 #
-#
+# $Header$
 #
 
 package Glib::MakeHelper;
+
+our $VERSION = '0.01';
 
 =head1 NAME
 

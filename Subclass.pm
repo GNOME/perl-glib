@@ -20,6 +20,8 @@
 
 package Glib::Object::Subclass;
 
+our $VERSION = '0.01';
+
 use Glib;
 
 =head1 NAME
