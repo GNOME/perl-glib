@@ -368,12 +368,8 @@ g_object_set_data (object, key, data)
 	gchar * key
 	SV * data
     CODE:
-	/* FIXME this may lead to some strange problems, such as the variable
-	 * changing out from under us.  needs testing.  see "Using call_sv"
-	 * in perlcall for some explanation of why you use newSVsv to copy
-	 * SV for storage in some instances... */
-	SvREFCNT_inc (data);
-	g_object_set_data_full (object, key, data, destroy_data);
+	g_object_set_data_full (object, key,
+	                        gperl_sv_copy (data), gperl_sv_free);
 
 
 SV *
@@ -382,9 +378,12 @@ g_object_get_data (object, key)
 	gchar * key
     CODE:
 	RETVAL = (SV*) g_object_get_data (object, key);
-	SvREFCNT_inc(RETVAL); /* this is necessary because the output section
-	                         will call sv_2mortal on ST(0), which is 
-	                         RETVAL! */
+	/* the output section will call sv_2mortal on RETVAL... so let's
+	 * make a copy! */
+	if (RETVAL)
+		RETVAL = newSVsv (RETVAL);
+	else
+		RETVAL = newSVsv (&PL_sv_undef);
     OUTPUT:
 	RETVAL
 
