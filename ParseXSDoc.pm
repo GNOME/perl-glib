@@ -411,7 +411,8 @@ determine anything about the types or number of parameters
 returned from xsubs with PPCODE bodies.
 
 OUTLIST parameters are pulled from the args list and put
-into an "outlist" key.
+into an "outlist" key.  IN_OUTLIST parameters are put into
+both.
 
 Data type names are not mangled at all.
 
@@ -465,7 +466,7 @@ $SIG{__WARN__} = sub {
 
 	my %args = ();
 	my @argstr = split /\s*,\s*/, $args;
-	#print Dumper([$args, \@args]);
+	#print Dumper([$args, \%args]);
 	for (my $i = 0 ; $i < @argstr ; $i++) {
 		# the last one can be an ellipsis, let's handle that specially
 		if ($i == $#argstr and $argstr[$i] eq '...') {
@@ -473,7 +474,7 @@ $SIG{__WARN__} = sub {
 			push @{ $xsub{args} }, $args{'...'};
 			last;
 		}
-		$argstr[$i] =~ /^(OUTLIST\s+)?      # OUTLIST would be 1st
+		$argstr[$i] =~ /^(?:(IN_OUTLIST|OUTLIST)\s+)? # OUTLIST would be 1st
 		                 ([^=]+(?:\b|\s))?  # arg type is optional, too
 		                 (\w+)              # arg name
 		                 (?:\s*=\s*(.+))?   # possibly a default value
@@ -483,6 +484,15 @@ $SIG{__WARN__} = sub {
 				type => $2,
 				name => $3,
 			};
+			if ($1 eq 'IN_OUTLIST') {
+				# also an arg
+				$args{$3} = {
+					type => $2,
+					name => $3,
+				};
+				$args{$3}{default} = $4 if defined $4;
+				push @{ $xsub{args} }, $args{$3};
+			}
 			
 		} else {
 			$args{$3} = {

@@ -1,3 +1,9 @@
+2003/11/06 10:30 (-0500) muppetman
+
+	* ParseXSDoc.pm: handle IN_OUTLIST arguments, which previously got
+	a type of "(!!)".  note: still does not handle IN_OUT or OUT args,
+	as i don't have any of those to test.
+
 2003/11/03 14:03 muppetman
 
 	* GenPod.pm: use the actual instance arg name rather than cutting
