@@ -2,7 +2,10 @@
   - use that API to add TODO guards to 9.t and a.t (the ones that exercise
     GLib bugs on x86_64).  i think the safe versions are 2.2.5 and 2.3.3.
 
-- ability to add a GInterface to a new GObject subclass.
+- documentation generation:
+  - hush things up a bit, we don't need so much status info
+    perhaps there should be an env var to enable these messages, or a
+    "doc lint" tool.
 
 - GEnum type for G_PRIORITY_VALUES?
 - can't implement g_idle_remove_by_data because ... well, how would you

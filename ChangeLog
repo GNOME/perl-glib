@@ -1,3 +1,7 @@
+2004/02/19 01:18 (-0500) muppetman
+
+	* Glib.pm, GError.xs, TODO: documentation updates.
+
 2004/02/18 01:35 (-0500) muppetman
 
 	A GError.xs

@@ -236,4 +236,100 @@ BOOT:
 	gperl_register_error_domain (G_THREAD_ERROR,
 	                             GPERL_TYPE_THREAD_ERROR,
 	                             "Glib::Thread::Error");
-	
+
+=for object Glib::Error Exception Objects based on GError
+
+=head1 SYNOPSIS
+
+  eval {
+     my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($filename);
+     $image->set_from_pixbuf ($pixbuf);
+  };
+  if ($@) {
+     print "$@\n";
+     if ('' eq ref $@) {
+        # don't know how to handle this
+        die $@;
+     } elsif ($@->isa ('Gtk2::Gdk::Pixbuf::Error')
+              and $@->value eq 'unknown-format') {
+        change_format_and_try_again ();
+     } elsif ($@->isa ('Glib::File::Error')
+              and $@->value eq 'noent') {
+        change_source_dir_and_try_again ();
+     }
+  }
+
+=head1 DESCRIPTION
+
+Gtk2-Perl translates GLib's GError runtime errors into Perl exceptions, by
+creating exception objects based on Glib::Error.  Glib::Error overloads the
+stringification operator, so a Glib::Error object will act like a string if
+used with print() or warn(), so most code using $@ will not even know the
+difference.
+
+The point of having exception objects, however, is that the error messages
+in GErrors are often localized with NLS translation.  Thus, it's not good
+for your code to attempt to handle errors by string matching on the the 
+error message.  Glib::Error provides a way to get to the deterministic
+error code.
+
+You will typically deal with objects that inherit from Glib::Error, such as
+Glib::Convert::Error, Glib::File::Error, Gtk2::Gdk::Pixbuf::Error, etc; these
+classes are provided by the libraries that define the error domains.  However,
+it is possible to get a base Glib::Error when the bindings encounter an unknown
+or unbound error domain.  The interface used here degrades nicely in such a
+situation, but in general you should submit a bug report to the binding
+maintainer if you get such an exception.
+
+=cut
+
+##
+## evil trick here -- define xsubs that xsdocparse can see, but which
+## xsubpp will not compile, so we get documentation on them.
+##
+
+#if 0
+
+=for apidoc
+
+The source line and file closest to the emission of the exception, in the same
+format that you'd get from croak() or die().
+
+=cut
+char * location (SV * error)
+
+=for apidoc
+
+The error message.  This may be localized, as it is intended to be shown to a
+user.
+
+=cut
+char * message (SV * error)
+
+=for apidoc
+
+The error domain.  You normally do not need this, as the object will be blessed
+into a corresponding class.
+
+=cut
+char * domain (SV * error)
+
+=for apidoc
+
+The enumeration value nickname of the integer value in C<< $error->code >>, 
+according to this error domain.  This will not be available if the error
+object is a base Glib::Error, because the bindings will have no idea how to
+get to the correct nickname.
+
+=cut
+char * value (SV * error)
+
+=forapidoc
+
+This is the numeric error code.  Normally, you'll want to use C<value> instead,
+for readability.
+
+=cut
+int code (SV * error)
+
+#endif

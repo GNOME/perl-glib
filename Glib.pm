@@ -254,8 +254,9 @@ be allowed (e.g. GtkTreeModel columns):
  Glib::Scalar
 
 Functions that can return false and set a GError in C raise an exception in
-Perl (using the string from the GError for $@).  Exceptions are a sticky issue,
-so they get their own section.
+Perl, using an exception object based on the GError for $@; see L<Glib::Error>.
+Trapping exceptions in signals is a sticky issue, so they get their own
+section; see L<EXCEPTIONS>.
 
 Enumerations and flags are treated as strings and arrays of strings,
 respectively.  GLib provides a way to register nicknames for enumeration
