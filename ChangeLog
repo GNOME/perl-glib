@@ -1,3 +1,21 @@
+2003/12/10 12:45 (-0500) muppetman
+
+	* Subclass.pm: updated doc
+
+	* GType.xs: fix memory corruption problem in register_enum and 
+	register_flags by duping and leaking the value names.  there appears
+	to be no way to clean up that memory, unfortunately.
+	also moved those two xsubs up in the file to appear immediately
+	after register_object in the docs, and added examples to their docs.
+	move the existing register to register_object, since that's all it
+	does.  created a new function named register, which acts as a 
+	traffic-cop, calling the proper helper function based on the type
+	from which you are attempting to derive.  this would've been easier
+	to do in Perl, but then getting the doc into the right place would
+	require a rather large tearup of Glib::ParseXSDoc.
+
+	* TODO: a few of these are completed, now.
+
 2003/12/10 12:02 (-0500) rwmcfa1
 
 	* t/c.t: initial import, tests out the new register_enums|flags code
