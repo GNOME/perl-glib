@@ -1,3 +1,15 @@
+2004/01/15 14:31 (-0500) muppetman
+
+	* GenPod.pm: name mapping for GPerlFilename_const
+
+	* gperl.h, typemap: add typedef and input typemap for
+	GPerlFilename_ornull
+
+	* GType.xs, gperl_marshal.h, t/7.t, t/8.t: preserve $@ across
+	closure invocations.
+
+	* GSignal.xs: add words of warning to documentation
+
 2004/01/14 10:59 (-0500) rwmcfa1
 
 	* GObject.xs: added pod documentation for tie_properties
