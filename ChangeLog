@@ -1,3 +1,7 @@
+2003/08/28 17:45 muppetman
+
+	* GSignal.xs: clean up comments, bind signal_handler_is_connected
+
 2003/08/22 01:11 muppetman
 
 	* Glib.pm, README, META.yml, debian/changelog, MANIFEST:

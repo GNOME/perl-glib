@@ -174,6 +174,7 @@ foreach_closure_matched (gpointer instance,
 
 =cut
 
+
 MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 
 ##
@@ -189,56 +190,25 @@ MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 ##					 GValue		       *return_accu,
 ##					 const GValue	       *handler_return,
 ##					 gpointer               data);
-##
-##
-##/* --- signals --- */
-##guint                 g_signal_newv         (const gchar        *signal_name,
-##					     GType               itype,
-##					     GSignalFlags        signal_flags,
-##					     GClosure           *class_closure,
-##					     GSignalAccumulator	 accumulator,
-##					     gpointer		 accu_data,
-##					     GSignalCMarshaller  c_marshaller,
-##					     GType               return_type,
-##					     guint               n_params,
-##					     GType              *param_types);
-##guint                 g_signal_new_valist   (const gchar        *signal_name,
-##					     GType               itype,
-##					     GSignalFlags        signal_flags,
-##					     GClosure           *class_closure,
-##					     GSignalAccumulator	 accumulator,
-##					     gpointer		 accu_data,
-##					     GSignalCMarshaller  c_marshaller,
-##					     GType               return_type,
-##					     guint               n_params,
-##					     va_list             args);
-##guint                 g_signal_new          (const gchar        *signal_name,
-##					     GType               itype,
-##					     GSignalFlags        signal_flags,
-##					     guint               class_offset,
-##					     GSignalAccumulator	 accumulator,
-##					     gpointer		 accu_data,
-##					     GSignalCMarshaller  c_marshaller,
-##					     GType               return_type,
-##					     guint               n_params,
-##					     ...);
-##void                  g_signal_emitv        (const GValue       *instance_and_params,
-##					     guint               signal_id,
-##					     GQuark              detail,
-##					     GValue             *return_value);
-##void                  g_signal_emit_valist  (gpointer            instance,
-##					     guint               signal_id,
-##					     GQuark              detail,
-##					     va_list             var_args);
 
 
-##void                  g_signal_emit         (gpointer            instance,
-##					     guint               signal_id,
-##					     GQuark              detail,
-##					     ...);
-##void                  g_signal_emit_by_name (gpointer            instance,
-##					     const gchar        *detailed_signal,
-##					     ...);
+###
+### ## creating signals ##
+### new signals are currently created as a byproduct of Glib::Type:;register
+###
+##        g_signal_newv
+##        g_signal_new_valist
+##        g_signal_new
+
+###
+### ## emitting signals ##
+### all versions of g_signal_emit go through Glib::Object::signal_emit,
+### which is mostly equivalent to g_signal_emit_by_name.
+###
+##        g_signal_emitv
+##        g_signal_emit_valist
+##        g_signal_emit
+##        g_signal_emit_by_name
 
 ## heavily borrowed from gtk-perl and goran's code in gtk2-perl, which
 ## was inspired by pygtk's pyobject.c::pygobject_emit
@@ -260,7 +230,6 @@ g_signal_emit (instance, name, ...)
 			name, G_OBJECT_TYPE_NAME (instance));
 
 	g_signal_query (signal_id, &query);
-
 
 	if ((items-ARGOFFSET) != query.n_params) 
 		croak ("Incorrect number of arguments for emission of signal %s in class %s; need %d but got %d",
@@ -343,21 +312,49 @@ void g_signal_stop_emission_by_name (GObject * instance, const gchar * detailed_
 ##					       guint		  signal_id,
 ##					       GQuark		  detail,
 ##					       gboolean		  may_be_blocked);
-##gulong	 g_signal_connect_closure_by_id	      (gpointer		  instance,
+
+###
+### ## connecting signals ##
+### currently all versions of signal_connect go through
+### Glib::Object::signal_connect, which acts like the g_signal_connect
+### convenience function.
+###
+##gulong g_signal_connect_closure_by_id	      (gpointer		  instance,
 ##					       guint		  signal_id,
 ##					       GQuark		  detail,
 ##					       GClosure		 *closure,
 ##					       gboolean		  after);
-##gulong	 g_signal_connect_closure	      (gpointer		  instance,
+##gulong g_signal_connect_closure	      (gpointer		  instance,
 ##					       const gchar       *detailed_signal,
 ##					       GClosure		 *closure,
 ##					       gboolean		  after);
-##gulong	 g_signal_connect_data		      (gpointer		  instance,
+##gulong g_signal_connect_data		      (gpointer		  instance,
 ##					       const gchar	 *detailed_signal,
 ##					       GCallback	  c_handler,
 ##					       gpointer		  data,
 ##					       GClosureNotify	  destroy_data,
 ##					       GConnectFlags	  connect_flags);
+
+gulong
+g_signal_connect (instance, detailed_signal, callback, data=NULL)
+	SV * instance
+	char * detailed_signal
+	SV * callback
+	SV * data
+    ALIAS:
+	Glib::Object::signal_connect = 0
+	Glib::Object::signal_connect_after = 1
+	Glib::Object::signal_connect_swapped = 2
+    PREINIT:
+	GConnectFlags flags = 0;
+    CODE:
+	if (ix == 1) flags |= G_CONNECT_AFTER;
+	if (ix == 2) flags |= G_CONNECT_SWAPPED;
+	RETVAL = gperl_signal_connect (instance, detailed_signal,
+	                               callback, data, flags);
+    OUTPUT:
+	RETVAL
+
 
 void
 g_signal_handler_block (object, handler_id)
@@ -374,38 +371,33 @@ g_signal_handler_disconnect (object, handler_id)
 	GObject * object
 	gulong handler_id
 
-##gboolean g_signal_handler_is_connected	      (gpointer		  instance,
-##					       gulong		  handler_id);
-##gulong	 g_signal_handler_find		      (gpointer		  instance,
-##					       GSignalMatchType	  mask,
-##					       guint		  signal_id,
-##					       GQuark		  detail,
-##					       GClosure		 *closure,
-##					       gpointer		  func,
-##					       gpointer		  data);
-##guint	 g_signal_handlers_block_matched      (gpointer		  instance,
-##					       GSignalMatchType	  mask,
-##					       guint		  signal_id,
-##					       GQuark		  detail,
-##					       GClosure		 *closure,
-##					       gpointer		  func,
-##					       gpointer		  data);
-##guint	 g_signal_handlers_unblock_matched    (gpointer		  instance,
-##					       GSignalMatchType	  mask,
-##					       guint		  signal_id,
-##					       GQuark		  detail,
-##					       GClosure		 *closure,
-##					       gpointer		  func,
-##					       gpointer		  data);
-##guint	 g_signal_handlers_disconnect_matched (gpointer		  instance,
-##					       GSignalMatchType	  mask,
-##					       guint		  signal_id,
-##					       GQuark		  detail,
-##					       GClosure		 *closure,
-##					       gpointer		  func,
-##					       gpointer		  data);
+gboolean
+g_signal_handler_is_connected (object, handler_id)
+	GObject * object
+	gulong handler_id
 
- ##### oops, no typemap for GSignalMatchType...
+ ##
+ ## this would require a fair bit of the magic used in the *_by_func
+ ## wrapper below...
+ ##
+##gulong   g_signal_handler_find              (gpointer          instance,
+##                                             GSignalMatchType  mask,
+##                                             guint             signal_id,
+##                                             GQuark            detail,
+##                                             GClosure         *closure,
+##                                             gpointer          func,
+##                                             gpointer          data);
+
+ ###
+ ### the *_matched functions all have the same signature and thus all 
+ ### are handled by matched().
+ ###
+
+ ##  g_signal_handlers_block_matched
+ ##  g_signal_handlers_unblock_matched
+ ##  g_signal_handlers_disconnect_matched
+
+ ##### FIXME oops, no typemap for GSignalMatchType...
 ##guint
 ##matched (instance, mask, signal_id, detail, func, data)
 ##	SV * instance
@@ -440,6 +432,7 @@ g_signal_handler_disconnect (object, handler_id)
 ##    OUTPUT:
 ##	RETVAL
 
+
 ##/* --- chaining for language bindings --- */
 ##void	g_signal_override_class_closure	      (guint		  signal_id,
 ##					       GType		  instance_type,
@@ -448,32 +441,13 @@ g_signal_handler_disconnect (object, handler_id)
 ##					       GValue            *return_value);
 ##
 
- ## /* --- convenience --- */
 
-gulong
-g_signal_connect (instance, detailed_signal, callback, data=NULL)
-	SV * instance
-	char * detailed_signal
-	SV * callback
-	SV * data
-    ALIAS:
-	Glib::Object::signal_connect = 0
-	Glib::Object::signal_connect_after = 1
-	Glib::Object::signal_connect_swapped = 2
-    PREINIT:
-	GConnectFlags flags = 0;
-    CODE:
-	if (ix == 1) flags |= G_CONNECT_AFTER;
-	if (ix == 2) flags |= G_CONNECT_SWAPPED;
-	RETVAL = gperl_signal_connect (instance, detailed_signal,
-	                               callback, data, flags);
-    OUTPUT:
-	RETVAL
+ ### the *_by_func functions all have the same signature, and thus are
+ ### handled by do_stuff_by_func.
 
-
-###define	g_signal_handlers_disconnect_by_func(instance, func, data)
-###define	g_signal_handlers_block_by_func(instance, func, data)
-###define	g_signal_handlers_unblock_by_func(instance, func, data)
+ ## g_signal_handlers_disconnect_by_func(instance, func, data)
+ ## g_signal_handlers_block_by_func(instance, func, data)
+ ## g_signal_handlers_unblock_by_func(instance, func, data)
 
 int
 do_stuff_by_func (instance, func, data=NULL)
