@@ -571,7 +571,9 @@ sub podify_methods
 
 	#$str .= "=over\n\n";
 	foreach (@$xsubs) {
-		# skip unless the method is avaiable
+		# skip if the method is hidden
+		next if ($_->{hidden});
+		
 		$_->{symname} =~ m/^(?:([\w:]+)::)?([\w]+)$/;
 		$package = $1 || $_->{package};
 		$method = $2;
@@ -850,7 +852,16 @@ sub xsub_to_pod {
 	#
 	# list all the arg types.
 	#
-	my (undef, @args) = @{ $xsub->{args} };
+	my @args;
+	if ($xsub->{function})
+	{
+       		@args = @{ $xsub->{args} };
+	}
+	else
+	{
+       		(undef, @args) = @{ $xsub->{args} };
+	}
+
 	$str .= "=over\n\n" if @args;
 	foreach my $a (@args) {
 		my $type;
@@ -901,10 +912,14 @@ sub compile_signature {
 	$method =~ s/^(.*):://;
 	my $package = $1 || $xsub->{package};
 	my $obj;
-	if (defined $instance->{type}) {
+
+	$obj = $package;
+	if ($xsub->{function})
+	{
+		unshift @args, $instance;
+	}
+	elsif (defined $instance->{type}) {
 		$obj = '$'.$instance->{name};
-	} else {
-		$obj = $package;
 	}
 
 	# compile the arg list string
@@ -932,7 +947,7 @@ sub compile_signature {
 		      ? 'list = '
 		      : ''
 		     );
-
+	
 	"$retstr$obj\-E<gt>$method ".($argstr ? "($argstr)" : "");
 }
 

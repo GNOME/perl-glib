@@ -12,13 +12,19 @@ use warnings;
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test::More tests => 1;
+use Test::More tests => 9;
 BEGIN { use_ok('Glib') };
 
 #########################
 
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
+ok (Glib::major_version, 'major_version');
+ok (Glib::minor_version, 'minor_version');
+ok (Glib::micro_version, 'micro_version');
+ok (Glib->CHECK_VERSION(0,0,0), 'CHECK_VERSION pass');
+ok (!Glib->CHECK_VERSION(50,0,0), 'CHECK_VERSION fail');
+ok (Glib::MAJOR_VERSION, 'MAJOR_VERSION');
+ok (Glib::MINOR_VERSION, 'MINOR_VERSION');
+ok (Glib::MICRO_VERSION, 'MICRO_VERSION');
 
 __END__
 

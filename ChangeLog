@@ -1,3 +1,17 @@
+2004/02/22 21:44 (-0500) rwmcfa1
+
+	* GSignal.xs: =arg -> =for arg, apidoc error/type-o fixed.
+
+	* GUtils.xs, t/1.t: implemented CHECK_VERSION and friends with the same
+	scheme that went into Gtk2 eariler today.
+
+	* ParseXSDoc.pm: changed hide_hidden -> preprocess_pod. it now looks for
+	the __function__ keyword. changed the way these keywords are recorded,
+	they now go into xsub keys.
+	
+	* GenPod.pm: use the above by looking for the function key in xsubs
+	and proceeding accordingly.
+
 2004/02/22 15:26 (-0500) rwmcfa1
 
 	* GenPod.pm: removed warning about xsubs with no args, as they're 

@@ -529,9 +529,9 @@ void g_signal_stop_emission_by_name (GObject * instance, const gchar * detailed_
 
 =for apidoc Glib::Object::signal_connect
 
-=arg callback (subroutine) 
+=for arg callback (subroutine) 
 
-=arg data (scalar) arbitrary data to be passed to each invocation of I<callback>
+=for arg data (scalar) arbitrary data to be passed to each invocation of I<callback>
 
 Register I<callback> to be called on each emission of I<$detailed_signal>.
 Returns an identifier that may be used to remove this handler with
