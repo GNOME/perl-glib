@@ -68,17 +68,13 @@ the GType id will never be seen in perl, as the package name serves
 that purpose.  [FIXME link to a document describing this stuff in detail.]
 
 This module also provides facilities for creating wrappers for other
-GObject-based libraries.  [FIXME link to a developer's doc]
+GObject-based libraries.
 
 =head1 SEE ALSO
 
 How to create your own gobject subclasses:
 
   Glib::Objects::Subclass
-
-Other PMs installed with this module:
-
-  Glib::PkgConfig - simple interface to pkg-config for developers
 
 This module is the basis for the Gtk2 module, so most of the references
 you'll be able to find about this one are tied to that one.  The perl
@@ -87,6 +83,14 @@ reference documentation:
 
   GLib - http://developer.gnome.org/doc/API/2.0/glib/
   GObject - http://developer.gnome.org/doc/API/2.0/gobject/
+
+This module serves as the foundation for any module which needs to bind
+GLib-based C libraries to perl.
+
+  Glib::PkgConfig - simple interface to pkg-config for developers
+  Glib::devel - Binding developer's overview of Glib's internals
+  Glib::xsapi - internal API reference for GPerl
+  [FIXME link to the binding tutorial]
 
 For gtk2-perl itself, see its website at
 

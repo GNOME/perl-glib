@@ -55,12 +55,14 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
 	'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
 	'PkgConfig.pm'    => '$(INST_LIBDIR)/Glib/PkgConfig.pm',
 	'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
+	'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
 	'build/xsapi.pod' => '$(INST_LIBDIR)/Glib/xsapi.pod',
    );
    %pod_files = (
       'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
       'PkgConfig.pm'    => '$(INST_MAN3DIR)/Glib::PkgConfig.$(MAN3EXT)',
       'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
+      'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
       'build/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
    );
 

@@ -1,3 +1,10 @@
+2003/08/14 11:50 muppetman
+
+	* devel.pod, Makefile.PL, Glib.pm: new manpage, Glib::devel, describes
+	the philosphy of how the bindings are designed and how they work; an
+	overview-style supplement to Glib::xsapi, which details the APIs
+	themselves.
+
 2003/08/13 23:44 muppetman
 
 	* GObject.xs: fatalistic commentary
