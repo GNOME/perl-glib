@@ -735,10 +735,17 @@ sub podify_see_alsos
 			     ($alsos && scalar (@$alsos)));
 	
 	# create the see also list
-	'L<'.join ('>, L<',
-		   ($parents ? @$parents : ()), 
-		   ($alsos ? @$alsos : ())).">
-"
+	join (', ',
+		map {
+			if (/^\s*L</) {
+				$_;
+			} else {
+				"L<$_>";
+			}
+		}
+		($parents ? @$parents : ()), 
+		($alsos ? @$alsos : ()))
+	    . "\n";
 }
 
 =item $string = get_copyright
