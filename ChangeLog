@@ -1,3 +1,21 @@
+2004/02/23 01:37 (-0500) muppetman
+
+	* GClosure.xs: don't clobber $_
+
+	* GenPod.pm: if an xsub is marked as a function, generate a
+	function's signature for it.
+
+	* GUtils.xs: mark the functions as functions.
+
+	* GSignal.xs: =arg -> =for arg
+
+	* GError.xs, gperl.h: add the ability to register new error domains
+	and throw Glib::Errors from Perl.  New utility function,
+	Glib::Error::matches, makes it easy to test errors.  New xs utility
+	function for parsing a perl data structure into a GError.
+
+	* t/d.t: bunches of new tests for the new Glib::Error features.
+
 2004/02/22 21:44 (-0500) rwmcfa1
 
 	* GSignal.xs: =arg -> =for arg, apidoc error/type-o fixed.
