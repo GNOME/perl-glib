@@ -1,3 +1,14 @@
+2003/09/16 15:00 muppetman
+
+	* GClosure.xs, gperl.h: changed type of "tag" in signature of
+	gperl_remove_exception_handler() to avoid signedness warnings.
+	the tag's supposed to be a guint anyway.
+
+	* GObject.xs, GMainLoop.xs, GParamSpec.xs, GSignal.xs, GType.xs,
+	GValue.xs, Glib.xs: cleanup: casting to hush pedantic compiler
+	warnings; can't have UNUSED in PREINIT:, put it in CLEANUP:;
+	quell no-return warnings on functions that croak.
+
 2003/09/15 22:26 rwmcfa1
 
 	* Makefile.PL: spec file dependancies improved
