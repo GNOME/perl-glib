@@ -322,15 +322,27 @@ g_param_spec_string (class, name, nick, blurb, default_value, flags)
 ###  GParamSpec* g_param_spec_param (const gchar *name, const gchar *nick, const gchar *blurb, GType param_type, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_boxed (const gchar *name, const gchar *nick, const gchar *blurb, GType boxed_type, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_object (const gchar *name, const gchar *nick, const gchar *blurb, GType object_type, GParamFlags flags) 
+
+=for apidoc object
+=for arg package name of the class, derived from Glib::Object, of the objects this property will hold.
+=cut
+
+=for apidoc boxed
+=for arg package name of the class, derived from Glib::Boxed, of the objects this property will hold.
+=cut
+
+=for apidoc
+=for arg package name of the class, derived from Glib::ParamSpec, of the objects this property will hold.
+NOTE: this binding is currently not implemented.
+=cut
 GParamSpec*
-typed (class, name, nick, blurb, package, flags)
+param_spec (class, name, nick, blurb, package, flags)
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
 	const char * package
 	GParamFlags flags
     ALIAS:
-	param_spec = 0
 	boxed = 1
 	object = 2
     PREINIT:
