@@ -225,17 +225,6 @@ sub xsdoc2pod
 		{
 			print "\n=head1 METHODS\n\n$ret";
 		}
-		else
-		{
-			print STDERR "No methods found for $package\n";
-			print "
-=head1 METHODS
-
-This object, $package, has no methods bound. $package may be an abstract type or
-may not exist in the version of library these bindings were compiled against.
-
-";
-		}
 		
 		$ret = podify_properties ($package);	
 		if ($ret)
@@ -500,8 +489,28 @@ sub podify_methods
 	}
 	#$str .= "=back\n\n";
 
-	$str = undef unless $n;
+	unless ($n)
+	{
+		# no xsub doc was added
+		if (scalar (grep (!/DESTROY/, 
+				map { $_->{symname} } @{$pod->{xsubs}})))
+		{
+			# but non-destroy xsubs are defined, give message
+			print STDERR "No methods found for $package\n";
+			$str = "
 
+This object, $package, has no methods bound. $package may not exist in the 
+version of library these bindings were compiled against.
+
+";
+		}
+		else
+		{
+			# no methods found and there were none defined
+			$str = undef;
+		}
+	}
+			
 	$str;
 }
 

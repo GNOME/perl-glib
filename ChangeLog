@@ -1,3 +1,8 @@
+2003/11/09 22:59 (-0500) rwmcfa1
+
+	* GenPod.pm: improved the logic for placement of the no methods exist
+	message, moved it to podify_methods.
+
 2003/11/09 22:30 (-0500) rwmcfa1
 
 	* ParseXSDoc.pm: allow the (Object::To::Doc) construct in =for object
