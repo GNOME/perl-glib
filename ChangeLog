@@ -1,3 +1,10 @@
+2004/02/08 15:16 (-0500) rwmcfa1
+
+	* GObject.xs, GenPod.pm: list_properties extended to be able to handle
+	interfaces. since interfaces don't inherite from GObject 
+	Glib::Object::list_properties ($package) is required for it to work on
+	an interface. GenPod was updated to call list_properties this way.
+
 2004/02/08 00:05 (-0500) rwmcfa1
 
 	* GParamSpec.xs, t/b.t: added GParamSpec->scalar, and tested it.

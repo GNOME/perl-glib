@@ -394,7 +394,7 @@ are no properties or I<$package> is not a Glib::Object.
 sub podify_properties {
 	my $package = shift;
 	my @properties;
-	eval { @properties = $package->list_properties; 1; };
+	eval { @properties = Glib::Object::list_properties($package); 1; };
 	return undef unless (@properties or not $@);
 
 	# we have a non-zero number of properties, but there may still be

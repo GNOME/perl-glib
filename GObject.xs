@@ -990,7 +990,6 @@ g_object_list_properties (object_or_class_name)
 	SV * object_or_class_name
     PREINIT:
 	GType type;
-	GObjectClass * object_class = NULL;
 	GParamSpec ** props;
 	guint n_props = 0, i;
     PPCODE:
@@ -1008,13 +1007,26 @@ g_object_list_properties (object_or_class_name)
 			croak ("package %s is not registered with GPerl",
 			       SvPV_nolen (object_or_class_name));
 	}
-	/* classes registered by perl are kept alive by the bindings.
-	 * those coming straight from C are not.  if we had an actual
-	 * object, the class will be alive, but if we just had a package,
-	 * the class may not exist yet.  thus, we'll have to do an honest
-	 * ref here, rather than a peek. */
-	object_class = g_type_class_ref (type);
-	props = g_object_class_list_properties (object_class, &n_props);
+	if (G_TYPE_IS_OBJECT (type))
+	{
+		/* classes registered by perl are kept alive by the bindings.
+		 * those coming straight from C are not.  if we had an actual
+		 * object, the class will be alive, but if we just had a
+		 * package, the class may not exist yet.  thus, we'll have to
+		 * do an honest ref here, rather than a peek. 
+		 */
+		GObjectClass * object_class = g_type_class_ref (type);
+		props = g_object_class_list_properties (object_class, &n_props);
+		g_type_class_unref (object_class);
+	}
+	else if (G_TYPE_IS_INTERFACE (type))
+	{
+		gpointer iface = g_type_default_interface_ref (type);
+		props = g_object_interface_list_properties (iface, &n_props);
+		g_type_default_interface_unref (iface);
+	}
+	else
+		XSRETURN_EMPTY;
 #ifdef NOISY
 	warn ("list_properties: %d properties\n", n_props);
 #endif
@@ -1042,7 +1054,6 @@ g_object_list_properties (object_or_class_name)
 		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
 	}
 	g_free(props);
-	g_type_class_unref (object_class);
 
 
 =for apidoc
