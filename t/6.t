@@ -1,7 +1,11 @@
 #!perl
-##!perl -w  ## turn off warnings -- they complain too much.
 
+use strict;
+use warnings;
 use Glib;
+use vars qw/@one_base_ok @one_inst_ok @two_base_ok @two_inst_ok
+	    @three_base_ok @three_inst_ok @four_base_ok @four_inst_ok
+	    @member_ok @signal_ok/;
 
 # this looks a little hairy because i want to make sure that we test the
 # order of operations.  the begin block at the top defines a few named
@@ -30,6 +34,7 @@ BEGIN {
 }
 
 sub ok {
+	no strict 'refs';
 	my $condition = shift;
 	my $ary = \@{"$_[0]\_ok"};
 	my $seq = $ary->[0];
