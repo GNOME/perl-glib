@@ -1,5 +1,11 @@
 2003/10/01 11:20 rwmcfa1
 
+	* Glib/GBoxed.xs, Glib/GLog.xs, Glib/GObject.xs, Glib/GSignal.xs,
+        Glib/GType.xs, Glib/gperl.h, Gtk2/xs/GtkAccelGroup.xs,
+        Gtk2/xs/GtkIconFactory.xs, Gtk2/xs/GtkListStore.xs,
+        Gtk2/xs/GtkObject.xs, Gtk2/xs/GtkToolbar.xs, Gtk2/xs/GtkTreeView.xs,
+        Gtk2/xs/GtkWidget.xs: // comments -> /*
+
 2003/09/26 04:10 muppetman
 
 	* Glib.pm, META.yml, README, debian/changelog: 1.00rc3
