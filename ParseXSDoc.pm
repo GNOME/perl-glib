@@ -501,7 +501,7 @@ $SIG{__WARN__} = sub {
 
 	my %args = ();
 	my @argstr = split /\s*,\s*/, $args;
-	#print Dumper([$args, \%args]);
+	#warn Dumper([$args, \%args, \@argstr]);
 	for (my $i = 0 ; $i < @argstr ; $i++) {
 		# the last one can be an ellipsis, let's handle that specially
 		if ($i == $#argstr and $argstr[$i] eq '...') {
@@ -509,18 +509,28 @@ $SIG{__WARN__} = sub {
 			push @{ $xsub{args} }, $args{'...'};
 			last;
 		}
-		$argstr[$i] =~ /^(?:(IN_OUTLIST|OUTLIST)\s+)? # OUTLIST would be 1st
+		if ($argstr[$i] =~
+		               /^(?:(IN_OUTLIST|OUTLIST)\s+)? # OUTLIST would be 1st
 		                 ([^=]+(?:\b|\s))?  # arg type is optional, too
 		                 (\w+)              # arg name
 		                 (?:\s*=\s*(.+))?   # possibly a default value
-		                 $/x;
-		if (defined $1) {
-			push @{ $xsub{outlist} }, {
-				type => $2,
-				name => $3,
-			};
-			if ($1 eq 'IN_OUTLIST') {
-				# also an arg
+		                 $/x) {
+			if (defined $1) {
+				push @{ $xsub{outlist} }, {
+					type => $2,
+					name => $3,
+				};
+				if ($1 eq 'IN_OUTLIST') {
+					# also an arg
+					$args{$3} = {
+						type => $2,
+						name => $3,
+					};
+					$args{$3}{default} = $4 if defined $4;
+					push @{ $xsub{args} }, $args{$3};
+				}
+			
+			} else {
 				$args{$3} = {
 					type => $2,
 					name => $3,
@@ -528,14 +538,11 @@ $SIG{__WARN__} = sub {
 				$args{$3}{default} = $4 if defined $4;
 				push @{ $xsub{args} }, $args{$3};
 			}
-			
+		} elsif ($argstr[$i] =~ /^g?int\s+length\((\w+)\)$/) {
+			#warn " ******* $i is string length of $1 *****\n";
 		} else {
-			$args{$3} = {
-				type => $2,
-				name => $3,
-			};
-			$args{$3}{default} = $4 if defined $4;
-			push @{ $xsub{args} }, $args{$3};
+			warn "$filename:$lineno: don't know how to parse arg $i\n"
+			   . "      '$argstr[$i]'\n";
 		}
 	}
 

@@ -118,6 +118,14 @@ OUTPUT
 T_GPERL_GENERIC_WRAPPER
 	$arg = newSV${(my $ntype = $type) =~ s/\s*\*//; \$ntype} ($var);
 
+T_GUNICHAR
+	{
+	gchar temp[6];
+	gint length = g_unichar_to_utf8 ($var, temp);
+	sv_setpvn ((SV*)$arg, temp, length);
+	SvUTF8_on ($arg);
+	}
+
 T_GCHAR
 	/* same as newSVGChar(), but not in a function */
 	sv_setpv ((SV*)$arg, $var);

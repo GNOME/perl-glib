@@ -321,7 +321,7 @@ our %basic_types = (
 	UV       => 'unsigned',
 	IV       => 'integer',
 
-	gchar_length => 'gchar_length',
+	gchar_length => 'string',
 
 	# there are a little special -- they don't actually get 
 	# registered with the GType system.

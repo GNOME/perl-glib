@@ -1519,12 +1519,26 @@ list_signals (class, package)
 		croak ("%s is not registered with either GPerl or GLib",
 		       package);
 
-	if (!G_TYPE_IS_CLASSED (package_type) || 
-	    !G_TYPE_IS_INSTANTIATABLE(package_type))
+	if (!G_TYPE_IS_INSTANTIATABLE(package_type) &&
+	    !G_TYPE_IS_INTERFACE (package_type))
 		XSRETURN_EMPTY;
-	oclass = g_type_class_ref (package_type);
-	if (!oclass)
-		XSRETURN_EMPTY;
+	if (G_TYPE_IS_CLASSED (package_type)) {
+		/* ref the class to ensure that the signals get created. */
+		oclass = g_type_class_ref (package_type);
+		if (!oclass)
+			XSRETURN_EMPTY;
+	} else {
+#if 0
+		/* we need to ensure that the interface's prerequisite types
+		 * have been created, in case any signals in this type depend
+		 * on the prerequisite.  however, this only works on 2.2.x...
+		 * what can we do about that? */
+		int i, n;
+		GType * prereqs = g_type_interface_prerequisites (package_type, &n);
+		for (i = 0 ; i < n ; i++)
+			warn ("  prereq %d : %s\n", i, g_type_name (prereqs[i]));
+#endif
+	}
 	sigids = g_signal_list_ids (package_type, &num);
 	if (!num)
 		XSRETURN_EMPTY;
@@ -1558,7 +1572,8 @@ list_signals (class, package)
 		hv_store (hv, "param_types", 11, newRV_noinc ((SV*)av), 0);
 		PUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
 	}
-	g_type_class_unref (oclass);
+	if (oclass)
+		g_type_class_unref (oclass);
 #undef GET_NAME
 
 
