@@ -767,12 +767,26 @@ gperl_type_class_init (GObjectClass * class)
 static void
 gperl_type_instance_init (GObject * instance)
 {
-        /* be sure to ref the object here --- we're still in creation,
-         * we don't want the object to go away with the temporary wrapper! */
-        SV *obj = sv_2mortal (gperl_new_object (instance, FALSE));
-        SV **init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
+	/*
+	 * for new objects, this may be the place where the initial 
+	 * perl object is created.  we won't worry about the owner
+	 * semantics here, but since initializers are called from the
+	 * inside out, we will need to worry about making sure we get
+	 * blessed into the right class!
+	 */
+	GType gtype;
+	const char * package;
+        SV *obj, **init;
 
-	warn ("++++++++++ gperl_type_instance_init  %s (%p)\n", G_OBJECT_TYPE_NAME (instance), instance);
+	package = gperl_object_package_from_type (G_OBJECT_TYPE (instance));
+	g_assert (package != NULL);
+	obj = sv_2mortal (gperl_new_object (instance, FALSE));
+	sv_bless (obj, gv_stashpv (package, TRUE));
+
+	/* get the INIT_INSTANCE sub from this package. */
+	init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
+
+	warn ("++++++++++ gperl_type_instance_init  %s (%p) => %s\n", G_OBJECT_TYPE_NAME (instance), instance, SvPV_nolen (obj));
 
         /* does the function exist? then call it. */
         if (init && GvCV (*init)) {
