@@ -18,6 +18,7 @@ LICENSE
 MANIFEST
 MANIFEST.SKIP
 Makefile.PL
+perl-Glib.spec.in
 PkgConfig.pm
 README
 README.api-changes
