@@ -1,3 +1,7 @@
+2003/12/10 12:02 (-0500) rwmcfa1
+
+	* t/c.t: initial import, tests out the new register_enums|flags code
+
 2003/12/09 13:26 (-0500) rwmcfa1
 
 	* GType.xs: another pass at getting things going. created 
