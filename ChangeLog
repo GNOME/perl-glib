@@ -1,3 +1,8 @@
+2005/01/25 23:34 (-0500) rwmcfa1
+
+	* t/c.t: remove [] around test 12. caused failures on newer
+	Test::More's
+
 2005/01/09 23:50 (-0400) muppetman
 
 	* Glib.pm, META.yml, NEWS, README: Unstable release 1.072
