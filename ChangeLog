@@ -1,3 +1,13 @@
+2004/06/14 19:23 (+0200) kaffeetisch
+
+	Merge from HEAD:
+
+	* GClosure.xs: Fix a debugging message.
+
+	* GSignal.xs: Rearrange Glib::Object::signal_handlers*.
+
+	* GType.xs: Document the interfaces keyword of register_object.
+
 2004/06/13 12:53 (-0400) muppetman
 
 	* Glib.pm, README, NEWS: stable release 1.043
