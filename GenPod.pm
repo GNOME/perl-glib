@@ -493,7 +493,7 @@ sub podify_methods
 	{
 		# no xsub doc was added
 		if (scalar (grep (!/DESTROY/, 
-				map { $_->{symname} } @{$pod->{xsubs}})))
+				map { $_->{symname} } @$xsubs)))
 		{
 			# but non-destroy xsubs are defined, give message
 			print STDERR "No methods found for $package\n";
