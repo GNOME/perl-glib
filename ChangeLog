@@ -1,3 +1,17 @@
+2004/01/15 22:08 (-0500) muppetman
+
+	* Glib.xs, Glib.pm: restore the prototypes on filename_to_unicode and
+	filename_from_unicode, to allow proper support for the function and static
+	method calling conventions.  thanks to cxreg in irc for reminding me that
+	it would work.
+		also add initial implementations of filename_to_uri and
+	filename_from_uri, also callable as pure functions and class methods.
+	as currently implemented, there are issues with utf8 handling, but i don't
+	quite know how to resolve them.
+		make Glib be a full Exporter, so we can add these pure functions
+	to @EXPORT_OK and %EXPORT_TAGS.
+		update the docs accordingly.
+
 2004/01/15 14:31 (-0500) muppetman
 
 	* GenPod.pm: name mapping for GPerlFilename_const
