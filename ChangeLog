@@ -1,3 +1,18 @@
+2004/01/25 01:00 (-0500) muppetman
+
+	A NEWS
+	M MANIFEST
+	  add a file to summarize changes
+	
+	* GObject.xs: add freeze_notify and thaw_notify.
+
+	* GenPod.pm: add gshort and gushort to %basic_types, and FIXME
+	notice on %basic_types to remind me that it needs to be extensible.
+	remove the gchar=>integer mapping, since it conflicts with
+	gchar=>string (the * is implied, you see)
+
+	* Glib.pm: add exportable constants under a 'constants' tag.
+
 2004/01/24 21:44 (-0500) rwmcfa1
 
 	* MakeHelper.pm: added dist-srpms target, removed doc refering to 
