@@ -1,3 +1,19 @@
+2003/11/18 01:09 (-0500) muppetman
+
+	* GType.xs: interfaces can have signals as well; adjust logic to
+	allow them through as well.  this still misses some signals because
+	on 2.0.x we don't have a way to list interfaces' prerequisite types
+	to ensure that they are loaded.  the beginnings of code to use
+	g_type_interface_prerequisites() in 2.2.x is commented out, waiting
+	for me to finish it.
+
+	* ParseXSDoc: handle length() arguments in xsubs.  they basically
+	just get stripped.
+
+	* GenPod.pm: 'gchar_length' means 'string'.
+
+	* typemap: a corresponding OUTPUT typemap for gunichar.
+
 2003/11/17 22:02 (+0100) kaffeetisch
 
 	* typemap: Implement a gunichar INPUT typemap.
