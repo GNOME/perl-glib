@@ -8,6 +8,9 @@
 	changed (well, the meaning of that one extra parameter -- if you
 	already passed NULL, there's nothing to worry about).
 
+	* GMainLoop.xs, typemap: added support for some GMainContext and
+	GMainLoop methods.
+
 2003/06/13 14:12 muppetman
 
 	* GObject.xs: rename Glib::Object->_new to Glib::Object->new -- it
