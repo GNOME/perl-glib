@@ -20,3 +20,4 @@ README
 t/1.t
 t/2.t
 typemap
+META.yml                                Module meta-data in YAML
