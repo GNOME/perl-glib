@@ -10,3 +10,4 @@ Makefile\.old$
 \.cvsignore$
 blib
 build
+\.spec$

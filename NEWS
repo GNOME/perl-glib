@@ -4,6 +4,8 @@ Overview of Changes in Glib 1.031
 * New typemaps for gshort and gushort. [Torsten]
 * Updates to Glib::MakeHelper fix some build issues. [Ross]
 * Robustness fixes in the doc system's xs parser. [muppet]
+* Added $object->freeze_notify and $object->thaw_notify. [muppet]
+* Added a few new exportable constants. [muppet]
 
 Overview of Changes from Glib 1.02x to 1.030
 ============================================
