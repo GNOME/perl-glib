@@ -8,3 +8,4 @@
   all the fundamentals.
   - may require the ability to register handlers for new fundamental types.
   - gperl_value_from_sv should change to void return if it croaks. 
+- perl methods to list possible GEnum and GFlags methods

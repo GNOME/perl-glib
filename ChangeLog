@@ -1,3 +1,7 @@
+2003/09/11 13:27 muppetman
+
+	* t/7.t: use strict and warnings in this one, too.
+
 2003/09/11 10:35 rwmcfa1
 
 	* t/[1234568a].t: use strict and warnings, fixes to make doing so work.

@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 =comment
 
 test some GSignal stuff...
@@ -12,7 +15,7 @@ are doing all your tests in order, but our stuff will jump around.
 
 =cut
 
-print "1..20\n";
+print "1..21\n";
 
 use Glib;
 
@@ -52,13 +55,13 @@ sub test_marshaler    { shift->signal_emit ('test-marshaler', @_); }
 
 package main;
 
-$a = 0;
-$b = 0;
+my $a = 0;
+my $b = 0;
 
 sub func_a {
-	print (0==$a++
+	print 0==$a++
 	       ? "ok 4 # func_a\n"
-	       : "not ok # func_a called after being removed\n");
+	       : "not ok # func_a called after being removed\n";
 }
 sub func_b {
 	if (0==$b++) {
@@ -88,25 +91,25 @@ sub func_b {
    # this is part of the emission process going wrong, not a handler,
    # so it's a bug in the calling code, and thus we shouldn't eat it.
    eval { $my->test_marshaler (); };
-   print ($@ =~ m/Incorrect number/
+   print $@ =~ m/Incorrect number/
           ? "ok 10 # signal_emit barfs on bad input\n"
-	  : "not ok 10 # expected to croak but didn't\n");
+	  : "not ok 10 # expected to croak but didn't\n";
 
-   $my->test_marshaler (qw/foo bar baz/, $my);
+   $my->test_marshaler (qw/foo bar 15/, $my);
    print "ok 11\n";
-   $id = $my->signal_connect (test_marshaler => sub {
-	   print ($_[0] == $my   &&
+   my $id = $my->signal_connect (test_marshaler => sub {
+	   print $_[0] == $my   &&
 	          $_[1] eq 'foo' &&
 		  $_[2]          && # string bar is true
-		  $_[3] == 0     && # string baz converts to int of 0
+		  $_[3] == 15    && # expect an int
 		  $_[4] == $my   && # object passes unmolested
 		  $_[5][1] eq 'two' # user-data is an array ref
 		  ? "ok 13 # marshaled as expected\n"
-		  : "not ok 13 # bad params in callback\n");
+		  : "not ok 13 # bad params in callback\n";
 	   return 77.1;
    	}, [qw/one two/, 3.1415]);
    print ($id ? "ok 12\n" : "not ok\n");
-   $my->test_marshaler (qw/foo bar baz/, $my);
+   $my->test_marshaler (qw/foo bar/, 15, $my);
    print "ok 14\n";
 
    $my->signal_handler_disconnect ($id);
@@ -118,6 +121,7 @@ sub func_b {
    # exception handler.
    $id = $my->signal_connect (test_marshaler => sub { die "ouch" });
 
+   my $tag;
    $tag = Glib->install_exception_handler (sub {
 	   	if ($tag) {
 		   	print "ok 16 # caught exception $_[0]\n";
@@ -125,14 +129,14 @@ sub func_b {
 			print "not ok # handler didn't uninstall itself\n";
 		}
 	   	0  # returning FALSE uninstalls
-	   }, [qw/foo bar baz/]);
+	   }, [qw/foo bar/, 0]);
    print ""
        . ($tag
           ? "ok 15 # installed exception handler with tag $tag"
 	  : "not ok 15 # got no tag back from install_exception_handler?!?")
        . "\n";
 
-   $my->test_marshaler (qw/foo bar baz/, $my);
+   $my->test_marshaler (qw/foo bar/, 4154, $my);
    print "ok 17 # still alive after an exception in a callback\n";
    $tag = 0;
 
@@ -140,17 +144,19 @@ sub func_b {
    {
    local $SIG{__WARN__} = sub {
 	   if ($_[0] =~ m/unhandled/m) {
+	   	print "ok 19 # unhandled exception just warns\n"
+	   } elsif ($_[0] =~ m/isn't numeric/m) {
 	   	print "ok 18 # unhandled exception just warns\n"
 	   } else {
 		print "not ok # got something unexpected in __WARN__: $_[0]\n";
 	   }
 	};
    $my->test_marshaler (qw/foo bar baz/, $my);
-   print "ok 19\n";
+   print "ok 20\n";
    }
 }
 
-print "ok 20\n";
+print "ok 21\n";
 
 
 
