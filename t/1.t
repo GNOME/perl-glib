@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 16;
+use Test::More tests => 22;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -48,6 +48,19 @@ SKIP: {
   my $appname = 'Flurble Foo 2, Electric Boogaloo';
   Glib::set_application_name ($appname);
   is (Glib::get_application_name (), $appname);
+}
+
+SKIP: {
+  skip "new 2.6 stuff", 6
+    unless Glib->CHECK_VERSION (2,6,0);
+
+  ok (defined Glib::get_user_data_dir);
+  ok (defined Glib::get_user_config_dir);
+  ok (defined Glib::get_user_cache_dir);
+
+  ok (defined Glib::get_system_data_dirs);
+  ok (defined Glib::get_system_config_dirs);
+  ok (defined Glib::get_language_names);
 }
 
 __END__

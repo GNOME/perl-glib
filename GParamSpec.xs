@@ -492,7 +492,6 @@ g_param_spec_string (class, name, nick, blurb, default_value, flags)
 
 =for apidoc
 =for arg package name of the class, derived from Glib::ParamSpec, of the objects this property will hold.
-NOTE: this binding is currently not implemented.
 =cut
 GParamSpec*
 param_spec (class, name, nick, blurb, package, flags)

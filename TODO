@@ -2,12 +2,6 @@
   - hush things up a bit, we don't need so much status info
     perhaps there should be an env var to enable these messages, or a
     "doc lint" tool.
-  - some way of indicating a function can croak on gerrors to be put in 
-    the apidoc.
-
-- Glib::ParamSpec::param_spec: currently unimplemented, because it
-  wants a GType derived from G_TYPE_PARAM_SPEC, but we don't provide
-  GType <=> package mappings for that tree.  adding
 
 - the ability to create new GSources in Perl could be handy, and wouldn't be
   hard to implement (a hash in place of GSourceFuncs).

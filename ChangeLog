@@ -1,3 +1,13 @@
+2005/01/02 16:31 (+0100) kaffeetisch
+
+	* GParamSpec.xs, TODO: Remove documentation that doesn't apply
+	anymore.
+
+	* GUtils.xs, t/1.t: Bind and test g_get_user_data_dir,
+	g_get_user_config_dir, g_get_user_cache_dir,
+	g_get_system_data_dirs, g_get_system_config_dirs, and
+	g_get_language_names.
+
 2004/11/29 21:28 (+0100) kaffeetisch
 
 	* Makefile.PL: Correct the unstable warning message to say 1.06x
