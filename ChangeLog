@@ -1,3 +1,19 @@
+2003/10/27 19:29 muppetman
+
+	* GenPod.pm: move =for enum parsing to the parser.
+	have xsdoc2pod optionally write a list of the packages it has created,
+	use 'unsigned' instead of 'integer' for unsigned data types.
+	fix podify_signals to print nothing if there are no signals.
+	don't call Glib::Type->package_from_cname on types with :'s in
+	them -- they can't be C type names anyway (shuts up about half of
+	the warnings you get doing Gtk2).  watch for =arg name (__hide__),
+	and don't display the arg having that keyword.
+
+	* Makefile.PL, xsdocparse.pl(removed), ParseXSDoc.pm(new): remove the
+	xsdocparse.pl script; the code in is Glib::ParseXSDoc now.  having
+	xsapi.pod in %pm_files creates a circular dependency; have to take it
+	out (still in man3pods, and we'll put it into blib by hand).
+
 2003/10/27 02:42 muppetman
 
 	* Makefile.PL: manpages have the :: in the filename
