@@ -348,7 +348,7 @@ typed (class, name, nick, blurb, package, flags)
 	    case 1:
 		RETVAL = g_param_spec_boxed (name, nick, blurb, type, flags);
 		break;
-	    case 2: type = gperl_object_type_from_package (package); break;
+	    case 2:
 		RETVAL = g_param_spec_object (name, nick, blurb, type, flags);
 		break;
 	}
