@@ -1,3 +1,22 @@
+2004/02/05 21:10 (-0500) muppetman
+
+	* GType.xs: rework _INSTALL_OVERRIDES handling one more time.  rather
+	than have a mess of inherited methods which chain up,
+	Glib::Type::register_object looks for _INSTALL_OVERRIDES in all
+	classes of the new type's ancestry, calling it if found.  this allows
+	proper overriding behavior and lets us add vfunc implementations
+	without requiring changes to all client code.
+
+	Glib::Type::register_object now *always* instantiates the class upon
+	registration, to avoid problems with it maybe or maybe not existing
+	later.  we also leak the reference to avoid the class needing to be
+	recreated, since we can't properly recreate it later, and perl
+	doesn't let classed die in normal circumstances, anyway.
+
+	* Glib.pm: add G_PARAM_READWRITE to the list of exportable constants.
+
+	* Glib.xs: better message?
+
 2004/02/05 13:38 (-0500) rwmcfa1
 
 	* GObject.xs: fixed apidoc on ... param of Glib::Object->new
