@@ -1,3 +1,12 @@
+2003/09/16 23:50 rwmcfa1
+
+	* Makefile.PL, perl-*spec.in: somewhat automated versioning system 
+	implemented for depenancy modules
+
+	* PkgConfig.pm: moved to new ExtUtils::PkgConfig module
+
+	* MANIFEST: PkgConfig.pm removed from manifest
+
 2003/09/16 15:00 muppetman
 
 	* GClosure.xs, gperl.h: changed type of "tag" in signature of

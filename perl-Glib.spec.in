@@ -8,9 +8,10 @@ Group: Development/Libraries
 URL: http://search.cpan.org/dist/Glib/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: perl >= 2:5.8.0
-BuildRequires: glib2-devel >= 2.2.0
-BuildRequires: perl-ExtUtils-Depends >= 0.103
-Requires: glib2 >= 2.2.0
+BuildRequires: glib2-devel >= @GLIB@
+BuildRequires: perl-ExtUtils-Depends >= @PERL_EXTUTILS_DEPENDS@
+BuildRequires: perl-ExtUtils-PkgConfig >= @PERL_EXTUTILS_PKGCONFIG@
+Requires: glib2 >= @GLIB_RUN@
 Requires: %(perl -MConfig -le 'if (defined $Config{useithreads}) { print "perl(:WITH_ITHREADS)" } else { print "perl(:WITHOUT_ITHREADS)" }')
 Requires: %(perl -MConfig -le 'if (defined $Config{usethreads}) { print "perl(:WITH_THREADS)" } else { print "perl(:WITHOUT_THREADS)" }')
 Requires: %(perl -MConfig -le 'if (defined $Config{uselargefiles}) { print "perl(:WITH_LARGEFILES)" } else { print "perl(:WITHOUT_LARGEFILES)" }')
