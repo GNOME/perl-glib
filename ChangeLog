@@ -1,3 +1,9 @@
+2003/11/02 16:17 muppetman
+
+	* Glib.pm: undo my silly "atleast" version-check import stuff, and 
+	do something compatible with the version check supplied by Exporter.
+	we don't use Exporter because, well, we don't export anything.
+
 2003/11/02 02:15 muppetman
 
 	* ParseXSDoc.pm: split_aliases wasn't properly deep-copying args
