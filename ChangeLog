@@ -1,3 +1,7 @@
+2003/12/23 00:52 (+0100) kaffeetisch
+
+	* typemap: Add typemaps for gsize and gssize.
+
 2003/12/18 13:54 (-0500) rwmcfa1
 
 	* MakeHelper.pm: rpms now build in HOME/rpms dir, one change to fix
