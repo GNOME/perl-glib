@@ -905,7 +905,7 @@ g_object_new (class, ...)
 			pspec = g_object_class_find_property (oclass, key);
 			if (!pspec) 
 				/* FIXME this bails out, but does not clean up 
-				 * properly. */
+				 * properly.  is there any way we can? */
 				croak ("type %s does not support property %s, skipping",
 				       class, key);
 			g_value_init (&params[i].value,
