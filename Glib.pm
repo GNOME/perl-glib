@@ -55,16 +55,6 @@ sub dl_load_flags { 0x01 }
 
 bootstrap Glib $VERSION;
 
-# Preloaded methods go here.
-
-package Glib::Object;
-
-# default INIT / FINALIZE should go here.
-
-package Glib;
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
 1;
 __END__
 
