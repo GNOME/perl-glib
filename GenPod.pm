@@ -225,7 +225,7 @@ sub xsdoc2pod
 				# before starting, up top
 				preprocess_pod ($pod);
 				print join("\n", @{$pod->{lines}})
-				    . "\n";
+				    . "\n\n";
 			}
 		}
 
