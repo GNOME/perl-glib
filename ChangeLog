@@ -1,3 +1,16 @@
+2003/12/04 13:13 (-0500) rwmcfa1
+
+	* : Merged from HEAD
+
+	* GenPod.pm: @ARGV is now searched for disable-apidoc which, surprise,
+	disables the generation of the api doc pods thus speeding up the build
+	process.
+	
+	* GenPod.pm: put an extra \n after each of the pods to keep pod stuff
+	happy
+
+	* fetch_faq.pl: inital import
+
 2003/12/03 23:38 (-0500) muppetman
 
 	* Glib.pm: credit where credit is due
