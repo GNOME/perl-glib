@@ -1,3 +1,8 @@
+2003/11/10 00:59 pcg
+
+	* Glib.pm, GType.pm: implement == and eq for flags, the latter
+        because some functions use eq as a generic comparison function.
+
 2003/11/09 18:54 (-0500) muppetman
 
 	writing documentation while mechagodzilla and titanosaur destroy

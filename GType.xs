@@ -1685,7 +1685,10 @@ as_arrayref (SV *a, SV *b, SV *swap)
         RETVAL
 
 int
-ge (SV *a, SV *b, int swap)
+eq (SV *a, SV *b, int swap)
+    ALIAS:
+       ge = 1
+
     CODE:
 {
 	GType gtype;
@@ -1697,7 +1700,10 @@ ge (SV *a, SV *b, int swap)
         a_ = gperl_convert_flags (gtype, swap ? b : a);
         b_ = gperl_convert_flags (gtype, swap ? a : b);
 
-        RETVAL = (a_ & b_) == b_;
+        switch (ix) {
+          case 0: RETVAL = a_ == b_; break;
+          case 1: RETVAL = (a_ & b_) == b_; break;
+        }
 }
     OUTPUT:
         RETVAL
