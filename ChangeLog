@@ -1,3 +1,19 @@
+2003/06/24 23:16 muppetman
+
+	* GParamSpec.xs, Glib.xs, Makefile.PL, gperl.h, typemap: new support
+	for creating GParamSpecs.
+
+	* GObject.xs: new was broken by removal of first class, fixed;
+	moved newSVGParamSpec to GParamSpec.xs; removed unused variables for
+	cleaner compiles.  altered debugging prints, which are on for this
+	revision (see #define NOISY near the top)
+
+	* GType.xs: can now add properties to perl-derived types.
+
+	* Glib.pm: Glib::Object::Base supplies some default methods.
+	bumped $VERSION to 0.25 for CVS series.
+
+2003/06/23 sometime pcg
 
         * GObject.xs: big change in how perl wrappers are implemented. the
         new implementation will only ever create one perl wrapper (a real
