@@ -1,3 +1,14 @@
+2004/01/16 00:02 (-0500) muppetman
+
+	A GUtils.xs
+	* MANIFEST, Makefile.PL, Glib.xs: add GUtils.xs, with version information
+	functions.
+
+	* ParseXSDoc.pm: don't complain about empty argument lists -- they are
+	legal on pure functions.
+
+	* AUTHORS: updated.
+
 2004/01/15 22:08 (-0500) muppetman
 
 	* Glib.xs, Glib.pm: restore the prototypes on filename_to_unicode and
