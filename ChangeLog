@@ -1,3 +1,15 @@
+2004/03/21 00:00 (-0500) muppetman
+
+	merge from stable:
+
+	* GMainLoop.xs, GObject.xs: bump version check versions
+
+	* GUtils.xs, t/1.t: add Glib::GET_VERSION_INFO
+
+	* GenPod.pm: sort the index
+
+	* MakeHelper.pm: fix broken quoting
+
 2004/03/17 17:09 (+0100) kaffeetisch
 
 	* gperl.h (SvGObject_ornull): Use SvOK instead of SvTRUE.
