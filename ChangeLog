@@ -1,3 +1,10 @@
+2004/05/04 18:11 (-0400) muppetman
+
+	* t/1.t, t/2.t, t/3.t, t/4.t, t/5.t, t/6.t, t/7.t, t/8.t, t/9.t,
+	t/a.t, t/b.t, t/c.t, t/d.t: add some commentary to explain what's
+	going on in each test.  there's a lot of duplicated testing, so we
+	probably need to rework them at some point.
+
 2004/04/21 12:36 (-0400) muppetman
 
 	* GSignal.xs: remove invalid alias do_stuff_by_func().
