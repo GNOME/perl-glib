@@ -287,7 +287,11 @@ sub xsdoc2pod
 		}
 		else
 		{
-			$ret = podify_see_alsos ($parents, $pkgdata->{see_alsos});
+			pop @$parents; # don't link to yourself
+			$ret = podify_see_alsos (@$parents,
+			                         $pkgdata->{see_alsos}
+						 ? @{ $pkgdata->{see_alsos} }
+			                         : ());
 			print "\n=head1 SEE ALSO\n\n$ret" if ($ret);
 		}
 
@@ -714,25 +718,18 @@ library versions against which this module was compiled.
 	$str;
 }
 
-=item $string = podify_see_alsos ($parents)
+=item $string = podify_see_alsos (@entries)
 
 Creates a list of links to be placed in the SEE ALSO section of the page.
-$parents should be a reference to an array of parents, as returned from
-podify_ancestors. Returns undef if no parents will be placed in the list.
+Returns undef if nothing is in the input list.
 
 =cut
 
 sub podify_see_alsos
 {
-	my $parents = shift;
-	my $alsos = shift;
+	my @entries = @_;
 
-	# get rid of ourself
-	pop (@$parents);
-	
-	# if there are no parents
-	return undef unless (($parents && scalar (@$parents)) ||
-			     ($alsos && scalar (@$alsos)));
+	return undef unless scalar @entries;
 	
 	# create the see also list
 	join (', ',
@@ -743,8 +740,7 @@ sub podify_see_alsos
 				"L<$_>";
 			}
 		}
-		($parents ? @$parents : ()), 
-		($alsos ? @$alsos : ()))
+		@entries)
 	    . "\n";
 }
 
