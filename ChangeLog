@@ -1,3 +1,12 @@
+2004/02/07 02:22 (-0500) muppetman
+
+	* GType.xs: add the ability to add GInterfaces to new GObject types
+	with register_object.  new key interfaces => \@list, where @list is a
+	list of package names.  effectively does foreach (@list) {
+	$_->_ADD_INTERFACE ($newtype); }, where the _ADD_INTERFACE method is 
+	supposed to do the actual work of adding and initializing the interface
+	implementation.
+
 2004/02/05 21:10 (-0500) muppetman
 
 	* GType.xs: rework _INSTALL_OVERRIDES handling one more time.  rather
