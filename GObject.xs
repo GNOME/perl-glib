@@ -749,8 +749,6 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
 void
 CLONE (gchar * class)
-    PREINIT:
-	GSList * tmp;
     CODE:
     	if (perl_gobject_tracking && strcmp (class, "Glib::Object") == 0)
 	{

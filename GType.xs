@@ -1604,9 +1604,16 @@ Glib::Object::Subclass provides a default implementation of GET_PROPERTY
 and SET_PROPERTY which use the property nicknames as hash keys in the object
 variable for storage.
 
-=back
+=item interfaces => ARRAYREF
 
-FIXME finish this
+Array of interface package names that the new object implements.  Interfaces
+are the GObject way of doing multiple inheritance, thus, in Perl, the package
+names will be prepended to @ISA and certain inheritable and overrideable
+ALLCAPS methods will automatically be called whenever needed.  Which methods
+exactly depends on the interface -- Gtk2::CellEditable for example uses
+START_EDITING, EDITING_DONE, and REMOVE_WIDGET.
+
+=back
 
 =cut
 void
