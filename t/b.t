@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More
-	tests => 7;
+	tests => 8;
 
 BEGIN { use_ok 'Glib'; }
 
@@ -26,6 +26,12 @@ use Glib::Object::Subclass
 		'This is a read only property string',
 		'default',
 		[qw/readable/],
+	),
+	Glib::ParamSpec->scalar (
+		'some_scalar',
+		'Some Scalar Property',
+		'This property is a scalar that is used as an example',
+		[qw/readable writable/]
 	),
    ]
    ;
@@ -54,19 +60,23 @@ package main;
 my $obj = new MyClass;
 
 $obj->tie_properties;
-ok(1, '$obj->tie_properites failed');
+ok(1, '$obj->tie_properites');
 
-is ($obj->{some_string}, 'one', '$obj->{some_string} empty failed');
-is ($obj->{read_string}, 'two', '$obj->{read_string} empty failed');
+is ($obj->{some_string}, 'one', '$obj->{some_string} empty');
+is ($obj->{read_string}, 'two', '$obj->{read_string} empty');
 
 $obj->{some_string} = 42;
 eval { $obj->{read_string} = 44; 1; };
 ok ($@ =~ /property read_string is read-only/, 
-	'$obj->{read_string} read only failed to croak');
+	'$obj->{read_string} read only croak');
 
-is ($obj->{some_string}, 42, '$obj->{some_string} 42 failed');
-is ($obj->{read_string}, 'two', '$obj->{read_string} empty failed');
+is ($obj->{some_string}, 42, '$obj->{some_string} 42');
+is ($obj->{read_string}, 'two', '$obj->{read_string} empty');
 
+my $foo = 'hello';
+$obj->set(some_scalar => $foo);
+is ($obj->get("some_scalar"), 'hello', '$obj->{some_scalar} hello');
+   
 __END__
 
 Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the

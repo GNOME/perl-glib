@@ -355,6 +355,21 @@ typed (class, name, nick, blurb, package, flags)
     OUTPUT:
 	RETVAL
 
+=for apidoc
+ParamSpec to be used for any generic perl scalar, including references to
+complex objects.
+=cut
+GParamSpec*
+scalar (class, name, nick, blurb, flags)
+	const gchar *name
+	const gchar *nick
+	const gchar *blurb
+	GParamFlags flags
+    CODE:
+	RETVAL = g_param_spec_boxed (name, nick, blurb, GPERL_TYPE_SV, flags);
+    OUTPUT:
+	RETVAL
+
 ### plain pointers are dangerous, and i don't even know how you'd create
 ### them from perl since there are no pointers in perl (references are SVs)
 ##  GParamSpec* g_param_spec_pointer (const gchar *name, const gchar *nick, const gchar *blurb, GParamFlags flags) 
