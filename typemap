@@ -30,6 +30,8 @@ gint16		T_IV
 guint16		T_UV
 gint32		T_IV
 guint32		T_UV
+gint64		T_IV
+guint64		T_UV
 glong		T_IV
 gulong		T_UV
 gchar		T_IV

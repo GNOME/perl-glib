@@ -486,6 +486,7 @@ struct _GPerlCallback {
 	GType   return_type;
 	SV    * func;
 	SV    * data;
+	void  * priv;
 };
 
 /**

@@ -60,7 +60,13 @@ gperl_closure_marshal (GClosure * closure,
 	guint i;
 	GPerlClosure *pc = (GPerlClosure *)closure;
 	SV * target, * data;
-	dSP; /* we're fiddling with the stack.  see perlcall and perlguts */
+	SV **SP;
+
+	/* make sure we're executed by the same interpreter that created
+	 * the closure object. */
+	PERL_SET_CONTEXT (marshal_data);
+
+	SPAGAIN;
 
 	/*
 	warn ("Marshalling: params: %d\n", n_param_values);
@@ -155,7 +161,11 @@ gperl_closure_new (gchar * name,
 							NULL);
 	g_closure_add_invalidate_notifier ((GClosure*) closure, 
 					   NULL, gperl_closure_invalidate);
-	g_closure_set_marshal ((GClosure*) closure, gperl_closure_marshal);
+	/* make sure the closure gets executed by the same interpreter that's
+	 * creating it now; gperl_closure_marshal will interpret the 
+	 * marshal_data as the proper aTHX. */
+	g_closure_set_meta_marshal ((GClosure*) closure, aTHX,
+	                            gperl_closure_marshal);
 
 	/* 
 	 * we have to take full copies of these SVs, rather than just
@@ -253,6 +263,8 @@ gperl_callback_new (SV    * func,
 
 	callback->return_type = return_type;
 
+	callback->priv = aTHX;
+
 	return callback;
 }
 
@@ -288,8 +300,11 @@ gperl_callback_invoke (GPerlCallback * callback,
                        ...)
 {
 	va_list var_args;
+	SV ** SP;
 
-	dSP;
+	PERL_SET_CONTEXT (callback->priv);
+
+	SPAGAIN;
 
 	ENTER;
 	SAVETMPS;
@@ -331,8 +346,6 @@ gperl_callback_invoke (GPerlCallback * callback,
 				croak ("failed to convert GValue to SV");
 			}
 			XPUSHs (sv_2mortal (sv));
-//SvREFCNT_inc (sv);
-//			XPUSHs (sv);
 		}
 	}
 	if (callback->data)
