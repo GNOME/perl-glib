@@ -34,23 +34,27 @@ Parse xs files for xsub signatures and pod.  Writes to standard output a
 data structure suitable for eval'ing in another Perl script, describing
 all the stuff found.  The output contains three variables:
 
-  \$xspods = ARRAYREF
-      array of pods found in the verbatim C portion of the XS file,
-	  listed in the order found.  These are assumed to pertain to the
-	  XS/C api, not the Perl api.  Any =for apidoc paragraphs following
-	  an =object paragraphs in the verbatim sections are stripped (as
-	  are the =object paragraphs), and will appear instead in
-	  \$data->{\$package}{pods}.
+=over
 
-  \$data = HASHREF
-      big hash keyed by package name (as found in the MODULE line),
-      containing under each key a hash with all the xsubs and pods
-      in that package, in the order found.  Packages are consolidated
-      across multiple files.
+=item $xspods = ARRAYREF
+
+array of pods found in the verbatim C portion of the XS file, listed in the
+order found.  These are assumed to pertain to the XS/C api, not the Perl api.
+Any C<=for apidoc> paragraphs following an C<=object> paragraphs in the
+verbatim sections are stripped (as are the C<=object> paragraphs), and will
+appear instead in C<< $data->{$package}{pods} >>.
+
+=item $data = HASHREF
+
+big hash keyed by package name (as found in the MODULE line), containing under
+each key a hash with all the xsubs and pods in that package, in the order
+found.  Packages are consolidated across multiple files.
+
+=back
 
 FYI, this creates a new parser and calls C<parse_file> on it for each
 input filename; then calls C<swizzle_pods> to ensure that any
-'=for apidoc name' pods are matched up with their target xsubs; and
+C<=for apidoc name> pods are matched up with their target xsubs; and
 finally calls Data::Dumper to write the data to stdout.  So, if you want
 to get finer control over how the output is created, or keep all the data
 in-process, now you know how.  :-)
@@ -318,7 +322,7 @@ sub parse_file {
 
 =item $parser->swizzle_pods
 
-Match '=for apidoc' pods to xsubs.
+Match C<=for apidoc> pods to xsubs.
 
 =cut
 sub swizzle_pods {
