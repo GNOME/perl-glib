@@ -197,7 +197,7 @@ sub xsdoc2pod
 
 		print "=head1 DESCRIPTION\n\n".$pkgdata->{desc}."\n\n"
 			if (exists ($pkgdata->{desc}));
-
+		
 		$ret = podify_ancestors ($package);
 		if ($ret)
 		{
@@ -222,6 +222,17 @@ sub xsdoc2pod
 		if ($ret)
 		{
 			print "\n=head1 METHODS\n\n$ret";
+		}
+		else
+		{
+			print STDERR "No methods found for $package\n";
+			print "
+=head1 METHODS
+
+This object, $package, has no methods bound. $package may be an abstract type or
+may not exist in the version of library these bindings were compiled against.
+
+";
 		}
 		
 		$ret = podify_properties ($package);	

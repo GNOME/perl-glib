@@ -1,3 +1,13 @@
+2003/11/09 16:29 (-0500) rwmcfa1
+
+	* ParseXSDoc.pm: added the method clean_out_empty_pods to prevent empty
+	entries from the $data member of doc.pl. this prevents completely empty 
+	pod files from being created.
+
+	* GenPod.pm: if no methods are bound to a package then print a message
+	saying it is likely that it doesn't exist in the version the module was
+	compiled against. the message might could stand some improvement.
+
 2003/11/08 12:10 pcg
 
 	The "more evil things?" release.
