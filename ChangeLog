@@ -1,3 +1,9 @@
+2003/12/02 23:49 (-0500) rwmcfa1
+
+	* GenPod.pm: implement a sorter function that pushes GObject based pkgs
+	to the front, instead of alpha. this is so that all classes will be
+	instantiaed (sp?) by the time we do the interfaces.
+
 2003/12/02 18:26 (-0500) muppetman
 
 	* GParamSpec.xs: stray code in a switch statement prevented the
