@@ -1,3 +1,11 @@
+2003/10/18 02:36 muppetman
+
+	* Glib.pm: bump version for devel series
+	* typemap, gperl.h: new typedef and typemaps for the much-needed
+	gchar_ornull.
+	* GLog.xs: use the new gchar_ornull typemap to clean things up a bit.
+	* GType.xs: commentary
+
 2003/10/12 13:42 rwmcfa1
 
 	* (most).xs, gperl.h: UNUSED is no more, PERL_UNUSED_VAR used where 
