@@ -281,7 +281,7 @@ gperl_object_stash_from_type (GType gtype)
                 else
                   	return NULL;
 	} else
-		croak ("internal problem: gperl_object_package_from_type "
+		croak ("internal problem: gperl_object_stash_from_type "
 		       "called before any classes were registered");
 }
 
@@ -347,13 +347,29 @@ gperl_new_object (GObject * object,
         if (!obj) {
                 /* create the perl object */
                 GType gtype = G_OBJECT_TYPE (object);
+
                 HV *stash = gperl_object_stash_from_type (gtype);
 
-                /* there was a recursive parent lookup here, which I
-                 * boldy dropped. Please yell at me if it was incorrect. pcg. */
-                if (!stash)
-                	croak ("INTERNAL: gtype '%s' is not registered with perl",
-                               g_type_name (gtype));
+		/* there are many possible cases in which we may be asked to
+		 * create a wrapper for objects whose GTypes are not
+		 * registered with us; we need to find the first known class
+		 * and use that.  see the docs for
+		 * gperl_object_set_no_warn_unreg_subclass for more info. */
+                if (!stash) {
+			GType parent;
+			/* since GObject is registered to Glib::Object, this
+			 * will always succeed. */
+			while (stash == NULL) {
+				parent = g_type_parent (gtype);
+				stash = gperl_object_stash_from_type (parent);
+			}
+			if (!gperl_object_get_no_warn_unreg_subclass (parent))
+				warn ("GType '%s' is not registered with "
+				      "GPerl; representing this object as "
+				      "first known parent type '%s' instead",
+				      g_type_name (gtype),
+				      g_type_name (parent));
+		}
 
                 /*
                  * Create the "object", a hash.
@@ -368,12 +384,14 @@ gperl_new_object (GObject * object,
                 /* attach magic */
                 sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
 
-                /* this is the one refcount that represents all non-zero perl refcounts */
-                /* it is just temporarily given to the gobject, DESTROY takes it back again. */
-                /* this effectively increases the combined refcount by one. */
+		/* this is the one refcount that represents all non-zero perl
+		 * refcounts.   it is just temporarily given to the gobject,
+		 * DESTROY takes it back again.  this effectively increases
+		 * the combined refcount by one. */
                 g_object_ref (object);
 
-                /* create the wrapper to return, the _noinc decreases the combined refcount by one. */
+                /* create the wrapper to return, the _noinc decreases the
+                 * combined refcount by one. */
                 sv = newRV_noinc (obj);
 
                 /* bless into the package */
@@ -400,7 +418,8 @@ gperl_new_object (GObject * object,
 		      sv);
 #endif
         } else {
-                /* create the wrapper to return, increases the combined refcount by one. */
+                /* create the wrapper to return, increases the combined
+                 * refcount by one. */
                 sv = newRV_inc (obj);
         }
 
