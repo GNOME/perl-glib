@@ -1,3 +1,9 @@
+2004/03/13 22:05 (-0500) muppetman
+
+	* MakeHelper.pm: portability fixes; ask Config what make program we're
+	using and generate the proper conditional syntax, lest we generate bogus
+	makefiles.  we now work with Gnu Make and NMake.
+
 2004/03/11 22:40 (-0500) muppetman
 
 	* Glib.pm, NEWS, README, Makefile.PL: beta release 1.039
