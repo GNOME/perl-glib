@@ -1,7 +1,6 @@
 apidoc.pl
 AUTHORS
 ChangeLog
-Changes
 devel.pod
 GBoxed.xs
 GClosure.xs

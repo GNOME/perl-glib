@@ -1,3 +1,9 @@
+2004/03/10 11:30 (-0500) muppetman
+
+	D Changes
+	M MANIFEST
+	  remove the grossly-out-of-date and unused Changes file.
+
 2004/03/08 23:52 (-0500) muppetman
 
 	FIXME sweep:
@@ -58,8 +64,8 @@
 
 	* Glib.pm: alter the behavior of read only/write only tied properites.
 	setting a read only croaks, reading a write only returns
-	'[write-only]'.  should affect anything/anyone, just make things work a
-	little better with Dumper and stuff like that.
+	'[write-only]'.  shouldn't affect anything/anyone, just make things
+	work a little better with Dumper and stuff like that.
 
 	* GObject.xs: doc changes ^
 
