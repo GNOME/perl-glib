@@ -356,11 +356,12 @@ gperl_new_object (GObject * object,
 		 * and use that.  see the docs for
 		 * gperl_object_set_no_warn_unreg_subclass for more info. */
                 if (!stash) {
-			GType parent;
-			/* since GObject is registered to Glib::Object, this
-			 * will always succeed. */
+			/* walk the anscestry to the first known GType.
+			 * since GObject is registered to Glib::Object,
+			 * this will always succeed. */
+			GType parent = gtype;
 			while (stash == NULL) {
-				parent = g_type_parent (gtype);
+				parent = g_type_parent (parent);
 				stash = gperl_object_stash_from_type (parent);
 			}
 			if (!gperl_object_get_no_warn_unreg_subclass (parent))
