@@ -863,7 +863,6 @@ g_object_list_properties (class)
 	warn ("list_properties: %d properties\n", n_props);
 #endif
 	for (i = 0; i < n_props; i++) {
-		GType type;
 		const gchar * pv;
 		HV * property = newHV ();
 
