@@ -258,14 +258,24 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
 
+##
+## NOTE: in order to avoid overwriting the docs for the main Glib.pm, 
+##       all xsubs in this section must be either assigned to other
+##       packages or marked as hidden.
+##
+
+=for apidoc __hide__
+=cut
 const char *
-filename_from_unicode (GPerlFilename *filename)
+filename_from_unicode (GPerlFilename filename)
 	PROTOTYPE: $
 	CODE:
         RETVAL = filename;
 	OUTPUT:
         RETVAL
         
+=for apidoc __hide__
+=cut
 GPerlFilename
 filename_to_unicode (const char *filename)
 	PROTOTYPE: $
