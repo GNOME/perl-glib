@@ -105,5 +105,8 @@ sub postamble {
 	return "
 build/xsapi.pod: @main::xs_files xsapi.pod.head xsapi.pod.foot apidoc.pl
 	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot @main::xs_files > \$@
+
+realclean ::
+	-rm -Rf build
 ";
 }
