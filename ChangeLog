@@ -1,3 +1,11 @@
+2003/05/29 15:51 muppetman
+
+	* GType.xs, gperl.h: applied patch (with liberal modifications) from
+	Brett Kosinski (brettk at frodo dot dyn dot gno dot org) to add 
+	gperl_try_convert_flag, like the existing gperl_try_convert_enum.
+	rearranged things to avoid copied code, and use the _try_ versions
+	as the actual workhorses.  added a little more commentary, too.
+
 2003/05/26 04:28 muppetman
 
 	* Glib.pm: bumped version for development release
