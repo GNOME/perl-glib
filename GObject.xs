@@ -285,12 +285,9 @@ static void
 gobject_destroy_wrapper (SV *obj)
 {
         if (!PL_in_clean_objs) { /* during global destruction all effort is wasted. */
-                /* these two lines inhibit the call to DESTROY, just an optimization. */
-                /* optionally restore the original DESTROY handlers temporarily. */
-                HV *hv = PL_defstash;
-                PL_defstash = 0;
+                sv_unmagic (SvRV (obj), PERL_MAGIC_ext); /* remove gobject, which no longer exists. */
+                /* we could optimize away the call to DESTROY here for non-perl classes. */
                 SvREFCNT_dec (obj);
-                PL_defstash = hv;
         }
 }
 
@@ -370,11 +367,6 @@ gperl_new_object (GObject * object,
                                          wrapper_quark,
                                          (gpointer)obj,
                                          (GDestroyNotify)gobject_destroy_wrapper);
-
-                /* call the class INIT function here, if applicable */
-                /* this INIT would not be the normal instance-init, but
-                 * a way to initialize foreign objects. It might not be
-                 * useful at all. */
 
                 /* the noinc above is actually the trick, as it leaves the
                  * attached object's refcount artificially one too low,
@@ -494,7 +486,7 @@ DESTROY (SV *sv)
     CODE:
 	GObject *object = gperl_get_object (sv);
 
-        if (!object) /* I think it does happen, but I never saw it happen. */
+        if (!object) /* Happens on object destruction. */
           return;
 #ifdef NOISY
         warn ("DESTROY (%p)[%d] => %s (%p)[%d]", 
