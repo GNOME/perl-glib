@@ -1,3 +1,9 @@
+2004/04/04 12:56 (-0500) rwmcfa1
+
+	* GErrox.xs: unused var warnings fixed.
+
+	* Glib.xs: quite some warnings in the runtime version checking.
+
 2004/04/04 00:52 (-0500) muppetman
 
 	* Glib.xs: actually do work in filename_from_unicode().  thanks to
