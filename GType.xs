@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -36,14 +36,16 @@ extern SV * _gperl_fetch_wrapper_key (GObject * object,
 /* for fundamental types */
 static GHashTable * types_by_package = NULL;
 static GHashTable * packages_by_type = NULL;
+static GHashTable * wrapper_class_by_type = NULL;
 
 /* locks for the above */
 G_LOCK_DEFINE_STATIC (types_by_package);
 G_LOCK_DEFINE_STATIC (packages_by_type);
+G_LOCK_DEFINE_STATIC (wrapper_class_by_type);
 
 /*
  * this is just like gtk_type_class --- it keeps a reference on the classes
- * it returns to they stick around.  this is most important for enums and
+ * it returns so they stick around.  this is most important for enums and
  * flags, which will be created and destroyed every time you look them up
  * unless you pull this trick.  duplicates a pointer when you are using
  * gtk, but you aren't always using gtk and it's better to be safe than sorry.
@@ -104,6 +106,71 @@ gperl_register_fundamental (GType gtype, const char * package)
 		gperl_set_isa (package, "Glib::Flags");
 }
 
+=item GPerlValueWrapperClass
+
+Specifies the vtable that is to be used to convert fundamental types to and
+from Perl variables.
+
+  typedef struct _GPerlValueWrapperClass GPerlValueWrapperClass;
+  struct _GPerlValueWrapperClass {
+          GPerlValueWrapFunc   wrap;
+          GPerlValueUnwrapFunc unwrap;
+  };
+
+The members are function pointers, each of which serves a specific purpose:
+
+=over
+
+=item GPerlValueWrapFunc
+
+Turns I<value> into an SV.  The caller assumes ownership of the SV.  I<value>
+is not to be modified.
+
+  typedef SV*  (*GPerlValueWrapFunc)   (const GValue * value);
+
+=item GPerlValueUnwrapFunc
+
+Turns I<sv> into its fundamental representation and stores the result in the
+pre-configured I<value>.  I<value> must not be overwritten; instead one of the
+various C<g_value_set_*()> functions must be used or the C<value-E<gt>data>
+pointer must be modifed directly.
+
+  typedef void (*GPerlValueUnwrapFunc) (GValue       * value,
+                                        SV           * sv);
+
+=back
+
+=cut
+
+=item void gperl_register_fundamental_full (GType gtype, const char * package, GPerlValueWrapperClass * wrapper_class)
+
+Like L<gperl_register_fundamental>, registers a mapping between I<gtype> and
+I<package>.  In addition, this also installs the function pointers in
+I<wrapper_class> as the handlers for the type.  See L<GPerlValueWrapperClass>.
+
+I<gperl_register_fundamental_full> does not copy the contents of
+I<wrapper_class> -- it assumes that I<wrapper_class> is statically allocated
+and that it will be valid for the whole lifetime of the program.
+
+=cut
+void
+gperl_register_fundamental_full (GType gtype,
+                                 const char * package,
+                                 GPerlValueWrapperClass * wrapper_class)
+{
+	gperl_register_fundamental (gtype, package);
+
+	G_LOCK (wrapper_class_by_type);
+	if (!wrapper_class_by_type) {
+		wrapper_class_by_type =
+			g_hash_table_new_full (g_direct_hash,
+			                       g_direct_equal,
+			                       NULL, NULL);
+	}
+	g_hash_table_insert (wrapper_class_by_type, (gpointer) gtype, wrapper_class);
+	G_UNLOCK (wrapper_class_by_type);
+}
+
 =item GType gperl_fundamental_type_from_package (const char * package)
 
 look up the GType corresponding to a I<package> registered by
@@ -134,6 +201,23 @@ gperl_fundamental_package_from_type (GType gtype)
 	res = (const char *)
 		g_hash_table_lookup (packages_by_type, (gpointer) gtype);
 	G_UNLOCK (packages_by_type);
+	return res;
+}
+
+=item GPerlValueWrapperClass * gperl_fundamental_wrapper_class_from_type (GType gtype)
+
+look up the wrapper class corresponding to a I<gtype> that has previously been
+registered with gperl_register_fundamental_full().
+
+=cut
+GPerlValueWrapperClass *
+gperl_fundamental_wrapper_class_from_type (GType gtype)
+{
+	GPerlValueWrapperClass * res;
+	G_LOCK (wrapper_class_by_type);
+	res = (GPerlValueWrapperClass *)
+		g_hash_table_lookup (wrapper_class_by_type, (gpointer) gtype);
+	G_UNLOCK (wrapper_class_by_type);
 	return res;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -92,10 +92,24 @@ gint gperl_convert_flags (GType type, SV * val);
 SV * gperl_convert_back_flags (GType type, gint val);
 
 /* register a fundamental type (enums, flags...) */
+
+typedef struct _GPerlValueWrapperClass GPerlValueWrapperClass;
+
+typedef SV*  (*GPerlValueWrapFunc)   (const GValue * value);
+typedef void (*GPerlValueUnwrapFunc) (GValue       * value,
+                                      SV           * sv);
+
+struct _GPerlValueWrapperClass {
+	GPerlValueWrapFunc   wrap;
+	GPerlValueUnwrapFunc unwrap;
+};
+
 void gperl_register_fundamental (GType gtype, const char * package);
+void gperl_register_fundamental_full (GType gtype, const char * package, GPerlValueWrapperClass * wrapper_class);
 
 GType gperl_fundamental_type_from_package (const char * package);
 const char * gperl_fundamental_package_from_type (GType gtype);
+GPerlValueWrapperClass * gperl_fundamental_wrapper_class_from_type (GType gtype);
 
 /*
  * GErrors as exception objects

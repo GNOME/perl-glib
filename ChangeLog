@@ -1,3 +1,19 @@
+2005/03/24	kaffeetisch
+
+	* GType.xs, GValue.xs, gperl.h: Add API that allows binding
+	developers to specify conversion functions when registering
+	fundamental types that are to be used by gperl_value_from_sv() and
+	gperl_sv_from_value().  gperl_register_fundamental_full() is the
+	new function that takes a GPerlValueWrapperClass struct which
+	contains a GPerlValueWrapFunc and a GPerlValueUnwrapFunc.
+	gperl_fundamental_wrapper_class_from_type() can be used to
+	retrieve the GPerlValueWrapperClass that corresponds to a given
+	GType.
+
+	* GBoxed.xs, GType.xs: Document that gperl_register_boxed() and
+	gperl_register_fundamental_full() assume that the wrapper class is
+	statically allocated and that it will always be alive.
+
 2005/03/07	kaffeetisch
 
 	* Glib.pm, Makefile.PL, META.yml, NEWS, README: Stable release

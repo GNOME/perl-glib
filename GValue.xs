@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -65,12 +65,12 @@ gperl_value_from_sv (GValue * value,
 		     SV * sv)
 {
 	char* tmp;
-	int typ;
+	GType type;
 	if (!sv || !SvOK (sv))
 		return TRUE; /* use the GValue type's default */
-	typ = G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value)); 
-	/*printf ("TYPE: %d, S: %s\n", typ, SvPV_nolen(sv));*/
-	switch (typ) {
+	type = G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value));
+	/*printf ("TYPE: %d, S: %s\n", type, SvPV_nolen(sv));*/
+	switch (type) {
     		case G_TYPE_INTERFACE:
 			/* pygtk mentions something about only handling 
 			   GInterfaces with a GObject prerequisite.  i'm
@@ -143,12 +143,20 @@ gperl_value_from_sv (GValue * value,
 		case G_TYPE_FLAGS:
 			g_value_set_flags(value, gperl_convert_flags(G_VALUE_TYPE(value), sv));
 			break;
-			
-		default:
-			/* if we get here, there's something seriously wrong. */
+
+		default: {
+			GPerlValueWrapperClass *wrapper_class;
+
+			wrapper_class = gperl_fundamental_wrapper_class_from_type (type);
+			if (wrapper_class && wrapper_class->unwrap) {
+				wrapper_class->unwrap (value, sv);
+				break;
+			}
+
 			croak ("[gperl_value_from_sv] FIXME: unhandled type - %d (%s fundamental for %s)\n",
-			       typ, g_type_name(G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value))), G_VALUE_TYPE_NAME(value));
+			       type, g_type_name (type), G_VALUE_TYPE_NAME (value));
 			return FALSE;
+		}
 	}
 	return TRUE;
 }
@@ -164,8 +172,8 @@ Croaks if the code doesn't know how to perform the conversion.
 SV *
 gperl_sv_from_value (const GValue * value)
 {
-	int typ = G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value)); 
-	switch (typ) {
+	GType type = G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value));
+	switch (type) {
     		case G_TYPE_INTERFACE:
 			/* pygtk mentions something about only handling 
 			   GInterfaces with a GObject prerequisite.  i'm
@@ -241,12 +249,18 @@ gperl_sv_from_value (const GValue * value)
 			return gperl_convert_back_flags (G_VALUE_TYPE (value),
 							 g_value_get_flags (value));
 
-		default:
+		default: {
+			GPerlValueWrapperClass *wrapper_class;
+
+			wrapper_class = gperl_fundamental_wrapper_class_from_type (type);
+			if (wrapper_class && wrapper_class->wrap)
+				return wrapper_class->wrap (value);
+
 			croak ("[gperl_sv_from_value] FIXME: unhandled type - %d (%s fundamental for %s)\n",
-			       typ, g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value))),
-			       G_VALUE_TYPE_NAME (value));
+			       type, g_type_name (type), G_VALUE_TYPE_NAME (value));
+		}
 	}
-	
+
 	return NULL;
 }
 
