@@ -112,7 +112,7 @@ $glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
 my $cwd = cwd();
 $glib->add_typemaps (map {File::Spec->catfile($cwd,$_)} 'typemap');
 $glib->add_headers ('"gperl.h"');
-$glib->install (qw(gperl.h));
+$glib->install (qw(gperl.h gperl_marshal.h));
 $glib->save_config ('build/IFiles.pm');
 $glib->add_pm (%pm_files);
 $glib->add_xs (@xs_files);

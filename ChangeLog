@@ -1,3 +1,17 @@
+2003/11/10 13:12 (-0500) muppetman
+
+	* gperl_marshal.h: new file
+	* GClosure.xs, MANIFEST, Makefile.PL: use and install new file.
+	Since client code may install custom marshallers, it is a good idea
+	to provide some macros to tidy up the error-prone boilerplate that
+	needs to go into each of those marshallers.  gperl_marshal.h is
+	installed to the same place as gperl.h, but not #included by default,
+	and should be #included whereever you implement a custom marshaller.
+	it is loaded with commentary and an example marshaller skeleton.
+
+	* GSignal.xs: update commentary on gperl_signal_set_marshaller_for()
+	to pointer binding authors to gperl_marshal.h for guidance.
+
 2003/11/10 01:54 (-0500) muppetman
 
 	* GenPod.pm: be a little smarter about enums and flags package names.

@@ -34,6 +34,7 @@ debian/copyright
 debian/rules
 devel.pod
 gperl.h
+gperl_marshal.h
 perl-Glib.spec.in
 ppport.h
 t/1.t

@@ -139,14 +139,16 @@ remember_closure (GPerlClosure * closure)
 =item void gperl_signal_set_marshaller_for (GType instance_type, char * detailed_signal, GClosureMarshal marshaller)
 
 You need this function only in rare cases, usually as workarounds for bad
-signal parameter types.  Use the given I<marshaller> to marshal all handlers
-for I<detailed_signal> on I<instance_type>.  C<gperl_signal_connect> will look
-for marshallers registered here, and apply them to the GPerlClosure it creates
-for the given callback being connected.  The marshaller function is no fun to
-write, and should follow C<gperl_closure_marshal> (private function in
-GClosure.xs) very closely; in particular, if C<PERL_IMPLICIT_CONTEXT> is
-defined, the C<marshal_data> parameter will be the perl interpreter that
-should be used to invoke the callback.  Use the Source, Luke.
+signal parameter types or to implement writable arguments.  Use the given
+I<marshaller> to marshal all handlers for I<detailed_signal> on
+I<instance_type>.  C<gperl_signal_connect> will look for marshallers
+registered here, and apply them to the GPerlClosure it creates for the given
+callback being connected.
+
+Use the helper macros in gperl_marshal.h to help write your marshaller
+function.  That header, which is installed with the Glib module but not
+#included through gperl.h, includes commentary and examples which you
+should follow closely to avoid nasty bugs.  Use the Source, Luke.
 
 =cut
 static GHashTable * marshallers = NULL;

@@ -37,6 +37,8 @@ GPerlCallback, below.
 #include "gperl.h"
 #include <gobject/gvaluecollector.h>
 
+#include "gperl_marshal.h"
+
 
 static void
 gperl_closure_invalidate (gpointer data,
@@ -69,16 +71,9 @@ gperl_closure_marshal (GClosure * closure,
 {
 	int flags;
 	guint i;
-	GPerlClosure *pc = (GPerlClosure *)closure;
-	SV * data;
-	SV * instance;
-	dSP;
-#ifdef PERL_IMPLICIT_CONTEXT
-	/* make sure we're executed by the same interpreter that created
-	 * the closure object. */
-	PERL_SET_CONTEXT (marshal_data);
-	SPAGAIN;
-#endif
+	dGPERL_CLOSURE_MARSHAL_ARGS;
+
+	GPERL_CLOSURE_MARSHAL_INIT (closure, marshal_data);
 
 	PERL_UNUSED_VAR (invocation_hint);
 
@@ -90,59 +85,23 @@ gperl_closure_marshal (GClosure * closure,
 	if (n_param_values == 0) {
 		data = SvREFCNT_inc (pc->data);
 	} else {
-		/*
-		 * complicateder and complicateder...
-		 * if the closure is set for swap data, we need to swap
-		 * out param_values[0] (the "instance") with pc->data.
-		 */
-		if (GPERL_CLOSURE_SWAP_DATA (pc)) {
-			/* swap instance and data */
-			data     = gperl_sv_from_value (param_values);
-			instance = SvREFCNT_inc (pc->data);
-		} else {
-			/* normal */
-			instance = gperl_sv_from_value (param_values);
-			data     = SvREFCNT_inc (pc->data);
-		}
-
-		/* of course, this can leave us with no instance.  :-/ */
-		if (!instance)
-			instance = &PL_sv_undef;
-
-		/* the instance is always the first item in @_ */
-		XPUSHs (sv_2mortal (instance));
+		GPERL_CLOSURE_MARSHAL_PUSH_INSTANCE (param_values);
 
 		/* the rest of the params should be quite straightforward. */
 		for (i = 1; i < n_param_values; i++) {
 			SV * arg;
-#ifdef NOISY
-			warn ("examining name: %s type: %s fundtype: %s\n",
-			      pc->name,
-			      g_type_name (G_VALUE_TYPE (param_values + i)),
-			      g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (param_values + i))));
-#endif
-		       arg = gperl_sv_from_value ((GValue*) param_values + i);
-		       if (!arg) {
-			       warn ("[gperl_closure_marshal] Warning, failed to convert object from value for closure invocation: number: %d type: %s fundtype: %s\n",
-				     i,
-				     g_type_name (G_VALUE_TYPE (param_values + i)),
-				     g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (param_values + i))));
-				arg = &PL_sv_undef;
-			}
+			arg = gperl_sv_from_value ((GValue*) param_values + i);
 			/* make these mortal as they go onto the stack */
 			XPUSHs (sv_2mortal (arg));
 		}
 	}
-	if (data)
-		XPUSHs (sv_2mortal (data));
+	GPERL_CLOSURE_MARSHAL_PUSH_DATA;
+
 	PUTBACK;
 
 	flags = return_value ? G_SCALAR : G_DISCARD;
 
-	call_sv (pc->callback, flags | G_EVAL);
-
-	if (SvTRUE (ERRSV))
-		gperl_run_exception_handlers ();
+	GPERL_CLOSURE_MARSHAL_CALL (flags);
 
 	if (return_value && G_VALUE_TYPE (return_value)) {
 		SPAGAIN;
@@ -387,8 +346,10 @@ gperl_callback_invoke (GPerlCallback * callback,
 {
 	va_list var_args;
 	dSP;
-#ifdef PERL_IMPLICIT_CONTEXT
+
 	g_return_if_fail (callback != NULL);
+
+#ifdef PERL_IMPLICIT_CONTEXT
 	PERL_SET_CONTEXT (callback->priv);
 	SPAGAIN;
 #endif
