@@ -374,7 +374,6 @@ gperl_convert_back_flags (GType type,
 			  gint val)
 {
 	const char * package;
-	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	package = gperl_fundamental_package_from_type (type);
 
 	if (package) {

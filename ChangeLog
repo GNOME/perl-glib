@@ -1,3 +1,9 @@
+2003/11/28 22:00 (-0500) muppetman
+
+	* GType.xs: remove unused var and code.
+	* Glib.xs: apparently this bit of doc has been b0rken for a very
+	long time.
+
 2003/11/28 14:47 (-0500) rwmcfa1
 
 	* ParseXSDoc.pm, GenPod.pm: moved inclusion processing into GenPod 
