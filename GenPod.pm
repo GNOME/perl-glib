@@ -501,10 +501,10 @@ sub podify_signals {
 =item $string = podify_pods ($pods, $position)
 
 Helper function to allow specific placement of generic pod within the auto
-generated pages. Pod sections starting out with =pod posistion=XXX where XXX is
-one of the following will be placed at a specified position. In the case of pod
-that is to be placed after a particular section that doesn't exist, that pod
-will be still be placed there.
+generated pages. Pod sections starting out with =for posistion XXX, where XXX
+is one of the following will be placed at a specified position. In the case of
+pod that is to be placed after a particular section that doesn't exist, that
+pod will be still be placed there.
 
 This function is called at all of the specified points throught the process of
 generated pod for a page. Any pod matching the I<position> passed will be

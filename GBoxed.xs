@@ -522,7 +522,7 @@ BOOT:
 =for object Glib::Boxed Generic wrappers for C structures
 =cut
 
-=pod position=DESCRIPTION
+=for position DESCRIPTION
 
 =head1 DESCRIPTION
 

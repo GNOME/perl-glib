@@ -1409,7 +1409,7 @@ MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 =for flags Glib::SignalFlags
 =cut
 
-=pod position=DESCRIPTION
+=for position DESCRIPTION
 
 =head1 DESCRIPTION
 
@@ -2149,7 +2149,7 @@ package_from_cname (class, const char * cname)
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 
-=pod position=DESCRIPTION
+=for position DESCRIPTION
 
 =head1 DESCRIPTION
 

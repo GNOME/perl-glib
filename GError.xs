@@ -359,7 +359,7 @@ BOOT:
 =for object Glib::Error Exception Objects based on GError
 =cut
 
-=pod position=SYNOPSIS
+=for position SYNOPSIS
 
 =head1 SYNOPSIS
 
@@ -382,7 +382,7 @@ BOOT:
 
 =cut
 
-=pod position=DESCRIPTION
+=for position DESCRIPTION
 
 =head1 DESCRIPTION
 

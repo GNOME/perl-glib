@@ -729,7 +729,7 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 =for object Glib::Object Bindings for GObject
 =cut
 
-=pod position=DESCRIPTION
+=for position DESCRIPTION
 
 =head1 DESCRIPTION
 

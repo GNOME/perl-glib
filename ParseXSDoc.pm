@@ -383,8 +383,7 @@ sub preprocess_pods {
 		foreach (@{$pkgdata->{pods}})
 		{
 			my $firstline = $_->{lines}[0];
-			$_->{position} = $1 
-				if ($firstline =~ /=pod\s+position\s*=\s*(\w+)/);
+			$_->{position} = $1 if ($firstline =~ /=for\s+position\s+(\w+)/);
 		}
 		
 		next unless $pkgdata->{xsubs};
