@@ -80,13 +80,15 @@ my $glib = ExtUtils::Depends->new ('Glib');
 %pm_files = (
      'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
      'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
+     'ParseXSDoc.pm'   => '$(INST_LIBDIR)/Glib/ParseXSDoc.pm',
      'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
      'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
-     'build/xsapi.pod' => '$(INST_LIBDIR)/Glib/xsapi.pod',
+#     'build/xsapi.pod' => '$(INST_LIBDIR)/Glib/xsapi.pod',
 );
 %pod_files = (
    'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
    'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
+   'ParseXSDoc.pm'   => '$(INST_MAN3DIR)/Glib::ParseXSDoc.$(MAN3EXT)',
    'GenPod.pm'       => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
    'build/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
@@ -149,14 +151,15 @@ sub postamble {
 		} keys %subs).'\'';
 
 	return "
-build/\$(NAME).doc.pl: @main::xs_files xsdocparse.pl
-	$^X xsdocparse.pl @main::xs_files > \$@
+build/\$(NAME).doc.pl: @main::xs_files
+	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
+		-e 'xsdocparse (".join(", ",@main::xs_files).")' > \$@
 
 build/xsapi.pod: build/\$(NAME).doc.pl apidoc.pl
 	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/\$(NAME).doc.pl > \$@
 
 pod: all build/\$(NAME).doc.pl
-	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -M\$(NAME)::GenPod \\
+	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod \\
 		-e \"xsdoc2pod('build/\$(NAME).doc.pl', '\$(INST_LIB)/\$(NAME)')\"
 
 realclean ::
