@@ -106,7 +106,7 @@ find_func (gpointer key,
 {
 	struct FindData * fd = user_data;
 	if (g_str_equal ((const char *) value, fd->package)) {
-		fd->found_type = key;
+		fd->found_type = (GType) key;
 		return TRUE;
 	} else 
 		return FALSE;
