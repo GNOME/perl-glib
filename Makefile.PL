@@ -10,7 +10,7 @@ use Cwd;
 # minimum required version of dependancies we need to build
 our %build_reqs = (
 	'perl-ExtUtils-Depends'   => '0.1',
-	'perl-ExtUtils-PkgConfig' => '0.1',
+	'perl-ExtUtils-PkgConfig' => '1.00',
 	'Glib'                    => '2.0.0',
 );
 

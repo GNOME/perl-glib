@@ -3,6 +3,8 @@
 	* Glib.pm, META.yml, README, debian/changelog, debian/control: updated
 	for 1.00rc2 release
 
+	* Makefile.PL: there was no version 0.1 of ExtUtils::PkgConfig...
+
 2003/09/17 10:44 rwmcfa1
 
 	* Makefile.PL: ExtUtils::PkgConfig can now deal with version 
