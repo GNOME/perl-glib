@@ -205,6 +205,7 @@ gperl_convert_enum (GType type, SV * val)
 	 * SV so it will be properly GC'd
 	 */
 	vals = gperl_type_enum_get_values (type);
+	warn ("gperl_convert_enum: value table: 0x%p\n", vals);
 	r = newSVpv ("", 0);
 	while (vals && vals->value_nick) {
 		sv_catpv (r, vals->value_nick);
@@ -1341,13 +1342,17 @@ gperl_type_base_init (gpointer class)
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
+=for flags Glib::SignalFlags
+
+=cut
+
 =head1 DESCRIPTION
 
 This package defines several utilities for dealing with the GLib type system
 from Perl.  Because of some fundamental differences in how the GLib and Perl
 type systems work, a fair amount of the binding magic leaks out, and you can
-find most of that in C<Glib::Type::register>, which registers new object types
-with the GLib type system.
+find most of that in the C<Glib::Type::register*> functions, which register
+new types with the GLib type system.
 
 Most of the rest of the functions provide introspection functionality, such as
 listing properties and values and other cool stuff that is used mainly by
@@ -1364,6 +1369,90 @@ BOOT:
 
 
 =for apidoc
+=for arg parent_class (package name) type from which to derive
+=for arg new_class (package name) name of new type
+=for arg ... arguments for creation
+Register a new type with the GLib type system.
+
+This is a traffic-cop function.  If I<$parent_type> derives from Glib::Object,
+this passes the arguments through to C<register_object>.  If I<$parent_type>
+is Glib::Flags or Glib::Enum, this strips I<$parent_type> and passes the
+remaining args on to C<register_enum> or C<register_flags>.  See those
+functions' documentation for more information.
+=cut
+void
+g_type_register (class, const char * parent_class, const char * new_class, ...)
+    PREINIT:
+	GType parent_type, base_type;
+	char * sym;
+	int n;
+	SV ** oldargs;
+    CODE:
+	/*
+	 * we originally had just Glib::Type::register, and it only did
+	 * GObjects.  the name implies that it can do anything, so it
+	 * should be able to.  to make the code managable we broke the
+	 * actual work into separate functions, and do make the documentation
+	 * intelligible, we made those helpers public.  this one, then,
+	 * exists to retain backward compatibility, and acts as a traffic
+	 * cop, farming out the work to the right helper function.
+	 * 
+	 * i had written this traffic cop in Glib.pm, but getting the pod
+	 * to show up in Glib/Type.pod would've required a good amount of
+	 * tear-up in Glib::ParseXSDoc.  So, here it is as an xsub.
+	 */
+
+	/* check for flags and enum specially, since those aren't registered
+	 * in the fundamentals hash (causes problems if they are) */
+	if (strEQ (parent_class, "Glib::Enum")) {
+		parent_type = G_TYPE_ENUM;
+	} else if (strEQ (parent_class, "Glib::Flags")) {
+		parent_type = G_TYPE_FLAGS;
+	} else {
+		parent_type = gperl_type_from_package (parent_class);
+		if (!parent_type)
+			croak ("package %s is not registered with the GLib type system",
+			       parent_class);
+	}
+
+	base_type = G_TYPE_FUNDAMENTAL (parent_type);
+	switch (base_type) {
+	    case G_TYPE_OBJECT: sym = "Glib::Type::register_object"; break;
+	    case G_TYPE_ENUM:   sym = "Glib::Type::register_enum";   break;
+	    case G_TYPE_FLAGS:  sym = "Glib::Type::register_flags";  break;
+
+	    default:
+		croak ("sorry, don't know how to derive from a %s in Perl",
+		       g_type_name (base_type));
+	}
+	/*
+	 * because we need to strip an arg from the stack for register_enum
+	 * and register_flags, we can't just call_* right here.
+	 */
+	oldargs = & ST (0);
+	n = items - 3;
+	{
+		gint i;
+		ENTER;
+		SAVETMPS;
+		PUSHMARK (SP);
+		EXTEND (SP, 3+n);
+		PUSHs (oldargs[0]);
+		if (base_type == G_TYPE_OBJECT)
+			PUSHs (oldargs[1]);
+		PUSHs (oldargs[2]);
+		for (i = 0 ; i < n ; i++)
+			PUSHs (oldargs[3+i]);
+		PUTBACK;
+		call_method (sym, G_VOID);
+		SPAGAIN;
+		FREETMPS;
+		LEAVE;
+	}
+	
+
+
+=for apidoc
 
 =arg parent_package () name of the parent package, which must be a derivative of Glib::Object.
 
@@ -1372,8 +1461,8 @@ BOOT:
 =for arg ... (list) key/value pairs controlling how the class is created.
 
 Register I<new_package> as an officially GLib-sanctioned derivative of
-I<parent_package>.  This automatically sets up an @ISA entry for you,
-and creates a new GObjectClass under the hood.
+the (GObject derivative) I<parent_package>.  This automatically sets up
+an @ISA entry for you, and creates a new GObjectClass under the hood.
 
 The I<...> parameters are key/value pairs, currently supporting:
 
@@ -1397,17 +1486,17 @@ are optional, with defaults provided:
 
 =over
 
-=item closure
+=item class_closure => subroutine or undef
 
 Use this code reference (or sub name) as the class closure (that is, the 
 default handler for the signal).  If not specified, "do_I<signal_name>",
 in the current package, is used.
 
-=item return_type
+=item return_type => package name or undef
 
 Return type for the signal.  If not specified, then the signal has void return.
 
-=item param_types
+=item param_types => ARRAYREF
 
 Reference to a list of parameter types (package names), I<omitting the instance
 and user data>.  Callbacks connected to this signal will receive the instance
@@ -1416,15 +1505,33 @@ and finally by any user data that was supplied when the callback was connected.
 Not specifying this key is equivalent to supplying an empty list, which
 actually means instance and maybe data.
 
-=item flags
+=item flags => Glib::SignalFlags
 
-Flags describing this signal's properties. FIXME finish this
+Flags describing this signal's properties. See the GObject C API reference'
+description of GSignalFlags for a complete description.
+
+=item accumulator => subroutine or undef
+
+The signal accumulator is a special callback that can be used to collect return
+values of the various callbacks that are called during a signal emission.
+Generally, you can omit this parameter; custom accumulators are used to do
+things like stopping signal propagation by return value or creating a list of
+returns, etc.
 
 =back
 
 =item properties => ARRAYREF
 
-FIXME finish this
+Array of Glib::ParamSpec objects, each describing an object property to add
+to the new type.  These properties are available for use by all code that
+can access the object, regardless of implementation language.  See
+L<Glib::ParamSpec>.  This list may be empty; if it is not, the functions
+C<GET_PROPERTY> and C<SET_PROPERTY> in I<$new_package> will be called to
+get and set the values.  Note that an object property is just a mechanism
+for getting and setting a value -- it implies no storage.  As a convenience,
+Glib::Object::Subclass provides a default implementation of GET_PROPERTY
+and SET_PROPERTY which use the property nicknames as hash keys in the object
+variable for storage.
 
 =back
 
@@ -1432,7 +1539,7 @@ FIXME finish this
 
 =cut
 void
-g_type_register (class, parent_package, new_package, ...);
+g_type_register_object (class, parent_package, new_package, ...);
 	char * parent_package
 	char * new_package
     PREINIT:
@@ -1503,6 +1610,193 @@ g_type_register (class, parent_package, new_package, ...);
                           	croak ("properties must be an array of GParamSpecs");
                 }
 	}
+
+
+=for apidoc
+=for arg name package name for new enum type
+=for arg ... new enum's values; see description.
+=for signature Glib::Type->register_enum ($name, ...)
+Register and initialize a new Glib::Enum type with the provided "values".
+This creates a type properly registered GLib so that it can be used for
+property and signal parameter or return types created with
+C<< Glib::Type->register >> or C<Glib::Object::Subclass>.
+
+The list of values is used to create the "nicknames" that are used in general
+Perl code; the actual numeric values used at the C level are automatically
+assigned, starting with 1.  If you need to specify a particular numeric value
+for a nick, use an array reference containing the nickname and the numeric
+value, instead.  You may mix and match the two styles.
+
+  Glib::Type->register_enum ('MyFoo::Bar',
+          'value-one',            # assigned 1
+          'value-two',            # assigned 2
+          ['value-three' => 15 ], # explicit 15
+          ['value-four' => 35 ],  # explicit 35
+          'value-five',           # assigned 5
+  );
+
+If you use the array-ref form, beware: the code performs no validation
+for unique values.
+=cut
+void
+g_type_register_enum (class, name, ...)
+	const char * name
+    PREINIT:
+	int           i = 0;
+	char       *  ctype_name;
+	SV         *  sv;
+	SV         ** av2sv;
+	GType         type;
+	GEnumValue *  values = NULL;
+    CODE:
+	if (items-2 < 1)
+		croak ("Usage: Glib::Type->register_enums (new_package, LIST)\n"
+		       "   no values supplied");
+	/*
+	 * we create a value table on the fly, and we can't free it without
+	 * causing problems.  the value table is stored in the type
+	 * registration information, which conceivably may be called more
+	 * than once per program (which is why we don't use a class_finalize
+	 * to destroy it).  unfortunately, there doesn't appear to be a
+	 * g_enum_register_dynamic().
+	 * this means we will also leak the nickname strings, which must
+	 * be duplicated to keep them alive (perl will reuse those strings).
+	 *
+	 * note also that we don't clean up very well when things go wrong.
+	 * we build up the structure as we go, and an exception in the middle
+	 * will leak everything done up to that point.  we could clean it up,
+	 * but it will make things uglier than they already are, and if
+	 * your script can't register the enums properly, it probably won't
+	 * live much longer.
+	 */
+	values = g_new0 (GEnumValue, items-1);
+	for (i = 0; i < items-2; i++)
+	{
+		sv = (SV*)ST (i+2);
+		/* default to the i based numbering */
+		values[i].value = i + 1;
+		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		{
+			/* [ name => value ] syntax */
+			AV * av = (AV*)SvRV(sv);
+			/* value_name */
+			av2sv = av_fetch (av, 0, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value_name = SvPV_nolen (*av2sv);
+			else
+				croak ("invalid enum name and value pair, no name provided");
+			/* custom value */
+			av2sv = av_fetch (av, 1, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value = SvIV (*av2sv);
+		}
+		else if (SvOK (sv))
+		{
+			/* name syntax */
+			values[i].value_name = SvPV_nolen (sv);
+		}
+		else
+			croak ("invalid type flag name");
+
+		/* make sure that the nickname stays alive as long as the
+		 * type is registered. */
+		values[i].value_name = g_strdup (values[i].value_name);
+
+		/* let the nick and name match.  there are few uses for the
+		 * name, anyway. */
+		values[i].value_nick = values[i].value_name;
+	}
+	ctype_name = sanitize_package_name (name);
+	type = g_enum_register_static (ctype_name, values);
+	gperl_register_fundamental (type, name);
+	g_free (ctype_name);
+
+
+=for apidoc
+=for arg name package name of new flags type
+=for arg ... flag values, see discussion.
+=for signature Glib::Type->register_flags ($name, ...)
+Register and initialize a new Glib::Flags type with the provided "values".
+This creates a type properly registered GLib so that it can be used for
+property and signal parameter or return types created with
+C<< Glib::Type->register >> or C<Glib::Object::Subclass>.
+
+The list of values is used to create the "nicknames" that are used in general
+Perl code; the actual numeric values used at the C level are automatically
+assigned, of the form 1<<i, starting with i = 0.  If you need to specify a
+particular numeric value for a nick, use an array reference containing the
+nickname and the numeric value, instead.  You may mix and match the two styles.
+
+  Glib::Type->register_flags ('MyFoo::Baz',
+           'value-one',               # assigned 1<<0
+           'value-two',               # assigned 1<<1
+           ['value-three' => 1<<10 ], # explicit 1<<10
+           ['value-four' => 0x0f ],   # explicit 0x0f
+           'value-five',              # assigned 1<<4
+  );
+
+If you use the array-ref form, beware: the code performs no validation
+for unique values.
+=cut
+void
+g_type_register_flags (class, name, ...)
+	const char * name
+    PREINIT:
+	int           i = 0;
+	char       *  ctype_name;
+	SV         *  sv;
+	SV         ** av2sv;
+	GType          type;
+	GFlagsValue *  values = NULL;
+    CODE:
+	if (items-2 < 1)
+		croak ("Usage: Glib::Type->register_flags (new_package, LIST)\n"
+		       "   no values supplied");
+	/* see the notes about memory management in register_enums -- they
+	 * all apply here.  we can't combine the implementations because
+	 * GEnumValue and GFlagsValue are not typedefed together. */
+	values = g_new0 (GFlagsValue, items-1);
+	for (i = 0; i < items-2; i++)
+	{
+		sv = (SV*)ST (i+2);
+		/* default to the i based numbering */
+		values[i].value = 1 << i;
+		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		{
+			/* [ name => value ] syntax */
+			AV * av = (AV*)SvRV(sv);
+			/* value_name */
+			av2sv = av_fetch (av, 0, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value_name = SvPV_nolen (*av2sv);
+			else
+				croak ("invalid flag name and value pair, no name provided");
+			/* custom value */
+			av2sv = av_fetch (av, 1, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value = SvIV (*av2sv);
+		}
+		else if (SvOK (sv))
+		{
+			/* name syntax */
+			values[i].value_name = SvPV_nolen (sv);
+		}
+		else
+			croak ("invalid type flag name");
+
+		/* make sure that the nickname stays alive as long as the
+		 * type is registered. */
+		values[i].value_name = g_strdup (values[i].value_name);
+
+		/* let the nick and name match.  there are few uses for the
+		 * name, anyway. */
+		values[i].value_nick = values[i].value_name;
+	}
+	ctype_name = sanitize_package_name (name);
+	type = g_flags_register_static (ctype_name, values);
+	gperl_register_fundamental (type, name);
+	g_free (ctype_name);
+
 
 
 =for apidoc
@@ -1778,131 +2072,6 @@ package_from_cname (class, const char * cname)
 	}
     OUTPUT:
 	RETVAL
-
-=for apidoc
-=for arg name name of enum type being registered
-=for arg ... of enums or enum value pairs
-=for signature Glib::Type->register_enum ($name, $name1, [$name2 => $val2], $name3, ...)
-The values assocaited with the provided names use the following scheme. The
-first name will be assigned the value of 1, and subsequent names will be given
-2, 3, etc. This behavior can be overridden by specifying both a name and value
-in an array reference, [ $name, $value ]. No special checking for unique values
-is performed in this case, it is left up to the caller to insure there are no
-duplicate values.
-=cut
-void
-g_type_register_enum (class, name, ...)
-	const char * name
-    PREINIT:
-	int           i = 0;
-	char       *  ctype_name;
-	SV         *  sv;
-	SV         ** av2sv;
-	GType         type;
-	GEnumValue *  values = NULL;
-    CODE:
-	values = g_new0 (GEnumValue, items-1);
-	for (i = 0; i < items-2; i++)
-	{
-		sv = (SV*)ST (i+2);
-		/* default to the i based numbering */
-		values[i].value = i + 1;
-		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
-		{
-			/* [ name => value ] syntax */
-			AV * av = (AV*)SvRV(sv);
-			/* value_name */
-			av2sv = av_fetch (av, 0, 0);
-			if (av2sv && *av2sv && SvOK(*av2sv))
-				values[i].value_name = SvPV_nolen (*av2sv);
-			else
-				croak ("invalid enum name and value pair, no name provided");
-			/* custom value */
-			av2sv = av_fetch (av, 1, 0);
-			if (av2sv && *av2sv && SvOK(*av2sv))
-				values[i].value = SvIV (*av2sv);
-
-			/* just copy name into nick, they'll be the same */
-			values[i].value_nick = values[i].value_name;
-		}
-		else if (SvOK (sv))
-		{
-			/* name syntax */
-			values[i].value_name = SvPV_nolen (sv);
-			values[i].value_nick = values[i].value_name;
-		}
-		else
-			croak ("invalid type flag name");
-	}
-	ctype_name = sanitize_package_name (name);
-	type = g_enum_register_static (ctype_name, values);
-	gperl_register_fundamental (type, name);
-/*	gperl_type_class (flags_type)->class_finalize = ; */
-	
-	/* TODO: can we/should we free values, what can be done, mem man in general */
-	g_free (ctype_name);
-
-=for apidoc
-=for arg name name of enum type being registered
-=for arg ... of enums or enum value pairs
-=for signature Glib::Type->register_enum ($name, $name1, [$name2 => $val2], $name3, ...)
-The values assocaited with the provided names use the following scheme. The
-first name will be assigned the value of 1 << 0, and subsequent names will be
-given 1 << 1, 1 << 2, etc. This behavior can be overridden by specifying both a
-name and value in an array reference, [ $name, $value ]. No special checking
-for unique values is performed in this case, it is left up to the caller to
-insure there are no duplicate values.
-=cut
-void
-g_type_register_flags (class, name, ...)
-	const char * name
-    PREINIT:
-	int           i = 0;
-	char       *  ctype_name;
-	SV         *  sv;
-	SV         ** av2sv;
-	GType          type;
-	GFlagsValue *  values = NULL;
-    CODE:
-	values = g_new0 (GFlagsValue, items-1);
-	for (i = 0; i < items-2; i++)
-	{
-		sv = (SV*)ST (i+2);
-		/* default to the i based numbering */
-		values[i].value = 1 << i;
-		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
-		{
-			/* [ name => value ] syntax */
-			AV * av = (AV*)SvRV(sv);
-			/* value_name */
-			av2sv = av_fetch (av, 0, 0);
-			if (av2sv && *av2sv && SvOK(*av2sv))
-				values[i].value_name = SvPV_nolen (*av2sv);
-			else
-				croak ("invalid flag name and value pair, no name provided");
-			/* custom value */
-			av2sv = av_fetch (av, 1, 0);
-			if (av2sv && *av2sv && SvOK(*av2sv))
-				values[i].value = SvIV (*av2sv);
-
-			/* just copy name into nick, they'll be the same */
-			values[i].value_nick = values[i].value_name;
-		}
-		else if (SvOK (sv))
-		{
-			/* name syntax */
-			values[i].value_name = SvPV_nolen (sv);
-			values[i].value_nick = values[i].value_name;
-		}
-		else
-			croak ("invalid type flag name");
-	}
-	ctype_name = sanitize_package_name (name);
-	type = g_flags_register_static (ctype_name, values);
-	gperl_register_fundamental (type, name);
-
-	/* TODO: can we/should we free values, what can be done, mem man in general */
-	g_free (ctype_name);
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 
