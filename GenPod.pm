@@ -852,15 +852,8 @@ sub xsub_to_pod {
 	#
 	# list all the arg types.
 	#
-	my @args;
-	if ($xsub->{function})
-	{
-       		@args = @{ $xsub->{args} };
-	}
-	else
-	{
-       		(undef, @args) = @{ $xsub->{args} };
-	}
+	my @args = @{ $xsub->{args} };
+	shift @args unless $xsub->{function};
 
 	$str .= "=over\n\n" if @args;
 	foreach my $a (@args) {
@@ -905,21 +898,27 @@ xsub.
 sub compile_signature {
 	my $xsub = shift;
 
-	my ($instance, @args) = @{ $xsub->{args} };
+	my @args = @{ $xsub->{args} };
 
-	# find the method's short name
-	my $method = $xsub->{symname};
-	$method =~ s/^(.*):://;
-	my $package = $1 || $xsub->{package};
-	my $obj;
+	my $call;
 
-	$obj = $package;
-	if ($xsub->{function})
-	{
-		unshift @args, $instance;
-	}
-	elsif (defined $instance->{type}) {
-		$obj = '$'.$instance->{name};
+	if ($xsub->{function}) {
+		$call = $xsub->{symname};
+	} else {
+		# find the method's short name
+		my $method = $xsub->{symname};
+		$method =~ s/^(.*):://;
+
+		my $package = $1 || $xsub->{package};
+
+		# methods always eat the first arg as the instance.
+		my $instance = shift @args;
+
+		my $obj = defined ($instance->{type})
+		        ? '$'.$instance->{name}
+			: $package;
+
+		$call = "$obj\-E<gt>$method";
 	}
 
 	# compile the arg list string
@@ -948,7 +947,7 @@ sub compile_signature {
 		      : ''
 		     );
 	
-	"$retstr$obj\-E<gt>$method ".($argstr ? "($argstr)" : "");
+	"$retstr$call ".($argstr ? "($argstr)" : "");
 }
 
 =item $string = fixup_arg_name ($name)
