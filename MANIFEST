@@ -5,6 +5,7 @@ GBoxed.xs
 GClosure.xs
 GMainLoop.xs
 GObject.xs
+GParamSpec.xs
 GSignal.xs
 GType.xs
 GValue.xs
@@ -16,6 +17,8 @@ MANIFEST.SKIP
 Makefile.PL
 PkgConfig.pm
 README
+README.api-changes
+Subclass.pm
 gperl.h
 ppport.h
 t/1.t
