@@ -153,7 +153,7 @@ sub postamble {
 	return "
 build/\$(NAME).doc.pl: @main::xs_files
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
-		-e 'xsdocparse (".join(", ",@main::xs_files).")' > \$@
+		-e 'xsdocparse (".join(", ",map {"\"$_\""} @main::xs_files).")' > \$@
 
 build/xsapi.pod: build/\$(NAME).doc.pl apidoc.pl
 	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/\$(NAME).doc.pl > \$@

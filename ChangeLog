@@ -1,3 +1,7 @@
+2003/10/27 29:08 muppetman
+
+	* Makefile.PL: bad quoting kept the build from working...
+
 2003/10/27 19:29 muppetman
 
 	* GenPod.pm: move =for enum parsing to the parser.
