@@ -120,7 +120,7 @@ gperl_value_from_sv (GValue * value,
 
 
 SV *
-gperl_sv_from_value (GValue * value)
+gperl_sv_from_value (const GValue * value)
 {
 	int typ = G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value)); 
 	switch (typ) {
@@ -200,3 +200,5 @@ gperl_sv_from_value (GValue * value)
 
 /* apparently this line is required by ExtUtils::ParseXS, but not by xsubpp. */
 MODULE = Glib::Value	PACKAGE = Glib::Value	PREFIX = g_value_
+
+PROTOTYPES: ENABLE
