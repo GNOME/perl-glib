@@ -627,5 +627,31 @@ void            gperl_callback_invoke  (GPerlCallback * callback,
                                         ...);
 
 
+/*
+ * gparamspec.h / GParamSpec.xs
+ *
+ * functions to get GParamSpecs in and out of perl.
+ */
+SV * newSVGParamSpec (GParamSpec * pspec);
+GParamSpec * SvGParamSpec (SV * sv);
+SV * newSVGParamFlags (GParamFlags flags);
+GParamFlags SvGParamFlags (SV * sv);
+
+/*
+ * helpful debugging stuff
+ */
+#define GPERL_OBJECT_VITALS(o) \
+	((o)							\
+	  ? form ("%s(%p)[%d]", G_OBJECT_TYPE_NAME (o), (o),	\
+		  G_OBJECT (o)->ref_count)			\
+	  : "NULL")
+#define GPERL_WRAPPER_VITALS(w)	\
+	((SvTRUE (w))					\
+	  ? (SvROK (w))					\
+	    (? form ("SvRV(%p)->%s(%p)[%d]", (w),	\
+		     sv_reftype (SvRV (w), TRUE),	\
+		     SvRV (w), SvREFCNT (SvRV (w)))	\
+	     : "[not a reference!]")			\
+	  : "undef")
 
 #endif /* _GPERL_H_ */

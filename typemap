@@ -47,6 +47,9 @@ GObject*	T_G_TYPE_OBJECT
 GObject_ornull*	T_G_TYPE_OBJECT_ORNULL
 GObject_noinc*	T_G_TYPE_OBJECT_NOINC
 
+GParamSpec*	T_G_TYPE_PARAM_SPEC
+GParamFlags	T_G_PARAM_FLAGS
+
 GIOCondition	T_G_TYPE_IO_CONDITION
 
 GMainContext*	T_G_MAIN_CONTEXT
@@ -65,6 +68,11 @@ T_G_TYPE_OBJECT
 
 T_G_TYPE_OBJECT_ORNULL
 	$var = SvGObject_ornull ($arg);
+
+T_G_TYPE_PARAM_SPEC
+	$var = SvGParamSpec ($arg);
+T_G_PARAM_FLAGS
+	$var = SvGParamFlags ($arg);
 
 T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
@@ -91,6 +99,11 @@ T_G_TYPE_OBJECT
 
 T_G_TYPE_OBJECT_NOINC
 	$arg = newSVGObject_noinc ($var);
+
+T_G_TYPE_PARAM_SPEC
+	$arg = newSVGParamSpec ($var);
+T_G_PARAM_FLAGS
+	$arg = newSVGParamFlags ($var);
 
 T_G_TYPE_IO_CONDITION
 	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
