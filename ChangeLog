@@ -1,3 +1,7 @@
+2003/11/06 16:53 (-0500) muppetman
+
+	* MakeHelper.pm: make the pod index have actual links.
+
 2003/11/06 10:30 (-0500) muppetman
 
 	* ParseXSDoc.pm: handle IN_OUTLIST arguments, which previously got
