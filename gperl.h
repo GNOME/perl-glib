@@ -251,6 +251,10 @@ int  gperl_install_exception_handler (GClosure * closure);
 void gperl_remove_exception_handler  (int tag);
 void gperl_run_exception_handlers    (void);
 
+/*
+ * to be used by extensions...
+ */
+gint gperl_handle_logs_for (const gchar * log_domain);
 
 /*
  * gparamspec.h / GParamSpec.xs

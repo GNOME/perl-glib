@@ -154,6 +154,7 @@ BOOT:
 #endif
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
+	GPERL_CALL_BOOT (boot_Glib__Log);
 	GPERL_CALL_BOOT (boot_Glib__Type);
 	GPERL_CALL_BOOT (boot_Glib__Boxed);
 	GPERL_CALL_BOOT (boot_Glib__Object);

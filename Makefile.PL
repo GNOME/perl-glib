@@ -41,6 +41,7 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
    # appear in Glib::xsapi
    @xs_files = qw(
 	Glib.xs
+	GLog.xs
 	GType.xs
 	GBoxed.xs
 	GObject.xs

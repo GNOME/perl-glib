@@ -47,6 +47,7 @@ gperl_callback_invoke
 gperl_install_exception_handler
 gperl_remove_exception_handler
 gperl_run_exception_handlers
+gperl_handle_logs_for
 newSVGParamSpec
 SvGParamSpec
 newSVGParamFlags
