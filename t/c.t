@@ -7,7 +7,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 9;
+use Test::More tests => 13;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -101,6 +101,23 @@ Glib::Type->register (
 		)
 	]);
 
+sub GET_PROPERTY
+{
+	$_[0]->{$_[1]->get_name};
+}
+
+sub SET_PROPERTY
+{
+	$_[0]->{$_[1]->get_name} = $_[2];
+}
+
+sub INIT_INSTANCE
+{
+	my $self = shift;
+	$self->{some_enum} = 'value-one';
+	$self->{some_flags} = ['value-one'];
+}
+
 sub sig1
 {
 	shift->signal_emit ('sig1', @_);
@@ -111,10 +128,14 @@ package main;
 my $obj = Tester->new;
 $obj->sig1 ('value-two', ['value-one', 'value-two']);
 
-#$obj->set (some_enum => 'value-one');
-#use Data::Dumper;
-#print STDERR Dumper ($obj);
-#is ($obj->get ('some_enum'), 'value-one', 'enum property');
+is ($obj->get ('some_enum'), 'value-one', 'enum property');
+$obj->set (some_enum => 'value-two');
+is ($obj->get ('some_enum'), 'value-two', 'enum property, after set');
+
+ok (eq_array ([$obj->get ('some_flags')], ['value-one']), 'flags property');
+$obj->set (some_flags => ['value-one', 'value-two']);
+is ($obj->get ('some_flags'), ['value-one', 'value-two'], 
+	'flags property, after set');
 
 __END__
 

@@ -1,3 +1,8 @@
+2003/12/10 15:18 (-0500) rwmcfa1
+
+	* t/c.t: now that the register_enum|flags stuff is fixed, test it out
+	more thoroughly.
+
 2003/12/10 12:45 (-0500) muppetman
 
 	* Subclass.pm: updated doc
