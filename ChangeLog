@@ -1,3 +1,9 @@
+2003/10/30 13:47 rwmcfa1
+
+	* Glib.pm: added tie_properties stuff
+
+	* t/b.t: initial import, test tie_properties stuff
+
 2003/10/30 11:29 muppetman
 
 	* GenPod.pm: make sure that all signatures get the same pod directive.

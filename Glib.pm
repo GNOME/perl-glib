@@ -53,7 +53,97 @@ sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
 bootstrap Glib $VERSION;
 
+package Glib::Object::Property;
+
+use Carp;
+
+sub TIESCALAR
+{
+# in the array reference the elements are:
+#	[0] Glib::Object
+#	[1] property name
+
+	bless [ $_[1], $_[2] ], $_[0];
+}
+
+sub STORE { croak 'property '.$_[0][1].' is read-only'; }
+
+sub FETCH { croak 'property '.$_[0][1].' is write-only'; }
+
+package Glib::Object::Property::Readable;
+
+our @ISA = qw/Glib::Object::Property/;
+
+sub FETCH { $_[0][0]->get_property ($_[0][1]); }
+
+package Glib::Object::Property::Writable;
+
+our @ISA = qw/Glib::Object::Property/;
+
+sub STORE { $_[0][0]->set_property ($_[0][1], $_[1]); }
+
+package Glib::Object::Property::ReadWrite;
+
+our @ISA = qw/Glib::Object::Property/;
+
+*FETCH = \&Glib::Object::Property::Readable::FETCH;
+*STORE = \&Glib::Object::Property::Writable::STORE;
+
+package Glib::Object;
+
+use Carp;
+
+sub tie_properties
+{
+	my $self = shift;	# the object
+	my $all = shift;	# add all properties, up heirarchy
+
+	my @props = $self->list_properties;
+	my $package = ref $self;
+	my $name;
+	foreach my $prop (@props)
+	{
+		# skip to next if it doesn't belong to this package and 
+		# they don't want everything tied
+		next if ($prop->{owner_type} ne $package and not $all);
+		
+		$name = $prop->{name};
+		$name =~ s/-/_/g;
+		
+		carp "overwriting existing non-tied hash key $name"
+			if (exists ($self->{$name}) 
+				and not tied $self->{$name});
+
+		my $flags = "@{$prop->{flags}}";
+		if ($flags =~ /readable/)
+		{
+			if ($flags =~ /writable/)
+			{
+				tie $self->{$name}, 
+					'Glib::Object::Property::ReadWrite',
+					$self, $name;
+			}
+			else
+			{
+				tie $self->{$name}, 
+					'Glib::Object::Property::Readable',
+					$self, $name;
+			}
+		}
+		elsif ($flags =~ /writeable/)
+		{
+			tie $self->{$name}, 
+				'Glib::Object::Property::Writable',
+				$self, $name;
+		}
+		# if it's not readable and not writable what is it?
+	}
+}
+
+package Glib;
+
 1;
+__END__
 
 =head1 NAME
 
