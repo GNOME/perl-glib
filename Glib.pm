@@ -108,7 +108,7 @@ sub TIESCALAR
 
 sub STORE { croak 'property '.$_[0][1].' is read-only'; }
 
-sub FETCH { croak 'property '.$_[0][1].' is write-only'; }
+sub FETCH { '[write-only]'; }
 
 package Glib::Object::Property::Readable;
 

@@ -1137,6 +1137,9 @@ example:
   $button->{label} = 'Hello World';
   print "the label is: ".$button->{label}."\n";
 
+Attempts to write to read-only properties will croak, reading a write-only
+property will return '[write-only]'.
+
 Care must be taken when using tie_properties with objects of types created with
 Glib::Object::Subclass as there may be clashes with existing hash keys that
 could cause infinite loops. The solution is to use custom property get/set

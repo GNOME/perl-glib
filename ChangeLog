@@ -1,3 +1,12 @@
+2004/03/02 20:59 (-0500) rwmcfa1
+
+	* Glib.pm: alter the behavior of read only/write only tied properites.
+	setting a read only croaks, reading a write only returns
+	'[write-only]'.  should affect anything/anyone, just make things work a
+	little better with Dumper and stuff like that.
+
+	* GObject.xs: doc changes ^
+
 2004/03/02 00:42 (-0500) muppetman
 
 	* README, Glib.pm, NEWS: API-frozen unstable release 1.038
