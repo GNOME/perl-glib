@@ -22,6 +22,8 @@
 _gperl_call_XS
 gperl_croak_gerror
 gperl_alloc_temp
+gperl_str_eq
+gperl_str_hash
 gperl_try_convert_enum
 gperl_convert_enum
 gperl_convert_back_enum_pass_unknown
@@ -31,6 +33,8 @@ gperl_convert_flag_one
 gperl_convert_flags
 gperl_convert_back_flags
 gperl_register_fundamental
+gperl_fundamental_type_from_package
+gperl_fundamental_package_from_type
 gperl_set_isa
 gperl_prepend_isa
 gperl_type_from_package
