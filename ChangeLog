@@ -1,3 +1,8 @@
+2003/11/25 12:02 (-0500) muppetman
+
+	* GType.xs: clean up some odd leaks; use proper contexts in the
+	signal accumulator and custom class closure.
+
 2003/11/25 11:39 (-0500) rwmcfa1
 	
 	* GType.xs, devel.pod:	link correction

@@ -26,6 +26,7 @@
 =cut
 
 #include "gperl.h"
+#include "gperl_marshal.h"
 
 /* for fundamental types */
 static GHashTable * types_by_package = NULL;
@@ -599,13 +600,6 @@ newSVGChar (const gchar * str)
  * lots of boilerplate translations and such.
  */
 
-/* a closure used for the `class closure' of a signal.  As this gets
- * all the info from the first argument to the closure and the
- * invocation hint, we can have a single closure that handles all
- * class closure cases.  We call a method by the name of the signal
- * with "do_" prepended.
- */
-
 static void
 gperl_signal_class_closure_marshal (GClosure *closure,
 				    GValue *return_value,
@@ -621,9 +615,14 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 	guint i;
         HV *stash;
         SV **slot;
-
-	PERL_UNUSED_VAR (closure);
+	/* see GClosure.xs and gperl_marshal.h for an explanation.  we can't
+	 * use that code because this is a different style of closure, but we
+	 * need to emulate it very closely. */
+#ifdef PERL_IMPLICIT_CONTEXT
+	PERL_SET_CONTEXT (marshal_data);
+#else
 	PERL_UNUSED_VAR (marshal_data);
+#endif
 
 #ifdef NOISY
 	warn ("gperl_signal_class_closure_marshal");
@@ -648,7 +647,6 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
-		GObject *object;
 		int flags;
 		dSP;
 
@@ -657,48 +655,37 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 
 		PUSHMARK (SP);
 
-		/* get the object passed as the first argument to the closure */
-		object = g_value_get_object (&param_values[0]);
-		g_return_if_fail (object != NULL && G_IS_OBJECT (object));
-		EXTEND (SP, (int) (1 + n_param_values));
-		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+		g_assert (n_param_values != 0);
 
-		/* push parameter values onto the stack */
-		for (i = 1; i < n_param_values; i++)
+		/* watch very carefully the reference counts on the scalar
+		 * object references, or else we can get indestructible
+		 * objects. */
+		EXTEND (SP, n_param_values);
+		for (i = 0; i < n_param_values; i++)
 			PUSHs (sv_2mortal (gperl_sv_from_value
-							((GValue*)
-							&param_values[i])));
+						((GValue*) &param_values[i])));
 
 		PUTBACK;
 
-#ifdef NOISY
-		warn ("    calling method %s", SvPV_nolen (method_name));
-#endif
 		/* now call it */
-
+		/* note: keep this as closely sync'ed as possible with the
+		 * definition of GPERL_CLOSURE_MARSHAL_CALL. */
 		flags = G_EVAL | (return_value ? G_SCALAR : G_VOID|G_DISCARD);
 		call_method (SvPV_nolen (method_name), flags);
-
-		if (SvTRUE (ERRSV))
+		SPAGAIN;
+		if (SvTRUE (ERRSV)) {
 			gperl_run_exception_handlers ();
 
-		if (return_value) {
-			SPAGAIN;
+		} else if (return_value) {
 			gperl_value_from_sv (return_value, POPs);
 			PUTBACK;
 		}
 
 		FREETMPS;
 		LEAVE;
-/*
-	} else {
-		croak ("cannot find object method %s of %s in emission of "
-		       "signal %s\n   if you want to disable the class "
-		       "closure or use a different method,\n   then specify "
-		       "the class_closure key when creating the signal.\n"
-		       "   croaking", SvPV_nolen (method_name),
-		       g_type_name (query.itype), query.signal_name);
-*/	}
+	}
+
+	SvREFCNT_dec (method_name);
 }
 
 /**
@@ -717,9 +704,17 @@ gperl_signal_class_closure_get(void)
 	static GClosure *closure;
 
 	if (closure == NULL) {
-		closure = g_closure_new_simple(sizeof(GClosure), NULL);
+		closure = g_closure_new_simple (sizeof (GClosure), NULL);
+		/* this is not a GPerlClosure, but the same caveats apply.
+		 * see GClosure.xs and gperl_marshal.h. */
+#ifndef PERL_IMPLICIT_CONTEXT
 		g_closure_set_marshal (closure,
 		                       gperl_signal_class_closure_marshal);
+#else
+		g_closure_set_meta_marshal
+				(closure, aTHX,
+				 gperl_signal_class_closure_marshal);
+#endif
 
 		g_closure_ref (closure);
 		g_closure_sink (closure);
@@ -762,10 +757,12 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
                                gpointer data)
 {
 	GPerlCallback * callback = (GPerlCallback *)data;
-	dSP;
 	SV * sv;
 	int n;
 	gboolean retval;
+	dGPERL_CALLBACK_MARSHAL_SP;
+
+	GPERL_CALLBACK_MARSHAL_INIT (callback);
 
 /*	warn ("gperl_real_signal_accumulator"); */
 
@@ -1160,7 +1157,6 @@ gperl_type_finalize (GObject * instance)
 static void
 gperl_type_instance_init (GObject * instance)
 {
-        dSP;
 	/*
 	 * for new objects, this may be the place where the initial
 	 * perl object is created.  we won't worry about the owner
@@ -1172,9 +1168,6 @@ gperl_type_instance_init (GObject * instance)
         HV *stash = gperl_object_stash_from_type (G_OBJECT_TYPE (instance));
         SV **slot;
 	g_assert (stash != NULL);
-
-        ENTER;
-        SAVETMPS;
 
 	obj = sv_2mortal (gperl_new_object (instance, FALSE));
         /* we need to re-bless the wrapper because classes change
@@ -1191,16 +1184,16 @@ gperl_type_instance_init (GObject * instance)
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
-                  PUSHMARK (SP);
-                  XPUSHs (obj);
-                  PUTBACK;
-
-                  call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
-
+                dSP;
+                ENTER;
+                SAVETMPS;
+                PUSHMARK (SP);
+                XPUSHs (obj);
+                PUTBACK;
+                call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
+                FREETMPS;
+                LEAVE;
         }
-
-        FREETMPS;
-        LEAVE;
 }
 
 static void
@@ -1354,11 +1347,17 @@ g_type_register (class, parent_package, new_package, ...);
 	      g_type_name (parent_type), parent_type,
 	      new_type_name, new_type);
 #endif
-
 	g_free (new_type_name);
+
 	/* and with the bindings */
 	gperl_register_object (new_type, new_package);
 
+	/* now look for things we should initialize presently, e.g.
+	 * signals and properties and interfaces and such, things that
+	 * would generally go into a class_init.  if any of these
+	 * actually do any work, the class will be instantiated right
+	 * here, otherwise, it may not happen until somebody actually
+	 * instantiates and object of this type. */
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals")) {
