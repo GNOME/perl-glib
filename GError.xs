@@ -130,6 +130,7 @@ find_package (gpointer key,
               ErrorInfo * info,
               struct FindData * find_data)
 {
+	PERL_UNUSED_VAR (key);
 	if (g_str_equal (find_data->package, info->package))
 		find_data->info = info;
 }
@@ -305,6 +306,7 @@ It's just that simple!
 void
 gperl_croak_gerror (const char * ignored, GError * err)
 {
+	PERL_UNUSED_VAR (ignored);
 	/* this really could only happen if there's a problem with XS bindings
 	 * so we'll use a assertion to catch it, rather than handle null */
 	g_return_if_fail (err != NULL);

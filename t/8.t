@@ -63,9 +63,12 @@ ok( Glib->install_exception_handler (sub {
 			ok (0, "should NEVER get here");
 		});
 
+   $_ = $my;
    ok (1, 'calling second');
    $my->second;
    ok (1, "handler may die, but we shouldn't be affected");
+   is ($_, $my, 'we should not clobber $_');
+   $_ = undef;
 
    # expect identical behavior in eval context 
    eval {

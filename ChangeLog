@@ -1,3 +1,38 @@
+2004/04/14 19:50 (+0200) kaffetisch
+
+	Merge from the stable-1-04 branch:
+
+	* NEWS: Update.
+
+	* typemap, GBoxed.xs: use INT2PTR to hush warnings about improper
+	casting on cygwin.
+
+	* GError.xs: Mark unused variables.
+
+	* Glib.xs: Use explicit casts in the version checking part of the
+	BOOT code.
+
+	* GenPod.pm: document the __hide__, __gerror__, and __function__
+	modifiers for the apidoc directive.  Add $MAIN_MOD to the head of the
+	see alsos list if it's set, so that the generated pages link to the
+	correct extension.  Clean up the semantics of the copyright
+	generation stuff, and make the docs a little clearer.
+
+	* MakeHelper.pm: set $Glib::GenPod::MAIN_MOD with the module name in
+	Glib::MakeHelper::postamble_docs_full, either from the depends object
+	or the NAME key.
+
+	* GenPod.pm
+	* Glib.pm
+	* MakeHelper.pm
+	* ParseXSDoc.pm: Fix a spelling error here, adjust some grammar there.
+
+	* t/8.t
+	* GClosure.xs: don't clobber $_ when warning of unhandled exceptions.
+	apparently the SAVE_DEFSV trick from a while back doesn't work.
+
+	* Subclass.pm: beef up the docs.
+
 2004/04/05 23:33 pcg
 
 	* Glib.xs: gperl_sv_from_filename didn't check the return status

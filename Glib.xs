@@ -304,14 +304,14 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
 	/* make sure that we're running/linked against a version at least as 
 	 * new as we built against, otherwise bad things will happen. */
-	if ((glib_major_version < GLIB_MAJOR_VERSION)
+	if ((((int)glib_major_version) < GLIB_MAJOR_VERSION)
 	    ||
 	    (glib_major_version == GLIB_MAJOR_VERSION && 
-	     glib_minor_version < GLIB_MINOR_VERSION)
+	     ((int)glib_minor_version) < GLIB_MINOR_VERSION)
 	    ||
 	    (glib_major_version == GLIB_MAJOR_VERSION && 
 	     glib_minor_version == GLIB_MINOR_VERSION &&
-	     glib_micro_version < GLIB_MICRO_VERSION))
+	     ((int)glib_micro_version) < GLIB_MICRO_VERSION))
 		warn ("*** This build of Glib was compiled with glib %d.%d.%d,"
 		      " but is currently running with %d.%d.%d, which is too"
 		      " old.  We'll continue, but expect problems!\n",

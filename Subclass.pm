@@ -26,7 +26,7 @@ use Glib;
 
 =head1 NAME
 
-Glib::Object::Subclass - register a perl class as a gobjectclass
+Glib::Object::Subclass - register a perl class as a GObject class
 
 =head1 SYNOPSIS
 
@@ -53,26 +53,12 @@ Glib::Object::Subclass - register a perl class as a gobjectclass
 
 =head1 DESCRIPTION
 
-This module allows you to create your own gobject classes, which is useful
+This module allows you to create your own GObject classes, which is useful
 to e.g. implement your own Gtk2 widgets.
 
 It doesn't "export" anything into your namespace, but acts more like
 a pragmatic module that modifies your class to make it work as a
-GObjectClass.
-
-There are three different issues that this module tries to solve:
-
-=over 4
-
-=item * The gobject type and class system and the perl class system work
-slightly differently.
-
-=item * Classes must be registered before they can be used.
-
-=item * Some convenience methods to make GObjectClasses look more like
-normal perl objects.
-
-=back
+GObject class.
 
 You may be wondering why you can't just bless a Glib::Object into a
 different package and add some subs.  Well, if you aren't interested 
@@ -80,17 +66,18 @@ in object parameters, signals, or having your new class interoperate
 transparently with other GObject-based modules (e.g., Gtk2 and friends),
 then you can just re-bless.
 
-However, a GObject's signals, properties, and virtual functions are
-specific to its GObjectClass.  If you want to create a new GObject
-which was a derivative of GtkDrawingArea, but added a new signal,
-you must create a new GObjectClass to which to add the new signal.
+However, a GObject's signals, properties, virtual functions, and GInterface
+implementations are specific to its GObjectClass.  If you want to create
+a new GObject which was a derivative of GtkDrawingArea, but adds a new
+signal, you must create a new GObjectClass to which to add the new signal.
 If you don't, then I<all> of the GtkDrawingAreas in your application
 will get that new signal!
 
 Thus, the only way to create a new signal or object property in the
-perl bindings for Glib is to register a new subclass with Glib::Type.
-This module is a perl-developer-friendly interface to this bit of
-paradigm mismatch.
+Perl bindings for Glib is to register a new subclass with the GLib type
+system via Glib::Type::register_object().
+The Glib::Object::Subclass module is a Perl-developer-friendly interface
+to this bit of paradigm mismatch.
 
 =head2 USAGE
 
@@ -98,7 +85,28 @@ This module works similar to the C<use base> pragma in that it registers
 the current package as a subclass of some other class (which must be a
 GObjectClass implemented either in C or some other language).
 
-TODO: document it.
+The pragma requires at least one argument, the parent class name.  The
+remaining arguments are key/value pairs, in any order, all optional:
+
+=over
+
+=item - properties => []
+
+Add object properties; see L</PROPERTIES>.
+
+=item - signals => {}
+
+Add or override signals; see L</SIGNALS> and L</OVERRIDING BASE METHODS>.
+
+=item - interfaces => []
+
+Add GInterfaces to your class; see L</INTERFACES>.
+
+=back
+
+(Actually, these parameters are all passed straight through to
+Glib::Type::register_object(), adding __PACKAGE__ (the current package name)
+as the name of the new child class.)
 
 =head2 OBJECT METHODS AND FUNCTIONS
 
@@ -162,7 +170,7 @@ The default C<SET_PROPERTY> looks like this:
 =item FINALIZE_INSTANCE $self                             [not a method]
 
 C<FINALIZE_INSTANCE> is called as the GObject is being finalized, that is,
-as it's being really destroyed. This is independent of the more common
+as it is being really destroyed.  This is independent of the more common
 DESTROY on the perl object; in fact, you must I<NOT> override C<DESTROY>
 (it's not useful to you, in any case, as it is being called multiple
 times!).
@@ -178,11 +186,11 @@ The default finalizer does nothing.
 Don't I<ever> overwrite C<DESTROY>, use C<FINALIZE_INSTANCE> instead.
 
 The DESTROY method of all perl classes derived from GTypes is
-implemented in the Glib module and (ab-)used for it's own internal
+implemented in the Glib module and (ab-)used for its own internal
 purposes. Overwriting it is not useful as it will be called
 I<multiple> times, and often long before the object actually gets
-destroyed. Overwriting might be very harmful to your program, so I<never>
-do that. Especially watch out for other classes in your ISA tree.
+destroyed.  Overwriting might be very harmful to your program, so I<never>
+do that.  Especially watch out for other classes in your ISA tree.
 
 =back
 
@@ -290,7 +298,7 @@ stops the emission), and the new value for the accumulated return value.
 
 =head1 OVERRIDING BASE METHODS
 
-Glib pulls some fancy tricks with function pointers to implement methods
+GLib pulls some fancy tricks with function pointers to implement methods
 in C.  This is not very language-binding-friendly, as you might guess.
 
 However, as described above, every signal allows a "class closure"; you
@@ -300,7 +308,7 @@ virtual overrides for language bindings.
 
 So, to override a method, you supply a subroutine reference instead of a
 signal description hash as the value for the name of the existing signal
-in the "signals" hash described in the SIGNALs section.
+in the "signals" hash described in L</SIGNALS>.
 
   # override some important widget methods:
   use Glib::Object::Subclass
@@ -322,6 +330,33 @@ still find them!  Therefore it's rather important that you choose your
 handlers' names carefully, avoiding any public interfaces that you might
 call from perl.  Case in point, since size_request is a widget method, i
 chose do_size_request as the override handler.
+
+=head1 INTERFACES
+
+GObject supports only single inheritance; in place of multiple inheritance,
+GObject uses GInterfaces.  In the Perl bindings we have mostly masqueraded
+this with multiple inheritance (that is, simply adding the GInterface class
+to the @ISA of the implementing class), but in deriving new objects the
+facade breaks and the magic leaks out.
+
+In order to derive an object that implements a GInterface, you have to tell
+the GLib type system you want your class to include a GInterface.  To do
+this, simply pass a list of package names through the "interfaces" key;
+this will add these packages to your @ISA, and cause perl to invoke methods
+that you must provide.
+
+  package Mup::MultilineEntry;
+  use Glib::Object::Subclass
+      'Gtk2::TextView',
+      interfaces => [ 'Gtk2::CellEditable' ],
+      ;
+
+  # perl will now invoke these methods, which are part of the
+  # GtkCellEditable GInterface, when somebody invokes the
+  # corresponding lower-case methods on your objects.
+  sub START_EDITING { warn "start editing\n"; }
+  sub EDITING_DONE { warn "editing done\n"; }
+  sub REMOVE_WIDGET { warn "remove widget\n"; }
 
 =head1 SEE ALSO
 
