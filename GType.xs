@@ -1029,6 +1029,49 @@ add_properties (GType instance_type, AV * properties)
 	g_type_class_unref (oclass);
 }
 
+/*
+ * look for a function named _INSTALL_OVERRIDES in each package of the
+ * ancestry of type, and call it if it exists.  these are done from root
+ * down to type, so that later classes may override what ancestors installed.
+ * the package name corresponding to type is passed to each one, so the
+ * (typically xs) implementations can find the right object class.
+ */
+static void
+install_overrides (GType type)
+{
+	GSList * types = NULL, * i;
+	GType t;
+	const char * name = NULL;
+
+	for (t = type ; t != 0 ; t = g_type_parent (t))
+		types = g_slist_prepend (types, (gpointer) t);
+
+	for (i = types ; i != NULL ; i = i->next) {
+		HV * stash;
+		SV ** slot;
+		t = (GType) i->data;
+		stash = gperl_object_stash_from_type (t);
+		slot = hv_fetch (stash, "_INSTALL_OVERRIDES",
+		                 sizeof ("_INSTALL_OVERRIDES") - 1,
+		                 FALSE);
+	        if (slot && GvCV (*slot)) {
+	                dSP;
+	                ENTER;
+	                SAVETMPS;
+	                PUSHMARK (SP);
+			if (!name)
+				name = gperl_object_package_from_type (type);
+	                XPUSHs (sv_2mortal (newSVpv (name, PL_na)));
+	                PUTBACK;
+	                call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
+	                FREETMPS;
+	                LEAVE;
+	        }
+	}
+
+	g_slist_free (types);
+}
+
 static void
 gperl_type_get_property (GObject * object,
                          guint property_id,
@@ -1215,31 +1258,6 @@ gperl_type_class_init (GObjectClass * class)
 	class->finalize     = gperl_type_finalize;
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
-
-	{
-	/* vfuncs cause a bit of a problem.  to have them overridden
-	 * automatically, we need to hook into a higher level in a rather
-	 * odd way.  so, we look for an optional inheritable method named
-	 * _INSTALL_OVERRIDES at this point.  typically, this would be
-	 * provided by a parent, and would install vfunc implementations
-	 * that marshal to perl code, so that the perl-implemented class
-	 * may simply override the ALL_CAPS_METHODS in order to implement
-	 * the vfuncs. */
-	HV * stash = gperl_object_stash_from_type (G_OBJECT_CLASS_TYPE (class));
-	GV * slot = gv_fetchmethod (stash, "_INSTALL_OVERRIDES");
-	if (slot && GvCV (slot)) {
-		dSP;
-		ENTER;
-		SAVETMPS;
-		PUSHMARK (SP);
-		PUSHs (sv_2mortal (newSVpv (gperl_object_package_from_type (G_OBJECT_CLASS_TYPE (class)), 0)));
-		PUTBACK;
-		call_sv ((SV*)GvCV (slot), G_VOID|G_DISCARD);
-		SPAGAIN;
-		FREETMPS;
-		LEAVE;
-	}
-	}
 }
 
 static void
@@ -1603,12 +1621,20 @@ g_type_register_object (class, parent_package, new_package, ...);
 	/* mark this type as "one of ours". */
 	g_type_set_qdata (new_type, gperl_type_reg_quark (), (gpointer) TRUE);
 
+	/* instantiate the class right now.  perl doesn't let classes go
+	 * away once they've been defined, so we'll just leak this ref and
+	 * let the GObjectClass live as long as the program.  in fact,
+	 * because we don't really have class_init handlers like C, we
+	 * really don't want the class to die and be reinstantiated, because
+	 * some of the setup (namely the stuff coming up) will never happen
+	 * again.
+	 * this statement will cause an arbitrary amount of stuff to happen.
+	 */
+	g_type_class_ref (new_type); /* leak */
+
 	/* now look for things we should initialize presently, e.g.
 	 * signals and properties and interfaces and such, things that
-	 * would generally go into a class_init.  if any of these
-	 * actually do any work, the class will be instantiated right
-	 * here, otherwise, it may not happen until somebody actually
-	 * instantiates and object of this type. */
+	 * would generally go into a class_init. */
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals")) {
@@ -1624,6 +1650,14 @@ g_type_register_object (class, parent_package, new_package, ...);
                           	croak ("properties must be an array of GParamSpecs");
                 }
 	}
+	
+	/* vfuncs cause a bit of a problem, because the normal mechanisms of
+	 * GObject don't give us a predefined way to handle them.  here we
+	 * provide a way to override them in each child class as it is
+	 * derived. */
+	install_overrides (new_type);
+
+	/* fin */
 
 
 =for apidoc
