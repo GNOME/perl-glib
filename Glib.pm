@@ -287,15 +287,15 @@ Glib::MainLoop, GObject is now Glib::Object, GBoxed is now Glib::Boxed, etc.
 Perl knows two datatypes, unicode text and binary data. Filenames on a
 system that doesn't use a utf-8 locale are usually stored in a local
 encoding ("binary"). Gtk+ and descendants, however, internally work in
-unicode all the time, so when feeding a filename into a Glib/Gtk+ function
+unicode all the time, so when feeding a filename into a GLib/Gtk+ function
 that expects a filename, you first need to convert it from the local
 encoding to unicode.
 
 This involves some elaborate guessing, which perl currently avoids, but
-Glib and Gtk+ do. The following functions expose the conversion algorithm
+GLib and Gtk+ do. The following functions expose the conversion algorithm
 that glib uses.
 
-These functions are only neecssary when you want to use perl functions
+These functions are only necessary when you want to use perl functions
 to manage filenames returned by a glib/gtk+ function, or when you feed
 filenames into glib/gtk+ functions that have their source outside your
 program (e.g. commandline arguments).
@@ -323,7 +323,7 @@ Example:
 =back
 
 Other functions for converting URIs are currently missing. Also, it might
-be useful to know that pelr currently has no policy at all regarding this
+be useful to know that perl currently has no policy at all regarding this
 issue, if your scalar happens to be in utf8 internally it will use utf8,
 if it happens to be stored as bytes, it will use it as-is.
 
