@@ -10,6 +10,7 @@ gperl_try_convert_flag
 gperl_convert_flag_one
 gperl_convert_flags
 gperl_convert_back_flags
+gperl_register_fundamental
 gperl_set_isa
 gperl_prepend_isa
 gperl_type_from_package
