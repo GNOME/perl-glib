@@ -1,3 +1,16 @@
+2003/10/29 02:00 muppetman
+
+	* Glib.pm: add a version check to Glib's import.
+
+	* GenPod.pm, MakeHelper.pm: rework package to filename handling to
+	support packages with :: in the name.  use FULLEXT (makefile var that
+	is the full extension path under INST_LIB) and File::Spec."
+
+	* ParseXSDoc.pm: don't clobber package with object; store object
+	separately and use it when retrieving pkgdata, but not in place of
+	the package name.  this allows xsubs to be placed into a different
+	package for doc, but not lose their actual package for the symname.
+
 2003/10/28 23:18 muppetman
 
 	* MakeHelper.pm: don't be an Exporter.  take a shift-off class arg
