@@ -180,7 +180,7 @@ BOOT:
 ##
 ##guint g_log_set_handler (const gchar *log_domain, GLogLevelFlags log_levels, GLogFunc log_func, gpointer user_data);
 guint
-g_log_set_handler (class, SV * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
+g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
     PREINIT:
 	GPerlCallback * callback;
 	GType param_types[] = {
@@ -191,9 +191,7 @@ g_log_set_handler (class, SV * log_domain, SV * log_levels, SV * log_func, SV * 
     CODE:
 	callback = gperl_callback_new (log_func, user_data,
 	                               3, param_types, G_TYPE_NONE);
-	RETVAL = g_log_set_handler ((SvTRUE (log_domain)
-	                             ? SvGChar (log_domain)
-				     : NULL),
+	RETVAL = g_log_set_handler (log_domain,
 				    SvGLogLevelFlags (log_levels),
 				    gperl_log_func, callback);
 	/* we have no choice but to leak the callback. */
@@ -204,9 +202,9 @@ g_log_set_handler (class, SV * log_domain, SV * log_levels, SV * log_func, SV * 
 
 ##void g_log_remove_handler (const gchar *log_domain, guint handler_id);
 void
-g_log_remove_handler (class, SV *log_domain, guint handler_id);
+g_log_remove_handler (class, gchar_ornull *log_domain, guint handler_id);
     C_ARGS:
-	(SvTRUE (log_domain) ? SvGChar (log_domain) : NULL), handler_id
+	log_domain, handler_id
 
 ##void g_log_default_handler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data);
 
@@ -215,10 +213,9 @@ g_log_remove_handler (class, SV *log_domain, guint handler_id);
 
 MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
-void g_log (class, SV *log_domain, SV * log_level, const gchar *message)
+void g_log (class, gchar_ornull * log_domain, SV * log_level, const gchar *message)
     CODE:
-	g_log ((SvTRUE (log_domain) ? SvPV_nolen (log_domain) : NULL),
-	       SvGLogLevelFlags (log_level), message);
+	g_log (log_domain, SvGLogLevelFlags (log_level), message);
 
 MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
@@ -257,7 +254,7 @@ MODULE = Glib::Log	PACKAGE = Glib
 ##define g_critical(...) g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, __VA_ARGS__)
 ##define g_warning(...)  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, __VA_ARGS__)
 void
-error (class, SV * domain, const gchar * message)
+error (class, gchar_ornull * domain, const gchar * message)
     ALIAS:
 	error = 0
 	message = 1
@@ -272,7 +269,7 @@ error (class, SV * domain, const gchar * message)
 		case 2: flags = G_LOG_LEVEL_CRITICAL; break;
 		case 3: flags = G_LOG_LEVEL_WARNING; break;
 	}
-	g_log ((SvTRUE (domain) ? SvPV_nolen (domain) : NULL), flags, message);
+	g_log (domain, flags, message);
 
 ##
 ## these are not needed -- perl's print() and warn() do the job.
