@@ -1,3 +1,9 @@
+libglib-perl (1.00-1) unstable; urgency=high
+
+  * The actual 1.00 release, at long last.
+
+ -- muppet <scott at asofyet dot org>  Thu, 09 Oct 2003 22:30:54 -0400
+
 libglib-perl (1.00rc4-1) unstable; urgency=low
 
   * Updated for 1.00rc4 release.

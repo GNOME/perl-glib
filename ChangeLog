@@ -1,3 +1,7 @@
+2003/10/09 22:23 muppetman
+
+	* GType.xs: typo in the documentation.
+
 2003/10/03 15:54 muppetman
 
 	* Glib.pm, META.yml, README, debian/changelog: 1.00rc4
