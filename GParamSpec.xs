@@ -279,7 +279,7 @@ typed (class, name, nick, blurb, package, flags)
 	boxed = 1
 	object = 2
     PREINIT:
-	GType type;
+	GType type = 0;
     CODE:
 	switch (ix) {
 	    case 0: croak ("param specs not supported as param specs yet");
