@@ -158,8 +158,11 @@ is_deeply ([ map {$foo->{$_}} @names ], [ @expected ],
 
 my $bar = Bar->new;
 is (scalar keys %$bar, 0, 'bar has no keys on creation');
-is_deeply ([$bar->get (@names)], [(undef)x(scalar @names)],
-           'with Subclass\'s GET_PROPERTY, nothing gets a default value');
+@expected = @default_values;
+$expected[2] = undef;
+$expected[4] = undef;
+is_deeply ([$bar->get (@names)], \@expected,
+           'Subclass works just like registering by hand');
 $bar->set (map { $names[$_], $default_values[$_] } 0..$#names);
 is (scalar keys %$bar, 5, 'new Foo has keys after setting');
 is_deeply ([ map {$bar->{$_}} @names ], [ @default_values ],
