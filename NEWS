@@ -1,3 +1,11 @@
+Overview of Changes in 1.0391
+=============================
+
+* Bump 2.3.x version checks to 2.4.0.
+* Portability fixes for Glib::MakeHelper.
+* Add, document, and test Glib::GET_VERSION_INFO.
+* Documentation fixes.
+
 Overview of Changes in Glib 1.039
 =================================
 

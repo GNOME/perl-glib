@@ -1,3 +1,7 @@
+2004/03/19 03:35 (-0500) muppetman
+
+	* Glib.pm, NEWS, README: 1.040 release candidate 1  (1.0391)
+
 2004/03/17 17:09 (+0100) kaffeetisch
 
 	* gperl.h (SvGObject_ornull): Use SvOK instead of SvTRUE.
