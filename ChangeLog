@@ -1,3 +1,9 @@
+2003/07/29 14:52 rwmcfa1
+
+	* GObject.xs: #ifdef'd out the warning when returning undef from 
+	gperl_new_object, tree's can rightfully ellicit this, if you're in a
+	state of heavy devel on wrappers you might want to re-enable it
+
 2003/07/29 00:58 pcg
 
 	* Subclass.pm: fix typoe.
