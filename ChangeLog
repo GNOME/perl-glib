@@ -1,3 +1,8 @@
+2005/01/09 16:29 (-0400) muppetman
+
+	* Glib.exports: add gperl_format_variable_for_output, which needs to
+	be exported but got missed somehow for 1.060.
+
 2005/01/08 23:45 (-0400) muppetman
 
 	* GMainLoop.xs, t/9.t: Ensure that asynchronous signals, deferred by

@@ -44,6 +44,7 @@ gperl_convert_flags
 gperl_croak_gerror
 gperl_default_boxed_wrapper_class
 gperl_filename_from_sv
+gperl_format_variable_for_output
 gperl_fundamental_package_from_type
 gperl_fundamental_type_from_package
 gperl_gerror_from_sv
