@@ -39,6 +39,8 @@ const gchar *	T_GCHAR
 gchar_own *	T_GCHAR_OWN
 gchar_length *	T_GCHAR_LEN
 const gchar_length *	T_GCHAR_LEN
+gchar_ornull *	T_GCHAR_ORNULL
+const gchar_ornull *	T_GCHAR_ORNULL
 guchar		T_UV
 guchar *	T_PV
 const guchar *	T_PV
@@ -69,6 +71,15 @@ T_GCHAR
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV_nolen ($arg);
 
+T_GCHAR_ORNULL
+	/* same as SvGChar(), but allows undef as NULL */
+	if ($arg && SvOK ($arg)) {
+		sv_utf8_upgrade ($arg);
+		$var = ($type)SvPV_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
 T_GCHAR_LEN
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
@@ -96,6 +107,15 @@ T_GCHAR
 	/* same as newSVGChar(), but not in a function */
 	sv_setpv ((SV*)$arg, $var);
 	SvUTF8_on ($arg);
+
+T_GCHAR_ORNULL
+	/* newSVGChar() allows NULL, but T_GCHAR does not. allow NULL. */
+	if (str) {
+		sv_setpv ((SV*)$arg, $var);
+		SvUTF8_on ($arg);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
 
 T_GCHAR_OWN
 	/* used when we can directly own the returned string. */
