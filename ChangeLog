@@ -1,3 +1,22 @@
+2003/09/15 17:43 muppetman
+
+	* gperl.h, Glib.exports: add gperl_signal_set_marshaller_for and
+	gperl_closure_new_with_marshaller
+
+	* GClosure.xs: add gperl_closure_new_with_marshaller, allowing you
+	to specify a custom marshaller to use for a GPerlClosure.  you can't
+	just call g_closure_set_marshal again, because glib asserts that it
+	hasn't been set yet.  this is used by gperl_signal_connect, as part 
+	of the changes described below.  includes POD that warns you that
+	you really don't want to use this function.  gperl_closure_new now
+	just calls this.
+
+	* GSignal.xs: add thread safety to the closures list.  added
+	gperl_signal_set_marshaller_for, to allow client code to specify a
+	special marshaller to use for all invocations of a particular named
+	signal on a particular class; this is intended to allow workarounds
+	for unhelpfully defined signal parameter types.
+
 2003/09/11 23:33 muppetman
 
 	* Glib.pm, MANIFEST, META.yml, README, debian/changelog: updated
