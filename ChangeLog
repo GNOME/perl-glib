@@ -1,3 +1,10 @@
+2003/05/26 04:28 muppetman
+
+	* Glib.pm: bumped version for development release
+
+	* GBoxed.xs: ensure that the scalar from which we try to extract
+	a boxed pointer is actually a reference.
+
 2003/05/22 10:30 muppetman
 
 	* AUTHORS, LICENSE every other file: in every file in the project 

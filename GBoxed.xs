@@ -217,6 +217,8 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 	if (!sv || !SvTRUE (sv))
 		croak ("variable not allowed to be undef where %s is wanted",
 		       g_type_name (gtype));
+	if (!SvROK (sv))
+		croak ("expected a blessed reference");
 	boxed_wrapper = _get_boxed_wrapper (sv);
 	if (!boxed_wrapper)
 		croak ("internal nastiness: boxed wrapper contains NULL pointer");
