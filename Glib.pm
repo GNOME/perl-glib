@@ -29,23 +29,13 @@ our @ISA = qw(DynaLoader);
 
 our $VERSION = '1.01';
 
+# this is the 'lite' version of what we could get Exporter to do for us.
+# we export nothing, so it seems silly to drag in all of Exporter::Heavy
+# just for a version check.
 sub import {
-	my $class = shift;
-
-	for (my $i = 0 ; $i < @_ ; $i++) {
-		if ($_[$i] =~ /^-?(minversion|atleast)$/) {
-			$i++;
-			die "$class import arg $1 requires a version argument"
-				unless $i < @_;
-			my $minversion = $_[$i];
-			die "This $class is too old; $minversion requested,"
-			  . " but this is $VERSION\n"
-				if $VERSION < $minversion;
-		} else {
-			use Carp;
-			carp "$class\->import: unrecognized parameter"
-			   . " $_[$i] ignored";
-		}
+	my $pkg = shift;
+	foreach (@_) {
+		$pkg->VERSION ($_);
 	}
 }
 
