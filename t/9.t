@@ -74,7 +74,7 @@ use Data::Dumper;
 # properly here.  we don't have versioning API in Glib (yet), so
 # we can't do much but just skip this.
 
-if ($Config{archname} =~ m/^x86_64/) {
+if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/) {
 	print "not ok 12 # skip bug in glib\n";
 	print "not ok 13 # skip bug in glib\n";
 	print "not ok 14 # skip bug in glib\n";
