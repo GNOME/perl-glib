@@ -346,8 +346,11 @@ gperl_new_object (GObject * object,
                  * This does not need to be a HV, the only problem is finding
                  * out what to use, and HV is certainly the way to go for any
                  * built-in objects.
+                 *
                  */
-                /* this increases the combined object's refcount. */
+
+                /* this virtually increases the combined object's refcount. the actual
+                 * increment is g_object_ref below. */
                 obj = (SV *)newHV ();
                 /* attach magic */
                 sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
@@ -359,7 +362,8 @@ gperl_new_object (GObject * object,
 
                 /* now create the initial reference, which we will attach */
                 /* this effectively decreases the combined refcount by one,
-                 * which cancels the increment done earlier by newHV(). */
+                 * which cancels the increment done earlier by newHV()/
+                 * g_object_ref. */
                 obj = newRV_noinc (obj);
 
                 /* bless into the package */
@@ -371,7 +375,7 @@ gperl_new_object (GObject * object,
                                          (gpointer)obj,
                                          (GDestroyNotify)gobject_destroy_wrapper);
 
-                /* call the class init function here, if applicable */
+                /* call the class INIT function here, if applicable */
 
                 /* the noinc above is actually the trick, as it leaves the
                  * attached object's refcount artificially one too low,
