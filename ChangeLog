@@ -1,3 +1,7 @@
+2003/07/06 16:48 muppetman
+
+	* GSignal.xs: add g_signal_stop_emission_by_name
+
 2003/07/05 06:37 pcg
 
 	* typemap: add gchar_own*, for functions that return allocated
