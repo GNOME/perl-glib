@@ -644,31 +644,54 @@ add_signals (GType instance_type, HV * signals)
 }
 
 static void
+add_properties (GType instance_type, HV * properties)
+{
+	GObjectClass *oclass;
+	HE * he;
+
+	oclass = g_type_class_ref (instance_type);
+
+	hv_iterinit (properties);
+	while (NULL != (he = hv_iternext (properties))) {
+		I32 keylen;
+		char * key = hv_iterkey (he, &keylen);
+		SV * value = hv_iterval (properties, he);
+		g_object_class_install_property (oclass, atoi (key),
+		                                 SvGParamSpec (value));
+	}
+
+	g_type_class_unref (oclass);
+}
+
+static void
 gperl_type_get_property (GObject * object,
                          guint property_id,
                          GValue * value,
                          GParamSpec * pspec)
 {
-	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
-/*
 	dSP;
+
+	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
 
 	ENTER;
 	SAVETMPS;
 
 	PUSHMARK (SP);
 
-	XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+	XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+	XPUSHs (sv_2mortal (newSVuv (property_id)));
+	XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
 
 	PUTBACK;
 
-	call_method ("GET_PROPERTY", G_VOID|G_DISCARD);
+	call_method ("GET_PROPERTY", G_SCALAR);
 
 	SPAGAIN;
 
+	gperl_value_from_sv (value, POPs);
+
 	FREETMPS;
 	LEAVE;
-*/
 }
 
 static void
@@ -677,16 +700,18 @@ gperl_type_set_property (GObject * object,
                          const GValue * value,
                          GParamSpec * pspec)
 {
-	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
-/*
 	dSP;
+	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
 
 	ENTER;
 	SAVETMPS;
 
 	PUSHMARK (SP);
 
-	XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+	XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+	XPUSHs (sv_2mortal (newSVuv (property_id)));
+	XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+	XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
 
 	PUTBACK;
 
@@ -696,7 +721,6 @@ gperl_type_set_property (GObject * object,
 
 	FREETMPS;
 	LEAVE;
-*/
 }
 
 static void
@@ -725,7 +749,11 @@ gperl_type_finalize (GObject * instance)
         }
 
         parent_class = g_type_class_peek_parent (G_OBJECT_GET_CLASS (instance));
-	parent_class->finalize (instance);
+	warn ("gperl_type_finalize %p ? %p parent_class->finalize", 
+	       gperl_type_finalize, parent_class->finalize);
+	if (parent_class->finalize != gperl_type_finalize)
+		parent_class->finalize (instance);
+
 }
 
 static void
@@ -743,6 +771,8 @@ gperl_type_instance_init (GObject * instance)
          * we don't want the object to go away with the temporary wrapper! */
         SV *obj = sv_2mortal (gperl_new_object (instance, FALSE));
         SV **init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
+
+	warn ("++++++++++ gperl_type_instance_init  %s (%p)\n", G_OBJECT_TYPE_NAME (instance), instance);
 
         /* does the function exist? then call it. */
         if (init && GvCV (*init)) {
@@ -814,18 +844,22 @@ g_type_register (class, parent_package, new_package, ...);
 			*s = '_';
 	new_type = g_type_register_static (parent_type, new_type_name, 
 	                                   &type_info, 0);
-	//warn ("registered %s, son of %s nee %s(%d), as %s(%d)",
-	//      new_package, parent_package,
-	//      g_type_name (parent_type), parent_type,
-	//      new_type_name, new_type);
+	warn ("registered %s, son of %s nee %s(%d), as %s(%d)",
+	      new_package, parent_package,
+	      g_type_name (parent_type), parent_type,
+	      new_type_name, new_type);
 	g_free (new_type_name);
 	/* and with the bindings */
 	gperl_register_object (new_type, new_package);
+
+	gperl_set_isa (new_package, "Glib::Object::Base");
 
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals"))
 			add_signals (new_type, (HV*)SvRV (ST (i+1)));
+		if (strEQ (key, "properties"))
+			add_properties (new_type, (HV*)SvRV (ST (i+1)));
 	}
 	//warn ("leaving g_type_register");
 
