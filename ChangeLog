@@ -1,3 +1,7 @@
+2004/05/31 21:05 (-0400) rwmcfa1
+
+	* GenPod.pm: add the type (flags|enum) back to the heading
+
 2004/05/31 23:10 (+0200) kaffeetisch
 
 	* GObject.xs (CLONE): Remove unused variable.

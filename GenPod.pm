@@ -569,14 +569,16 @@ sub podify_enums_and_flags
 		}
 	}
 
+	my $type;
 	my $ret = '';
 	foreach (sort keys %types)
 	{
-		if (UNIVERSAL::isa ($_, 'Glib::Flags') or
-		    UNIVERSAL::isa ($_, 'Glib::Enum') or 
+		$type = UNIVERSAL::isa ($_, 'Glib::Flags');
+		if ($type or UNIVERSAL::isa ($_, 'Glib::Enum') or 
 		    exists $info{$_})
 		{
-			$ret .= "=head2 $_\n\n";
+			$type = $type ? 'flags' : 'enum';
+			$ret .= "=head2 $type $_\n\n";
 			$ret .= join ("\n", @{$info{$_}{pod}}) . "\n\n"
 				if ($info{$_}{pod});
 			$ret .= podify_values ($_) . "\n";
