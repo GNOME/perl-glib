@@ -1,3 +1,10 @@
+2003/06/12 15:18 muppetman
+
+	* GClosure.xs: protect yourself from maniacal code that passes in
+	something to get a return value from closures/callbacks with no
+	return value.  this makes gperl_value_from_sv stop warning about
+	bad types on the activate signal for GtkEntry, for example.
+
 2003/06/11 09:25 muppetman
 
 	* GValue.xs: undef is also false; use SvTRUE instead of SvIV when
