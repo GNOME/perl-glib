@@ -2,7 +2,13 @@
 # $Header$
 #
 
-Revision history for Perl extension G.
+Revision history for Perl extension Glib.
+
+0.02  Sun May 18 12:20:27 EDT 2003
+	- renamed from G to Glib to be a good CPAN citizen.
+	- broke the gtk2-perl-xs tree from a monolithic build to a
+	  componentized build, so change log entries will be in ChangeLog
+	  in this directory from now on.
 
 0.01  Mon Mar 31 15:15:34 2003
 	- original version; created by h2xs 1.22 with options
