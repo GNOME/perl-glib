@@ -1,3 +1,7 @@
+2004/01/09 14:33 (-0500) rwmcfa1
+
+	* AUTHORS: mailing list addr correction.
+
 2004/01/08 21:22 (-0500) muppetman
 
 	* Glib.xs: bit the bullet and made filename_to_unicode and 
