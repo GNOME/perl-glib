@@ -1,3 +1,14 @@
+2003/10/27 02:42 muppetman
+
+	* Makefile.PL: manpages have the :: in the filename
+	* GParamSpec.xs, GLog.xs, GMainLoop.xs, GSignal.xs: added some apidoc;
+	register enums and flags as necessary; implement g_param_spec_enum and
+	g_param_spec_flags
+	* GenPod.pm: pod, cleanup, lots of things.  watch for 
+	=for (enums|flags) in package pod and podify their values.
+	change around how we print things to make them a little more
+	visually distinct.
+
 2003/10/26 21:31 rwmcfa1
 	
 	* GenPod.pm: put the pod files in blib using the fully correct paths 
