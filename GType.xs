@@ -637,6 +637,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 #else
 	PERL_UNUSED_VAR (marshal_data);
 #endif
+	PERL_UNUSED_VAR (closure);
 
 #ifdef NOISY
 	warn ("gperl_signal_class_closure_marshal");
@@ -674,7 +675,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		/* watch very carefully the reference counts on the scalar
 		 * object references, or else we can get indestructible
 		 * objects. */
-		EXTEND (SP, n_param_values);
+		EXTEND (SP, (int)n_param_values);
 		for (i = 0; i < n_param_values; i++)
 			PUSHs (sv_2mortal (gperl_sv_from_value
 						((GValue*) &param_values[i])));
@@ -1381,7 +1382,7 @@ remaining args on to C<register_enum> or C<register_flags>.  See those
 functions' documentation for more information.
 =cut
 void
-g_type_register (class, const char * parent_class, const char * new_class, ...)
+g_type_register (class, const char * parent_class, new_class, ...)
     PREINIT:
 	GType parent_type, base_type;
 	char * sym;
@@ -1547,7 +1548,7 @@ g_type_register_object (class, parent_package, new_package, ...);
 	GTypeInfo type_info;
 	GTypeQuery query;
 	GType parent_type, new_type;
-	char * new_type_name, * s;
+	char * new_type_name;
     CODE:
 	/* start with a clean slate */
 	memset (&type_info, 0, sizeof (GTypeInfo));
@@ -2087,8 +2088,12 @@ Now That" section of L<Glib> for more info.
 
 =cut
 
+=for apidoc
+=for arg b (SV*)
+=for arg swap (integer)
+=cut
 int
-bool (SV *a, SV *b, SV *swap)
+bool (SV *a, b, swap)
     PROTOTYPE: $;@
     CODE:
         RETVAL = !!gperl_convert_flags (
@@ -2100,8 +2105,12 @@ bool (SV *a, SV *b, SV *swap)
     OUTPUT:
         RETVAL
 
+=for apidoc
+=for arg b (SV*)
+=for arg swap (integer)
+=cut
 SV *
-as_arrayref (SV *a, SV *b, SV *swap)
+as_arrayref (SV *a, b, swap)
     PROTOTYPE: $;@
     CODE:
 {
@@ -2134,6 +2143,7 @@ eq (SV *a, SV *b, int swap)
         a_ = gperl_convert_flags (gtype, swap ? b : a);
         b_ = gperl_convert_flags (gtype, swap ? a : b);
 
+	RETVAL = FALSE;
         switch (ix) {
           case 0: RETVAL = a_ == b_; break;
           case 1: RETVAL = (a_ & b_) == b_; break;

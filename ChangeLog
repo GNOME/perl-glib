@@ -1,5 +1,9 @@
 2003/12/16 13:16 (-0500) rwmcfa1
 
+ 	* GType.xs: warnings fixes, minor (non-problem) bugs
+
+2003/12/16 13:16 (-0500) rwmcfa1
+
 	* MakeHelper.pm: the V deps have now been put under a var 
 	BLIB_MOD_EXISTS which is set to pm_to_blib now. (1 point of change if
 	need be in the future)
