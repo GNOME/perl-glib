@@ -104,7 +104,7 @@ const char * gperl_package_from_type (GType type);
  * in GObjects reliably.
  */
 #define GPERL_TYPE_SV	(gperl_sv_get_type ())
-GType gperl_sv_get_type (void); /* G_CONST_RETURN; */
+GType gperl_sv_get_type (void) G_GNUC_CONST;
 SV * gperl_sv_copy (SV * sv);
 void gperl_sv_free (SV * sv);
 
@@ -294,8 +294,8 @@ GParamFlags SvGParamFlags (SV * sv);
 	  : "NULL")
 #define GPERL_WRAPPER_VITALS(w)	\
 	((SvTRUE (w))					\
-	  ? (SvROK (w))					\
-	    (? form ("SvRV(%p)->%s(%p)[%d]", (w),	\
+	  ? ((SvROK (w))				\
+	    ? form ("SvRV(%p)->%s(%p)[%d]", (w),	\
 		     sv_reftype (SvRV (w), TRUE),	\
 		     SvRV (w), SvREFCNT (SvRV (w)))	\
 	     : "[not a reference!]")			\
