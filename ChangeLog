@@ -1,3 +1,7 @@
+2004/08/29 14:19 (-0400) muppetman
+
+	* README, NEWS, Glib.pm: unstable development release 1.055
+
 2004/08/27 17:44 (-0400) rwmcfa1
 
 	* GenPod.pm: kaffee was seeing include failures which resulted in the 
