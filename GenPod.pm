@@ -550,6 +550,25 @@ sub podify_methods
 	my $nused  = 0;
 	my $method;
 
+	# based on rm's initial thought and then code/ideas by Marc 'HE'
+	# Brockschmidt, and Peter Haworth
+	@$xsubs = sort { 
+		my ($at, $bt);
+		for ($at=$a->{symname}, $bt=$b->{symname})
+		{
+			# remove prefixes
+			s/^.+:://;
+			# new's goto the front
+			s/^new/\x00/;
+			# group set's/get'ss
+			s/^(get|set)_(.+)/$2_$1/;
+			# put \<set\>'s with \<get\>'s
+			s/^(get|set)$/get_$1/;
+		}
+		# now actually do the sorting compare
+		$at cmp $bt; 
+	} @$xsubs;
+
 	#$str .= "=over\n\n";
 	foreach (@$xsubs) {
 		# skip unless the method is avaiable
