@@ -358,6 +358,7 @@ our %basic_types = (
 	GParamFlags	=> 'Glib::ParamFlags',
 
 	GPerlFilename	=> 'localized file name',
+	GPerlFilename_const	=> 'localized file name',
 
 ## TODO/FIXME:
 	GtkTargetList   => 'Gtk2::TargetList',
