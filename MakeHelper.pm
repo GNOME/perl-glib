@@ -12,7 +12,14 @@ package MY;
 
 sub const_cccmd {
 	my $inherited = shift->SUPER::const_cccmd (@_);
-	$inherited .= ' -o $@';
+	use Config;
+	# a more sophisticated match may be necessary, but this works for me.
+	if ($Config{cc} eq "cl") {
+		warn "you are using MSVC... my condolences.\n";
+		$inherited .= ' /Fo$@';
+	} else {
+		$inherited .= ' -o $@';
+	}
 	$inherited;
 }
 

@@ -351,8 +351,6 @@ static SV *
 flags_as_arrayref (GType type,
 		   gint val)
 {
-	const char * package;
-	SV * rv;
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	AV * flags = newAV ();
 	while (vals && vals->value_nick && vals->value_name) {
@@ -1499,7 +1497,7 @@ list_signals (class, package)
 	gchar * package
     PREINIT:
 	int            i;
-	int            j;
+	guint          j;
 	int            num;
 	const char   * pkgname;
 	guint        * sigids;
