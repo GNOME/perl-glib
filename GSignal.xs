@@ -150,6 +150,13 @@ function.  That header, which is installed with the Glib module but not
 #included through gperl.h, includes commentary and examples which you
 should follow closely to avoid nasty bugs.  Use the Source, Luke.
 
+WARNING: Bend over backwards and turn your head around 720 degrees before
+attempting to write a GPerlClosure marshaller without using the macros in
+gperl_marshal.h.  If you absolutely cannot use those macros, be certain to
+understand what those macros do so you can get the semantics correct, and
+keep your code synchronized with them, or you may miss very important
+bugfixes.
+
 =cut
 static GHashTable * marshallers = NULL;
 G_LOCK_DEFINE_STATIC (marshallers);
