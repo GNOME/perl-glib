@@ -351,6 +351,20 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__MainLoop);
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
+	/* make sure that we're running/linked against a version at least as 
+	 * new as we built against, otherwise bad things will happen. */
+	if (!(GLIB_MAJOR_VERSION > (glib_major_version) ||
+			
+	      (GLIB_MAJOR_VERSION == (glib_major_version) && 
+	       GLIB_MINOR_VERSION > (glib_minor_version)) ||
+
+	      (GLIB_MAJOR_VERSION == (glib_major_version) && 
+	       GLIB_MINOR_VERSION == (glib_minor_version) &&
+	       GLIB_MICRO_VERSION >= (glib_micro_version))))
+		warn ("*** Glib has linked against C libraries older than what "
+		      "it was compiled against, we'll continue, but expect "
+		      "problems!\n");
+		/* TODO/FIXME: better msg */
 
 ##
 ## NOTE: in order to avoid overwriting the docs for the main Glib.pm, 
