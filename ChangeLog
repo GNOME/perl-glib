@@ -1,5 +1,9 @@
 2003/12/02 18:30 (-0500) muppetman
 
+	* t/b.t: inexplicitly missing a test
+
+2003/12/02 18:30 (-0500) muppetman
+
 	* GType.xs: base_init support for perl-derived GObjects.  during
 	class initialization, invoke the method INIT_BASE in the object's
 	package if it exists.  see http://lists.gnome.org/archives/gtk-\
