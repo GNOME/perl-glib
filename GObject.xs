@@ -752,7 +752,8 @@ _gperl_fetch_wrapper_key (GObject * object,
 	wrapper_hash = g_object_get_qdata (object, wrapper_quark);
 	svname = newSVpv (name, strlen (name));
 	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
-	                create);
+	                FALSE); /* never create on the first try; prefer
+	                         * prefer to create the second version. */
 	if (!svp) {
 		/* the key doesn't exist with that name.  do s/-/_/g and
 		 * try again. */
@@ -762,7 +763,7 @@ _gperl_fetch_wrapper_key (GObject * object,
 				*c = '_';
 		svp = hv_fetch (wrapper_hash,
 		                SvPV_nolen (svname), SvLEN (svname)-1,
-		                FALSE);
+		                create);
 	}
 	SvREFCNT_dec (svname);
 
