@@ -351,14 +351,11 @@ gperl_callback_invoke (GPerlCallback * callback,
                        ...)
 {
 	va_list var_args;
-	dSP;
+	dGPERL_CALLBACK_MARSHAL_SP;
 
 	g_return_if_fail (callback != NULL);
 
-#ifdef PERL_IMPLICIT_CONTEXT
-	PERL_SET_CONTEXT (callback->priv);
-	SPAGAIN;
-#endif
+	GPERL_CALLBACK_MARSHAL_INIT (callback);
 
 	ENTER;
 	SAVETMPS;
