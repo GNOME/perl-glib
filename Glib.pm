@@ -29,6 +29,26 @@ our @ISA = qw(DynaLoader);
 
 our $VERSION = '1.01';
 
+sub import {
+	my $class = shift;
+
+	for (my $i = 0 ; $i < @_ ; $i++) {
+		if ($_[$i] =~ /^-?(minversion|atleast)$/) {
+			$i++;
+			die "$class import arg $1 requires a version argument"
+				unless $i < @_;
+			my $minversion = $_[$i];
+			die "This $class is too old; $minversion requested,"
+			  . " but this is $VERSION\n"
+				if $VERSION < $minversion;
+		} else {
+			use Carp;
+			carp "$class\->import: unrecognized parameter"
+			   . " $_[$i] ignored";
+		}
+	}
+}
+
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
 bootstrap Glib $VERSION;
