@@ -4,6 +4,7 @@ Changes
 GBoxed.xs
 GClosure.xs
 GIOChannel.xs
+GLog.xs
 GMainLoop.xs
 GObject.xs
 GParamSpec.xs
