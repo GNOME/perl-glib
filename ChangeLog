@@ -6,6 +6,8 @@
         as long as one of the partners is alive. The only real changes are
         in gperl_new_object and in the DESTROY method.
         * gperl.h: fix some of the documentation to reflect the new model.
+        * Glib.pm: remove overloading, its hould be no longer necessary,
+        which should give a speed boost as objects are no longer AMAGIC.
 
 2003/06/20 11:29 muppetman
 

@@ -59,9 +59,7 @@ bootstrap Glib $VERSION;
 
 package Glib::Object;
 
-use overload
-	'==' => \&Glib::Object::eq,
-	fallback => 1;
+# default INIT / FINALIZE should go here.
 
 package Glib;
 
@@ -110,9 +108,6 @@ GObject-based libraries.  [FIXME link to a developer's doc]
 Other PMs installed with this module:
 
   Glib::PkgConfig - simple interface to pkg-config for developers
-  ExtUtils::Depends - Easily build XS extensions that depend
-                      on XS extensions
-
 
 This module is the basis for the Gtk2 module, so most of the references
 you'll be able to find about this one are tied to that one.  The perl

@@ -346,7 +346,6 @@ gperl_new_object (GObject * object,
                  * This does not need to be a HV, the only problem is finding
                  * out what to use, and HV is certainly the way to go for any
                  * built-in objects.
-                 *
                  */
 
                 /* this virtually increases the combined object's refcount. the actual
@@ -376,6 +375,9 @@ gperl_new_object (GObject * object,
                                          (GDestroyNotify)gobject_destroy_wrapper);
 
                 /* call the class INIT function here, if applicable */
+                /* this INIT would not be the normal instance-init, but
+                 * a way to initialize foreign objects. It might not be
+                 * useful at all. */
 
                 /* the noinc above is actually the trick, as it leaves the
                  * attached object's refcount artificially one too low,
@@ -599,18 +601,6 @@ g_object_list_properties (object)
 		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
 	}
 	g_free(props);
-
-gboolean
-g_object_eq (object1, object2, swap=FALSE)
-	GObject * object1
-	GObject * object2
-	IV swap
-    ###OVERLOAD: g_object_eq ==
-    CODE:
-	RETVAL = (object1 == object2);
-    OUTPUT: 
-	RETVAL
-
 
 ###
 ### rudimentary support for foreign objects.
