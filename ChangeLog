@@ -1,3 +1,9 @@
+2003/05/22 10:30 muppetman
+
+	* AUTHORS, LICENSE every other file: in every file in the project 
+	added a header pointing to the new AUTHORS and LICENSE files.
+	changed the license clause in the docs from "same as perl" to GPL.
+
 2003/05/18 14:00 muppetman
 
 	* ChangeLog: since breaking the monolithic build into pieces, 

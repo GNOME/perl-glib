@@ -1,4 +1,21 @@
 #
+# Copyright (c) 2003 by the gtk2-perl team (see the file AUTHORS)
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public
+# License along with this library; if not, write to the 
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
+# Boston, MA  02111-1307  USA.
+#
 # $Header$
 #
 
@@ -114,7 +131,7 @@ modules.  Archives and subscription information is available at
 http://lists.gnome.org/.
 
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 muppet, E<lt>scott at asofyet dot orgE<gt>, who borrowed heavily from the work
 of Göran Thyni, E<lt>gthyni at kirra dot netE<gt> and Guillaume Cottenceau
@@ -123,9 +140,10 @@ the sourcecode of the original gtk-perl and pygtk projects.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by muppet
+Copyright 2003 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+it under the terms of the Lesser General Public License (LGPL).  For 
+more information, see http://www.fsf.org/licenses/lgpl.txt
 
 =cut
