@@ -59,6 +59,9 @@ GIOCondition	T_G_TYPE_IO_CONDITION
 GMainContext*	T_G_MAIN_CONTEXT
 GMainLoop*	T_G_MAIN_LOOP
 
+GPerlFilename	T_GPERL_FILENAME
+GPerlFilename_own T_GPERL_FILENAME_OWN
+
 #####
 INPUT
 
@@ -101,6 +104,9 @@ T_G_MAIN_CONTEXT
 T_G_MAIN_LOOP
 	$var = ($type) SvIV (SvRV ($arg))
 
+T_GPERL_FILENAME
+	$var = ($type) gperl_filename_from_sv ($arg)
+
 ######
 OUTPUT
 
@@ -138,4 +144,11 @@ T_G_MAIN_CONTEXT
 T_G_MAIN_LOOP
 	sv_setref_pv ($arg, \"Glib::MainLoop\", $var);
 	g_main_loop_ref ($var);
+
+T_GPERL_FILENAME
+	sv_setsv ($arg, sv_2mortal (gperl_sv_from_filename ($var)));
+
+T_GPERL_FILENAME_OWN
+	sv_setsv ($arg, sv_2mortal (gperl_sv_from_filename ($var)));
+        g_free ($var);
 

@@ -5,8 +5,6 @@ version:      1.01
 version_from: Glib.pm
 installdirs:  site
 requires:
-    ExtUtils::Depends:             0.1
-    ExtUtils::PkgConfig:           1.00
 
 distribution_type: module
 generated_by: ExtUtils::MakeMaker version 6.16

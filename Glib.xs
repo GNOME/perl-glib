@@ -137,10 +137,60 @@ gperl_alloc_temp (int nbytes)
 {
 	dTHR;
 
-	SV * s = sv_2mortal (newSVpv ("", 0));
-	SvGROW (s, (unsigned)nbytes);
-	memset (SvPV (s, PL_na), 0, nbytes);
-	return SvPV (s, PL_na);
+	SV * s = sv_2mortal (NEWSV (0, nbytes));
+	memset (SvPVX (s), 0, nbytes);
+	return SvPVX (s);
+}
+
+=item gchar *gperl_filename_from_sv (SV *sv)
+
+Return a localized version of the filename in the sv, using
+g_filename_from_utf8 (and consequently this function might croak). The
+memory is allocated using gperl_alloc_temp.
+
+=cut
+gchar *
+gperl_filename_from_sv (SV *sv)
+{
+        dTHR;
+
+        GError *error = 0;
+        gchar *lname;
+        STRLEN len;
+        gchar *filename = SvPVutf8 (sv, len);
+
+        lname = g_filename_from_utf8 (filename, len, 0, 0, &error);
+        if (!lname)
+        	gperl_croak_gerror (filename, error);
+
+        len = strlen (lname);
+        filename = gperl_alloc_temp (len + 1);
+        memcpy (filename, lname, len);
+        g_free (lname);
+
+        return filename;
+}
+
+=item SV *gperl_sv_from_filename (const gchar *filename)
+
+Convert the filename into an utf8 string as used by gtk/glib and perl.
+
+=cut
+SV *
+gperl_sv_from_filename (const gchar *filename)
+{
+	GError *error = 0;
+        SV *sv;
+        gchar *str = g_filename_to_utf8 (filename, -1, 0, 0, &error);
+
+        if (!filename)
+        	gperl_croak_gerror (str, error);
+
+        sv = newSVpv (str, 0);
+        g_free (str);
+
+        SvUTF8_on (sv);
+        return sv;
 }
 
 =item gboolean gperl_str_eq (const char * a, const char * b);

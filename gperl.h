@@ -61,6 +61,8 @@ void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
 void gperl_croak_gerror (const char * prefix, GError * err);
 
 gpointer gperl_alloc_temp (int nbytes);
+gchar *gperl_filename_from_sv (SV *sv);
+SV *gperl_sv_from_filename (const gchar *filename);
 
 gboolean gperl_str_eq (const char * a, const char * b);
 guint    gperl_str_hash (gconstpointer key);
@@ -192,6 +194,8 @@ typedef gchar gchar_own;
 typedef gchar gchar_ornull;
 typedef GObject GObject_ornull;
 typedef GObject GObject_noinc;
+typedef gchar *GPerlFilename;
+typedef gchar *GPerlFilename_own;
 
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))

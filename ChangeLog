@@ -1,3 +1,8 @@
+2003/11/12 02:48 pcg
+
+        * gperl.h, Glib.xs, typemap: Implement GPerlFilename type and
+        gperl_filename_from_sv & gperl_sv_from_filename utility functions.
+
 2003/11/11 10:40 (-0500) rwmcfa1
 
 	* GClosure.xs, gperl_marshal.h: yeah, that wasn't the right way to
