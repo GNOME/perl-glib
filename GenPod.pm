@@ -928,7 +928,7 @@ sub preprocess_pod
 				else
 				{
 					carp "\n\nunable to open $2 for inclusion, at ".
-					     $_->{filename}.':'.$_->{line};
+					     $pod->{filename}.':'.$pod->{line};
 				}
 			}
 		}

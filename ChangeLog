@@ -1,3 +1,9 @@
+2004/08/27 17:44 (-0400) rwmcfa1
+
+	* GenPod.pm: kaffee was seeing include failures which resulted in the 
+	carp message comming out, but it was using $_ where it should of been
+	$pod which caused a second level of errors which were fatal. 
+
 2004/08/27 13:42 (-0400) rwmcfa1
 
 	* GenPod.pm: preprocess_pod wasn't being called on each pod section
