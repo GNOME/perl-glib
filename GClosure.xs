@@ -579,6 +579,7 @@ warn_of_ignored_exception (const char * message)
 	 */
 	ENTER;
 	SAVETMPS;
+	SAVESPTR (DEFSV);
 	sv_setsv (DEFSV, ERRSV);
 	eval_pv ("s/^/***   /mg", FALSE);
 	eval_pv ("s/\n$//s", FALSE);
