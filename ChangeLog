@@ -1,3 +1,7 @@
+2004/02/04 13:38 (-0500) rwmcfa1
+
+	* GObject.xs: fixed apidoc on ... param of Glib::Object->new
+
 2004/02/04 23:44 (-0500) muppetman
 
 	* GObject.xs, GValue.xs: perl's IV is supposed to be as big as a

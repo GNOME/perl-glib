@@ -799,7 +799,7 @@ DESTROY (SV *sv)
 
 =for signature object = $class->new (...)
 
-=for arg ... (key/value pairs) property values to set on creation
+=for arg ... of key/value pairs, property values to set on creation
 
 Instantiate a Glib::Object of type I<$class>.  Any key/value pairs in
 I<...> are used to set properties on the new object; see C<set>.
