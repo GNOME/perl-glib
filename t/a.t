@@ -2,10 +2,21 @@
 
 use strict;
 use warnings;
-use Test::More tests => 8;
-use Glib;
-
 use Data::Dumper;
+use Test::More;
+use Glib;
+use Config;
+
+if ($Config{archname} =~ m/^x86_64/) {
+	# there is a bug in glib which makes g_log print messages twice
+	# on 64-bit x86 platforms.  yosh has fixed this on the 2.2.x branch
+	# and on HEAD (should be in 2.4.0). 
+	# we don't have versioning API bound in this series, so we'll just
+	# have to bail out.
+	plan skip_all => "g_log doubles messages by accident on x86_64";
+} else {
+	plan tests => 8;
+}
 
 package Foo;
 

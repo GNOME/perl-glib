@@ -1,3 +1,10 @@
+2004/01/13 23:36 (-0500) muppetman
+
+	* GObject.xs, GType.xs, Glib.xs, typemap, AUTHORS: patch
+	from Jacek Konieczny fixes warnings on x86_64 platforms.
+
+	* 9.t, a.t: work around glib bugs on x86_64 platforms.
+
 2003/12/11 22:11 (-0500) muppetman
 
 	* Glib.pm, README, META.yml: stable release 1.020

@@ -326,7 +326,7 @@ gperl_object_set_no_warn_unreg_subclass (GType gtype,
 		nowarn_by_type = g_hash_table_new (g_direct_hash,
 		                                   g_direct_equal);
 	}
-	g_hash_table_insert (nowarn_by_type, (gpointer)gtype, (gpointer)nowarn);
+	g_hash_table_insert (nowarn_by_type, GINT_TO_POINTER(gtype), GINT_TO_POINTER(nowarn));
 
 	G_UNLOCK (nowarn_by_type);
 }
@@ -341,8 +341,9 @@ gperl_object_get_no_warn_unreg_subclass (GType gtype)
 	if (!nowarn_by_type)
 		result = FALSE;
 	else
-		result = (gboolean) g_hash_table_lookup (nowarn_by_type,
-		                                         (gpointer)gtype);
+		result = (gboolean) GPOINTER_TO_INT(
+				g_hash_table_lookup (nowarn_by_type,
+                                         GINT_TO_POINTER(gtype)));
 
 	G_UNLOCK (nowarn_by_type);
 
@@ -1067,7 +1068,7 @@ the pointer.
 =cut
 SV *
 new_from_pointer (class, pointer, noinc=FALSE)
-	guint32 pointer
+	gpointer pointer
 	gboolean noinc
     CODE:
 	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
@@ -1080,11 +1081,11 @@ new_from_pointer (class, pointer, noinc=FALSE)
 Complement of C<new_from_pointer>.
 
 =cut
-guint32
+gpointer
 get_pointer (object)
 	GObject * object
     CODE:
-	RETVAL = GPOINTER_TO_UINT (object);
+	RETVAL = object;
     OUTPUT:
 	RETVAL
 

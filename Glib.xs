@@ -182,7 +182,7 @@ gperl_sv_from_filename (const gchar *filename)
 {
 	GError *error = 0;
         SV *sv;
-	int len;
+	gssize len;
         gchar *str = g_filename_to_utf8 (filename, -1, NULL, &len, &error);
 
         if (!filename)

@@ -611,7 +611,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 	GSignalQuery query;
 	gchar * tmp;
 	SV * method_name;
-	guint i;
+	STRLEN i;
         HV *stash;
         SV **slot;
 	/* see GClosure.xs and gperl_marshal.h for an explanation.  we can't
