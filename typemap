@@ -31,6 +31,8 @@ gint32		T_IV
 guint32		T_UV
 gint64		T_IV
 guint64		T_UV
+gshort		T_SHORT
+gushort		T_U_SHORT
 glong		T_IV
 gulong		T_UV
 gunichar	T_GUNICHAR
