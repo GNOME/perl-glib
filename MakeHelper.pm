@@ -105,7 +105,7 @@ sub postamble_clean
 	shift; # package name
 "
 realclean ::
-	-\$(RM_RF) build perl-\$(DISTNAME).spec ".join(" ", @_)."
+	-\$(RM_RF) build blib_done perl-\$(DISTNAME).spec ".join(" ", @_)."
 ";
 }
 
@@ -129,7 +129,10 @@ sub postamble_docs
 	shift; # package name
 	my @xs_files = @_;
 "
-BLIB_DONE=linkext
+BLIB_DONE=blib_done
+
+blib_done : @xs_files
+	touch \$@
 
 # documentation stuff
 build/doc.pl :: Makefile @xs_files

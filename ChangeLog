@@ -1,3 +1,13 @@
+2004/01/21 20:56 (-0500) rwmcfa1
+
+	* MakeHelper.pm: yet another attempt at completely clearing up the 
+	issues with the -jx make option and not having the doc rebuild at every
+	single make invocation. uses blib_done file, which depends on all of
+	the @xs_files. hopefully this will do it, i'm about out of ideas. 
+	bascially MakeMaker sucks if you're tyring to do stuff this complicated
+	with it. with plain old make this wouldn't be an issue at all, but 
+	with the hooks we're given this is not going to be easy.
+
 2004/01/21 15:14 (-0500) muppetman
 
 	* ParseXSDoc.pm: allow space padding on either side of the arguments
