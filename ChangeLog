@@ -1,3 +1,7 @@
+2003/12/04 22:28 (-0500) muppetman
+
+	* Glib.pm, README: bump version to 1.014 for release
+
 2003/12/04 13:13 (-0500) rwmcfa1
 
 	* : Merged from HEAD
