@@ -1229,7 +1229,7 @@ with the GLib type system.
 
 Most of the rest of the functions provide introspection functionality, such as
 listing properties and values and other cool stuff that is used mainly by
-Glib's reference documentation generator (see L<Glib::GenDoc>).
+Glib's reference documentation generator (see L<Glib::GenPod>).
 
 =cut
 
@@ -1385,7 +1385,7 @@ inheritance, whereas Perl's @ISA allows multiple inheritance.
 This returns the package names of the ancestral types in reverse order, with
 the root of the tree at the end of the list.
 
-See also L<list_interfaces>.
+See also L<list_interfaces ()|list = Glib::Type-E<gt>list_interfaces ($package)>.
 
 =cut
 void

@@ -114,7 +114,7 @@ GBoxed types are opaque wrappers for C structures, providing copy and free
 functions, to allow the types to be used generically.  For the most part we can
 get away with using the typical scheme described above to provide an opaque
 object, but in some instances an opaque object is very alien in perl.  The
-L<GBoxed> section explains how we get around this.
+L<Glib::Boxed> section explains how we get around this.
 
 GObject, on the other hand, is a type-aware, reference-counted object with
 lifetime semantics that differ somewhat from perl SVs.  Thus we need something
@@ -313,8 +313,8 @@ gruntwork of using perl's call_sv to use a callback function directly.
 =head1 SEE ALSO
 
 perl(1), perlxs(1), perlguts(1), perlapi(1), perlxstut(1),
-ExtUtils::Depends(3pm),
-Glib(3pm), Glib::Subclass(3pm), Glib::PkgConfig(3pm), Glib::xsapi(3pm)
+L<ExtUtils::Depends>(3pm), L<ExtUtils::PkgConfig>(3pm)
+L<Glib>(3pm), L<Glib::Object::Subclass>(3pm), L<Glib::xsapi>(3pm)
 
 =head1 AUTHOR
 

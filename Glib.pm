@@ -403,7 +403,6 @@ reference documentation:
 This module serves as the foundation for any module which needs to bind
 GLib-based C libraries to perl.
 
-  Glib::PkgConfig - simple interface to pkg-config for developers
   Glib::devel - Binding developer's overview of Glib's internals
   Glib::xsapi - internal API reference for GPerl
   Glib::ParseXSDoc - extract API docs from xs sources.

@@ -22,6 +22,9 @@ our @EXPORT = qw(
 	podify_methods
 );
 
+our $COPYRIGHT = undef;
+our $AUTHORS = 'Gtk2-Perl Team';
+
 =head1 NAME
 
 Glib::GenPod - POD generation utilities for Glib-based modules
@@ -200,7 +203,8 @@ sub xsdoc2pod
 		print "=head1 DESCRIPTION\n\n".$pkgdata->{desc}."\n\n"
 			if (exists ($pkgdata->{desc}));
 		
-		$ret = podify_ancestors ($package);
+		my $parents;
+		($ret, $parents) = podify_ancestors ($package);
 		if ($ret)
 		{
 			print "=head1 HIERARCHY\n\n$ret";
@@ -257,6 +261,18 @@ sub xsdoc2pod
 			}
 		}
 
+		$ret = podify_see_alsos ($parents);
+		if ($ret)
+		{
+			print "\n=head1 SEE ALSO\n\n$ret";
+		}
+
+		$ret = get_copyright ();
+		if ($ret)
+		{
+			print "\n=head1 COPYRIGHT\n\n$ret";
+		}
+
 		print "\n=cut\n\n";
 
 		close POD;
@@ -271,7 +287,7 @@ sub xsdoc2pod
 			print join("\t", $_->{file},
 			                  $_->{name}, $_->{blurb}) . "\n";
 		}
-
+		
 		close INDEX;
 	}
 }
@@ -432,6 +448,8 @@ sub podify_ancestors {
 	eval { @anc = Glib::Type->list_ancestors (shift); 1; };
 	return undef unless (@anc or not $@);
 
+	my $parents = [ reverse @anc ];
+
 	my $depth = 0;
 	my $str = '  '.pop(@anc)."\n";
 	foreach (reverse @anc) {
@@ -440,7 +458,7 @@ sub podify_ancestors {
 	}
 	$str .= "\n";
 
-	$str
+	return ($str, $parents);
 }
 
 =item $string = podify_interfaces ($packagename)
@@ -520,6 +538,61 @@ library versions against which this module was compiled.
 	}
 			
 	$str;
+}
+
+=item $string = podify_see_alsos ($parents)
+
+Creates a list of links to be placed in the SEE ALSO section of the page.
+$parents should be a reference to an array of parents, as returned from
+podify_ancestors. Returns undef if no parents will be placed in the list.
+
+=cut
+
+sub podify_see_alsos
+{
+	my $parents = shift;
+	
+	# get rid of ourself
+	unshift (@$parents);
+	
+	# if there are no parents
+	return undef unless (scalar (@$parents));
+	
+	# create the see also list
+	'L<'.join ('>, L<', @$parents).">
+"
+}
+
+=item $string = get_copyright
+
+Returns a string that will/should be placed on each page. The package global
+variable COPYRIGHT can be used to override the text placed here. The package
+global variable AUTHORS should be set to the text to appear just after the year
+of the Copyright line, it defaults to Gtk2-Perl Team.
+
+=cut
+
+sub get_copyright
+{
+	return $COPYRIGHT || "
+  Copyright (C) 2003 $AUTHORS 
+  (see the file AUTHORS for the full list)
+
+  This library is free software; you can redistribute it and/or modify 
+  it under the terms of the GNU Library General Public License as 
+  published by the Free Software Foundation; either version 2.1 of the 
+  License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful, but 
+  WITHOUT ANY WARRANTY; without even the implied warranty of 
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public 
+  License along with this library; if not, write to the Free Software 
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
+  02111-1307  USA.
+"
 }
 
 =back

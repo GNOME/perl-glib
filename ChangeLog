@@ -1,3 +1,18 @@
+2003/11/25 11:39 (-0500) rwmcfa1
+	
+	* GType.xs, devel.pod:	link correction
+
+	* GenPod.pm: added parents return from list ancestors. use it for 
+	podify_see_alsos, which is new. and added get_copyright
+
+	* Glib.pm: removed reference to old Glib::PkgConfig
+
+	* MakeHelper.pm: added new DOC_PL_DEPENDS var, should prove useful 
+	for includes
+
+	* ParseXSDoc.pm: added include system =for include file, 
+	=for include !cmd
+
 2003/11/24 23:35 (-0500) rwmcfa1
 
 	* Makefile.PL, MakeHelper.pm: clean up and resolution of issues about
