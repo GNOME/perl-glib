@@ -1768,7 +1768,121 @@ package_from_cname (class, const char * cname)
     OUTPUT:
 	RETVAL
 
+=for apidoc
+=for arg name name of enum type being registered
+=for arg ... of enums or enum value pairs
+=for signature Glib::Type->register_enum ($name, $name1, [$name2 => $val2], $name3, ...)
+The values assocaited with the provided names use the following scheme. The
+first name will be assigned the value of 1, and subsequent names will be given
+2, 3, etc. This behavior can be overridden by specifying both a name and value
+in an array reference, [ $name, $value ]. No special checking for unique values
+is performed in this case, it is left up to the caller to insure there are no
+duplicate values.
+=cut
+void
+g_type_register_enum (class, name, ...)
+	const char * name
+    PREINIT:
+	int           i = 0;
+	SV         *  sv;
+	SV         ** av2sv;
+	GEnumValue *  values = NULL;
+    CODE:
+	fprintf (stderr, "Registering enum: %s with %d values\n", 
+		 name, items-2);
+	values = g_new0 (GEnumValue, items-1);
+	for (i = 0; i < items-2; i++)
+	{
+		sv = (SV*)ST (i+2);
+		/* default to the i based numbering */
+		values[i].value = i + 1;
+		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		{
+			/* [ name => value ] syntax */
+			AV * av = (AV*)SvRV(sv);
+			/* value_name */
+			av2sv = av_fetch (av, 0, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value_name = SvPV_nolen (*av2sv);
+			else
+				fprintf (stderr, "uh-oh\n");
+			/* custom value */
+			av2sv = av_fetch (av, 1, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value = SvIV (*av2sv);
 
+			/* just copy name into nick, they'll be the same */
+			values[i].value_nick = values[i].value_name;
+		}
+		else
+		{
+			/* name syntax */
+			values[i].value_name = SvPV_nolen (sv);
+			values[i].value_nick = values[i].value_name;
+		}
+		fprintf (stderr, "\titem(%d): %s\t%d\n", i, 
+				values[i].value_name, values[i].value);
+	}
+	g_enum_register_static (name, values);
+	/* can we/should we free values, what can be done, mem man in general */
+
+=for apidoc
+=for arg name name of enum type being registered
+=for arg ... of enums or enum value pairs
+=for signature Glib::Type->register_enum ($name, $name1, [$name2 => $val2], $name3, ...)
+The values assocaited with the provided names use the following scheme. The
+first name will be assigned the value of 1 << 0, and subsequent names will be
+given 1 << 1, 1 << 2, etc. This behavior can be overridden by specifying both a
+name and value in an array reference, [ $name, $value ]. No special checking
+for unique values is performed in this case, it is left up to the caller to
+insure there are no duplicate values.
+=cut
+void
+g_type_register_flags (class, name, ...)
+	const char * name
+    PREINIT:
+	int           i = 0;
+	SV         *  sv;
+	SV         ** av2sv;
+	GFlagsValue *  values = NULL;
+    CODE:
+	fprintf (stderr, "Registering flags: %s with %d values\n", 
+		 name, items-2);
+	values = g_new0 (GFlagsValue, items-1);
+	for (i = 0; i < items-2; i++)
+	{
+		sv = (SV*)ST (i+2);
+		/* default to the i based numbering */
+		values[i].value = 1 << i;
+		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		{
+			/* [ name => value ] syntax */
+			AV * av = (AV*)SvRV(sv);
+			/* value_name */
+			av2sv = av_fetch (av, 0, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value_name = SvPV_nolen (*av2sv);
+			else
+				fprintf (stderr, "uh-oh\n");
+			/* custom value */
+			av2sv = av_fetch (av, 1, 0);
+			if (av2sv && *av2sv && SvOK(*av2sv))
+				values[i].value = SvIV (*av2sv);
+
+			/* just copy name into nick, they'll be the same */
+			values[i].value_nick = values[i].value_name;
+		}
+		else
+		{
+			/* name syntax */
+			values[i].value_name = SvPV_nolen (sv);
+			values[i].value_nick = values[i].value_name;
+		}
+		fprintf (stderr, "\titem(%d): %s\t0x%08x\n", i, 
+				values[i].value_name, values[i].value);
+	}
+	g_flags_register_static (name, values);
+	/* can we/should we free values, what can be done, mem man in general */
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 

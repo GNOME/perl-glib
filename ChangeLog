@@ -1,3 +1,7 @@
+2003/12/08 22:44 (-0500) rwmcfa1
+
+	* GType.xs: implemented first pass at register_enum and register_flags
+
 2003/12/08 11:08 (-0500) muppetman
 
 	* GenPod.pm: add default translation for stdio FILE => "file handle"
