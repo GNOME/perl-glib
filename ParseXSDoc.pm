@@ -12,7 +12,7 @@ our @EXPORT = qw(
 	xsdocparse
 );
 
-our $VERSION = '1.00';
+our $VERSION = '1.001';
 
 =head1 NAME
 
@@ -341,7 +341,7 @@ sub swizzle_pods {
 		my $pods = $pkgdata->{pods};
 		for (my $i = @$pods-1 ; $i >= 0 ; $i--) {
 			my $firstline = $pods->[$i]{lines}[0];
-			next unless $firstline =~ /=for\s+apidoc\s+([:\w]+)\s*$/;
+			next unless $firstline =~ /=for\s+apidoc\s+([:\w]+)\s*/;
 			my $name = $1;
 			foreach my $xsub (@{ $pkgdata->{xsubs} }) {
 				if ($name eq $xsub->{symname}) {
@@ -357,7 +357,13 @@ sub swizzle_pods {
 
 =item $parser->hide_hidden
 
-Honior the C<__hide__> directive in C<=for apidoc> lines.
+Honor the C<__hide__> directive in C<=for apidoc> lines.
+
+We look for the string anywhere, but you'll typically have it at the
+end of the line, e.g.:
+
+  =for apidoc symname __hide__        for detached blocks
+  =for apidoc __hide__                for attached blocks
 
 =cut
 sub hide_hidden {
@@ -370,7 +376,7 @@ sub hide_hidden {
 			next unless $xsubs->[$i]{pod};
 			my $firstline = $xsubs->[$i]{pod}{lines}[0];
 			next unless $firstline =~ /\b__hide__\b/;
-			#warn "removing hidden $xsubs->[$i]{symname}\n";
+			warn "removing hidden $xsubs->[$i]{symname}\n";
 			splice @$xsubs, $i, 1;
 		}
 	}
@@ -476,6 +482,21 @@ $SIG{__WARN__} = sub {
 	my $args;
 
 	#warn Dumper(\@thisxsub);
+
+	# merge continuation lines.  xsubpp allows continuation lines in the
+	# xsub arguments list and barfs on them in other spots, but with xsubpp
+	# providing such validation, we'll just cheat and merge any that we find.
+	# this will bork the line counting logic we have below, but i don't see
+	# a fix for it without major tearup of the code here.
+	my @foo = @thisxsub;
+	@thisxsub = shift @foo;
+	while (my $s = shift @foo) {
+		if ($thisxsub[$#thisxsub] =~ s/\\$//) {
+			$thisxsub[$#thisxsub] .= $s;
+		} else {
+			push @thisxsub, $s;
+		}
+	}
 
 	if ($thisxsub[0] =~ /^([^(]+\s+\*?)\b([:\w]+)\s*\(\s*(.+)\s*\)\s*;?\s*$/) {
 		# all on one line
@@ -731,7 +752,7 @@ muppet E<lt>scott at asofyet dot orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003 by muppet
+Copyright (C) 2003, 2004 by muppet
 
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Library General Public License as published by the Free
