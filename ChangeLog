@@ -1,3 +1,14 @@
+2003/06/13 14:12 muppetman
+
+	* GObject.xs: rename Glib::Object->_new to Glib::Object->new -- it
+	should be that because people expect it.  other cleanup.  NOTE: we 
+	need to have object wrappers be able to override things like "take
+	ownership", "wrap", "unwrap", and "destroy"... as it is, if you
+	create a wrapper for a GtkObject from Glib::Object->new, the wrapper
+	will be created incorrectly (gtk_object_sink will not be called).
+	to do all of this correctly will also require wrapper caching, 
+	which i haven't made work reliably...  but i'm working on it now.
+
 2003/06/12 15:18 muppetman
 
 	* GClosure.xs: protect yourself from maniacal code that passes in
