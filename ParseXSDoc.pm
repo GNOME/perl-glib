@@ -14,6 +14,8 @@ our @EXPORT = qw(
 
 our $VERSION = '1.002';
 
+our $NOISY = $ENV{NOISYDOC};
+
 =head1 NAME
 
 Glib::ParseXSDoc - Parse POD and XSub declarations from XS files.
@@ -380,7 +382,8 @@ sub hide_hidden {
 			next unless $xsubs->[$i]{pod};
 			my $firstline = $xsubs->[$i]{pod}{lines}[0];
 			next unless $firstline =~ /\b__hide__\b/;
-			warn "removing hidden $xsubs->[$i]{symname}\n";
+			warn "removing hidden $xsubs->[$i]{symname}\n"
+				if $NOISY;
 			splice @$xsubs, $i, 1;
 		}
 	}
