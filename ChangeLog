@@ -1,3 +1,25 @@
+2003/11/08 01:03 (-0500) muppetman
+
+	* GClosure.xs: simplify, man...  both dSP and the PERL_UNUSED_VAR()
+	should've been outside the conditional.  this may need to be
+	macro-ified to prevent bugs in custom marshallers.
+
+	* Glib.xs, GType.xs, gperl.h: move private function streq_enum
+	to Glib.xs as new public function gperl_str_eq(), string compare that
+	considers dash and underscore equivalent.  add gperl_str_hash(), a
+	hashing function that considers dash and understore equivalent.
+
+	* Glib.exports: updated with new functions
+
+	* GSignal.xs: use custom hash and compare functions for the signal
+	marshallers hash.
+
+	* gperl.h: add prototypes for gperl_fundamental_type_from_package()
+	and gperl_fundamental_package_from_type().
+
+	* GObject.xs: remove unused var (which was shadowing an already-defined
+	var in the parent scope).
+
 2003/11/07 20:13 pcg
 
         * GType.xs: test SvPOK instead of SVt_PV, as many scalars
