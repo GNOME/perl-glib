@@ -1,3 +1,9 @@
+2003/11/02 11:54 muppetman
+
+	* GClosure.xs: the case of the missing ref; refcount bug in
+	gperl_closure_marshal kept complex objects from finalizing properly.
+	kudos and thanks to marc for finding and debugging this one.
+
 2003/11/02 16:55 muppetman
 
 	* ParseXSDoc.pm: match void\s* instead of just void when looking for

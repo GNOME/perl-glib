@@ -92,7 +92,7 @@ gperl_closure_marshal (GClosure * closure,
 	PUSHMARK (SP);
 
 	if (n_param_values == 0) {
-		data = pc->data;
+		data = SvREFCNT_inc (pc->data);
 	} else {
 		/*
 		 * complicateder and complicateder...
@@ -102,11 +102,11 @@ gperl_closure_marshal (GClosure * closure,
 		if (GPERL_CLOSURE_SWAP_DATA (pc)) {
 			/* swap instance and data */
 			data     = gperl_sv_from_value (param_values);
-			instance = pc->data;
+			instance = SvREFCNT_inc (pc->data);
 		} else {
 			/* normal */
 			instance = gperl_sv_from_value (param_values);
-			data     = pc->data;
+			data     = SvREFCNT_inc (pc->data);
 		}
 
 		/* of course, this can leave us with no instance.  :-/ */
@@ -114,7 +114,7 @@ gperl_closure_marshal (GClosure * closure,
 			instance = &PL_sv_undef;
 
 		/* the instance is always the first item in @_ */
-		XPUSHs (instance);
+		XPUSHs (sv_2mortal (instance));
 
 		/* the rest of the params should be quite straightforward. */
 		for (i = 1; i < n_param_values; i++) {
@@ -138,7 +138,7 @@ gperl_closure_marshal (GClosure * closure,
 		}
 	}
 	if (data)
-		XPUSHs (data);
+		XPUSHs (sv_2mortal (data));
 	PUTBACK;
 
 	flags = return_value ? G_SCALAR : G_DISCARD;
