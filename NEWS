@@ -1,3 +1,10 @@
+Overview of Changes in Glib 1.053
+=================================
+
+* Add char_own typedef and typemap.  [Torsten]
+* Add Glib::MakeHelper::select_files_by_version() and
+  Glib::MakeHelper::read_source_list_file() for use by Makefile.PLs. [Torsten]
+
 Overview of Changes in Glib 1.052
 =================================
 
