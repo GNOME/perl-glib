@@ -282,7 +282,7 @@ g_main_loop_new (class, context=NULL, is_running=FALSE)
     C_ARGS:
 	context, is_running
     CLEANUP:
-	g_main_loop_ref (RETVAL);
+	g_main_loop_unref (RETVAL);
 
 void
 DESTROY (mainloop)
