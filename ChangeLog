@@ -1,3 +1,7 @@
+2003/08/18 23:45 muppetman
+
+	* t/7.t: test out signal stuff on a subclassed object.
+
 2003/08/18 17:28 muppetman
 
 	* GSignal.xs: quiet down remember_closure and forget_closure, now
