@@ -27,15 +27,37 @@ use Exporter;
 require DynaLoader;
 our @ISA = qw(DynaLoader Exporter);
 
+use constant {
+	TRUE  => 1,
+	FALSE => !1, # can't use !TRUE at this point
+	G_PRIORITY_HIGH         => -100,
+	G_PRIORITY_DEFAULT      =>  0,
+	G_PRIORITY_HIGH_IDLE    =>  100,
+	G_PRIORITY_DEFAULT_IDLE =>  200,
+	G_PRIORITY_LOW	        =>  300,
+};
+
 # export nothing by default.
-# export functions by request.
-our @EXPORT_OK = qw(
-	filename_to_unicode
-	filename_from_unicode
-	filename_to_uri
-	filename_from_uri
+# export functions and constants by request.
+our %EXPORT_TAGS = (
+	constants => [qw/
+			TRUE
+			FALSE
+			G_PRIORITY_HIGH
+			G_PRIORITY_DEFAULT
+			G_PRIORITY_HIGH_IDLE
+			G_PRIORITY_DEFAULT_IDLE
+			G_PRIORITY_LOW
+			/],
+	functions => [qw/
+			filename_to_unicode
+			filename_from_unicode
+			filename_to_uri
+			filename_from_uri
+			/],
 );
-our %EXPORT_TAGS = ( all => [@EXPORT_OK] );
+our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
+$EXPORT_TAGS{all} = \@EXPORT_OK;
 
 our $VERSION = '1.030';
 
@@ -394,13 +416,29 @@ should register the log domains they wrap for this to happen fluidly.
 =head1 Exports
 
 For the most part, gtk2-perl avoids exporting things.  Nothing is exported by
-default, but some functions in Glib are available by request; you can also get
-all of them with the export tag "all".
+default, but some functions and constants in Glib are available by request;
+you can also get all of them with the export tag "all".
+
+=over
+
+=item Tag: constants
+
+  TRUE
+  FALSE
+  G_PRIORITY_HIGH
+  G_PRIORITY_DEFAULT
+  G_PRIORITY_HIGH_IDLE
+  G_PRIORITY_DEFAULT_IDLE
+  G_PRIORITY_LOW
+
+=item Tag: functions
 
   filename_from_unicode
   filename_to_unicode
   filename_from_uri
   filename_to_uri
+
+=back
 
 =head1 SEE ALSO
 
