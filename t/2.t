@@ -10,21 +10,37 @@ use warnings;
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
-use Test::More tests => 3;
+use Test::More tests => 9;
 BEGIN { use_ok('Glib') };
 
 #########################
 
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-
 my $obj = new Glib::Object "Glib::Object";
-ok(2);
+isa_ok ($obj, 'Glib::Object');
 
 undef $obj;
-ok(3);
+ok(1);
+
+
+# portability tests -- we should be able to pass pointers through UVs
+# with the get_data/set_data mechanism.  (gtk uses this in a few places.)
+# we also test the new_from_pointer and get_pointer methods, and ensure
+# that the magical hash wrappers work correctly, all in one convoluted
+# test.
+
+$obj = new Glib::Object;
+isa_ok ($obj, 'Glib::Object');
+my $obj2 = new Glib::Object;
+isa_ok ($obj, 'Glib::Object');
+$obj2->{key} = 'val';
+$obj->set_data (obj2 => $obj2->get_pointer);
+my $obj3_pointer = $obj->get_data ('obj2');
+ok ($obj3_pointer);
+my $obj3 = Glib::Object->new_from_pointer ($obj3_pointer);
+isa_ok ($obj3, 'Glib::Object');
+is ($obj3, $obj2);
+is ($obj3->{key}, $obj2->{key});
+
 
 __END__
 
