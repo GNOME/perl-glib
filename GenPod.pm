@@ -328,6 +328,7 @@ our %basic_types = (
 	string     => 'string',
 
 	# other C names which may sneak through
+	bool     => 'boolean', # C++ keyword, but provided by the perl api
 	boolean  => 'boolean',
 	int      => 'integer',
 	char     => 'integer',
@@ -356,6 +357,7 @@ our %basic_types = (
 	SV       => 'scalar',
 	UV       => 'unsigned',
 	IV       => 'integer',
+	CV       => 'subroutine',
 
 	gchar_length => 'string',
 
