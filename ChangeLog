@@ -1,3 +1,11 @@
+2004/03/04 09:52 (-0500) muppetman
+
+	* MakeHelper.pm: fix a bug in the MY::const_cccmd override which
+	rendered makefiles broken and useless when there were no C or XS
+	files to compile.
+
+	* Makefile.PL: install the MakeHelper manpage.
+
 2004/03/02 20:59 (-0500) rwmcfa1
 
 	* Glib.pm: alter the behavior of read only/write only tied properites.
