@@ -36,13 +36,17 @@ sub FINALIZE_INSTANCE {
    print "ok 5\n";
 }
 
+sub GET_PROPERTY {
+   77;
+}
+
 package main;
 
 {
    my $my = new MyClass;
    $my->set(some_string => "xyz");
    print $my->{some_string} eq "xyz" ? "" : "not ", "ok 3\n";
-   print $my->get("some_string") eq "xyz" ? "" : "not ", "ok 4\n";
+   print $my->get("some_string") == 77 ? "" : "not ", "ok 4\n";
 }
 
 print "ok 6\n";

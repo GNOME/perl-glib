@@ -1,3 +1,8 @@
+2003/06/27 00:28 pcg
+
+        * Subclass.pm: overwrite functions _after_ compilation, not
+        before, as to void "subroutine redefined" warnings.
+
 2003/06/26 18:51 pcg
 
         * GParamSpec.xs: replace dashes by underscores when returning pspec

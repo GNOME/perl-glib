@@ -186,11 +186,15 @@ sub import {
    my $signals    = $arg{signals}    || {};
    my $properties = $arg{properties} || [];
 
-   # "optionally" supply defaults
-   for (qw(new GET_PROPERTY SET_PROPERTY)) {
-      defined &{"$class\::$_"}
-         or *{"$class\::$_"} = \&$_;
-   }
+   # the init callback will be executed before the mode code is executed
+   my $init = sub {
+      # "optionally" supply defaults
+      for (qw(new GET_PROPERTY SET_PROPERTY)) {
+         defined &{"$class\::$_"}
+            or *{"$class\::$_"} = \&$_;
+      }
+   };
+   eval "package $class; INIT { &\$init }";
 
    Glib::Type->register(
       $superclass, $class,
