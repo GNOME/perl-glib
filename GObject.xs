@@ -27,6 +27,7 @@ typedef struct _SinkFunc  SinkFunc;
 struct _ClassInfo {
 	GType   gtype;
 	char  * package;
+        HV *	stash;
 };
 
 struct _SinkFunc {
@@ -42,6 +43,8 @@ static GHashTable * types_by_package = NULL;
 static GHashTable * nowarn_by_type = NULL;
 static GArray     * sink_funcs     = NULL;
 
+static GQuark wrapper_quark; /* this quark stores the object's wrapper sv */
+
 
 ClassInfo *
 class_info_new (GType gtype,
@@ -52,6 +55,12 @@ class_info_new (GType gtype,
 	class_info = g_new0 (ClassInfo, 1);
 	class_info->gtype = gtype;
 	class_info->package = g_strdup (package);
+        /* Taking a reference to the stash is not really correct,
+         * as the stash might be replaced, giving us the wrong stash.
+         * Fortunately doing this is not documented nor really supported,
+         * nor does perl cope with it gracefully. So this just shields us
+         * from segfaults. */
+        class_info->stash = (HV *)SvREFCNT_inc (gv_stashpv (package, 1));
 
 	return class_info;
 }
@@ -60,8 +69,8 @@ void
 class_info_destroy (ClassInfo * class_info)
 {
 	if (class_info) {
-		if (class_info->package)
-			g_free (class_info->package);
+                SvREFCNT_dec (class_info->stash);
+		g_free (class_info->package);
 		g_free (class_info);
 	}
 }
@@ -245,12 +254,34 @@ gperl_object_package_from_type (GType gtype)
 		ClassInfo * class_info;
 		class_info = (ClassInfo *) 
 			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+
 		if (class_info)
 			return class_info->package;
-		else
-			return NULL;
+                else
+                  	return NULL;
 	} else
 		croak ("internal problem: gperl_object_package_from_type "
+		       "called before any classes were registered");
+}
+
+/*
+ * get the stash corresponding to gtype; 
+ * returns NULL if gtype is not registered.
+ */
+HV *
+gperl_object_stash_from_type (GType gtype)
+{
+	if (types_by_type) {
+		ClassInfo * class_info;
+		class_info = (ClassInfo *) 
+			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+
+		if (class_info)
+			return class_info->stash;
+                else
+                  	return NULL;
+	} else
+		croak ("internal problem: gperl_object_stash_from_type "
 		       "called before any classes were registered");
 }
 
@@ -275,15 +306,31 @@ gperl_object_type_from_package (const char * package)
 }
 
 /*
+ * this function is called whenever the gobject gets destroyed. this only
+ * happens if the perl object is no longer referenced anywhere else, so
+ * put it to final rest here.
+ */
+static void
+gobject_destroy_wrapper (SV *obj)
+{
+	if (PL_in_clean_objs)
+        	return;
+
+        sv_unmagic (obj, PERL_MAGIC_ext);
+
+        /* we might want to optimize away the call to DESTROY here for non-perl classes. */
+        SvREFCNT_dec (obj);
+}
+
+/*
  * extensive commentary in gperl.h
  */
 SV *
 gperl_new_object (GObject * object,
                   gboolean own)
 {
-	SV * sv;
-	GType gtype;
-	const char * package;
+	SV *obj;
+	SV *sv;
 
 	/* take the easy way out if we can */
 	if (!object) {
@@ -294,41 +341,111 @@ gperl_new_object (GObject * object,
 	if (!G_IS_OBJECT (object))
 		croak ("object %p is not really a GObject", object);
 
-	/* create a new wrapper */
-	gtype = G_OBJECT_TYPE (object);
-	package = gperl_object_package_from_type (gtype);
-	if (!package) {
-		GType parent;
-		while (package == NULL) {
-			parent = g_type_parent (gtype);
-			package = gperl_object_package_from_type (parent);
-		}
-		if (!gperl_object_get_no_warn_unreg_subclass (parent))
-			warn ("GType '%s' is not registered with GPerl; representing this object as first known parent type '%s' instead",
-			      g_type_name (gtype),
-			      g_type_name (parent));
-	}
+        /* fetch existing wrapper_data */
+        obj = (SV *)g_object_get_qdata (object, wrapper_quark);
 
-	sv = newSV (0);		
-	sv_setref_pv (sv, package, object);
-	g_object_ref (object);
+        if (!obj) {
+                /* create the perl object */
+                GType gtype = G_OBJECT_TYPE (object);
+
+                HV *stash = gperl_object_stash_from_type (gtype);
+
+		/* there are many possible cases in which we may be asked to
+		 * create a wrapper for objects whose GTypes are not
+		 * registered with us; we need to find the first known class
+		 * and use that.  see the docs for
+		 * gperl_object_set_no_warn_unreg_subclass for more info. */
+                if (!stash) {
+			/* walk the anscestry to the first known GType.
+			 * since GObject is registered to Glib::Object,
+			 * this will always succeed. */
+			GType parent = gtype;
+			while (stash == NULL) {
+				parent = g_type_parent (parent);
+				stash = gperl_object_stash_from_type (parent);
+			}
+			if (!gperl_object_get_no_warn_unreg_subclass (parent))
+				warn ("GType '%s' is not registered with "
+				      "GPerl; representing this object as "
+				      "first known parent type '%s' instead",
+				      g_type_name (gtype),
+				      g_type_name (parent));
+		}
+
+                /*
+                 * Create the "object", a hash.
+                 *
+                 * This does not need to be a HV, the only problem is finding
+                 * out what to use, and HV is certainly the way to go for any
+                 * built-in objects.
+                 */
+
+                /* this increases the combined object's refcount. */
+                obj = (SV *)newHV ();
+                /* attach magic */
+                sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
+
+		/* this is the one refcount that represents all non-zero perl
+		 * refcounts.   it is just temporarily given to the gobject,
+		 * DESTROY takes it back again.  this effectively increases
+		 * the combined refcount by one. */
+                g_object_ref (object);
+
+                /* create the wrapper to return, the _noinc decreases the
+                 * combined refcount by one. */
+                sv = newRV_noinc (obj);
+
+                /* bless into the package */
+                sv_bless (sv, stash);
+
+                /* attach it to the gobject */
+                g_object_set_qdata_full (object,
+                                         wrapper_quark,
+                                         (gpointer)obj,
+                                         (GDestroyNotify)gobject_destroy_wrapper);
+
+                /* the noinc above is actually the trick, as it leaves the
+                 * attached object's refcount artificially one too low,
+                 * so DESTROY gets called when all handed-out refs are gone
+                 * and we still have the object attached. DESTROY will
+                 * then borrow the ref added by g_object_ref back, and
+                 * thus will eventually trigger gobject destruction, which
+                 * in turn will trigger perl wrapper destruction. */
+
+#ifdef NOISY
+		warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
+		      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
+		      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+		      sv);
+#endif
+        } else {
+                /* create the wrapper to return, increases the combined
+                 * refcount by one. */
+                sv = newRV_inc (obj);
+        }
+
 	if (own)
 		gperl_object_take_ownership (object);
+
+/*
 #ifdef NOISY
-	warn ("gperl_new_object (%p)[%d] => %s (%p)[%d]", 
-	      object, object->ref_count,
+	warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
+	      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
-	      sv, SvREFCNT (sv));
+	      sv);
 #endif
+*/
 	return sv;
 }
 
 GObject *
 gperl_get_object (SV * sv)
 {
-	if (!sv || !SvOK (sv) || sv == &PL_sv_undef || ! SvROK (sv))
+	MAGIC *mg;
+
+	if (!sv || !SvOK (sv) || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
 		return NULL;
-	return (GObject *) SvIV (SvRV (sv));
+	return (GObject *) mg->mg_ptr;
 }
 
 GObject *
@@ -355,31 +472,6 @@ gperl_object_check_type (SV * sv,
 
 
 
-/*
- * helper for list_properties
- *
- * this flags type isn't hasn't type information as the others, I
- * suppose this is because it's too low level 
- */
-static SV *
-newSVGParamFlags (GParamFlags flags)
-{
-	AV * flags_av = newAV ();
-	if ((flags & G_PARAM_READABLE) != 0)
-		av_push (flags_av, newSVpv ("readable", 0));
-	if ((flags & G_PARAM_WRITABLE) != 0)
-		av_push (flags_av, newSVpv ("writable", 0));
-	if ((flags & G_PARAM_CONSTRUCT) != 0)
-		av_push (flags_av, newSVpv ("construct", 0));
-	if ((flags & G_PARAM_CONSTRUCT_ONLY) != 0)
-		av_push (flags_av, newSVpv ("construct-only", 0));
-	if ((flags & G_PARAM_LAX_VALIDATION) != 0)
-		av_push (flags_av, newSVpv ("lax-validation", 0));
-	if ((flags & G_PARAM_PRIVATE) != 0)
-		av_push (flags_av, newSVpv ("private", 0));
-	return newRV_noinc ((SV*) flags_av);
-}
-
 /* helper for g_object_[gs]et_parameter */
 static void
 init_property_value (GObject * object, 
@@ -400,23 +492,37 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
 BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
+	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-object");
+
 
 void
-DESTROY (object)
-	GObject * object
+DESTROY (SV *sv)
     CODE:
-	//warn ("Glib::Object::DESTROY");
-	if (object) {
+	GObject *object = gperl_get_object (sv);
+
+        if (!object) /* Happens on object destruction. */
+                return;
 #ifdef NOISY
-		warn ("DESTROY on %s(0x%08p) [ref %d]", 
-		      G_OBJECT_TYPE_NAME (object),
-		      object,
-		      object->ref_count);
+        warn ("DESTROY (%p)[%d] => %s (%p)[%d]", 
+              object, object->ref_count,
+              gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+              sv, SvREFCNT (SvRV(sv)));
 #endif
-		g_object_unref (object);
-	} else {
-		warn ("Glib::Object::DESTROY called on NULL GObject");
-	}
+        /* gobject object still exists, so take back the refcount we lend it. */
+        /* this operation does NOT change the refcount of the combined object. */
+
+	if (PL_in_clean_objs) {
+                /* be careful during global destruction. basically,
+                 * don't bother, since refcounting is no longer meaningful. */
+                sv_unmagic (SvRV (sv), PERL_MAGIC_ext);
+
+                g_object_steal_qdata (object, wrapper_quark);
+        } else {
+                SvREFCNT_inc (SvRV (sv));
+        }
+        g_object_unref (object);
+
+
 
 void
 g_object_set_data (object, key, data)
@@ -514,18 +620,6 @@ g_object_list_properties (object)
 	}
 	g_free(props);
 
-gboolean
-g_object_eq (object1, object2, swap=FALSE)
-	GObject * object1
-	GObject * object2
-	IV swap
-    ###OVERLOAD: g_object_eq ==
-    CODE:
-	RETVAL = (object1 == object2);
-    OUTPUT: 
-	RETVAL
-
-
 ###
 ### rudimentary support for foreign objects.
 ###
@@ -553,9 +647,8 @@ get_pointer (object)
 	RETVAL
 
 SV *
-g_object_new (class, object_class, ...)
-	SV * class
-	const char * object_class
+g_object_new (class, ...)
+	const char *class
     PREINIT:
 	int n_params = 0;
 	GParameter * params = NULL;
@@ -563,32 +656,33 @@ g_object_new (class, object_class, ...)
 	GObject * object;
 	GObjectClass *oclass = NULL;
     CODE:
-	object_type = gperl_object_type_from_package (object_class);
+#define FIRST_ARG	1
+	object_type = gperl_object_type_from_package (class);
 	if (!object_type)
 		croak ("%s is not registered with gperl as an object type",
-		       object_class);
+		       class);
 	if (G_TYPE_IS_ABSTRACT (object_type))
 		croak ("cannot create instance of abstract (non-instantiatable)"
 		       " type `%s'", g_type_name (object_type));
-	if (items > 2) {
+	if (items > FIRST_ARG) {
 		int i;
 		if (NULL == (oclass = g_type_class_ref (object_type)))
 			croak ("could not get a reference to type class");
-		n_params = (items - 2) / 2;
+		n_params = (items - FIRST_ARG) / 2;
 		params = g_new0 (GParameter, n_params);
 		for (i = 0 ; i < n_params ; i++) {
-			const char * key = SvPV_nolen (ST (2+i*2+0));
+			const char * key = SvPV_nolen (ST (FIRST_ARG+i*2+0));
 			GParamSpec * pspec;
 			pspec = g_object_class_find_property (oclass, key);
 			if (!pspec) 
 				/* FIXME this bails out, but does not clean up 
 				 * properly. */
 				croak ("type %s does not support property %s, skipping",
-				       object_class, key);
+				       class, key);
 			g_value_init (&params[i].value,
 			              G_PARAM_SPEC_VALUE_TYPE (pspec));
 			if (!gperl_value_from_sv (&params[i].value, 
-			                          ST (2+i*2+1)))
+			                          ST (FIRST_ARG+i*2+1)))
 				/* FIXME and neither does this */
 				croak ("could not convert value for property %s",
 				       key);
@@ -599,7 +693,10 @@ g_object_new (class, object_class, ...)
 
 	object = g_object_newv (object_type, n_params, params);	
 
-	/* this wrapper *must* own this object! */
+	/* this wrapper *must* own this object!
+	 * because we've been through initialization, the perl object
+	 * will already exist at this point --- but this still causes
+	 * gperl_object_take_ownership to be called. */
 	RETVAL = gperl_new_object (object, TRUE);
 
     //cleanup: /* C label, not the XS keyword */
