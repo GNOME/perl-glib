@@ -1,3 +1,9 @@
+2003/06/09 13:49 muppetman
+
+	* gperl.h, typemap: corrected broken handling for GObject output
+	typemap; now uses SvGObject/newSVGObject-style macros and the
+	_ornull/_noinc variants that Gtk2 uses.
+
 2003/06/06 23:55 muppetman
 
 	* GObject.xs, GType.xs: copy scalars that will be stored, don't just

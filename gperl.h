@@ -380,6 +380,15 @@ GObject * gperl_get_object_check (SV * sv, GType gtype);
  */
 SV * gperl_object_check_type (SV * sv, GType gtype);
 
+/* typedefs and macros for use with the typemap */
+typedef GObject GObject_ornull;
+typedef GObject GObject_noinc;
+
+#define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
+#define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
+#define SvGObject(sv)		(gperl_get_object (sv))
+#define SvGObject_ornull(sv)	((sv && SvTRUE (sv)) ? SvGObject (sv) : NULL)
+
 
 /*
  * GSignal.xs
