@@ -74,6 +74,8 @@ GPerlArgv * gperl_argv_new ();
 void gperl_argv_update (GPerlArgv *pargv);
 void gperl_argv_free (GPerlArgv *pargv);
 
+char * gperl_format_variable_for_output (SV * sv);
+
 /* internal trickery */
 gpointer gperl_type_class (GType type);
 /*

@@ -155,9 +155,7 @@ gperl_value_from_sv (GValue * value,
 
 coerce whatever is in I<value> into a perl scalar and return it.
 
-Returns NULL if the code doesn't know how to perform the conversion.  FIXME
-this really ought to always succeed; a failed conversion should be considered a
-bug or unimplemented code!
+Croaks if the code doesn't know how to perform the conversion.
 
 =cut
 SV *

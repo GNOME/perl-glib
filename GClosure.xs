@@ -49,7 +49,7 @@ gperl_closure_invalidate (gpointer data,
 	PERL_UNUSED_VAR (data);
 	
 #ifdef NOISY
-	warn ("Invalidating closure for %s\n", pc->name);
+	warn ("Invalidating closure for %s\n", SvPV_nolen (pc->callback));
 #endif
 	if (pc->callback) {
 		SvREFCNT_dec (pc->callback);     

@@ -668,7 +668,10 @@ gperl_get_object_check (SV * sv,
 		croak ("INTERNAL: GType %s (%d) is not registered with GPerl!",
 		       g_type_name (gtype), gtype);
 	if (!sv || !SvROK (sv) || !sv_derived_from (sv, package))
-		croak ("variable is not of type %s", package);
+		croak ("%s is not of type %s",
+		       gperl_format_variable_for_output (sv),
+		       package);
+
 	return gperl_get_object (sv);
 }
 
