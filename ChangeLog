@@ -1,3 +1,9 @@
+2004/04/05 23:33 pcg
+
+	* Glib.xs: gperl_sv_from_filename didn't check the return status
+        of g_filename_to_utf8 properly, causing segfaults on invalid
+        filenames.
+
 2004/04/04 00:52 (-0500) muppetman
 
 	* Glib.xs: actually do work in filename_from_unicode().  thanks to
