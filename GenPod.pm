@@ -12,6 +12,7 @@ our $VERSION = '0.01';
 use Carp;
 use Glib;
 use Data::Dumper;
+use POSIX qw(strftime);
 
 use base Exporter;
 
@@ -28,6 +29,7 @@ our @EXPORT = qw(
 our $COPYRIGHT = undef;
 our $AUTHORS = 'Gtk2-Perl Team';
 our $MAIN_MOD = 'L<Gtk2>';
+our $YEAR = strftime "%Y", gmtime;
 
 =head1 NAME
 
@@ -92,6 +94,13 @@ This causes xsdoc2pod to call C<podify_values> on I<Package::Name> when
 writing the pod for the current package (as set by an object directive or
 MODULE line).  Any text in this paragraph, to the next C<=cut>, is included
 in that section.
+
+=item =for see_also L<some_thing_to_see>
+
+Used to add extra see alsos onto the end of the parents, if any, for a given
+object. Anything following the space behind see_also up to the end of the line
+will be placed onto the list of see also's. There may be any number of these in
+each package.
 
 =item =for apidoc
 
@@ -270,7 +279,7 @@ sub xsdoc2pod
 			}
 		}
 
-		$ret = podify_see_alsos ($parents);
+		$ret = podify_see_alsos ($parents, $pkgdata->{see_alsos});
 		if ($ret)
 		{
 			print "\n=head1 SEE ALSO\n\n$ret";
@@ -568,15 +577,16 @@ podify_ancestors. Returns undef if no parents will be placed in the list.
 sub podify_see_alsos
 {
 	my $parents = shift;
-	
+	my $alsos = shift;
+
 	# get rid of ourself
 	unshift (@$parents);
 	
 	# if there are no parents
-	return undef unless (scalar (@$parents));
+	return undef unless (scalar (@$parents) || scalar (@$alsos));
 	
 	# create the see also list
-	'L<'.join ('>, L<', @$parents).">
+	'L<'.join ('>, L<', @$parents, @$alsos).">
 "
 }
 
@@ -587,24 +597,30 @@ variable COPYRIGHT can be used to override the text placed here. The package
 global variable AUTHORS should be set to the text to appear just after the year
 of the Copyright line, it defaults to Gtk2-Perl Team. The package gloabal
 variable MAIN_MOD should be set to a pod link pointing towards the main file
-for a package in which the full copyright appears.
+for a package in which the full copyright appears. Finally the package global
+YEAR maybe set to the year to place in the copyright, default is to use current
+year.
 
 To set AUTHORS, COPYRIGHT, and/or MAIN_MOD do something similar to the
 following in the first part of your postamble section in Makefile.PL. All of
 the weird escaping is require because this is going through several levels of
-variable expansion.
+variable expansion. All occurances of <br> are replaced with newlines.
 
-  POD_SET=\\\$\$Glib::GenPod::AUTHORS='foobar';
+  POD_SET=\\\$\$Glib::GenPod::COPYRIGHT='Copyright 1999 team-foobar<br>LGPL';
 
 =cut
 
 sub get_copyright
 {
-	return $COPYRIGHT || "
-Copyright (C) 2003 $AUTHORS
+	my $str = $COPYRIGHT || "
+Copyright (C) $YEAR $AUTHORS
 
 This software is licensed under the LGPL; see $MAIN_MOD for a full notice.
-"
+";
+
+	# a way to make returns	
+	$str =~ s/<br>/\n/g;
+	return $str."\n";
 }
 
 sub preprocess_pod

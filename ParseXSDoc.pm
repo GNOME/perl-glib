@@ -286,6 +286,10 @@ sub parse_file {
 				};
 				# claim this pod now!
 				$lastpod = undef;
+			} elsif (/^=for\s+see_also\s+(.+)$/) {
+				push @{ $self->pkgdata->{see_alsos} }, $1;
+				# claim this pod now!
+				$lastpod = undef;
 			}
 			push @{ $self->pkgdata->{pods} }, $lastpod
 				if defined $lastpod;
