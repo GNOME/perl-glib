@@ -1,3 +1,13 @@
+2004/02/04 01:21 (-0500) muppetman
+
+	* GType.xs: call method _INSTALL_OVERRIDES on newly registered
+	Glib::Object subclasses, to allow the new types an opportunity to
+	install vfunc overrides.  This method will typically be provided
+	by the class which introduces the vfuncs, and will install
+	implementations which marshal to inheritable perl methods.
+	Do nothing if no such method can be found; not all classes have
+	pure vfuncs.
+
 2004/02/03 00:57 (-0500) muppetman
 
 	* GType.xs: remove debugging print

@@ -800,9 +800,6 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 
 	PUTBACK;
 
-/* warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
- * warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return)))); */
-
 	n = call_sv (callback->func, G_EVAL|G_ARRAY);
 
 	if (SvTRUE (ERRSV)) {
@@ -955,7 +952,6 @@ add_signals (GType instance_type, HV * signals)
 
 		/* the key is the signal name */
 		signal_name = hv_iterkey (he, &keylen);
-/*		warn ("\n#####\nsignal name: %s\n", signal_name); */
 		/* if the signal is defined at this point, we're going to
 		 * override the installed closure. */
 		signal_id = g_signal_lookup (signal_name, instance_type);
@@ -978,9 +974,6 @@ add_signals (GType instance_type, HV * signals)
 			s = parse_signal_hash (instance_type,
 			                       signal_name,
 			                       (HV*) SvRV (value));
-/*			warn ("\ncreating signal %s with accumulator %p and accu_data %p\n", signal_name, s->accumulator, s->accu_data);
- *			sv_setsv (DEFSV, newSVGSignalFlags (s->flags));
- *			eval_pv ("warn ('   flags ['.join (', ', @$_).\"]\n\")", 0); */
 			signal_id = g_signal_newv (signal_name,
 			                           instance_type,
 			                           s->flags,
@@ -1050,9 +1043,6 @@ gperl_type_get_property (GObject * object,
 
 	PERL_UNUSED_VAR (property_id);
 
-#ifdef NOISY
-	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
-#endif
         slot = hv_fetch (stash, "GET_PROPERTY", sizeof ("GET_PROPERTY") - 1, 0);
 
         /* does the function exist? then call it. */
@@ -1091,10 +1081,6 @@ gperl_type_set_property (GObject * object,
         assert (stash);
 
 	PERL_UNUSED_VAR (property_id);
-
-#ifdef NOISY
-	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
-#endif
 
         slot = hv_fetch (stash, "SET_PROPERTY", sizeof ("SET_PROPERTY") - 1, 0);
 
@@ -1231,6 +1217,31 @@ gperl_type_class_init (GObjectClass * class)
 	class->finalize     = gperl_type_finalize;
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
+
+	{
+	/* vfuncs cause a bit of a problem.  to have them overridden
+	 * automatically, we need to hook into a higher level in a rather
+	 * odd way.  so, we look for an optional inheritable method named
+	 * _INSTALL_OVERRIDES at this point.  typically, this would be
+	 * provided by a parent, and would install vfunc implementations
+	 * that marshal to perl code, so that the perl-implemented class
+	 * may simply override the ALL_CAPS_METHODS in order to implement
+	 * the vfuncs. */
+	HV * stash = gperl_object_stash_from_type (G_OBJECT_CLASS_TYPE (class));
+	GV * slot = gv_fetchmethod (stash, "_INSTALL_OVERRIDES");
+	if (slot && GvCV (slot)) {
+		dSP;
+		ENTER;
+		SAVETMPS;
+		PUSHMARK (SP);
+		PUSHs (sv_2mortal (newSVpv (gperl_object_package_from_type (G_OBJECT_CLASS_TYPE (class)), 0)));
+		PUTBACK;
+		call_sv ((SV*)GvCV (slot), G_VOID|G_DISCARD);
+		SPAGAIN;
+		FREETMPS;
+		LEAVE;
+	}
+	}
 }
 
 static void
