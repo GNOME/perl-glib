@@ -80,12 +80,14 @@ my $glib = ExtUtils::Depends->new ('Glib');
 %pm_files = (
      'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
      'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
+     'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
      'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
      'build/xsapi.pod' => '$(INST_LIBDIR)/Glib/xsapi.pod',
 );
 %pod_files = (
    'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
    'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
+   'GenPod.pm',      => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
    'build/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
 );
