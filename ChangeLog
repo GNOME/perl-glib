@@ -1,3 +1,9 @@
+2005/02/07 23:20 (-0500) muppetman
+
+	* GLog.xs: Call abort() rather than croak() on G_LOG_LEVEL_ERROR
+	messages.  croak()ing didn't do anything useful, and abort()ing
+	allows you to stop gdb on an error and get a backtrace.
+
 2005/02/04 22:36 (-0500) muppetman
 
 	* MakeHelper.pm: (select_files_by_version) do not escape . in glob

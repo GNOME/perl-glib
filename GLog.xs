@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the full
- * list)
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -127,10 +127,18 @@ gperl_log_handler (const gchar   *log_domain,
 	                    (in_recursion ? "(recursed) " : ""),
 	                    message);
 
+	warn (full_string);
+
+	/* the standard log handler calls abort() for G_LOG_LEVEL_ERROR
+	 * messages.  this is handy for being able to stop gdb on the
+	 * error and get a backtrace.  we originally mapped the error
+	 * level stuff to croak(), but this broke the ability to find
+	 * these errors in gdb, and didn't stop the script as expected
+	 * in the perl debugger.  so, let's preserve the GLib semantics. */
 	if (is_fatal)
-		croak (full_string);
-	else
-		warn (full_string);
+		/* XXX would be nice to get a perl backtrace here, but
+		 * XXX Carp::cluck() doesn't print anything useful here. */
+		abort ();
 }
 
 #define ALL_LOGS (G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION)
