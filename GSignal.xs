@@ -25,6 +25,8 @@
 
 =cut
 
+//#define NOISY
+
 #include "gperl.h"
 
 static GSList * closures = NULL;
@@ -33,15 +35,19 @@ static void
 forget_closure (SV * callback,
                 GPerlClosure * closure)
 {
+#ifdef NOISY
 	warn ("forget_closure %p / %p", callback, closure);
+#endif
 	closures = g_slist_remove (closures, closure);
 }
 
 static void
 remember_closure (GPerlClosure * closure)
 {
+#ifdef NOISY
 	warn ("remember_closure %p / %p", closure->callback, closure);
 	warn ("   callback %s\n", SvPV_nolen (closure->callback));
+#endif
 	closures = g_slist_prepend (closures, closure);
 	g_closure_add_invalidate_notifier ((GClosure *) closure,
 	                                   closure->callback,
