@@ -1,3 +1,7 @@
+2005/01/29 21:22 (-0500) muppetman
+
+	* ParseXSDoc.pm: better handling for xsubs with continuation lines.
+
 2005/01/29 13:45 (-0500) muppetman
 
 	* copyright.pod: update for the new year.

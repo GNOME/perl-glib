@@ -513,6 +513,7 @@ sub parse_xsub {
 	@thisxsub = shift @foo;
 	while (my $s = shift @foo) {
 		if ($thisxsub[$#thisxsub] =~ s/\\$//) {
+			chomp $thisxsub[$#thisxsub];
 			$thisxsub[$#thisxsub] .= $s;
 		} else {
 			push @thisxsub, $s;
