@@ -28,16 +28,16 @@ Glib::Object::Subclass - register a perl class as a gobjectclass
 =head1 SYNOPSIS
 
   use Glib::Object::Subclass
-     Glib::Object,        # parent class
-     signals    =>
-        {
+     Some::Base::Class::,   # parent class, derived from Glib::Object
+     signals => {
             something_changed => {
-               flags       => [qw(run-first)],
-               return_type => undef,
-               param_types => [],
+               class_closure => sub { do_something_fun () },
+               flags         => [qw(run-first)],
+               return_type   => undef,
+               param_types   => [],
             },
-
-        },
+            some_existing_signal => \&class_closure_override,
+     },
      properties => [
         Glib::ParamSpec->string (
            'some_string',
@@ -222,6 +222,108 @@ sub import {
 }
 
 1;
+
+=head1 PROPERTIES
+
+To create gobject properties, supply a list of Glib::ParamSpec objects as the
+value for the key 'properties'.  There are lots of different paramspec
+constructors, documented in the C API reference's Parameters and Values page.
+
+TODO:  put a list here with the proper perl syntax for each
+
+=head1 SIGNALS
+
+Creating new signals for your new object is easy.  Just provide a hash
+of signal names and signal descriptions under the key 'signals'.  Each
+signal description is also a hash, with a few expected keys.  All the 
+keys are allowed to default.
+
+=over
+
+=item flags => GSignalFlags
+
+If not present, assumed to be run-first
+
+=item param_types => reference to a list of package names
+
+If not present, assumed to be empty (no parameters)
+
+=item class_closure => reference to a subroutine to call as the class closure.
+
+may also be a string interpreted as the name of a subroutine to call, but you
+should be very very very careful about that.
+
+If not present, the library will attempt to call the method named
+"do_signal_name" for the signal "signal_name" (uses underscores).
+
+You'll want to be careful not to let this handler method be a publically
+callable method, or one that has the name name as something that emits the
+signal.  Due to the funky ways in which Glib is different from Perl, the
+class closures I<should not> inherit through normal perl inheritance.
+
+=item return_type => package name for return value.
+
+If undefined or not present, the signal expects no return value.  if defined,
+the signal is expected to return a value; flags must be set such that the
+signal does not run only first (at least use 'run-last').
+
+=item accumulator => signal return value accumulator
+
+quoting the Glib manual: "The signal accumulator is a special callback function
+that can be used to collect return values of the various callbacks that are
+called during a signal emission."
+
+If not specified, the default accumulator is used, and you just get the 
+return value of the last handler to run.
+
+Accumulators are not really documented very much in the C reference, and
+the perl interface here is slightly different, so here's an inordinate amount
+of detail for this arcane feature:
+
+The accumulator function is called for every handler.  It is given three
+arguments: the signal invocation hint as an anonymous hash (containing the
+signal name, notably); the current accumulated return value; and the value
+returned by the most recent handler.  The accumulator must return two values:
+a boolean value determining whether signal emission should continue (false
+stops the emission), and the new value for the accumulated return value.
+(This is different from the C version, which writes through the return_accu.)
+
+=back
+
+=head1 OVERRIDING BASE METHODS
+
+Glib pulls some fancy tricks with function pointers to implement methods
+in C.  This is not very language-binding-friendly, as you might guess.
+
+However, as described above, every signal allows a "class closure"; you
+may override thie class closure with your own function, and you can chain
+from the overridden method to the original.  This serves to implement
+virtual overrides for language bindings.
+
+So, to override a method, you supply a subroutine reference instead of a
+signal description hash as the value for the name of the existing signal
+in the "signals" hash described in the SIGNALs section.
+
+  # override some important widget methods:
+  use Glib::Object::Subclass
+        Gtk2::Widget::,
+	signals => {
+		expose_event => \&expose_event,
+		configure_event => \&configure_event,
+		button_press_event => \&button_press_event,
+		button_release_event => \&button_release_event,
+		motion_notify_event => \&motion_notify_event,
+		# note the choice of names here... see the discussion.
+		size_request => \&do_size_request,
+	}
+
+It's important to note that the handlers you supply for these are
+class-specific, and that normal perl method inheritance rules are not
+followed to invoke them from within the library.  However, perl code can
+still find them!  Therefore it's rather important that you choose your
+handlers' names carefully, avoiding any public interfaces that you might
+call from perl.  Case in point, since size_request is a widget method, i
+chose do_size_request as the override handler.
 
 =head1 SEE ALSO
 
