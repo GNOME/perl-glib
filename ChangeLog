@@ -8,6 +8,8 @@
 
 	* Glib.pm: changed version number
 
+	* README: updated
+
 2003/05/17 09:06 rwmcfa1
 
 	* Glade/*: first pass at GladeXML added

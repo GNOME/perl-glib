@@ -1,20 +1,28 @@
-#
 # $Header$
-#
 
-Glib version 0.01
+Glib version 0.20
 ==============
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This module provides perl access to Glib and GLib's GObject libraries.
+GLib is a portability and utility library; GObject provides a generic
+type system with inheritance and a powerful signal system.  Together
+these libraries are used as the foundation for many of the libraries
+that make up the Gnome environment, and are used in many unrelated
+projects.
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+This wrapper attempts to provide a perlish interface while remaining
+as true as possible to the underlying C API, so that any reference
+materials you can find on using GLib may still apply to using the
+libraries from perl.  Where GLib's functionality overlaps perl's,
+perl's is favored; for example, you will find perl lists and arrays in
+place of GSList or GList objects.  Some concepts have been eliminated;
+you need never worry about reference-counting on GObjects or GBoxed
+structures.  Other concepts have been converted to a perlish analogy;
+the GType id will never be seen in perl, as the package name serves
+that purpose.  [FIXME link to a document describing this stuff in detail.]
+
+This module also provides facilities for creating wrappers for other
+GObject-based libraries.  [FIXME link to a developer's doc]
 
 INSTALLATION
 
@@ -25,17 +33,44 @@ To install this module type the following:
    make test
    make install
 
+
+To avoid installing to a system directory, since this is a beta release,
+you can change the installation prefix at Makefile.PL time with
+
+   perl Makefile.PL PREFIX=/some/other/place
+
+This will install the module to the subdirectory lib/perl5 under the given
+prefix.  If this is not already in perl's include path, you'll need to tell
+perl how to get to this library directory so you can use it; there are three
+ways:
+
+  in your environment (the easiest):
+    PERL5LIB=/some/other/place/lib/perl5/site_perl:$PERL5LIB
+
+  on the perl command line:
+    perl -I /some/other/place/lib/perl5/site_perl yourscript
+
+  in the code of your perl script:
+    use lib '/some/other/place/lib/perl5/site_perl';
+  
+
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+In order to use perl bindings for glib, you must have glib 2.x and its
+prerequisites (pkg-config and a decent standard c library) installed.
+glib-2.x is available from http://www.gtk.org, http://www.gnome.org,
+and etc.
 
-  blah blah blah
+Glib uses unicode internally; therefore this module requires perl 5.8.0
+or newer.
+
 
 COPYRIGHT AND LICENCE
 
 Put the correct copyright and licence information here.
 
-Copyright (C) 2003 Scott Arrington
+Copyright (C) 2003 Scott Arrington, Ross McFarland, and several others
+gtk-perl-list@gnome.org
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
