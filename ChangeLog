@@ -1,3 +1,12 @@
+2003/09/01 19:52 muppetman
+
+	* Glib.pm: don't set dl_load_flags on darwin, it generates a warning.
+	also bump version so that cvs versions of Gtk2 which depend on 
+	T_GPERL_GENERIC_WRAPPER will force upgrades.
+
+	* typemap: use a new generic typemap for all the types which follow
+	the SvMyType/newSVMyType naming convention.
+
 2003/08/28 23:30 muppetman
 
 	* gperl.h, GClosure.xs, Glib.xs: merged changes from the exceptions
