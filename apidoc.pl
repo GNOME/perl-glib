@@ -2,10 +2,15 @@
 
 $header = shift @ARGV;
 $footer = shift @ARGV;
-@xsfiles = @ARGV;
+$data   = shift @ARGV;
 
 die "usage: $0 header footer xsfiles...\n"
-	unless @xsfiles;
+	unless $data;
+
+# load the data from xsdocparse...  predeclare its vars to keep perl
+# happy about "possible typo" warnings.
+our ($groups, $xspods, $data);
+require $data;
 
 $/ = undef;
 
@@ -14,7 +19,10 @@ $text = <IN>;
 close IN;
 print $text;
 
-system "podselect @xsfiles";
+# just dump all of the xs pods in the order we found them.
+foreach my $p (@{ $xspods }) {
+	print join("\n", @{ $p->{lines} })."\n\n";
+}
 
 open IN, $footer or die "can't open $footer: $!\n";
 $text = <IN>;

@@ -1215,6 +1215,74 @@ BOOT:
 	gperl_register_boxed (GPERL_TYPE_SV, "Glib::Scalar", NULL);
 
 
+=for apidoc
+
+=arg parent_package () name of the parent package, which must be a derivative of Glib::Object.
+
+=arg new_package usually __PACKAGE__.
+
+=for arg ... (list) key/value pairs controlling how the class is created.
+
+Register I<new_package> as an officially GLib-sanctioned derivative of
+I<parent_package>.  This automatically sets up an @ISA entry for you,
+and creates a new GObjectClass under the hood.
+
+The I<...> parameters are key/value pairs, currently supporting:
+
+=over
+
+=item signals => HASHREF
+
+The C<signals> key contains a hash, keyed by signal names, which describes
+how to set up the signals for I<new_package>.
+
+If the value is a code reference, the named signal must exist somewhere in
+I<parent_package> or its ancestry; the code reference will be used to 
+override the class closure for that signal.  This is the officially sanctioned
+way to override virtual methods on Glib::Objects.  The value may be a string
+rather than a code reference, in which case the sub with that name in 
+I<new_package> will be used.  (The function should not be inherited.)
+
+If the value is a hash reference, the key will be the name of a new signal
+created with the properties defined in the hash.  All of the properties
+are optional, with defaults provided:
+
+=over
+
+=item closure
+
+Use this code reference (or sub name) as the class closure (that is, the 
+default handler for the signal).  If not specified, "do_I<signal_name>",
+in the current package, is used.
+
+=item return_type
+
+Return type for the signal.  If not specified, then the signal has void return.
+
+=item param_types
+
+Reference to a list of parameter types (package names), I<omitting the instance
+and user data>.  Callbacks connected to this signal will receive the instance
+object as the first argument, followed by arguments with the types listed here,
+and finally by any user data that was supplied when the callback was connected.
+Not specifying this key is equivalent to supplying an empty list, which
+actually means instance and maybe data.
+
+=item flags
+
+Flags describing this signal's properties. FIXME finish this
+
+=back
+
+=item properties => ARRAYREF
+
+FIXME finish this
+
+=back
+
+FIXME finish this
+
+=cut
 void
 g_type_register (class, parent_package, new_package, ...);
 	char * parent_package
@@ -1281,6 +1349,19 @@ g_type_register (class, parent_package, new_package, ...);
                 }
 	}
 
+
+=for apidoc
+
+List the ancestry of I<package>, as seen by the GLib type system.  The
+important difference is that GLib's type system implements only single
+inheritance, whereas Perl's @ISA allows multiple inheritance.
+
+This returns the package names of the ancestral types in reverse order, with
+the root of the tree at the end of the list.
+
+See also L<list_interfaces>.
+
+=cut
 void
 list_ancestors (class, package)
 	gchar * package
@@ -1301,6 +1382,12 @@ list_ancestors (class, package)
 		parent_gtype = g_type_parent (parent_gtype);
 	}
 
+=for apidoc
+
+List the GInterfaces implemented by the type associated with I<package>.
+The interfaces are returned as package names.
+
+=cut
 void
 list_interfaces (class, package)
 	gchar * package
@@ -1320,6 +1407,49 @@ list_interfaces (class, package)
 			gperl_package_from_type (interfaces[i]), 0)));
 	}
 
+=for apidoc
+
+List the signals associated with I<package>.  This lists only the signals
+for I<package>, not any of its parents.  The signals are returned as a list
+of anonymous hashes which mirror the GSignalQuery structure defined in the
+C API reference.
+
+=over
+
+=item - signal_id
+
+Numeric id of a signal.  It's rare that you'll need this in Gtk2-Perl.
+
+=item - signal_name
+
+Name of the signal, such as what you'd pass to C<signal_connect>.
+
+=item - itype
+
+The I<i>nstance I<type> for which this signal is defined.
+
+=item - signal_flags
+
+GSignalFlags describing this signal.
+
+=item - return_type
+
+The return type expected from handlers for this signal.  If undef or not
+present, then no return is expected.  The type name is mapped to the 
+corresponding Perl package name if it is known, otherwise you get the
+raw C name straight from GLib.
+
+=item - param_types
+
+The types of the parameters passed to any callbacks connected to the emission
+of this signal.  The list does not include the instance, which is always
+first, and the user data from C<signal_connect>, which is always last (unless
+the signal was connected with "swap", which swaps the instance and the data,
+but you get the point).
+
+=back
+
+=cut
 void
 list_signals (class, package)
 	gchar * package
@@ -1421,3 +1551,27 @@ list_values (class, const char * package)
 		croak ("%s is neither enum nor flags type");
 	}
 
+
+=for apidoc
+
+Convert a C type name to the corresponding Perl package name.  If no package
+is registered to that type, returns I<cname>. 
+
+=cut
+const char *
+package_from_cname (class, const char * cname)
+    PREINIT:
+	GType gtype;
+    CODE:
+	gtype = g_type_from_name (cname);
+	if (!gtype) {
+		warn ("%s is not registered with the GLib type system",
+		      cname);
+		RETVAL = cname;
+	} else {
+		RETVAL = gperl_package_from_type (gtype);
+		if (!RETVAL)
+			RETVAL = cname;
+	}
+    OUTPUT:
+	RETVAL

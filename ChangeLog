@@ -1,3 +1,19 @@
+2003/10/24 17:18 muppetman
+
+	* xsdocparse.pl: new file.  program extracts pod and xsub signatures
+	from XS files and dumps a big honkin' data structure to stdout.
+	differentiates between the C section and the xsub section, and looks
+	for a new set of pod directives, e.g. =for apidoc and =for object.
+	this is destined to be the heart of the shiny new automatically
+	generated api reference documentation.  more on this later.
+
+	* apidoc.pl, Makefile.PL: use xsdocparse.pl instead of podselect
+	to extract pod used to build xsapi.pod.
+
+	* GType.xs: new function Glib::Type->package_from_cname() turns
+	a c type name into registered Perl package name, if found.
+	also added some =for apidoc pod to test out xsdocparse.pl.
+
 2003/10/23 16:04 rwmcfa1
 
 	* GType.xs: Glib::Type->list_ancestors, list_interfaces, and
