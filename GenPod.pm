@@ -621,7 +621,7 @@ sub podify_enums_and_flags
 =item $string = podify_pods ($pods, $position)
 
 Helper function to allow specific placement of generic pod within the auto
-generated pages. Pod sections starting out with =for posistion XXX, where XXX
+generated pages. Pod sections starting out with =for position XXX, where XXX
 is one of the following will be placed at a specified position. In the case of
 pod that is to be placed after a particular section that doesn't exist, that
 pod will be still be placed there.
