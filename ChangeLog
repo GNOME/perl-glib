@@ -9,8 +9,6 @@
 	* GenPod.pm: put an extra \n after each of the pods to keep pod stuff
 	happy
 
-	* fetch_faq.pl: inital import
-
 2003/12/03 23:38 (-0500) muppetman
 
 	* Glib.pm: credit where credit is due
