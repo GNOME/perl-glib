@@ -1,5 +1,12 @@
 2004/01/16 18:38 (-0500) rwmcfa1
 
+	* MakeHelper.pm: we need to create the directory in which index.pod will
+	be placed under certian circumstances. this doesn't affect any of 
+	Gtk2-Perl, but some modules (with certian structures) will cause 
+	problems that creating the directory if need be will address.
+
+2004/01/16 18:38 (-0500) rwmcfa1
+
 	* typemap: added types for gshort and gushort, patch by kaffee
 
 2004/01/16 11:09 (-0500) rwmcfa1

@@ -145,7 +145,10 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
-\$(INST_LIB)/\$(FULLEXT)/index.pod :: build/podindex
+\$(INST_LIB)/\$(FULLEXT) ::
+	mkdir -p \$(INST_LIB)/\$(FULLEXT)
+
+\$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT) build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	$^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
