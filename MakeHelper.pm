@@ -144,9 +144,6 @@ build/doc.pl :: Makefile @xs_files
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
 		-e 'xsdocparse (".join(", ",map {"\"$_\""} @xs_files).")' > \$@
 
-build/xsapi.pod :: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
-	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
-
 # passing all of these files through the single podindex file, which is 
 # created at the same time, prevents problems with -j4 where xsdoc2pod would 
 # have multiple instances

@@ -73,7 +73,7 @@ our %pod_files = (
    'ParseXSDoc.pm'   => '$(INST_MAN3DIR)/Glib::ParseXSDoc.$(MAN3EXT)',
    'GenPod.pm'       => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
-   'build/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
+   '$(INST_LIB)/$(FULLEXT)/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
    Glib::MakeHelper->do_pod_files (@xs_files),
 );
 
@@ -144,6 +144,10 @@ sub postamble
 build/doc.pl :: \$(INST_LIB)/Glib/ParseXSDoc.pm
 
 build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
+
+\$(INST_LIB)/\$(FULLEXT)/xsapi.pod :: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
+	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
+
 "
 	     . Glib::MakeHelper->postamble_clean ()
 	     . Glib::MakeHelper->postamble_docs (@main::xs_files)

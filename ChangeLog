@@ -1,3 +1,8 @@
+2003/11/24 23:35 (-0500) rwmcfa1
+
+	* Makefile.PL, MakeHelper.pm: clean up and resolution of issues about
+	xsapi.pod.
+
 2003/11/21 02:12 (-0500) muppetman
 
 	* Glib.pm, README: bump version to 1.012 and release.
