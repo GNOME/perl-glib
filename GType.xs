@@ -671,31 +671,38 @@ gperl_type_get_property (GObject * object,
                          GValue * value,
                          GParamSpec * pspec)
 {
-	dSP;
+        HV *stash = gperl_object_stash_from_type (pspec->owner_type);
+        SV **slot;
+        assert (stash);
 
 #ifdef NOISY
 	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
 #endif
+        slot = hv_fetch (stash, "GET_PROPERTY", sizeof ("GET_PROPERTY") - 1, 0);
 
-	ENTER;
-	SAVETMPS;
+        /* does the function exist? then call it. */
+        if (slot && GvCV (*slot)) {
+                  dSP;            
+                
+                  ENTER;                         
+                  SAVETMPS;
 
-	PUSHMARK (SP);
+                  PUSHMARK (SP);
+                  XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+                  XPUSHs (sv_2mortal (newSVuv (property_id))),
+                  XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+                  PUTBACK;
 
-	XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-	XPUSHs (sv_2mortal (newSVuv (property_id)));
-	XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+                  if (1 != call_sv ((SV *)GvCV (*slot), G_SCALAR))
+                          croak ("%s->GET_PROPERTY didn't return exactly one value", HvNAME (stash));
 
-	PUTBACK;
+                  SPAGAIN;
 
-	call_method ("GET_PROPERTY", G_SCALAR);
+                  gperl_value_from_sv (value, POPs);
 
-	SPAGAIN;
-
-	gperl_value_from_sv (value, POPs);
-
-	FREETMPS;
-	LEAVE;
+                  FREETMPS;
+                  LEAVE;
+        }
 }
 
 static void
@@ -704,73 +711,94 @@ gperl_type_set_property (GObject * object,
                          const GValue * value,
                          GParamSpec * pspec)
 {
-	dSP;
+        HV *stash = gperl_object_stash_from_type (pspec->owner_type);
+        SV **slot;
+        assert (stash);
 
 #ifdef NOISY
 	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
 #endif
 
-	ENTER;
-	SAVETMPS;
+        slot = hv_fetch (stash, "SET_PROPERTY", sizeof ("SET_PROPERTY") - 1, 0);
 
-	PUSHMARK (SP);
+        /* does the function exist? then call it. */
+        if (slot && GvCV (*slot)) {
+                  dSP;            
+                
+                  ENTER;                         
+                  SAVETMPS;
 
-	XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-	XPUSHs (sv_2mortal (newSVuv (property_id)));
-	XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
-	XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
+                  PUSHMARK (SP);
+                  XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+                  XPUSHs (sv_2mortal (newSVuv (property_id))),
+                  XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+                  XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
+                  PUTBACK;
 
-	PUTBACK;
+                  call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
 
-	call_method ("SET_PROPERTY", G_VOID|G_DISCARD);
-
-	SPAGAIN;
-
-	FREETMPS;
-	LEAVE;
+                  FREETMPS;
+                  LEAVE;
+        }
 }
 
 static void
 gperl_type_finalize (GObject * instance)
 {
-	GObjectClass *parent_class;
+	int do_nonperl = 1;
+	GObjectClass *class;
 
-        if (!PL_in_clean_objs) {
-                dSP;
+        /* BIG BUG:
+         * we walk down the class hierarchy and call all
+         * FINALIZE_INSTANCE functions for perl.
+         * We also call the first non-perl finalize function.
+         * This does NOT work when we have gobject -> perl -> non-perl -> perl.
+         * In this case we should probably remove the perl SV so that later
+         * invocations will not try to call into perl.
+          (i.e. check wrapper_sv, steal wrapper_sv, finalize)
+         */
 
-                instance->ref_count += 2; /* HACK: temporarily revive the object. */
+        class = G_OBJECT_GET_CLASS (instance);
 
-                ENTER;
-                SAVETMPS;
+        do {
+                /* call finalize for each perl class and the topmost non-perl class */
+        	if (class->finalize == gperl_type_finalize) {
+                        if (!PL_in_clean_objs) {
+                                HV *stash = gperl_object_stash_from_type (G_TYPE_FROM_CLASS (class));
+                                SV **slot = hv_fetch (stash, "FINALIZE_INSTANCE", sizeof ("FINALIZE_INSTANCE") - 1, 0);
 
-                PUSHMARK (SP);
-                XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
-                PUTBACK;
+                                instance->ref_count += 2; /* HACK: temporarily revive the object. */
 
-                call_method ("FINALIZE_INSTANCE", G_VOID|G_DISCARD);
+                                /* does the function exist? then call it. */
+                                if (slot && GvCV (*slot)) {
+                                          dSP;            
+                                        
+                                          ENTER;                         
+                                          SAVETMPS;
 
-                FREETMPS;
-                LEAVE;
+                                          PUSHMARK (SP);
+                                          XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+                                          PUTBACK;
 
-                instance->ref_count -= 2; /* HACK END */
-        }
+                                          call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
 
-        parent_class = g_type_class_peek_parent (G_OBJECT_GET_CLASS (instance));
+                                          FREETMPS;
+                                          LEAVE;
+                                }
+
+                                instance->ref_count -= 2; /* HACK END */
+                        }
+                } else if (do_nonperl) {
+                        class->finalize (instance);
+                        do_nonperl = 0;
+                }
+
+                class = g_type_class_peek_parent (class);
 #ifdef NOISY
-	warn ("gperl_type_finalize %p ? %p parent_class->finalize", 
-	       gperl_type_finalize, parent_class->finalize);
+                warn ("gperl_type_finalize %p ? %p parent_class->finalize", 
+                       gperl_type_finalize, parent_class->finalize);
 #endif
-	if (parent_class->finalize != gperl_type_finalize)
-		parent_class->finalize (instance);
-
-}
-
-static void
-gperl_type_class_init (GObjectClass * class)
-{
-	class->finalize     = gperl_type_finalize;
-	class->get_property = gperl_type_get_property;
-	class->set_property = gperl_type_set_property;
+        } while (class);
 }
 
 static void
@@ -783,40 +811,46 @@ gperl_type_instance_init (GObject * instance)
 	 * inside out, we will need to worry about making sure we get
 	 * blessed into the right class!
 	 */
-	GType gtype;
-	const char * package;
-        SV *obj, **init;
-
-	package = gperl_object_package_from_type (G_OBJECT_TYPE (instance));
-	g_assert (package != NULL);
-	obj = sv_2mortal (gperl_new_object (instance, FALSE));
-	sv_bless (obj, gv_stashpv (package, TRUE));
-
-	/* get the INIT_INSTANCE sub from this package. */
-	init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
+        SV *obj;
+        HV *stash = gperl_object_stash_from_type (G_OBJECT_TYPE (instance));
+        SV **slot;
+	g_assert (stash != NULL);
 
 #ifdef NOISY
 	warn ("++++++++++ gperl_type_instance_init  %s (%p) => %s\n", G_OBJECT_TYPE_NAME (instance), instance, SvPV_nolen (obj));
 #endif
 
+	obj = sv_2mortal (gperl_new_object (instance, FALSE));
+        /* we need to re-bless the wrapper because classes change
+         * during construction of an object. */
+	sv_bless (obj, stash);
+
+        slot = hv_fetch (stash, "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
+
         /* does the function exist? then call it. */
-        if (init && GvCV (*init)) {
-                dSP;
+        if (slot && GvCV (*slot)) {
+                  dSP;            
+                
+                  ENTER;                         
+                  SAVETMPS;
 
-                ENTER;
-                SAVETMPS;
+                  PUSHMARK (SP);
+                  XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+                  PUTBACK;
 
-                PUSHMARK (SP);
+                  call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
 
-                XPUSHs (obj);
-
-                PUTBACK;
-
-                call_sv ((SV *)GvCV (*init), G_VOID|G_DISCARD);
-
-                FREETMPS;
-                LEAVE;
+                  FREETMPS;
+                  LEAVE;
         }
+}
+
+static void
+gperl_type_class_init (GObjectClass * class)
+{
+	class->finalize     = gperl_type_finalize;
+	class->get_property = gperl_type_get_property;
+	class->set_property = gperl_type_set_property;
 }
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_

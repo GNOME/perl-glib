@@ -27,6 +27,7 @@ typedef struct _SinkFunc  SinkFunc;
 struct _ClassInfo {
 	GType   gtype;
 	char  * package;
+        HV *	stash;
 };
 
 struct _SinkFunc {
@@ -54,6 +55,12 @@ class_info_new (GType gtype,
 	class_info = g_new0 (ClassInfo, 1);
 	class_info->gtype = gtype;
 	class_info->package = g_strdup (package);
+        /* Taking a reference to the stash is not really correct,
+         * as the stash might be replaced, giving us the wrong stash.
+         * Fortunately doing this is not documented nor really supported,
+         * nor does perl cope with it gracefully. So this just shields us
+         * from segfaults. */
+        class_info->stash = (HV *)SvREFCNT_inc (gv_stashpv (package, 1));
 
 	return class_info;
 }
@@ -62,8 +69,8 @@ void
 class_info_destroy (ClassInfo * class_info)
 {
 	if (class_info) {
-		if (class_info->package)
-			g_free (class_info->package);
+                SvREFCNT_dec (class_info->stash);
+		g_free (class_info->package);
 		g_free (class_info);
 	}
 }
@@ -257,26 +264,25 @@ gperl_object_package_from_type (GType gtype)
 		       "called before any classes were registered");
 }
 
-const char *
-gperl_object_package_from_type_recursive (GType gtype)
+/*
+ * get the stash corresponding to gtype; 
+ * returns NULL if gtype is not registered.
+ */
+HV *
+gperl_object_stash_from_type (GType gtype)
 {
-        GType parent;
-        const char *package = gperl_object_package_from_type (gtype);
+	if (types_by_type) {
+		ClassInfo * class_info;
+		class_info = (ClassInfo *) 
+			g_hash_table_lookup (types_by_type, (gpointer)gtype);
 
-        if (!package) {
-                GType parent = gtype;
-        	do {
-                        parent = g_type_parent (gtype);
-                	package = gperl_object_package_from_type (parent);
-                } while (!package);
-
-                if (!gperl_object_get_no_warn_unreg_subclass (parent))
-                        warn ("GType '%s' is not registered with GPerl; representing this object as first known parent type '%s' instead",
-                              g_type_name (gtype),
-                              g_type_name (parent));
-        }
-
-        return package;
+		if (class_info)
+			return class_info->stash;
+                else
+                  	return NULL;
+	} else
+		croak ("internal problem: gperl_object_package_from_type "
+		       "called before any classes were registered");
 }
 
 /*
@@ -340,10 +346,14 @@ gperl_new_object (GObject * object,
 
         if (!obj) {
                 /* create the perl object */
-                const char *package;
                 GType gtype = G_OBJECT_TYPE (object);
+                HV *stash = gperl_object_stash_from_type (gtype);
 
-                package = gperl_object_package_from_type_recursive (gtype);
+                /* there was a recursive parent lookup here, which I
+                 * boldy dropped. Please yell at me if it was incorrect. pcg. */
+                if (!stash)
+                	croak ("INTERNAL: gtype '%s' is not registered with perl",
+                               g_type_name (gtype));
 
                 /*
                  * Create the "object", a hash.
@@ -367,7 +377,7 @@ gperl_new_object (GObject * object,
                 sv = newRV_noinc (obj);
 
                 /* bless into the package */
-                sv_bless (sv, gv_stashpv (package, 1));
+                sv_bless (sv, stash);
 
                 /* attach it to the gobject */
                 g_object_set_qdata_full (object,

@@ -188,7 +188,7 @@ gboolean gperl_value_from_sv (GValue * value, SV * sv);
  *    the conversion.  FIXME this really ought to always succeed; a failed
  *    conversion should be considered a bug or unimplemented code!
  */
-SV * gperl_sv_from_value (GValue * value);
+SV * gperl_sv_from_value (const GValue * value);
 
 /*
  * GBoxed
@@ -366,14 +366,7 @@ void gperl_object_set_no_warn_unreg_subclass (GType gtype, gboolean nowarn);
  *    has not been registered.
  */
 const char * gperl_object_package_from_type (GType gtype);
-/**
- * gperl_object_package_from_type_recursive:
- * @gtype: type to look up
- *
- * returns: same as gperl_object_package_from_type, but also looks into parent
- * types.
- */
-const char * gperl_object_package_from_type_recursive (GType gtype);
+HV * gperl_object_stash_from_type (GType gtype);
 /**
  * gperl_object_type_from_package:
  * @package: package name to look up
