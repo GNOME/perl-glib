@@ -295,19 +295,38 @@ sub postamble_docs_full {
 
 	#warn "docgen_code: $docgen_code\n";
 
-"
-
-# BLIB_DONE should be set to something we can depend on that will ensure that
-# we are safe to link against an up to date module out of blib. basically what
-# we need to wait on is the static/dynamic lib file to be created. the
-# following trick is intended to handle both of those cases without causing the
-# other to happen.
-BLIB_DONE=
+	# BLIB_DONE should be set to something we can depend on that will
+	# ensure that we are safe to link against an up to date module out
+	# of blib. basically what we need to wait on is the static/dynamic
+	# lib file to be created. the following trick is intended to handle
+	# both of those cases without causing the other to happen.
+	my $blib_done;
+	# this is very sloppy, because different makes have different
+	# conditional syntaxes.
+	use Config;
+	if ($Config{make} eq 'nmake') {
+		warn "loathe nmake.\n";
+		$blib_done = "
+!If \"\$(LINKTYPE)\" == \"dynamic\"
+BLIB_DONE=\$(INST_DYNAMIC)
+!ELSE
+BLIB_DONE=\$(INST_STATIC)
+!ENDIF
+";
+	} else {
+		# assuming GNU Make
+		$blib_done = "
 ifeq (\$(LINKTYPE), dynamic)
 	BLIB_DONE=\$(INST_DYNAMIC)
 else
 	BLIB_DONE=\$(INST_STATIC)
 endif
+";
+	}
+
+"
+BLIB_DONE=
+$blib_done
 
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
@@ -324,7 +343,7 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 		-e '$docgen_code'
 
 \$(INST_LIB)/\$(FULLEXT)/:
-	mkdir -p \$@
+	$^X -MExtUtils::Command -e mkpath $@
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
