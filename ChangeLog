@@ -1,3 +1,12 @@
+2003/06/28 03:16 pcg
+
+        * GObject.xs: important bugfix: the calls with own==FALSE in
+        GType.xs caused premature death of the perl wrapper. The fix is
+        incurs a slight performance hit, so only do it when own==TRUE, as
+        this should be the only case where it is ever required.
+
+        * t/5.t: test for this case.
+
 2003/06/27 17:00 muppetman
 
 	* GObject.xs: get_data and set_data work only with UVs now,
