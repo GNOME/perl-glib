@@ -131,7 +131,7 @@ gperl_closure_marshal (GClosure * closure,
 		XPUSHs (data);
 	PUTBACK;
 
-	if (return_value) {
+	if (return_value && G_VALUE_TYPE (return_value)) {
 		i = call_sv (pc->callback, G_SCALAR);
 
 		SPAGAIN;
@@ -373,7 +373,7 @@ gperl_callback_invoke (GPerlCallback * callback,
 #ifdef NOISY
 	warn ("/* invoke the callback */\n");
 #endif
-	if (return_value) {
+	if (return_value && G_VALUE_TYPE (return_value)) {
 		if (1 != call_sv (callback->func, G_SCALAR))
 			croak ("callback returned more than one value in "
 			       "scalar context --- something really bad "
