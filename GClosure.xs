@@ -72,19 +72,15 @@ gperl_closure_marshal (GClosure * closure,
 	GPerlClosure *pc = (GPerlClosure *)closure;
 	SV * data;
 	SV * instance;
-#ifndef PERL_IMPLICIT_CONTEXT
 	dSP;
-#else
-	SV **SP;
-
-	PERL_UNUSED_VAR (invocation_hint);
-
+#ifdef PERL_IMPLICIT_CONTEXT
 	/* make sure we're executed by the same interpreter that created
 	 * the closure object. */
 	PERL_SET_CONTEXT (marshal_data);
-
 	SPAGAIN;
 #endif
+
+	PERL_UNUSED_VAR (invocation_hint);
 
 	ENTER;
 	SAVETMPS;
@@ -390,11 +386,8 @@ gperl_callback_invoke (GPerlCallback * callback,
                        ...)
 {
 	va_list var_args;
-#ifndef PERL_IMPLICIT_CONTEXT
 	dSP;
-	g_return_if_fail (callback != NULL);
-#else
-	SV ** SP;
+#ifdef PERL_IMPLICIT_CONTEXT
 	g_return_if_fail (callback != NULL);
 	PERL_SET_CONTEXT (callback->priv);
 	SPAGAIN;
