@@ -2,6 +2,7 @@
 
         * GParamSpec.xs: replace dashes by underscores when returning pspec
         names.
+
         * t/4.t, t/5.t: new testcases.
 
 2003/06/26 13:00 muppetman
@@ -12,13 +13,19 @@
 2003/06/26 17:05 pcg
 
         * META.yml: Add module meta-data in YAML for CPAN.
+
         * Glib.pm: podify and clean up docs.
+
         * README.api-changes: added, please add any observations
         on suboptimal API translations here.
+
         * GObject.xs: add gperl_object_package_from_type_recursive.
+
 	* gperl.h: make gperl_sv_from_value arg const.
+
         * GType.xs: implement standard class "methods" as functions.
         Implement properties using an array, not a hash.
+
         * Subclass.pm: new file, still under construction.
 
 2003/06/24 23:16 muppetman
@@ -43,14 +50,19 @@
         hash) for any gobject. The combined perl+gobject will stay alive
         as long as one of the partners is alive. The only real changes are
         in gperl_new_object and in the DESTROY method.
+
         * gperl.h: fix some of the documentation to reflect the new model.
+
         * Glib.pm: remove overloading, it should no longer be necessary,
         which should give a speed boost as objects are no longer AMAGIC.
+
         * GObject.xs: remove unused class argument from ->new to make it
         usable as a proper base class.
+
         * GType.xs: rename INSTANCE_INIT to INIT_INSTANCE and make it a
         function call as opposed to a method call. Also call FINALIZE_INSTANCE
         on object finalization time.
+
         * t/3.t: simple creation/destruction test.
 
 2003/06/20 11:29 muppetman
