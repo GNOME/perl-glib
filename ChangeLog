@@ -1,3 +1,8 @@
+2004/10/14 15:27 (-0400) muppetman
+
+	* Makefile.PL: use PREREQ_PM in both WriteMakefile calls, so META.yml
+	gets created properly.
+
 2004/09/27 09:35 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: stable release 1.061

@@ -15,6 +15,10 @@ our %build_reqs = (
 	'perl-ExtUtils-PkgConfig' => '1.00',
 	'Glib'                    => '2.0.0',
 );
+our %PREREQ_PM = (
+	'ExtUtils::Depends'   => $build_reqs{'perl-ExtUtils-Depends'},
+	'ExtUtils::PkgConfig' => $build_reqs{'perl-ExtUtils-PkgConfig'},
+);
 
 # Writing a fake Makefile ensures that CPAN will pick up the correct
 # dependencies and install them.
@@ -25,10 +29,7 @@ unless (eval "use ExtUtils::Depends '$build_reqs{'perl-ExtUtils-Depends'}';"
    WriteMakefile(
          NAME         => 'Glib',
          PREREQ_FATAL => 1,
-         PREREQ_PM    => {
-            'ExtUtils::Depends'   => $build_reqs{'perl-ExtUtils-Depends'},
-            'ExtUtils::PkgConfig' => $build_reqs{'perl-ExtUtils-PkgConfig'},
-         },
+	 PREREQ_PM    => \%PREREQ_PM,
    );
    exit 1; # not reached
 }
@@ -119,6 +120,7 @@ WriteMakefile(
     NAME		=> 'Glib',
     VERSION_FROM	=> 'Glib.pm', # finds $VERSION
     ABSTRACT_FROM	=> 'Glib.pm', # retrieve abstract from module
+    PREREQ_PM		=> \%PREREQ_PM,
     XSPROTOARG		=> '-noprototypes',
     MAN3PODS		=> $glib ? \%pod_files : {},
     FUNCLIST		=> \@exports,
