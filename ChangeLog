@@ -1,3 +1,17 @@
+2004/02/04 23:44 (-0500) muppetman
+
+	* GObject.xs, GValue.xs: perl's IV is supposed to be as big as a
+	pointer, so we can't use glib's GINT_TO_POINTER family of casts,
+	because they'll truncate the IV on a 64-bit platform.  use the
+	INT2PTR family of macros from the Perl api.  this is important for
+	G_TYPE_POINTER GValues and g_object_[sg]et_data, for which we use
+	IVs to represent the pointer values.
+
+	* t/2.t: add some tests to ensure that we're handling int <=> pointer
+	conversions correctly, and that we can store pointers in object data.
+	as a side-effect, the test verifies that our unique hash wrappers work
+	correctly, as well.
+
 2004/02/04 19:09 (-0500) rwmcfa1
 
 	* Glib.xs: implemented linked version checking in BOOT section
