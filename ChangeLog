@@ -5,6 +5,8 @@
 	Subclass.pm, gperl.h, typemap: update copyright notices; add 2004 to
 	the stuff that has been modified this year.
 
+	* GenPod.pm: add time_t to %basic_types.
+
 2004/02/12 19:00 (-0500) muppetman
 
 	* Glib.pm, Makefile.PL, README, NEWS: unstable release 1.035
