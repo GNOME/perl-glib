@@ -42,7 +42,6 @@ gperl_value_from_sv (GValue * value,
     			g_value_set_object(value, gperl_get_object(sv));
 			break;
 		case G_TYPE_CHAR:
-			//if ((tmp = SvPV_nolen(sv)))
 			if ((tmp = SvGChar(sv)))
 				g_value_set_char(value, tmp[0]);
 			else
@@ -170,7 +169,6 @@ gperl_sv_from_value (GValue * value)
 			 * rather than inside blessed wrappers. */
 			if (G_VALUE_HOLDS (value, GPERL_TYPE_SV)) {
 				SV * sv = g_value_get_boxed (value);
-				//return sv ? sv : &PL_sv_undef;
 				return sv ? g_value_dup_boxed (value)
 				          : &PL_sv_undef;
 			}
@@ -200,3 +198,5 @@ gperl_sv_from_value (GValue * value)
 	return NULL;
 }
 
+/* apparently this line is required by ExtUtils::ParseXS, but not by xsubpp. */
+MODULE = Glib::Value    PACKAGE = Glib::Value   PREFIX = g_value_
