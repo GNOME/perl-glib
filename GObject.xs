@@ -287,7 +287,7 @@ gobject_destroy_wrapper (SV *obj)
 	if (PL_in_clean_objs)
         	return;
 
-        sv_unmagic (SvRV (obj), PERL_MAGIC_ext);
+        sv_unmagic (obj, PERL_MAGIC_ext);
 
         /* we might want to optimize away the call to DESTROY here for non-perl classes. */
         SvREFCNT_dec (obj);
@@ -318,7 +318,6 @@ gperl_new_object (GObject * object,
         if (!obj) {
                 /* create the perl object */
                 MAGIC *magic;
-                HV *stash;
                 const char *package;
                 gpointer *old_dispose;
                 GType gtype = G_OBJECT_TYPE (object);
@@ -355,14 +354,11 @@ gperl_new_object (GObject * object,
                 /* this effectively increases the combined refcount by one. */
                 g_object_ref (object);
 
-                /* now create the initial reference, which we will attach */
-                /* this effectively decreases the combined refcount by one,
-                 * which cancels the increment done earlier by newHV()/
-                 * g_object_ref. */
-                obj = newRV_noinc (obj);
+                /* create the wrapper to return, the _noinc decreases the combined refcount by one. */
+                sv = newRV_noinc (obj);
 
                 /* bless into the package */
-                sv_bless (obj, gv_stashpv (package, 1));
+                sv_bless (sv, gv_stashpv (package, 1));
 
                 /* attach it to the gobject */
                 g_object_set_qdata_full (object,
@@ -378,15 +374,9 @@ gperl_new_object (GObject * object,
                  * thus will eventually trigger gobject destruction, which
                  * in turn will trigger perl wrapper destruction. */
 
-                /* create the wrapper to return, increases the combined refcount by one. */
-                sv = newSVsv (obj);
-
-                /* and decrease it again, so we effectively increased it by one in this block. */
-                SvREFCNT_dec (SvRV (obj));
-
         } else {
                 /* create the wrapper to return, increases the combined refcount by one. */
-                sv = newSVsv (obj);
+                sv = newRV_inc (obj);
         }
 
 	if (own)
@@ -507,8 +497,8 @@ DESTROY (SV *sv)
                 g_object_steal_qdata (object, wrapper_quark);
         } else {
                 SvREFCNT_inc (SvRV (sv));
-                g_object_unref (object);
         }
+        g_object_unref (object);
 
 
 
