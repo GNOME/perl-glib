@@ -20,7 +20,6 @@
  */
 
 #include "gperl.h"
-#define NOISY//D
 
 typedef struct _ClassInfo ClassInfo;
 typedef struct _SinkFunc  SinkFunc;
@@ -55,7 +54,6 @@ struct wrapper_data {
 };
 
 static GQuark wrapper_quark; /* this quark stores the object's wrapper_data */
-static GQuark dispose_quark; /* this quark stores the type's old dispose ptr */
 
 
 ClassInfo *
@@ -289,64 +287,21 @@ gperl_object_type_from_package (const char * package)
 		       "called before any classes were registered");
 }
 
-/* this gets called when the gobject is about to be destroyed */
 static void
-gobject_dispose (GObject *object)
+gobject_destroy_wrapper (struct wrapper_data *w)
 {
-        struct wrapper_data *w =
-            (struct wrapper_data *)g_object_get_qdata (object, wrapper_quark);
+	/* call FINALIZE here, if ever. */
 
-#ifdef NOISY
-        warn ("DISPOSE on %s(0x%08p) [ref %d,%d]", 
-              G_OBJECT_TYPE_NAME (object),
-              object,
-              object->ref_count,
-              w ? SvREFCNT (w->obj) : -1);
-#endif
-
-        if (object->ref_count == 1 && w) {
-        	/* perl object still exists, so borrow a refcount from it. */
-                /* this path will only be executed once (modulo bugs). */
-                /* this operation does NOT change the refcount of the combined object. */
-        	g_object_ref (object);
+        if (!PL_in_clean_objs) { /* during global destruction all effort is wasted. */
+                /* these two lines inhibit the call to DESTROY, just an optimization. */
+                HV *hv = PL_defstash;
+                PL_defstash = 0;
                 SvREFCNT_dec (w->obj);
-        } else {
-                /* no perl object attached, just dispose it as usual */
-                void (*old_dispose)(GObject *) = g_type_get_qdata (G_OBJECT_TYPE (object), dispose_quark);
-
-                if (!old_dispose)
-                        croak ("FATAL: perl gobject_dispose called on object without overriden dispose method. Should not happen.");
-
-                old_dispose (object);
+                PL_defstash = hv;
         }
+
+	g_free (w);
 }
-
-/* this gets called when the perl wrapper gets destroyed. */
-static int gobject_free (pTHX_ SV *obj, MAGIC *mg)
-{
-	GObject *object = (GObject *)mg->mg_ptr;
-        struct wrapper_data *w =
-            (struct wrapper_data *)g_object_steal_qdata (object, wrapper_quark);
-
-#ifdef NOISY
-        warn ("DESTROY on %s(0x%08p) [ref %d]", 
-              G_OBJECT_TYPE_NAME (object),
-              object,
-              object->ref_count);
-#endif
-        if (!w)
-          croak ("FATAL: perl gobject_free called on object without perl wrapper. Should not happen.");
-
-        g_free (w);
-
-        /* return the borrowed refcount (in dispose). */
-        /* decrease the combined object's refcount. */
-        g_object_unref (object);
-
-        return 0;
-}
-
-static MGVTBL vtbl_gobject = { 0, 0, 0, 0, gobject_free };
 
 /*
  * extensive commentary in gperl.h
@@ -379,15 +334,6 @@ gperl_new_object (GObject * object,
                 /* create a new wrapper_data */
                 w = g_malloc (sizeof (*w));
 
-                /* we need to patch the original types dispose method. */
-                old_dispose = g_type_get_qdata (gtype, dispose_quark);
-                if (!old_dispose) {
-                        /* do it once only */
-                        old_dispose = (gpointer) G_OBJECT_GET_CLASS (object)->dispose;
-                        g_type_set_qdata (gtype, dispose_quark, old_dispose);
-                        G_OBJECT_GET_CLASS (object)->dispose = gobject_dispose;
-                }
-
                 package = gperl_object_package_from_type (gtype);
 
                 if (!package) {
@@ -415,33 +361,37 @@ gperl_new_object (GObject * object,
                 w->obj = (SV *)newHV ();
                 /* attach magic and vtable */
                 sv_magic (w->obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
-                mg_find (w->obj, PERL_MAGIC_ext)->mg_virtual = &vtbl_gobject;
 
-                g_object_set_qdata (object, wrapper_quark, (gpointer)w);
+                g_object_set_qdata_full (object,
+                                         wrapper_quark,
+                                         (gpointer)w,
+                                         (GDestroyNotify)gobject_destroy_wrapper);
 
-        } else {
-                /* increase the refcount by one. */
-                /* this ensures both branches of this if increase the refcount
-                 * of the object by one. */
+                /* this is the one refcount that represents all non-zero perl refcounts */
+                /* this effectively increases the combined refcount by one. */
                 g_object_ref (object);
+
+                /* now create a new reference, which we will return */
+                /* this effectively decreases the combined refcount by one. */
+                sv = newRV_noinc (w->obj);
+        } else {
+                /* now create a new reference, which we will return */
+                /* this increases the combined object's refcount */
+                sv = newRV_inc (w->obj);
         }
         
-        /* now create a new reference, which we will return */
-        /* this increases the combined object's refcount */
-        /* we need to do this before we unref. */
-        sv = newRV_inc (w->obj);
-
         /* bless into package... could be optimized to be done
          * once only, but then flags must be restored manually. */
         sv_bless (sv, w->stash);
 
 	if (own)
 		gperl_object_take_ownership (object);
+
 #ifdef NOISY
-	warn ("gperl_new_object (%p)[%d] => %s (%p)[%d]", 
+	warn ("gperl_new_object (%p)[%d] => %s (%p)", 
 	      object, object->ref_count,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
-	      sv, SvREFCNT (sv));
+	      sv);
 #endif
 	return sv;
 }
@@ -526,7 +476,28 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
 	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-data");
-	dispose_quark = g_quark_from_static_string ("Perl-old-dispose");
+
+
+void
+DESTROY (SV *sv)
+    CODE:
+	GObject *object = gperl_get_object (sv);
+
+        if (!object) /* I think it does happen, but I never saw it. */
+          return;
+#ifdef NOISY
+        warn ("DESTROY (%p)[%d] => %s (%p)[%d]", 
+              object, object->ref_count,
+              gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+              sv, SvREFCNT (SvRV(sv)));
+#endif
+        /* gobject object still exists, so borrow a refcount from it. */
+        /* this operation does NOT change the refcount of the combined object. */
+	if (!PL_in_clean_objs) /* all effort is wasted during global destruction. */
+          SvREFCNT_inc (SvRV (sv));
+          
+        g_object_unref (object);
+
 
 void
 g_object_set_data (object, key, data)
