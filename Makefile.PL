@@ -16,11 +16,6 @@ our %build_reqs = (
 	'Glib'                    => '2.0.0',
 );
 
-# minimum required version of dependancies we need to run
-our %runtime_reqs = (
-	'Glib'	=> undef,
-);
-
 # Writing a fake Makefile ensures that CPAN will pick up the correct
 # dependencies and install them.
 unless (eval "use ExtUtils::Depends;"
@@ -80,8 +75,6 @@ our %pod_files = (
 
 
 my %glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
-
-$runtime_reqs{Glib} = $glibcfg{modversion};
 
 # optional thread-safety
 my $nothreads = grep /disable[-_]threadsafe/i, @ARGV;
@@ -165,7 +158,6 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 	     . Glib::MakeHelper->postamble_clean ()
 	     . Glib::MakeHelper->postamble_docs (@main::xs_files)
 	     . Glib::MakeHelper->postamble_rpms (
-			'GLIB_RUN' => $runtime_reqs{'Glib'},
 			'GLIB' => $build_reqs{'Glib'},
 			'PERL_EXTUTILS_DEPENDS' => 
 				$build_reqs{'perl-ExtUtils-Depends'},

@@ -22,7 +22,6 @@ Glib::MakeHelper - Makefile.PL utilities for Glib-based extensions
      return Glib::MakeHelper->postamble_clean ()
           . Glib::MakeHelper->postamble_docs (@main::xs_files)
           . Glib::MakeHelper->postamble_rpms (
-                 MYLIB_RUN => $runtime_reqs{MyLib},
                  MYLIB     => $build_reqs{MyLib},
             );
  }
@@ -231,6 +230,10 @@ perl-\$(DISTNAME).spec :: perl-\$(DISTNAME).spec.in \$(VERSION_FROM) Makefile
 dist-rpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)/
 	cp \$(DISTNAME)-\$(VERSION).tar.gz \$(RPMS_DIR)/SOURCES/
 	rpmbuild -ba --define \"_topdir \$(RPMS_DIR)\" perl-\$(DISTNAME).spec
+
+dist-srpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)/
+	cp \$(DISTNAME)-\$(VERSION).tar.gz \$(RPMS_DIR)/SOURCES/
+	rpmbuild -bs --nodeps --define \"_topdir \$(RPMS_DIR)\" perl-\$(DISTNAME).spec
 ";
 }
 
