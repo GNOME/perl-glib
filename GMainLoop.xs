@@ -87,6 +87,8 @@ MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
 GMainContext *
 g_main_context_new (class)
 	SV * class
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	/*void*/
     CLEANUP:
@@ -106,6 +108,8 @@ DESTROY (maincontext)
 GMainContext *
 g_main_context_default (class)
 	SV * class
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	/*void*/
 
@@ -174,6 +178,8 @@ g_main_loop_new (class, context=NULL, is_running=FALSE)
 	SV * class
 	GMainContext *context
 	gboolean is_running
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	context, is_running
     CLEANUP:
@@ -268,6 +274,8 @@ gboolean
 g_source_remove (class, tag)
 	SV * class
 	guint tag
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	tag
 
@@ -293,6 +301,7 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
 	GClosure * closure;
 	GSource * source;
     CODE:
+	UNUSED(class);
 	closure = gperl_closure_new (callback, data, FALSE);
 	source = g_timeout_source_new (interval);
 	if (priority != G_PRIORITY_DEFAULT)
@@ -317,6 +326,7 @@ g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 	GClosure * closure;
 	GSource * source;
     CODE:
+	UNUSED(class);
 	closure = gperl_closure_new (callback, data, FALSE);
 	source = g_idle_source_new ();
 	g_source_set_priority (source, priority);
@@ -345,6 +355,7 @@ g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_D
 	GSource * source;
 	GIOChannel * channel;
     CODE:
+	UNUSED(class);
 	channel = g_io_channel_unix_new (fd);
 	source = g_io_create_watch (channel, condition);
 	if (priority != G_PRIORITY_DEFAULT)

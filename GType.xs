@@ -1215,6 +1215,7 @@ g_type_register (class, parent_package, new_package, ...);
 	GType parent_type, new_type;
 	char * new_type_name, * s;
     CODE:
+	UNUSED(class);
 	/* start with a clean slate */
 	memset (&type_info, 0, sizeof (GTypeInfo));
 	type_info.class_init = (GClassInitFunc) gperl_type_class_init;

@@ -790,6 +790,7 @@ g_object_get (object, ...)
 	GValue value = {0,};
 	int i;
     PPCODE:
+	UNUSED(ix);
 	EXTEND (SP, items-1);
 	for (i = 1; i < items; i++) {
 		char *name = SvPV_nolen (ST (i));
@@ -809,6 +810,7 @@ g_object_set (object, ...)
 	GValue value = {0,};
 	int i;
     CODE:
+	UNUSED(ix);
 	if (0 != ((items - 1) % 2))
 		croak ("set method expects name => value pairs "
 		       "(odd number of arguments detected)");
@@ -863,6 +865,7 @@ new_from_pointer (class, pointer, noinc=FALSE)
 	guint32 pointer
 	gboolean noinc
     CODE:
+	UNUSED(class);
 	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
     OUTPUT:
 	RETVAL

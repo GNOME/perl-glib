@@ -189,6 +189,7 @@ g_log_set_handler (SV * class, SV * log_domain, SV * log_levels, SV * log_func, 
 		G_TYPE_STRING
 	};
     CODE:
+	UNUSED(class);
 	callback = gperl_callback_new (log_func, user_data,
 	                               3, param_types, G_TYPE_NONE);
 	RETVAL = g_log_set_handler ((SvTRUE (log_domain)
@@ -207,6 +208,8 @@ void
 g_log_remove_handler (SV * class, SV *log_domain, guint handler_id);
     C_ARGS:
 	(SvTRUE (log_domain) ? SvGChar (log_domain) : NULL), handler_id
+    CLEANUP:
+	UNUSED(class);
 
 ##void g_log_default_handler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data);
 
@@ -217,6 +220,7 @@ MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
 void g_log (SV * class, SV *log_domain, SV * log_level, const gchar *message)
     CODE:
+	UNUSED(class);
 	g_log ((SvTRUE (log_domain) ? SvPV_nolen (log_domain) : NULL),
 	       SvGLogLevelFlags (log_level), message);
 
@@ -224,6 +228,7 @@ MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
 SV * g_log_set_fatal_mask (SV * class, const gchar *log_domain, SV * fatal_mask);
     CODE:
+	UNUSED(class);
 	RETVAL = newSVGLogLevelFlags 
 		(g_log_set_fatal_mask (log_domain,
 		                       SvGLogLevelFlags (fatal_mask)));
@@ -232,6 +237,7 @@ SV * g_log_set_fatal_mask (SV * class, const gchar *log_domain, SV * fatal_mask)
 
 SV * g_log_set_always_fatal (SV * class, SV * fatal_mask);
     CODE:
+	UNUSED(class);
 	RETVAL = newSVGLogLevelFlags 
 		(g_log_set_always_fatal (SvGLogLevelFlags (fatal_mask)));
     OUTPUT:
@@ -266,6 +272,7 @@ error (SV * class, SV * domain, const gchar * message)
     PREINIT:
 	GLogLevelFlags flags = G_LOG_LEVEL_MESSAGE;
     CODE:
+	UNUSED(class);
 	switch (ix) {
 		case 0: flags = G_LOG_LEVEL_ERROR; break;
 		case 1: flags = G_LOG_LEVEL_MESSAGE; break;

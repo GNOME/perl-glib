@@ -40,6 +40,11 @@
  * miscellaneous
  */
 
+/* make the compiler shut up about unused variables */
+#ifndef USUSED
+# define UNUSED(var)   ((var)=(var))
+#endif
+
 /* never use this function directly.  use GPERL_CALL_BOOT. */
 void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
 

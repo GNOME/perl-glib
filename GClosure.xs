@@ -687,11 +687,15 @@ int
 gperl_install_exception_handler (SV * class, SV * func, SV * data=NULL)
     C_ARGS:
 	gperl_closure_new (func, data, 0)
+    CLEANUP:
+	UNUSED(class);
 
 void
 gperl_remove_exception_handler (SV * class, int tag)
     C_ARGS:
 	tag
+    CLEANUP:
+	UNUSED(class);
 
 
  ##

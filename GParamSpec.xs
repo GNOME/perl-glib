@@ -130,6 +130,8 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	long  = 3
 	int64 = 4
     CODE:
+	UNUSED(class);
+	RETVAL = NULL;
     	switch (ix) {
 	    case 1:
 		RETVAL = g_param_spec_char (name, nick, blurb,
@@ -177,6 +179,8 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	ulong  = 3
 	uint64 = 4
     CODE:
+	UNUSED(class);
+	RETVAL = NULL;
     	switch (ix) {
 	    case 1:
 		RETVAL = g_param_spec_uchar (name, nick, blurb,
@@ -212,6 +216,8 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 	const gchar *blurb
 	gboolean default_value
 	GParamFlags flags
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	name, nick, blurb, default_value, flags
 
@@ -240,6 +246,7 @@ g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, 
     ALIAS:
 	float = 1
     CODE:
+	UNUSED(class);
 	if (ix == 1)
 		RETVAL = g_param_spec_float (name, nick, blurb,
 		                             minimum, maximum, default_value,
@@ -260,6 +267,8 @@ g_param_spec_string (class, name, nick, blurb, default_value, flags)
 	const gchar *blurb
 	const gchar *default_value
 	GParamFlags flags
+    PREINIT:
+	UNUSED(class);
     C_ARGS:
 	name, nick, blurb, default_value, flags
 
@@ -281,6 +290,8 @@ typed (class, name, nick, blurb, package, flags)
     PREINIT:
 	GType type = 0;
     CODE:
+	UNUSED(class);
+	RETVAL = NULL;
 	switch (ix) {
 	    case 0: croak ("param specs not supported as param specs yet");
 	    case 1: type = gperl_boxed_type_from_package (package); break;
