@@ -333,7 +333,7 @@ default_boxed_unwrap (GType        gtype,
 	if (!sv_derived_from (sv, package))
 		croak ("variable is not of type %s", package);
 
-	boxed_wrapper = (BoxedWrapper*) SvIV (SvRV (sv));
+	boxed_wrapper = INT2PTR (BoxedWrapper*, SvIV (SvRV (sv)));
 	if (!boxed_wrapper)
 		croak ("internal nastiness: boxed wrapper contains NULL pointer");
 	return boxed_wrapper->boxed;
@@ -351,7 +351,7 @@ default_boxed_destroy (SV * sv)
 	      wrapper ? wrapper->boxed : NULL);
 	}
 #endif
-	boxed_wrapper_destroy ((BoxedWrapper*) SvIV (SvRV (sv)));
+	boxed_wrapper_destroy (INT2PTR (BoxedWrapper*, SvIV (SvRV (sv))));
 }
 
 

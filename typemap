@@ -119,10 +119,10 @@ T_G_MAIN_CONTEXT
 	if (!$arg || !SvOK ($arg) || !SvROK ($arg)) {
 		$var = NULL;
 	} else {
-		$var = ($type) SvIV (SvRV ($arg));
+		$var = INT2PTR ($type, SvIV (SvRV ($arg)));
 	}
 T_G_MAIN_LOOP
-	$var = ($type) SvIV (SvRV ($arg))
+	$var = INT2PTR ($type, SvIV (SvRV ($arg)))
 
 T_GPERL_FILENAME
 	$var = ($type) gperl_filename_from_sv ($arg)
