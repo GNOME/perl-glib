@@ -654,7 +654,10 @@ g_object_new (class, ...)
 
 	object = g_object_newv (object_type, n_params, params);	
 
-	/* this wrapper *must* own this object! */
+	/* this wrapper *must* own this object!
+	 * because we've been through initialization, the perl object
+	 * will already exist at this point --- but this still causes
+	 * gperl_object_take_ownership to be called. */
 	RETVAL = gperl_new_object (object, TRUE);
 
     //cleanup: /* C label, not the XS keyword */
