@@ -4,7 +4,7 @@
 
 package Glib::MakeHelper;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -385,6 +385,7 @@ inserted by this module under the name MY::const_cccmd to fix this issue.
 
 sub const_cccmd {
 	my $inherited = shift->SUPER::const_cccmd (@_);
+	return '' unless $inherited;
 	use Config;
 	# a more sophisticated match may be necessary, but this works for me.
 	if ($Config{cc} eq "cl") {
@@ -397,8 +398,6 @@ sub const_cccmd {
 }
 
 1;
-
-=back
 
 =head1 AUTHOR
 
