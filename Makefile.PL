@@ -28,6 +28,7 @@ unless (eval "use ExtUtils::Depends;"
            . "1") {
    warn "$@\n";
    WriteMakefile(
+         NAME         => 'Glib',
          PREREQ_FATAL => 1,
          PREREQ_PM    => {
             'ExtUtils::Depends'   => $build_reqs{'perl-ExtUtils-Depends'},
@@ -123,11 +124,6 @@ require 'Glib.exports';
 WriteMakefile(
     NAME		=> 'Glib',
     VERSION_FROM	=> 'Glib.pm', # finds $VERSION
-    PREREQ_FATAL	=> 1,
-    PREREQ_PM		=> {
-        'ExtUtils::Depends'   => $build_reqs{'perl-ExtUtils-Depends'},
-        'ExtUtils::PkgConfig' => $build_reqs{'perl-ExtUtils-PkgConfig'},
-    },
     ABSTRACT_FROM	=> 'Glib.pm', # retrieve abstract from module
     XSPROTOARG		=> '-noprototypes',
     MAN3PODS		=> $glib ? \%pod_files : {},
