@@ -76,6 +76,8 @@ sub xsdocparse {
 	print Data::Dumper->Dump([$parser->{xspods}, $parser->{data}],
 	                       [qw($xspods            $data)]);
 	print "\n1;\n";
+
+	return [ keys %{$parser->{data}} ];
 }
 
 =back
@@ -417,6 +419,7 @@ sub parse_xsub {
 	map { s/#.*$// } @thisxsub;
 
 	my $filename = $self->{filename};
+	my $oldwarn = $SIG{__WARN__};
 $SIG{__WARN__} = sub {
 		warn "$self->{filename}:$.:  "
 		   . join(" / ", $self->{module}||"", $self->{package}||"")
@@ -557,7 +560,7 @@ $SIG{__WARN__} = sub {
 		}
 	}
 
-delete $SIG{__WARN__};
+	$SIG{__WARN__} = $oldwarn;
 
 	return \%xsub;
 }

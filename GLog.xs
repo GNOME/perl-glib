@@ -226,6 +226,10 @@ g_log_remove_handler (class, gchar_ornull *log_domain, guint handler_id);
 
 MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
+=for object Glib::Log
+
+=cut
+
 void g_log (class, gchar_ornull * log_domain, SV * log_level, const gchar *message)
     CODE:
 	g_log (log_domain, SvGLogLevelFlags (log_level), message);
@@ -258,6 +262,10 @@ SV * g_log_set_always_fatal (class, SV * fatal_mask);
 ##endif  /* G_LOG_DOMAIN */
 
 MODULE = Glib::Log	PACKAGE = Glib
+
+=for object Glib::Log
+
+=cut
 
 ###
 ### these are of dubious value, but i imagine that they could be useful...

@@ -1,7 +1,13 @@
+#
+#
+#
+
 package Glib::GenPod;
 
-use Glib;
+# FIXME/TODO
 #use strict;
+#use warnings;
+use Glib;
 
 use base Exporter;
 
@@ -170,11 +176,12 @@ sub xsdoc2pod
 		$pkgdata = $data->{$package};
 
 		my $pod = $package;
-		my $path = "$outdir";
+		my $path = $outdir;
 		$pod =~ s/^[^\:]*:://;
 		$path = "$path/$1" if ($pod =~ s/^(.*)::([^\:]+)/$2/);
 		$path =~ s/::/\//g;
-		mkdir $path unless (-d $path);
+		mkdir $path or die "can't create directory $path: $!\n"
+			unless (-d $path);
 		$pod = "$path/$pod.pod";
 		open POD, ">$pod" or die "can't open $pod for writing: $!\n";
 		select POD;
@@ -263,7 +270,6 @@ sub xsdoc2pod
 		close INDEX;
 	}
 }
-
 
 # more sensible names for the basic types
 our %basic_types = (
@@ -368,8 +374,9 @@ enum or flags type.
 =cut
 sub podify_values {
 	my $package = shift;
-	my @values = Glib::Type->list_values ($package);
-	return undef unless @values;
+	my @values;
+	eval { @values = Glib::Type->list_values ($package); 1; };
+	return undef unless (@values or not $@);
 
 	return "=over\n\n"
 	     . join ("\n\n", map { "=item * '$_->{nick}' / '$_->{name}'" } @values)
@@ -767,7 +774,9 @@ sub convert_return_type_to_name {
 	}
 	return $type;
 }
+
 1;
+__END__
 
 =back
 

@@ -719,6 +719,10 @@ gperl_run_exception_handlers (void)
 
 MODULE = Glib::Closure	PACKAGE = Glib	PREFIX = gperl_
 
+=for object Glib::Signal
+
+=cut
+
 int
 gperl_install_exception_handler (class, SV * func, SV * data=NULL)
     C_ARGS:

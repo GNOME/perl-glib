@@ -1,3 +1,21 @@
+2003/10/28 16:47 rwmcfa1
+
+	* Glib/GClosure.xs, Glib/GLog.xs: put things in the appropriate doc 
+	object
+
+	* Glib/GenPod.pm: eval the list_values call. make sure dir creation 
+	succeeds, other cleanups
+
+	* Glib/MANIFEST: missing files added
+
+	* Glib/Makefile.PL: updates to new system, MakeHelper. use strict and 
+	use warnings safe now
+
+	* Glib/ParseXSDoc.pm: replace the warn handler with what was there 
+	before rather than deleting
+
+	* Glib/MakeHelper.pm: initial import
+
 2003/10/27 29:08 muppetman
 
 	* Makefile.PL: bad quoting kept the build from working...
