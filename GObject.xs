@@ -142,7 +142,8 @@ gperl_register_object (GType gtype,
 							  NULL);
 	}
 	class_info = class_info_new (gtype, package);
-	g_hash_table_insert (types_by_type, (gpointer)class_info->gtype, class_info);
+	g_hash_table_insert (types_by_type,
+	                     GUINT_TO_POINTER (class_info->gtype), class_info);
 	g_hash_table_insert (types_by_package, class_info->package, class_info);
 	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */
 
@@ -185,9 +186,9 @@ gperl_register_object (GType gtype,
 			class_info = (ClassInfo*)(i->data);
 
 			parent_class_info = (ClassInfo *) 
-			              g_hash_table_lookup (types_by_type,
-			                       (gpointer)g_type_parent
-			                               (class_info->gtype));
+			         g_hash_table_lookup (types_by_type,
+			                    GUINT_TO_POINTER (g_type_parent
+			                               (class_info->gtype)));
 
 			if (parent_class_info) {
 				gperl_set_isa (class_info->package,
@@ -326,7 +327,9 @@ gperl_object_set_no_warn_unreg_subclass (GType gtype,
 		nowarn_by_type = g_hash_table_new (g_direct_hash,
 		                                   g_direct_equal);
 	}
-	g_hash_table_insert (nowarn_by_type, (gpointer)gtype, (gpointer)nowarn);
+	g_hash_table_insert (nowarn_by_type,
+	                     GUINT_TO_POINTER (gtype),
+	                     GINT_TO_POINTER (nowarn));
 
 	G_UNLOCK (nowarn_by_type);
 }
@@ -341,8 +344,9 @@ gperl_object_get_no_warn_unreg_subclass (GType gtype)
 	if (!nowarn_by_type)
 		result = FALSE;
 	else
-		result = (gboolean) g_hash_table_lookup (nowarn_by_type,
-		                                         (gpointer)gtype);
+		result = GPOINTER_TO_INT
+		              (g_hash_table_lookup (nowarn_by_type,
+		                                    GUINT_TO_POINTER (gtype)));
 
 	G_UNLOCK (nowarn_by_type);
 
@@ -365,7 +369,8 @@ gperl_object_package_from_type (GType gtype)
 		G_LOCK (types_by_type);
 
 		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+			g_hash_table_lookup (types_by_type,
+			                     GUINT_TO_POINTER (gtype));
 
 		G_UNLOCK (types_by_type);
 
@@ -396,7 +401,8 @@ gperl_object_stash_from_type (GType gtype)
 		G_LOCK (types_by_type);
 
 		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+			g_hash_table_lookup (types_by_type,
+			                     GUINT_TO_POINTER (gtype));
 
 		G_UNLOCK (types_by_type);
 
@@ -1067,7 +1073,7 @@ the pointer.
 =cut
 SV *
 new_from_pointer (class, pointer, noinc=FALSE)
-	guint32 pointer
+	gpointer pointer
 	gboolean noinc
     CODE:
 	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
@@ -1080,11 +1086,11 @@ new_from_pointer (class, pointer, noinc=FALSE)
 Complement of C<new_from_pointer>.
 
 =cut
-guint32
+gpointer
 get_pointer (object)
 	GObject * object
     CODE:
-	RETVAL = GPOINTER_TO_UINT (object);
+	RETVAL = object;
     OUTPUT:
 	RETVAL
 

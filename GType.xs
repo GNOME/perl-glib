@@ -90,8 +90,8 @@ gperl_register_fundamental (GType gtype, const char * package)
 			                       (GDestroyNotify)g_free);
 	}
 	p = g_strdup (package);
-	g_hash_table_insert (packages_by_type, (gpointer)gtype, p);
-	g_hash_table_insert (types_by_package, p, (gpointer)gtype);
+	g_hash_table_insert (packages_by_type, GUINT_TO_POINTER (gtype), p);
+	g_hash_table_insert (types_by_package, p, GUINT_TO_POINTER (gtype));
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
 
@@ -127,7 +127,8 @@ gperl_fundamental_package_from_type (GType gtype)
 	const char * res;
 	G_LOCK (packages_by_type);
 	res = (const char *)
-		g_hash_table_lookup (packages_by_type, (gpointer)gtype);
+		g_hash_table_lookup (packages_by_type,
+		                     GUINT_TO_POINTER (gtype));
 	G_UNLOCK (packages_by_type);
 	return res;
 }
@@ -626,7 +627,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 	GSignalQuery query;
 	gchar * tmp;
 	SV * method_name;
-	guint i;
+	STRLEN i;
         HV *stash;
         SV **slot;
 	/* see GClosure.xs and gperl_marshal.h for an explanation.  we can't
@@ -1279,7 +1280,8 @@ gperl_type_base_init (gpointer class)
 		/* haven't seen this class instance before */
 		t = G_TYPE_FROM_CLASS (class);
 		do {
-			types = g_slist_prepend (types, (gpointer)t);
+			types = g_slist_prepend (types,
+			                         GUINT_TO_POINTER (t));
 		} while (0 != (t = g_type_parent (t)));
 	}
 
