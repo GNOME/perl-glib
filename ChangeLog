@@ -1,3 +1,7 @@
+2003/12/11 22:11 (-0500) muppetman
+
+	* Glib.pm, README, META.yml: stable release 1.020
+
 2003/12/04 22:28 (-0500) muppetman
 
 	* Glib.pm, README: bump version to 1.014 for release
