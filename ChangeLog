@@ -1,3 +1,12 @@
+2003/06/01 16:16 muppetman
+
+	applied patch from Marc Lehmann (pgc at goof dot com)
+
+	* GObject.xs: allow $object->get and $object->set to work on
+	multiple properties.
+
+	* Glib/GClosure.xs: don't try to PERL_SET_CONTEXT on non-threaded perls
+
 2003/05/30 23:55 muppetman (while watching zep at the albert hall)
 
 	* GType.xs: initial values, try to avoid warnings and bugs
