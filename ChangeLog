@@ -4,6 +4,7 @@
         * Glib.pm: podify and clean up docs.
         * README.api-changes: added, please add any observations
         on suboptimal API translations here.
+        * GObject.xs: add gperl_object_package_from_type_recursive.
 
 2003/06/24 23:16 muppetman
 

@@ -21,8 +21,6 @@
 
 #include "gperl.h"
 
-#define NOISY
-
 typedef struct _ClassInfo ClassInfo;
 typedef struct _SinkFunc  SinkFunc;
 
@@ -249,13 +247,36 @@ gperl_object_package_from_type (GType gtype)
 		ClassInfo * class_info;
 		class_info = (ClassInfo *) 
 			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+
 		if (class_info)
 			return class_info->package;
-		else
-			return NULL;
+                else
+                  	return NULL;
 	} else
 		croak ("internal problem: gperl_object_package_from_type "
 		       "called before any classes were registered");
+}
+
+const char *
+gperl_object_package_from_type_recursive (GType gtype)
+{
+        GType parent;
+        const char *package = gperl_object_package_from_type (gtype);
+
+        if (!package) {
+                GType parent = gtype;
+        	do {
+                        parent = g_type_parent (gtype);
+                	package = gperl_object_package_from_type (parent);
+                } while (!package);
+
+                if (!gperl_object_get_no_warn_unreg_subclass (parent))
+                        warn ("GType '%s' is not registered with GPerl; representing this object as first known parent type '%s' instead",
+                              g_type_name (gtype),
+                              g_type_name (parent));
+        }
+
+        return package;
 }
 
 /*
@@ -322,19 +343,7 @@ gperl_new_object (GObject * object,
                 const char *package;
                 GType gtype = G_OBJECT_TYPE (object);
 
-                package = gperl_object_package_from_type (gtype);
-
-                if (!package) {
-                        GType parent;
-                        while (package == NULL) {
-                                parent = g_type_parent (gtype);
-                                package = gperl_object_package_from_type (parent);
-                        }
-                        if (!gperl_object_get_no_warn_unreg_subclass (parent))
-                                warn ("GType '%s' is not registered with GPerl; representing this object as first known parent type '%s' instead",
-                                      g_type_name (gtype),
-                                      g_type_name (parent));
-                }
+                package = gperl_object_package_from_type_recursive (gtype);
 
                 /*
                  * Create the "object", a hash.

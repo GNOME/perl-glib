@@ -367,6 +367,14 @@ void gperl_object_set_no_warn_unreg_subclass (GType gtype, gboolean nowarn);
  */
 const char * gperl_object_package_from_type (GType gtype);
 /**
+ * gperl_object_package_from_type_recursive:
+ * @gtype: type to look up
+ *
+ * returns: same as gperl_object_package_from_type, but also looks into parent
+ * types.
+ */
+const char * gperl_object_package_from_type_recursive (GType gtype);
+/**
  * gperl_object_type_from_package:
  * @package: package name to look up
  *

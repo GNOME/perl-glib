@@ -24,32 +24,11 @@ package Glib;
 use 5.008;
 use strict;
 use warnings;
-use Carp;
 
-require Exporter;
 require DynaLoader;
-use AutoLoader;
+our @ISA = qw(DynaLoader);
 
-our @ISA = qw(Exporter DynaLoader);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Glib ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-
-);
-
-our $VERSION = '0.25';
+our $VERSION = 0.25;
 
 sub dl_load_flags { 0x01 }
 
@@ -198,7 +177,7 @@ Don't I<ever> overwrite, use C<FINALIZE_INSTANCE> instead.
 The DESTROY method of all perl classes derived from GTypes is
 implemented in the Glib module and (ab-)used for it's own internal
 purposes. Overwriting it is not useful as it will be called
-E<multiple> times, and often long before the object actually gets
+I<multiple> times, and often long before the object actually gets
 destroyed. Overwriting might be very harmful to your program, so I<never>
 do that. Especially watch out for other classes in your ISA tree.
 

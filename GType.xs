@@ -589,13 +589,15 @@ create_signal (GType instance_type,
 //	svp = hv_fetch (hv, "flags", 5, FALSE);
 //	if (svp && (*svp) && SvTRUE (*svp))
 //		signal_flags = SvGSignalFlags (*svp);
-signal_flags = G_SIGNAL_RUN_FIRST;
+        signal_flags = G_SIGNAL_RUN_FIRST;
 
 	signal_id = g_signal_newv (signal_name, instance_type, signal_flags,
 	                           gperl_signal_class_closure_get (),
 				   NULL, NULL, NULL,
 				   return_type, n_params, param_types);
-warn ("created signal %s with id %d", signal_name, signal_id);
+#ifdef NOISY
+        warn ("created signal %s with id %d", signal_name, signal_id);
+#endif
 	g_free (param_types);
 
 	if (signal_id == 0)
@@ -671,7 +673,9 @@ gperl_type_get_property (GObject * object,
 {
 	dSP;
 
+#ifdef NOISY
 	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
+#endif
 
 	ENTER;
 	SAVETMPS;
@@ -701,7 +705,10 @@ gperl_type_set_property (GObject * object,
                          GParamSpec * pspec)
 {
 	dSP;
+
+#ifdef NOISY
 	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
+#endif
 
 	ENTER;
 	SAVETMPS;
@@ -749,8 +756,10 @@ gperl_type_finalize (GObject * instance)
         }
 
         parent_class = g_type_class_peek_parent (G_OBJECT_GET_CLASS (instance));
+#ifdef NOISY
 	warn ("gperl_type_finalize %p ? %p parent_class->finalize", 
 	       gperl_type_finalize, parent_class->finalize);
+#endif
 	if (parent_class->finalize != gperl_type_finalize)
 		parent_class->finalize (instance);
 
@@ -786,7 +795,9 @@ gperl_type_instance_init (GObject * instance)
 	/* get the INIT_INSTANCE sub from this package. */
 	init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
 
+#ifdef NOISY
 	warn ("++++++++++ gperl_type_instance_init  %s (%p) => %s\n", G_OBJECT_TYPE_NAME (instance), instance, SvPV_nolen (obj));
+#endif
 
         /* does the function exist? then call it. */
         if (init && GvCV (*init)) {
@@ -858,10 +869,13 @@ g_type_register (class, parent_package, new_package, ...);
 			*s = '_';
 	new_type = g_type_register_static (parent_type, new_type_name, 
 	                                   &type_info, 0);
+#ifdef NOISY
 	warn ("registered %s, son of %s nee %s(%d), as %s(%d)",
 	      new_package, parent_package,
 	      g_type_name (parent_type), parent_type,
 	      new_type_name, new_type);
+#endif
+
 	g_free (new_type_name);
 	/* and with the bindings */
 	gperl_register_object (new_type, new_package);
