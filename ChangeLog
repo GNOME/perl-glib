@@ -1,3 +1,13 @@
+2003/12/02 18:26 (-0500) muppetman
+
+	* GParamSpec.xs: stray code in a switch statement prevented the
+	successful operation of Glib::ParamSpec->object().
+
+2003/12/01 16:21 (-0500) rwmcfa1
+
+	* GenPod.pm: put an extra \n after each of the pods to keep pod stuff
+	happy
+
 2003/11/29 12:45 (-0500) muppetman
 
 	* Glib.pm, README: bump version to 1.013, make release from
