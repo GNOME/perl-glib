@@ -3,9 +3,8 @@ Overview of Changes in 1.040
 
   Since 1.02x (the previous stable series)
   ----------------------------------------
-  * Updated build requirements:
-    - ExtUtils::Depends 0.2
-    - ExtUtils::PkgConfig 1.03
+  * Updated build requirement
+    - ExtUtils::Depends >= 0.2
   * Support for a few new API features in glib-2.4.x.
   * Functions that use GErrors in C throw magical Glib::Error exception
     objects; these objects overload the stringification operator, so old code
