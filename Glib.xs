@@ -66,14 +66,15 @@ _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark)
 
 =item gpointer gperl_alloc_temp (int nbytes)
 
-Allocate and return a pointer to an I<nbytes>-long temporary buffer that will
-be reaped at the next garbage collection sweep.  This is handy for allocating
-things that need to be alloc'ed before a croak (since croak doesn't return and
-give you the chance to free them).  The trick is that the memory is allocated
-in a mortal perl scalar.  See the perl online manual for notes on using this
-technique.
+Allocate and return a pointer to an I<nbytes>-long, zero-initialized,
+temporary buffer that will be reaped at the next garbage collection sweep.
+This is handy for allocating things that need to be alloc'ed before a croak
+(since croak doesn't return and give you the chance to free them).  The
+trick is that the memory is allocated in a mortal perl scalar.  See the
+perl online manual for notes on using this technique.
 
-Do B<not> under any circumstances attempt to call g_free(), free(), or any other deallocator on this pointer, or you will crash the interpreter.
+Do B<not> under any circumstances attempt to call g_free(), free(), or any
+other deallocator on this pointer, or you will crash the interpreter.
 
 =cut
 /*
