@@ -1,3 +1,7 @@
+2003/11/10 01:54 (-0500) muppetman
+
+	* GenPod.pm: be a little smarter about enums and flags package names.
+
 2003/11/09 22:59 (-0500) rwmcfa1
 
 	* GenPod.pm: improved the logic for placement of the no methods exist

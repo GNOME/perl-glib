@@ -246,7 +246,12 @@ sub xsdoc2pod
 				pop @{ $pod->{lines} }
 					if $pod->{lines}[-1] =~ /^=cut/;
 
-				print "=head2 $ef->{type} $ef->{name}\n\n"
+				# the name may be a C name...
+				my $name = convert_type ($ef->{name});
+				my $type = UNIVERSAL::isa ($name, 'Glib::Flags')
+				         ? 'flags' : 'enum';
+
+				print "=head2 $type $name\n\n"
 				    . join ("\n", @{$pod->{lines}}) . "\n\n"
 				    . podify_values ($ef->{name}) . "\n";;
 			}
