@@ -28,7 +28,7 @@ use warnings;
 require DynaLoader;
 our @ISA = qw(DynaLoader);
 
-our $VERSION = '0.94';
+our $VERSION = '0.95';
 
 sub dl_load_flags { 0x01 }
 
@@ -43,7 +43,6 @@ Glib - Perl wrappers for the GLib utility and Object libraries
 =head1 SYNOPSIS
 
   use Glib;
-  blah blah blah
 
 =head1 ABSTRACT
 
@@ -90,14 +89,15 @@ GLib-based C libraries to perl.
   Glib::PkgConfig - simple interface to pkg-config for developers
   Glib::devel - Binding developer's overview of Glib's internals
   Glib::xsapi - internal API reference for GPerl
-  [FIXME link to the binding tutorial]
+  Yet another document, available separately, ties it all together:
+    http://gtk2-perl.sourceforge.net/doc/binding_howto.pod.html
 
 For gtk2-perl itself, see its website at
 
   gtk2-perl - http://gtk2-perl.sourceforge.net/
 
 A mailing list exists for discussion of using gtk2-perl and related
-modules.  Archives and subscription information is available at
+modules.  Archives and subscription information are available at
 http://lists.gnome.org/.
 
 

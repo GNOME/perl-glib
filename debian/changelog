@@ -1,3 +1,9 @@
+libglib-perl (0.95-1) unstable; urgency=low
+
+  * Updated for 0.95 release.
+
+ -- muppet <scott at asofyet dot org>  Fri Aug 22 01:10:18 EDT 2003
+
 libglib-perl (0.92-2) unstable; urgency=low
 
   * Updated to latest CVS.

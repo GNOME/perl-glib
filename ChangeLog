@@ -1,3 +1,8 @@
+2003/08/22 01:11 muppetman
+
+	* Glib.pm, README, META.yml, debian/changelog, MANIFEST:
+	prep for 0.95 release
+
 2003/08/19 21:11 rwmcfa1
 
 	* Makefile.PL: added realclean removal of build dir to postamble 
