@@ -1,3 +1,7 @@
+2005/02/07 23:30 (-0500) muppetman
+
+	* t/9.t: Disable the async signal test on win32.
+
 2005/02/07 23:20 (-0500) muppetman
 
 	* GSignal.xs, gperl.h, Glib.exports: Bind and document g_signal_query

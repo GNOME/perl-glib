@@ -112,7 +112,13 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 # caused asynchronous signals not to be delivered while a main loop is
 # running (because control stays in C).  let's make sure that we can
 # get a 1 second alarm before a 2 second timeout has a chance to fire.
-{
+if ($^O eq 'Win32') {
+	# XXX Win32 doesn't do SIGALRM the way unix does; either the alarm
+	# doesn't interrupt the poll, or alarm just doesn't work.
+	my $reason = "async signals don't work on win32 like they do on unix";
+	print "ok 15 # skip $reason\n";
+	print "ok 16 # skip $reason\n";
+} else {
 	$loop = Glib::MainLoop->new;
 	$SIG{ALRM} = sub {
 		print "ok 15 # ALRM handler\n";
