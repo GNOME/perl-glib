@@ -1657,14 +1657,12 @@ union (SV *a, SV *b, int swap)
         a_ = gperl_convert_flags (gtype, swap ? b : a);
         b_ = gperl_convert_flags (gtype, swap ? a : b);
 
-        fprintf (stderr, "%d %lx %lx => ",ix, a_, b_);
         switch (ix) {
           case 0: a_ |= b_; break;
           case 1: a_ &=~b_; break;
           case 2: a_ &= b_; break;
           case 3: a_ ^= b_; break;
         }
-        fprintf (stderr, "%lx\n", a_);
 
         RETVAL = gperl_convert_back_flags (gtype, a_);
 }
