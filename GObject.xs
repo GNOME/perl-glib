@@ -955,6 +955,22 @@ g_object_set (object, ...)
 
 =for apidoc
 
+Stops emission of "notify" signals on I<$object>. The signals are queued
+until C<thaw_notify> is called on I<$object>.
+
+=cut
+void g_object_freeze_notify (GObject * object)
+
+=for apidoc
+
+Reverts the effect of a previous call to C<freeze_notify>. This causes all
+queued "notify" signals on I<$object> to be emitted.
+
+=cut
+void g_object_thaw_notify (GObject * object)
+
+=for apidoc
+
 List all the object properties for I<$object_or_class_name>; returns them as
 a list of hashes, containing these keys:
 
