@@ -346,6 +346,8 @@ our %basic_types = (
 
 	gchar_length => 'string',
 
+	FILE => 'file handle',
+
 	# there are a little special -- they don't actually get 
 	# registered with the GType system.
 	GMainContext	=> 'Glib::MainContext',

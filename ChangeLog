@@ -1,3 +1,7 @@
+2003/12/08 11:08 (-0500) muppetman
+
+	* GenPod.pm: add default translation for stdio FILE => "file handle"
+
 2003/12/08 09:44 (-0500) rwmcfa1
 
 	* t/6.t: use strict and warnings, b/c newer Test::More do anyway, 
