@@ -1,3 +1,7 @@
+2004/02/20 01:18 (-0500) muppetman
+
+	* Glib.pm, README, NEWS: unstable release 1.036
+
 2004/02/19 12:50 (+0100) kaffeetisch
 
 	* Glib.xs (gperl_alloc_temp): Return NULL and complain loudly if
