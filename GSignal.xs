@@ -27,6 +27,26 @@
 
 #include "gperl.h"
 
+static GSList * closures = NULL;
+
+static void
+forget_closure (SV * callback,
+                GPerlClosure * closure)
+{
+	warn ("forget_closure %p / %p", callback, closure);
+	closures = g_slist_remove (closures, closure);
+}
+
+static void
+remember_closure (GPerlClosure * closure)
+{
+	warn ("remember_closure %p / %p", closure->callback, closure);
+	warn ("   callback %s\n", SvPV_nolen (closure->callback));
+	closures = g_slist_prepend (closures, closure);
+	g_closure_add_invalidate_notifier ((GClosure *) closure,
+	                                   closure->callback,
+	                                   (GClosureNotify) forget_closure);
+}
 
 =item gulong gperl_signal_connect (SV * instance, char * detailed_signal, SV * callback, SV * data, GConnectFlags flags)
 
@@ -46,19 +66,103 @@ gperl_signal_connect (SV * instance,
                       SV * callback, SV * data,
                       GConnectFlags flags)
 {
-	GClosure * closure;
+	GPerlClosure * closure;
 
-	closure = gperl_closure_new (callback, data,
-				     flags & G_CONNECT_SWAPPED);
+	closure = (GPerlClosure *)
+			gperl_closure_new (callback, data,
+			                   flags & G_CONNECT_SWAPPED);
 
 	/* after is true only if we're called as signal_connect_after */
-	((GPerlClosure*)closure)->id =
+	closure->id =
 		g_signal_connect_closure (gperl_get_object (instance),
-		                          detailed_signal, closure, 
+		                          detailed_signal,
+		                          (GClosure*) closure, 
 		                          flags & G_CONNECT_AFTER);
+
+	if (closure->id > 0)
+		remember_closure (closure);
 	
 	return ((GPerlClosure*)closure)->id;
 }
+
+/*
+G_SIGNAL_MATCH_ID        The signal id must be equal.
+G_SIGNAL_MATCH_DETAIL    The signal detail be equal.
+G_SIGNAL_MATCH_CLOSURE   The closure must be the same.
+G_SIGNAL_MATCH_FUNC      The C closure callback must be the same.
+G_SIGNAL_MATCH_DATA      The closure data must be the same.
+G_SIGNAL_MATCH_UNBLOCKED Only unblocked signals may matched.
+
+at the perl level, the CV replaces both the FUNC and CLOSURE.  it's rare
+people will specify any of the others than FUNC and DATA, but i can see
+how they would be useful so let's support them.
+*/
+typedef guint (*sig_match_callback) (gpointer           instance,
+                                     GSignalMatchType   mask,
+                                     guint              signal_id,
+                                     GQuark             detail,
+                                     GClosure         * closure,
+                                     gpointer           func,
+                                     gpointer           data);
+
+static int
+foreach_closure_matched (gpointer instance,
+                         GSignalMatchType mask,
+                         guint signal_id,
+                         GQuark detail,
+                         SV * func,
+                         SV * data,
+                         sig_match_callback callback)
+{
+	int n = 0;
+	GSList * i;
+
+	if (mask & G_SIGNAL_MATCH_CLOSURE || /* this isn't too likely */
+	    mask & G_SIGNAL_MATCH_FUNC ||
+	    mask & G_SIGNAL_MATCH_DATA) {
+		/*
+		 * to match against a function or data, we need to find the
+		 * scalars for those in the GPerlClosures; we'll have to
+		 * proxy this stuff.  we'll replace the func and data bits
+		 * with closure in the mask.
+		 *    however, we can't do the match for any of the other
+		 * flags at this level, so even though our design means one
+		 * closure per handler id, we still have to pass that closure
+		 * on to the real C functions to do any other filtering for
+		 * us.
+		 */
+		/* we'll compare SVs by their stringified values.  cache the
+		 * stringified needles, but there's no way to cache the
+		 * haystack. */
+		const char * str_func = func ? SvPV_nolen (func) : NULL;
+		const char * str_data = data ? SvPV_nolen (data) : NULL;
+
+		mask &= ~(G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA);
+		mask |= G_SIGNAL_MATCH_CLOSURE;
+
+		/* this is a little hairy because the callback may disconnect
+		 * a closure, which would modify the list while we're iterating
+		 * over it. */
+		i = closures;
+		while (i != NULL) {
+			GPerlClosure * c = (GPerlClosure*) i->data;
+			i = i->next;
+			if ((!func || strEQ (str_func, SvPV_nolen (c->callback))) &&
+			    (!data || strEQ (str_data, SvPV_nolen (c->data)))) {
+				n += callback (instance, mask, signal_id,
+				               detail, (GClosure*)c,
+				               NULL, NULL);
+			}
+		}
+	} else {
+		/* we're not matching against a closure, so we can just
+		 * pass this on through. */
+		n = callback (instance, mask, signal_id, detail,
+		              NULL, NULL, NULL);
+	}
+	return n;
+}
+
 
 =back
 
@@ -294,8 +398,42 @@ g_signal_handler_disconnect (object, handler_id)
 ##					       GClosure		 *closure,
 ##					       gpointer		  func,
 ##					       gpointer		  data);
-##
-##
+
+ ##### oops, no typemap for GSignalMatchType...
+##guint
+##matched (instance, mask, signal_id, detail, func, data)
+##	SV * instance
+##	GSignalMatchType mask
+##	guint signal_id
+##	SV * detail
+##	SV * func
+##	SV * data
+##    ALIAS:
+##	Glib::Object::signal_handlers_block_matched = 0
+##	Glib::Object::signal_handlers_unblock_matched = 1
+##	Glib::Object::signal_handlers_disconnect_matched = 2
+##    PREINIT:
+##	sig_match_callback callback = NULL;
+##	GQuark real_detail = 0;
+##    CODE:
+##	switch (ix) {
+##	    case 0: callback = g_signal_handlers_block_matched; break;
+##	    case 1: callback = g_signal_handlers_unblock_matched; break;
+##	    case 2: callback = g_signal_handlers_disconnect_matched; break;
+##	}
+##	if (!callback)
+##		croak ("internal problem -- xsub aliased to invalid ix");
+##	if (detail && SvPOK (detail)) {
+##		real_detail = g_quark_try_string (SvPV_nolen (detail));
+##		if (!real_detail)
+##			croak ("no such detail %s", SvPV_nolen (detail));
+##	}
+##	RETVAL = foreach_closure_matched (gperl_get_object (instance),
+##	                                  mask, signal_id, real_detail,
+##	                                  func, data);
+##    OUTPUT:
+##	RETVAL
+
 ##/* --- chaining for language bindings --- */
 ##void	g_signal_override_class_closure	      (guint		  signal_id,
 ##					       GType		  instance_type,
@@ -327,17 +465,31 @@ g_signal_connect (instance, detailed_signal, callback, data=NULL)
 	RETVAL
 
 
-###define	g_signal_handlers_disconnect_by_func(instance, func, data)						\
-##    g_signal_handlers_disconnect_matched ((instance),								\
-##					  (GSignalMatchType) (G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA),	\
-##					  0, 0, NULL, (func), (data))
-###define	g_signal_handlers_block_by_func(instance, func, data)							\
-##    g_signal_handlers_block_matched      ((instance),								\
-##				          (GSignalMatchType) (G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA),	\
-##				          0, 0, NULL, (func), (data))
-###define	g_signal_handlers_unblock_by_func(instance, func, data)							\
-##    g_signal_handlers_unblock_matched    ((instance),								\
-##				          (GSignalMatchType) (G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA),	\
-##				          0, 0, NULL, (func), (data))
-##
-#
+###define	g_signal_handlers_disconnect_by_func(instance, func, data)
+###define	g_signal_handlers_block_by_func(instance, func, data)
+###define	g_signal_handlers_unblock_by_func(instance, func, data)
+
+int
+do_stuff_by_func (instance, func, data=NULL)
+	GObject * instance
+	SV * func
+	SV * data
+    ALIAS:
+	Glib::Object::signal_handlers_block_by_func = 0
+	Glib::Object::signal_handlers_unblock_by_func = 1
+	Glib::Object::signal_handlers_disconnect_by_func = 2
+    PREINIT:
+	sig_match_callback callback = NULL;
+    CODE:
+	switch (ix) {
+	    case 0: callback = g_signal_handlers_block_matched; break;
+	    case 1: callback = g_signal_handlers_unblock_matched; break;
+	    case 2: callback = g_signal_handlers_disconnect_matched; break;
+	}
+	if (!callback)
+		croak ("internal problem -- xsub aliased to invalid ix");
+	RETVAL = foreach_closure_matched (instance, G_SIGNAL_MATCH_CLOSURE,
+	                                  0, 0, func, data, callback);
+    OUTPUT:
+	RETVAL
+

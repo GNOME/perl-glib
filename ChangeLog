@@ -1,3 +1,10 @@
+2003/08/16 20:53 muppetman
+
+	* GSignal.xs: implemented wrappers for g_signal_handlers_block_by_func,
+	unblock_by_func, and disconnect_by_func.  code for the _matched
+	versions of these functions (the generic ones) is commented out, 
+	because there is no typemap for GSignalMatchType.
+
 2003/08/15 09:35 muppetman
 
 	* debian/*, AUTHORS: patch from James Curbo adding maintainence
