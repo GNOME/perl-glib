@@ -1,0 +1,10 @@
+- GEnum type for G_PRIORITY_VALUES?
+- can't implement g_idle_remove_by_data because ... well, how would you
+  search for the data value?
+- proper cleanup for bad parameter types in Glib::Object::new?
+- GFlags type for GSignalFlags
+- gperl_sv_from_value and gperl_value_from_sv should croak on the unknown
+  or unimplemented data type, because we should have an implementation for
+  all the fundamentals.
+  - may require the ability to register handlers for new fundamental types.
+  - gperl_value_from_sv should change to void return if it croaks. 

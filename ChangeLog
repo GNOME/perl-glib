@@ -12,6 +12,8 @@
 	just warn --- an unhandled type is a bug that we need to know
 	about; it may require a handler registration mechanism.
 
+	* TODO: updates
+
 2003/08/12 12:06 rwmcfa1
 
 	* PkgConfig.pm: can now take multiple pkg name parameters, see t/6.t
