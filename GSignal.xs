@@ -25,7 +25,7 @@
 
 =cut
 
-//#define NOISY
+/* #define NOISY */
 
 #include "gperl.h"
 

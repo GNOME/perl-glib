@@ -78,7 +78,7 @@ the object was to be freed.
 
 #include "gperl.h"
 
-//#define NOISY
+/* #define NOISY */
 
 /*
 !PRIVATE!

@@ -396,7 +396,7 @@ gperl_set_isa (const char * child_package,
 
 	child_isa_full = g_strconcat (child_package, "::ISA", NULL);
 	isa = get_av (child_isa_full, TRUE); /* create on demand */
-	//warn ("--> @%s = qw(%s);\n", child_isa_full, parent_package);
+	/* warn ("--> @%s = qw(%s);\n", child_isa_full, parent_package); */
 	g_free (child_isa_full);
 
 	av_push (isa, newSVpv (parent_package, 0));
@@ -418,7 +418,7 @@ gperl_prepend_isa (const char * child_package,
 
 	child_isa_full = g_strconcat (child_package, "::ISA", NULL);
 	isa = get_av (child_isa_full, TRUE); /* create on demand */
-	//warn ("--> @%s = qw(%s);\n", child_isa_full, parent_package);
+	/* warn ("--> @%s = qw(%s);\n", child_isa_full, parent_package); */
 	g_free (child_isa_full);
 
 	av_unshift (isa, 1);
@@ -751,7 +751,7 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	int n;
 	gboolean retval;
 
-//	warn ("gperl_real_signal_accumulator");
+/*	warn ("gperl_real_signal_accumulator"); */
 
 	/* invoke the callback, with custom marshalling */
 	ENTER;
@@ -768,8 +768,8 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 
 	PUTBACK;
 
-//warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
-//warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return))));
+/* warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
+ * warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return)))); */
 
 	n = call_sv (callback->func, G_EVAL|G_ARRAY);
 
@@ -808,8 +808,8 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	sv = POPs;
 	retval = SvTRUE (sv);
 
-//warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
-//warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return))));
+/* warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
+ * warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return)))); */
 
 	FREETMPS;
 	LEAVE;
@@ -922,7 +922,7 @@ add_signals (GType instance_type, HV * signals)
 
 		/* the key is the signal name */
 		signal_name = hv_iterkey (he, &keylen);
-//		warn ("\n#####\nsignal name: %s\n", signal_name);
+/*		warn ("\n#####\nsignal name: %s\n", signal_name); */
 		/* if the signal is defined at this point, we're going to
 		 * override the installed closure. */
 		signal_id = g_signal_lookup (signal_name, instance_type);
@@ -945,9 +945,9 @@ add_signals (GType instance_type, HV * signals)
 			s = parse_signal_hash (instance_type,
 			                       signal_name,
 			                       (HV*) SvRV (value));
-//			warn ("\ncreating signal %s with accumulator %p and accu_data %p\n", signal_name, s->accumulator, s->accu_data);
-//			sv_setsv (DEFSV, newSVGSignalFlags (s->flags));
-//			eval_pv ("warn ('   flags ['.join (', ', @$_).\"]\n\")", 0);
+/*			warn ("\ncreating signal %s with accumulator %p and accu_data %p\n", signal_name, s->accumulator, s->accu_data);
+ *			sv_setsv (DEFSV, newSVGSignalFlags (s->flags));
+ *			eval_pv ("warn ('   flags ['.join (', ', @$_).\"]\n\")", 0); */
 			signal_id = g_signal_newv (signal_name,
 			                           instance_type,
 			                           s->flags,

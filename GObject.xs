@@ -144,7 +144,7 @@ gperl_register_object (GType gtype,
 	class_info = class_info_new (gtype, package);
 	g_hash_table_insert (types_by_type, (gpointer)class_info->gtype, class_info);
 	g_hash_table_insert (types_by_package, class_info->package, class_info);
-	//warn ("registered class %s to package %s\n", class_info->class, class_info->package);
+	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */
 
 	parent_type = g_type_parent (gtype);
 	if (parent_type != 0) {

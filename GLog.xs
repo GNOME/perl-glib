@@ -169,7 +169,7 @@ MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
 BOOT:
 	gperl_handle_logs_for (NULL);
-	//gperl_handle_logs_for ("main");
+	/* gperl_handle_logs_for ("main"); */
 	gperl_handle_logs_for ("GLib");
 	gperl_handle_logs_for ("GLib-GObject");
 	gperl_register_fundamental (g_log_level_flags_get_type (),
