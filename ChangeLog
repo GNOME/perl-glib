@@ -1,3 +1,9 @@
+2003/09/06 19:23 rwmcfa1
+
+	* Makefile.PL: dist-rpms build target added
+
+	* perl-Glib.spec.in: initial import
+
 2003/09/05 01:50 muppetman
 
 	* README, debian/changelog: update for 0.97 release

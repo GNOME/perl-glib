@@ -100,14 +100,29 @@ WriteMakefile(
 );
 
 package MY;
+use Cwd;
 
 # rule to build the documentation
 sub postamble {
+	my @dirs = qw{rpms rpms/BUILD rpms/RPMS rpms/SOURCES
+		      rpms/SPECS rpms/SRPMS};
+	my $cwd = getcwd();
+
 	return "
 build/xsapi.pod: @main::xs_files xsapi.pod.head xsapi.pod.foot apidoc.pl
 	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot @main::xs_files > \$@
 
 realclean ::
 	-rm -Rf build
+
+rpms/:
+	-mkdir @dirs
+
+perl-\$(DISTNAME).spec: perl-\$(DISTNAME).spec.in
+	sed -e \"s/\@VERSION\@/\$(VERSION)/g\" -e \"s/\@SOURCE\@/\$(DISTNAME)-\$(VERSION).tar.gz/g\" \$< > \$@
+
+dist-rpms: Makefile dist perl-\$(DISTNAME).spec rpms/
+	cp \$(DISTNAME)-\$(VERSION).tar.gz rpms/SOURCES/
+	rpmbuild -ba --define \"_topdir $cwd/rpms\" perl-\$(DISTNAME).spec
 ";
 }
