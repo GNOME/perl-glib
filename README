@@ -67,7 +67,7 @@ or newer.
 You'll also need the following modules in order to build the Glib module
 from source:
 
-  ExtUtils::Depends >= 0.100
+  ExtUtils::Depends >= 0.200
   ExtUtils::PkgConfig >= 1.00
 
 COPYRIGHT AND LICENCE
