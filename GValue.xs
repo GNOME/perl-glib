@@ -119,8 +119,9 @@ gperl_value_from_sv (GValue * value,
 		case G_TYPE_BOXED:
 			/* SVs need special treatment! */
 			if (G_VALUE_HOLDS (value, GPERL_TYPE_SV))
-				g_value_set_boxed (value, !SvOK (sv) 
-				                   ? NULL : sv);
+				g_value_set_boxed (value,
+				                   sv && SvOK (sv) 
+				                   ? sv : NULL);
 			else
 				g_value_set_boxed (value, gperl_get_boxed_check (sv, G_VALUE_TYPE(value)));
 			break;
