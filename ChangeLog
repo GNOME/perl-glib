@@ -1,3 +1,10 @@
+2003/09/17 10:44 rwmcfa1
+
+	* Makefile.PL: ExtUtils::PkgConfig can now deal with version 
+	requirements using pkg-config's interface, make use of it.
+
+	* t/6.t: removed, this tested Glib::PkgConfig
+
 2003/09/16 23:50 rwmcfa1
 
 	* Makefile.PL, perl-*spec.in: somewhat automated versioning system 

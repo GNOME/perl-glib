@@ -37,7 +37,7 @@ unless (eval "use ExtUtils::Depends;"
 
 mkdir 'build', 0777;
 
-%glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0');
+%glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
 
 $runtime_reqs{Glib} = $glibcfg{modversion};
 
