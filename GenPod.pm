@@ -177,7 +177,9 @@ sub xsdoc2pod
 
 	my $pkgdata;
 	my $ret;
-	foreach my $package (sort keys %$data)
+
+	foreach my $package (sort { ($a->isa('Glib::Object') ? -1 : 1) } 
+				keys %$data)
 	{
 		$pkgdata = $data->{$package};
 
