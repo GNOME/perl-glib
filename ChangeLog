@@ -1,6 +1,8 @@
 2003/11/12 20:45 pcg
 
 	* gperl.h, typemap: Add GPerlFilename_const.
+        * Glib.xs, Glib.pm: implement and document filename_to_unicode and
+        filename_from_unicode.
 
 2003/11/12 02:48 pcg
 

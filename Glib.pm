@@ -282,6 +282,50 @@ output a human-readable version of it's contents.
 For the most part, the remaining bits of GLib are unchanged.  GMainLoop is now
 Glib::MainLoop, GObject is now Glib::Object, GBoxed is now Glib::Boxed, etc.
 
+=head1 FILENAMES, URIS AND ENCODINGS
+
+Perl knows two datatypes, unicode text and binary data. Filenames on a
+system that doesn't use a utf-8 locale are usually stored in a local
+encoding ("binary"). Gtk+ and descendants, however, internally work in
+unicode all the time, so when feeding a filename into a Glib/Gtk+ function
+that expects a filename, you first need to convert it from the local
+encoding to unicode.
+
+This involves some elaborate guessing, which perl currently avoids, but
+Glib and Gtk+ do. The following functions expose the conversion algorithm
+that glib uses.
+
+Examples:
+
+   open MY, "<", Glib::filename_from_unicode $filesel->get_filename;
+
+   $filesel->set_filename (Glib::filename_to_unicode $ARGV[1]);
+
+These functions are only neecssary when you want to use perl functions 
+to manage filenames return by a glib/gtk+ function, or when you feed
+filenames into glib/gtk+ functions that have their source outside your
+program (e.g. comamndline arguments).
+
+=over 4
+
+=item $filename = Glib::filename_to_unicode $filename_in_local_encoding
+
+Convert a perl strings that supposedly contains a filename into a filename
+in the local encoding, the same way that glib or gtk+ do it internally.
+
+=item $filename_in_local_encoding = Glib::filename_from_unicode $filename
+
+Converts a perl string containing a filename in the local encoding into a
+perl string in the same way glib ot gtk+ do it.
+
+=back
+
+Other functions for converting URIs are currently missing. Also, it might
+be useful to know that pelr currently has no policy at all regarding this
+issue, if your scalar happens to be in utf8 internally it will use utf8,
+if it happens to be stored as bytes, it will use it as-is.
+
+
 =head1 EXCEPTIONS
 
 The C language doesn't support exceptions; GLib is a C library, and of course

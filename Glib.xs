@@ -257,3 +257,20 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__MainLoop);
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
+
+const char *
+filename_from_unicode (GPerlFilename *filename)
+	PROTOTYPE: $
+	CODE:
+        RETVAL = filename;
+	OUTPUT:
+        RETVAL
+        
+GPerlFilename
+filename_to_unicode (const char *filename)
+	PROTOTYPE: $
+	CODE:
+        RETVAL = filename;
+	OUTPUT:
+        RETVAL
+        
