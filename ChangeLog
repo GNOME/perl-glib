@@ -1,3 +1,10 @@
+2005/02/04 22:36 (-0500) muppetman
+
+	* MakeHelper.pm: (select_files_by_version) do not escape . in glob
+	patterns; it is unnecessary on unix and win32 thinks the \ is a path
+	separator.  This one-character change fixes an intermittent win32
+	build problem.
+
 2005/01/29 21:22 (-0500) muppetman
 
 	* ParseXSDoc.pm: better handling for xsubs with continuation lines.

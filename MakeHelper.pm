@@ -106,7 +106,7 @@ sub select_files_by_version {
 	$minor++ if ($minor % 2);
 
 	my @files = ();
-	foreach (glob $stem . '-*\.*') {
+	foreach (glob $stem . '-*.*') {
 		if (/$stem-(\d+)\.(\d+)/) {
 			push @files, $_
 				if  $1 <= $major
