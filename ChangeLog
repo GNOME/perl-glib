@@ -1,3 +1,7 @@
+2003/07/25 10:21 muppetman
+
+	* Gtk2.pm, README: bump version to 0.91
+
 2003/07/23 23:27 pcg
 
         * PkgConfig.pm: allow better win32 compatibility (I made a native,

@@ -28,7 +28,7 @@ use warnings;
 require DynaLoader;
 our @ISA = qw(DynaLoader);
 
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 sub dl_load_flags { 0x01 }
 
