@@ -1,3 +1,8 @@
+2004/02/22 15:26 (-0500) rwmcfa1
+
+	* GenPod.pm: removed warning about xsubs with no args, as they're 
+	perfectly legal, and there are now some.
+
 2004/02/22 12:48 (-0500) rwmcfa1
 
 	* GenPod.pm: method sorting implmented with suggestions from Marc and

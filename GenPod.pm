@@ -894,9 +894,6 @@ xsub.
 sub compile_signature {
 	my $xsub = shift;
 
-	if (not defined $xsub->{args}) {
-		warn "*** xsub contains no args key:\n   ".Dumper($xsub);
-	}
 	my ($instance, @args) = @{ $xsub->{args} };
 
 	# find the method's short name
