@@ -1,8 +1,8 @@
 2003/12/04 13:07 (-0500) rwmcfa1
 
-	* GenPod.pm: @ARGV is now searched for disable-apidoc which, surprise,
-	disables the generation of the api doc pods thus speeding up the build
-	process.
+	* MakeHelper.pm: @ARGV is now searched for disable-apidoc which,
+	surprise, disables the generation of the api doc pods thus speeding up
+	the build process.
 
 2003/12/04 00:12 (-0500) muppetman
 
