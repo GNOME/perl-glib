@@ -1,3 +1,10 @@
+2004/10/24 11:55 (-0400) rwmcfa1
+
+	* MANIFEST.SKIP: updates
+
+	* perl-Glib.spec.in: new scheme that addresses x86_64 problems
+	found by Carl Nygard
+
 2004/10/20 19:32 (+0200) kaffeetisch
 
 	* GParamSpec.xs, e.t: Add and test support for GParamSpecUnichar.
