@@ -11,6 +11,7 @@ GType.xs
 GValue.xs
 Glib.pm
 Glib.xs
+Glib.exports
 LICENSE
 MANIFEST
 MANIFEST.SKIP
