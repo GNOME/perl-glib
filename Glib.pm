@@ -267,10 +267,10 @@ In general, C<+> and C<-> work as expected to add or remove flags. To test
 wether I<any> bits are set in a mask, you use C<$mask * ...>, and to test
 wether I<all> bits are set in a mask, you use C<$mask >= ...>.
 
-When dereferenced as an array C<@$flags> or C<$flags->[...]>, you
-can access the flag values directly as strings, and when stringified
-C<"$flags"> a flags value will output a human-readable version of it's
-contents.
+When dereferenced as an array C<@$flags> or C<$flags->[...]>, you can
+access the flag values directly as strings (but you are not allowed to
+modify the array), and when stringified C<"$flags"> a flags value will
+output a human-readable version of it's contents.
 
 =head2 It's All the Same
 
