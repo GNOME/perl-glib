@@ -1,3 +1,12 @@
+2003/06/06 23:55 muppetman
+
+	* GObject.xs, GType.xs: copy scalars that will be stored, don't just
+	mess with the reference count, for along that way lies madness.
+
+	* MANIFEST: added some key missing files (AUTHORS, LICENSE, ChangeLog)
+
+	* Glib.pm: bumped version number to 0.22 for public release
+
 2003/06/01 16:16 muppetman
 
 	applied patch from Marc Lehmann (pcg at goof dot com)
