@@ -79,19 +79,32 @@ SvGParamSpec (SV * sv)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
+BOOT:
+	gperl_register_fundamental (g_param_flags_get_type (),
+	                            "Glib::ParamFlags");
+
+=for enum Glib::ParamFlags
+
+=cut
+
 ## stuff from gparam.h
 
+=for apidoc
+
+=signature string = $paramspec->get_name
+
+Dashes in the name are converted to underscores.
+
+=cut
 SV *
 g_param_spec_get_name (GParamSpec * pspec)
-	CODE:
+    CODE:
         char *c;
         RETVAL = newSVpv (g_param_spec_get_name (pspec), 0);
-
         for (c = SvPV_nolen (RETVAL); c <= SvEND (RETVAL); c++)
                 if (*c == '-')
                         *c = '_';
-        
-	OUTPUT:
+    OUTPUT:
         RETVAL
 
 const gchar* g_param_spec_get_nick (GParamSpec * pspec)
@@ -218,10 +231,31 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 #### gunichar not in typemap
 ###  GParamSpec* g_param_spec_unichar (const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
 #
-#### GType not in typemap.  actually, the GTypes for enums and flags are
-#### never exposed to perl at all.  how do we handle these?
 ###  GParamSpec* g_param_spec_enum (const gchar *name, const gchar *nick, const gchar *blurb, GType enum_type, gint default_value, GParamFlags flags) 
+GParamSpec*
+g_param_spec_enum (class, const gchar *name, const gchar *nick, const gchar *blurb, const char * enum_type, SV * default_value, GParamFlags flags)
+    PREINIT:
+	GType gtype;
+    CODE:
+	gtype = gperl_fundamental_type_from_package (enum_type);
+	RETVAL = g_param_spec_enum (name, nick, blurb, gtype,
+	                            gperl_convert_enum (gtype, default_value),
+	                            flags);
+    OUTPUT:
+	RETVAL 
+
 ###  GParamSpec* g_param_spec_flags (const gchar *name, const gchar *nick, const gchar *blurb, GType flags_type, guint default_value, GParamFlags flags) 
+GParamSpec*
+g_param_spec_flags (class, const gchar *name, const gchar *nick, const gchar *blurb, const char * flags_type, SV * default_value, GParamFlags flags)
+    PREINIT:
+	GType gtype;
+    CODE:
+	gtype = gperl_fundamental_type_from_package (flags_type);
+	RETVAL = g_param_spec_flags (name, nick, blurb, gtype,
+	                             gperl_convert_flags (gtype, default_value),
+	                             flags);
+    OUTPUT:
+	RETVAL 
 
 
 ##  GParamSpec* g_param_spec_float (const gchar *name, const gchar *nick, const gchar *blurb, gfloat minimum, gfloat maximum, gfloat default_value, GParamFlags flags) 
