@@ -46,12 +46,12 @@ const guchar *	T_PV
 gfloat		T_FLOAT
 gdouble		T_DOUBLE
 
-GObject*	T_G_TYPE_OBJECT
-GObject_ornull*	T_G_TYPE_OBJECT_ORNULL
-GObject_noinc*	T_G_TYPE_OBJECT_NOINC
+GObject*	T_GPERL_GENERIC_WRAPPER
+GObject_ornull*	T_GPERL_GENERIC_WRAPPER
+GObject_noinc*	T_GPERL_GENERIC_WRAPPER
 
-GParamSpec*	T_G_TYPE_PARAM_SPEC
-GParamFlags	T_G_PARAM_FLAGS
+GParamSpec*	T_GPERL_GENERIC_WRAPPER
+GParamFlags	T_GPERL_GENERIC_WRAPPER
 
 GIOCondition	T_G_TYPE_IO_CONDITION
 
@@ -60,6 +60,10 @@ GMainLoop*	T_G_MAIN_LOOP
 
 #####
 INPUT
+
+# a general-purpose typemap...
+T_GPERL_GENERIC_WRAPPER
+	$var = Sv${(my $ntype = $type) =~ s/\s*\*//; \$ntype} ($arg);
 
 T_GCHAR
 	/* same as SvGChar(), but not in a function */
@@ -70,17 +74,6 @@ T_GCHAR_LEN
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
         XSauto_length_of_$var = STRLEN_length_of_$var;
-
-T_G_TYPE_OBJECT
-	$var = SvGObject ($arg);
-
-T_G_TYPE_OBJECT_ORNULL
-	$var = SvGObject_ornull ($arg);
-
-T_G_TYPE_PARAM_SPEC
-	$var = SvGParamSpec ($arg);
-T_G_PARAM_FLAGS
-	$var = SvGParamFlags ($arg);
 
 T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
@@ -97,6 +90,9 @@ T_G_MAIN_LOOP
 ######
 OUTPUT
 
+T_GPERL_GENERIC_WRAPPER
+	$arg = newSV${(my $ntype = $type) =~ s/\s*\*//; \$ntype} ($var);
+
 T_GCHAR
 	/* same as newSVGChar(), but not in a function */
 	sv_setpv ((SV*)$arg, $var);
@@ -109,17 +105,6 @@ T_GCHAR_OWN
 	sv_setpv ((SV*)$arg, $var);
 	SvUTF8_on ($arg);
         g_free ($var);
-
-T_G_TYPE_OBJECT
-	$arg = newSVGObject ($var);
-
-T_G_TYPE_OBJECT_NOINC
-	$arg = newSVGObject_noinc ($var);
-
-T_G_TYPE_PARAM_SPEC
-	$arg = newSVGParamSpec ($var);
-T_G_PARAM_FLAGS
-	$arg = newSVGParamFlags ($var);
 
 T_G_TYPE_IO_CONDITION
 	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
