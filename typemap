@@ -33,6 +33,7 @@ gint64		T_IV
 guint64		T_UV
 glong		T_IV
 gulong		T_UV
+gunichar	T_GUNICHAR
 gchar		T_IV
 gchar *		T_GCHAR
 const gchar *	T_GCHAR
@@ -73,6 +74,9 @@ INPUT
 T_GPERL_GENERIC_WRAPPER
 	$var = Sv${(my $ntype = $type) =~ s/(?:const\s+)?([:\w]+)(?:\s*\*)$/$1/x;
 	           \$ntype} ($arg);
+
+T_GUNICHAR
+	$var = g_utf8_get_char (SvGChar ($arg));
 
 T_GCHAR
 	/* same as SvGChar(), but not in a function */

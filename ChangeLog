@@ -1,3 +1,7 @@
+2003/11/17 22:02 (+0100) kaffeetisch
+
+	* typemap: Implement a gunichar INPUT typemap.
+
 2003/11/16 20:32 (-0500) muppetman
 
 	* gperl_marshal.h: add similar macros for GPerlCallback, to make sure
