@@ -66,32 +66,32 @@ MODULE = Glib::Utils	PACKAGE = Glib	PREFIX = g_
 #GLIB_VAR const guint glib_interface_age;
 #GLIB_VAR const guint glib_binary_age;
 
-=for apidoc Glib::MAJOR_VERSION
+=for apidoc Glib::MAJOR_VERSION __function__
 Provides access to the version information that Glib was compiled against.
 Essentially equivalent to the #define's GLIB_MAJOR_VERSION.
 =cut
 
-=for apidoc Glib::MINOR_VERSION
+=for apidoc Glib::MINOR_VERSION __function__
 Provides access to the version information that Glib was compiled against.
 Essentially equivalent to the #define's GLIB_MINOR_VERSION.
 =cut
 
-=for apidoc Glib::MICRO_VERSION
+=for apidoc Glib::MICRO_VERSION __function__
 Provides access to the version information that Glib was compiled against.
 Essentially equivalent to the #define's GLIB_MICRO_VERSION.
 =cut
 
-=for apidoc Glib::major_version
+=for apidoc Glib::major_version __function__
 Provides access to the version information that Glib is linked against.
 Essentially equivalent to the global variable glib_major_version.
 =cut
 
-=for apidoc Glib::minor_version
+=for apidoc Glib::minor_version __function__
 Provides access to the version information that Glib is linked against.
 Essentially equivalent to the global variable glib_minor_version.
 =cut
 
-=for apidoc Glib::micro_version
+=for apidoc Glib::micro_version __function__
 Provides access to the version information that Glib is linked against.
 Essentially equivalent to the global variable glib_micro_version.
 =cut
