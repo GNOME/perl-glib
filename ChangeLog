@@ -1,3 +1,10 @@
+2003/11/03 12:04 muppetman
+
+	* GType.xs: (list_interfaces) watch out for unregistered interface
+	classes.  complain, but don't blow up.  also, free the returned array
+	of GTypes.  thanks to Bjarne Steinsbø.
+	* AUTHORS: updated contributors
+
 2003/11/02 11:54 muppetman
 
 	* GClosure.xs: the case of the missing ref; refcount bug in

@@ -1407,10 +1407,17 @@ list_interfaces (class, package)
 	interfaces = g_type_interfaces (package_gtype, NULL);
 	if (!interfaces)
 		XSRETURN_EMPTY;
-	for (i = 0; interfaces[i] != 0; i++)
-	{
-		XPUSHs (sv_2mortal (newSVpv (
-			gperl_package_from_type (interfaces[i]), 0)));
+	for (i = 0; interfaces[i] != 0; i++) {
+		const char * name = gperl_package_from_type (interfaces[i]);
+		if (!name) {
+			/* this is usually a sign that the bindings are
+			 * missing something.  let's print a warning to make
+			 * this easier to find. */
+			name = g_type_name (interfaces[i]);
+			warn ("GInterface %s is not registered with GPerl",
+			      name);
+		}
+		XPUSHs (sv_2mortal (newSVpv (name, 0)));
 	}
 
 =for apidoc

@@ -14,6 +14,7 @@ Contributors - the people who sent us patches
 Brett Kosinski   brettk at frodo dot dyn dot gno dot org
 Thierry Vignaud  tvignaud at mandrakesoft dot com
 James Curbo      hannibal at adtrw dot org
+Bjarne Steinsbø  bosteins at broadpark dot no
 
 several important bits of gtk2-perl were heavily inspired by pygtk, gtk-perl,
 and a good read-through of the gtk source code, so credit goes to those guys as
