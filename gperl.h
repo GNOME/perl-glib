@@ -234,6 +234,7 @@ typedef GPerlFilename GPerlFilename_ornull;
 SV * newSVGSignalFlags (GSignalFlags flags);
 GSignalFlags SvGSignalFlags (SV * sv);
 SV * newSVGSignalInvocationHint (GSignalInvocationHint * ihint);
+SV * newSVGSignalQuery (GSignalQuery * query);
 
 void gperl_signal_set_marshaller_for (GType             instance_type,
                                       char            * detailed_signal,

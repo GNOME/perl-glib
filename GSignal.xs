@@ -99,6 +99,51 @@ newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
 }
 
 
+#define GET_NAME(name, gtype)				\
+	(name) = gperl_package_from_type (gtype);	\
+	if (!(name))					\
+		(name) = g_type_name (gtype);
+SV *
+newSVGSignalQuery (GSignalQuery * query)
+{
+	HV * hv;
+	AV * av;
+	int j;
+	const char * pkgname;
+
+	if (!query)
+		return &PL_sv_undef;
+
+	hv = newHV ();
+	hv_store (hv, "signal_id", 9, newSViv (query->signal_id), 0);
+	hv_store (hv, "signal_name", 11,
+		  newSVpv (query->signal_name, 0), 0);
+	GET_NAME (pkgname, query->itype);
+	if (pkgname)
+		hv_store (hv, "itype", 5, newSVpv (pkgname, 0), 0);
+	hv_store (hv, "signal_flags", 12,
+		  newSVGSignalFlags (query->signal_flags), 0);
+	if (query->return_type != G_TYPE_NONE) {
+		GType t = query->return_type & ~G_SIGNAL_TYPE_STATIC_SCOPE;
+		GET_NAME (pkgname, t);
+		if (pkgname)
+			hv_store (hv, "return_type", 11,
+				  newSVpv (pkgname, 0), 0);
+	}
+	av = newAV ();
+	for (j = 0; j < query->n_params; j++) {
+		GType t = query->param_types[j] & ~G_SIGNAL_TYPE_STATIC_SCOPE;
+		GET_NAME (pkgname, t);
+		av_push (av, newSVpv (pkgname, 0));
+	}
+	hv_store (hv, "param_types", 11, newRV_noinc ((SV*)av), 0);
+	/* n_params is inferred by the length of the av in param_types */
+
+	return newRV_noinc ((SV*)hv);
+}
+#undef GET_NAME
+
+
 /*
 now back to our regularly-scheduled bindings.
 */
@@ -470,8 +515,57 @@ g_signal_emit (instance, name, ...)
 ##guint                 g_signal_lookup       (const gchar        *name,
 ##					     GType               itype);
 ##G_CONST_RETURN gchar* g_signal_name         (guint               signal_id);
-##void                  g_signal_query        (guint               signal_id,
-##					     GSignalQuery       *query);
+
+##void g_signal_query (guint signal_id, GSignalQuery *query);
+=for apidoc
+Look up information about the signal I<$name> on the instance type
+I<$object_or_class_name>, which may be either a Glib::Object or a package
+name.
+
+See also C<Glib::Type::list_signals>, which returns the same kind of
+hash refs as this does.
+
+Since 1.080.
+=cut
+SV *
+g_signal_query (SV * object_or_class_name, const char * name)
+    PREINIT:
+	GType itype;
+	guint signal_id;
+	GSignalQuery query;
+	GObjectClass * oclass = NULL;
+    CODE:
+	if (object_or_class_name &&
+	    SvOK (object_or_class_name) &&
+	    SvROK (object_or_class_name)) {
+		GObject * object = SvGObject (object_or_class_name);
+		if (!object)
+			croak ("bad object in signal_query");
+		itype = G_OBJECT_TYPE (object);
+	} else {
+		itype = gperl_object_type_from_package
+					(SvPV_nolen (object_or_class_name));
+		if (!itype)
+			croak ("package %s is not registered with GPerl",
+			       SvPV_nolen (object_or_class_name));
+	}
+	if (G_TYPE_IS_CLASSED (itype)) {
+		/* ref the class to ensure that the signals get created,
+		 * otherwise they may not exist at the time we query. */
+		oclass = g_type_class_ref (itype);
+		if (!oclass)
+			croak ("couldn't ref type %s", g_type_name (itype));
+	}
+	signal_id = g_signal_lookup (name, itype);
+	if (0 == signal_id)
+		XSRETURN_UNDEF;
+	g_signal_query (signal_id, &query);
+	RETVAL = newSVGSignalQuery (&query);
+	if (oclass)
+		g_type_class_unref (oclass);
+    OUTPUT:
+	RETVAL
+
 ##guint*                g_signal_list_ids     (GType               itype,
 ##					     guint              *n_ids);
 ##gboolean	      g_signal_parse_name   (const gchar	*detailed_signal,

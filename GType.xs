@@ -2314,20 +2314,12 @@ void
 list_signals (class, package)
 	gchar * package
     PREINIT:
-	guint          i, j, num;
-	const char   * pkgname;
+	guint          i, num;
 	guint        * sigids;
 	GType          package_type;
 	GSignalQuery   siginfo;
 	GObjectClass * oclass = NULL;
-	HV           * hv;
-	AV           * av;
     PPCODE:
-#define GET_NAME(name, gtype)				\
-	(name) = gperl_package_from_type (gtype);	\
-	if (!(name))					\
-		(name) = g_type_name (gtype);		\
-
 	package_type = gperl_type_from_package (package);
 	if (!package_type)
 		croak ("%s is not registered with either GPerl or GLib",
@@ -2346,38 +2338,12 @@ list_signals (class, package)
 	if (!num)
 		XSRETURN_EMPTY;
 	EXTEND(SP, num);
-	for (i = 0; i < num; i++)
-	{
+	for (i = 0; i < num; i++) {
 		g_signal_query (sigids[i], &siginfo);
-		hv = newHV ();
-		hv_store (hv, "signal_id", 9, newSViv (siginfo.signal_id), 0);
-		hv_store (hv, "signal_name", 11,
-				newSVpv (siginfo.signal_name, 0), 0);
-		GET_NAME (pkgname, siginfo.itype);
-		if (pkgname)
-			hv_store (hv, "itype", 5, newSVpv (pkgname, 0), 0);
-		hv_store (hv, "signal_flags", 12,
-			newSVGSignalFlags (siginfo.signal_flags), 0);
-		if (siginfo.return_type != G_TYPE_NONE)
-		{
-			GET_NAME (pkgname, siginfo.return_type);
-			if (pkgname)
-				hv_store (hv, "return_type", 11,
-					newSVpv (pkgname, 0), 0);
-		}
-		av = newAV ();
-		for (j = 0; j < siginfo.n_params; j++)
-		{
-			GET_NAME (pkgname, siginfo.param_types[j]
-					& ~G_SIGNAL_TYPE_STATIC_SCOPE);
-			av_push (av, newSVpv (pkgname, 0));
-		}
-		hv_store (hv, "param_types", 11, newRV_noinc ((SV*)av), 0);
-		PUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
+		PUSHs (sv_2mortal (newSVGSignalQuery (&siginfo)));
 	}
 	if (oclass)
 		g_type_class_unref (oclass);
-#undef GET_NAME
 
 
 =for apidoc

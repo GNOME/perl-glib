@@ -1,5 +1,17 @@
 2005/02/07 23:20 (-0500) muppetman
 
+	* GSignal.xs, gperl.h, Glib.exports: Bind and document g_signal_query
+	as Glib::Object::signal_query.  Add newSVGSignalQuery to marshal a
+	GSignalQuery to perl.
+
+	* GType.xs: Move guts of list_signals to newSVGSignalQuery, and call
+	that function instead.
+
+	M MANIFEST
+	A t/signal_query.t: New test for signal_query and list_signals.
+
+2005/02/07 23:20 (-0500) muppetman
+
 	* GLog.xs: Call abort() rather than croak() on G_LOG_LEVEL_ERROR
 	messages.  croak()ing didn't do anything useful, and abort()ing
 	allows you to stop gdb on an error and get a backtrace.
