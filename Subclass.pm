@@ -154,7 +154,7 @@ The default finalizer does nothing.
 
 =item $object->DESTROY           [DO NOT OVERWRITE]
 
-Don't I<ever> overwrite, use C<FINALIZE_INSTANCE> instead.
+Don't I<ever> overwrite C<DESTROY>, use C<FINALIZE_INSTANCE> instead.
 
 The DESTROY method of all perl classes derived from GTypes is
 implemented in the Glib module and (ab-)used for it's own internal
@@ -186,15 +186,15 @@ sub import {
    my $signals    = $arg{signals}    || {};
    my $properties = $arg{properties} || [];
 
-   # the init callback will be executed before the mode code is executed
-   my $init = sub {
+   # the CHECK callback will be executed after the module is compiled
+   my $check = sub {
       # "optionally" supply defaults
       for (qw(new GET_PROPERTY SET_PROPERTY)) {
          defined &{"$class\::$_"}
             or *{"$class\::$_"} = \&$_;
       }
    };
-   eval "package $class; INIT { &\$init }";
+   eval "package $class; CHECK { &\$check }";
 
    Glib::Type->register(
       $superclass, $class,
