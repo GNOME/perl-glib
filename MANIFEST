@@ -28,6 +28,8 @@ MANIFEST.SKIP
 META.yml			Module meta-data in YAML
 NEWS
 ParseXSDoc.pm
+copyright.pod
+doctypes
 perl-Glib.spec.in
 ppport.h
 README
