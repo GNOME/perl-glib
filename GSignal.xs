@@ -48,8 +48,7 @@ gperl_signal_connect (SV * instance,
 {
 	GClosure * closure;
 
-	closure = gperl_closure_new (detailed_signal, instance,
-				     callback, data,
+	closure = gperl_closure_new (callback, data,
 				     flags & G_CONNECT_SWAPPED);
 
 	/* after is true only if we're called as signal_connect_after */

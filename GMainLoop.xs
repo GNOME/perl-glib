@@ -293,7 +293,7 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
 	GClosure * closure;
 	GSource * source;
     CODE:
-	closure = gperl_closure_new ("Glib::Timeout", data, callback, NULL, FALSE);
+	closure = gperl_closure_new (callback, data, FALSE);
 	source = g_timeout_source_new (interval);
 	if (priority != G_PRIORITY_DEFAULT)
 		g_source_set_priority (source, priority);
@@ -317,7 +317,7 @@ g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 	GClosure * closure;
 	GSource * source;
     CODE:
-	closure = gperl_closure_new ("Glib::Idle", data, callback, NULL, FALSE);
+	closure = gperl_closure_new (callback, data, FALSE);
 	source = g_idle_source_new ();
 	g_source_set_priority (source, priority);
 	g_source_set_closure (source, closure);
@@ -349,7 +349,7 @@ g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_D
 	source = g_io_create_watch (channel, condition);
 	if (priority != G_PRIORITY_DEFAULT)
 		g_source_set_priority (source, priority);
-	closure = gperl_closure_new ("Glib::IO", ST(1), callback, data, FALSE);
+	closure = gperl_closure_new (callback, data, FALSE);
 	g_source_set_closure (source, closure);
 	RETVAL = g_source_attach (source, NULL);
 	g_source_unref (source);

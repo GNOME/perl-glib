@@ -46,10 +46,6 @@ gperl_closure_invalidate (gpointer data,
 #ifdef NOISY
 	warn ("Invalidating closure for %s\n", pc->name);
 #endif
-	if (pc->target) {
-		SvREFCNT_dec (pc->target);
-		pc->target = NULL;
-	}
 	if (pc->callback) {
 		SvREFCNT_dec (pc->callback);     
 		pc->callback = NULL;
@@ -57,10 +53,6 @@ gperl_closure_invalidate (gpointer data,
 	if (pc->data) {
 		SvREFCNT_dec (pc->data);
 		pc->data = NULL;
-	}
-	if (pc->name) {
-		g_free (pc->name);
-		pc->name = NULL;
 	}
 }
 
@@ -74,7 +66,7 @@ gperl_closure_marshal (GClosure * closure,
 {
 	guint i;
 	GPerlClosure *pc = (GPerlClosure *)closure;
-	SV * target, * data;
+	SV * data;
 #ifndef PERL_IMPLICIT_CONTEXT
 	dSP;
 #else
@@ -87,41 +79,39 @@ gperl_closure_marshal (GClosure * closure,
 	SPAGAIN;
 #endif
 
-	/*
-	warn ("Marshalling: params: %d\n", n_param_values);
-	warn ("Marshalling: func: %lx (refcnt: %d) target: %lx (refcnt: %d) data: %lx (refcnt: %d)\n", 
-	      pc->callback, pc->callback->sv_refcnt,
-	      pc->target, pc->target->sv_refcnt,
-	      pc->extra_args, pc->extra_args ? pc->extra_args->sv_refcnt : 0);
-	 */
-
 	ENTER;
 	SAVETMPS;
 
 	PUSHMARK (SP);
 
-	/* FIXME pc->target's object and param[0]'s object should be the same.
-	 *       should i verify this? */
-
-	if (GPERL_CLOSURE_SWAP_DATA (pc)) {
-		/* swap target and data */
-		target = pc->data;
-		data   = pc->target;
+	if (n_param_values == 0) {
+		data = pc->data;
 	} else {
-		/* normal */
-		target = pc->target;
-		data   = pc->data;
-	}
+		/*
+		 * complicateder and complicateder...
+		 * if the closure is set for swap data, we need to swap
+		 * out param_values[0] (the "instance") with pc->data.
+		 */
+		SV * instance;
 
-	if (!target)
-		target = &PL_sv_undef;
+		if (GPERL_CLOSURE_SWAP_DATA (pc)) {
+			/* swap instance and data */
+			data     = gperl_sv_from_value (param_values);
+			instance = pc->data;
+		} else {
+			/* normal */
+			instance = gperl_sv_from_value (param_values);
+			data     = pc->data;
+		}
 
-	/* always the first item in @_ */
-	XPUSHs (target);
+		/* of course, this can leave us with no instance.  :-/ */
+		if (!instance)
+			instance = &PL_sv_undef;
 
-	/* any extra params for this call will be included in param_values
-	 * as GValues, and this should be straightforward.  */
-	if (n_param_values > 1) {
+		/* the instance is always the first item in @_ */
+		XPUSHs (instance);
+
+		/* the rest of the params should be quite straightforward. */
 		for (i = 1; i < n_param_values; i++) {
 			SV * arg;
 #ifdef NOISY
@@ -132,8 +122,8 @@ gperl_closure_marshal (GClosure * closure,
 #endif
 		       arg = gperl_sv_from_value ((GValue*) param_values + i);
 		       if (!arg) {
-			       warn ("[gperl_closure_marshal] Warning, failed to convert object from value for name: %s number: %d type: %s fundtype: %s\n",
-				     pc->name, i,
+			       warn ("[gperl_closure_marshal] Warning, failed to convert object from value for closure invocation: number: %d type: %s fundtype: %s\n",
+				     i,
 				     g_type_name (G_VALUE_TYPE (param_values + i)),
 				     g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (param_values + i))));
 				arg = &PL_sv_undef;
@@ -167,7 +157,7 @@ gperl_closure_marshal (GClosure * closure,
 }
 
 
-=item GClosure * gperl_closure_new (gchar * name, SV * target, SV * callback, SV * data, gboolean swap)
+=item GClosure * gperl_closure_new (SV * callback, SV * data, gboolean swap)
 
 Create and return a new GPerlClosure.  I<callback> and I<data> will be copied
 for storage; I<callback> must not be NULL.  If I<swap> is TRUE, I<data> will be
@@ -180,9 +170,7 @@ the closure will be used to invoke it.
 
 =cut
 GClosure *
-gperl_closure_new (gchar * name,
-		   SV * target,
-		   SV * callback,
+gperl_closure_new (SV * callback,
 		   SV * data,
 		   gboolean swap)
 {
@@ -209,10 +197,6 @@ gperl_closure_new (gchar * name,
 	 * happen in special cases.   see the notes in perlcall section
 	 * 'Using call_sv' for more info
 	 */
-	closure->target = (target && target != &PL_sv_undef)
-	                ? newSVsv (target)
-	                : NULL;
-
 	closure->callback = (callback && callback != &PL_sv_undef)
 	                  ? newSVsv (callback)
 	                  : NULL;
@@ -222,23 +206,10 @@ gperl_closure_new (gchar * name,
 	              : NULL;
 
 	closure->swap = swap;
-	closure->name = name ? g_strdup (name) : NULL;
+
 	return (GClosure*)closure;
 }
 
-/*
-void
-gperl_gclosure_destroy (SV * closure)
-{
-	GPerlClosure* pc = SvGClosure (closure);
-	if (pc) {
-		g_closure_unref ((GClosure*) pc);
-		sv_setiv (SvRV (closure), (IV) 0);
-	} else
-		warn ("WARNING: double free attempted on GClosure %s\n",
-		      SvPV_nolen (closure));
-}
-*/
 
 =back
 

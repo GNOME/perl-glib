@@ -204,23 +204,18 @@ gulong gperl_signal_connect (SV            * instance,
 typedef struct _GPerlClosure GPerlClosure;
 struct _GPerlClosure {
 	GClosure closure;
-	SV * target;
 	SV * callback;
 	SV * data; /* callback data */
 	gboolean swap; /* TRUE if target and data are to be swapped */
-	gchar * name;
 	int id;
 };
 
 /* evaluates to true if the instance and data are to be swapped on invocation */
 #define GPERL_CLOSURE_SWAP_DATA(gpc)	((gpc)->swap)
 
-GClosure * gperl_closure_new (gchar * name, 
-			      SV * target, 
-			      SV * callback, 
+GClosure * gperl_closure_new (SV * callback, 
 			      SV * data, 
 			      gboolean swap);
-//void gperl_closure_destroy (SV * g_perl_closure);
 
 /*
  * GPerlCallback
