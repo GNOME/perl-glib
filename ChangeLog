@@ -1,3 +1,9 @@
+2003/07/10 09:50 muppetman
+
+	* Glib.pm: $VERSION is actually treated as a string, write it as one
+	to avoid bootstrap problems when using a locale that writes numbers
+	differently.  (thanks to thierry for finding that.)
+
 2003/07/06 16:48 muppetman
 
 	* GSignal.xs: add g_signal_stop_emission_by_name
