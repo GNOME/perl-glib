@@ -343,7 +343,7 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 		-e '$docgen_code'
 
 \$(INST_LIB)/\$(FULLEXT)/:
-	$^X -MExtUtils::Command -e mkpath $@
+	$^X -MExtUtils::Command -e mkpath \$@
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
