@@ -282,7 +282,12 @@ gperl_new_boxed (gpointer boxed,
 	GPerlBoxedWrapFunc wrap;
 
 	if (!boxed)
-		croak ("NULL pointer made it into gperl_new_boxed");
+	{
+#ifdef NOISY
+		warn ("NULL pointer made it into gperl_new_boxed");
+#endif
+		return &PL_sv_undef;
+	}
 
 	G_LOCK (info_by_gtype);
 
