@@ -1,3 +1,8 @@
+2003/07/23 23:27 pcg
+
+        * PkgConfig.pm: allow better win32 compatibility (I made a native,
+        win32 build of Glib today).
+
 2003/07/18 12:05 muppetman
 
 	* Glib.pm, README, META.yml

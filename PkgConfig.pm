@@ -27,7 +27,7 @@ sub find {
 
 	foreach my $what (qw/modversion cflags libs/) {
 		$data{$what} = `pkg-config $pkg --$what`;
-		chomp $data{$what};
+                $data{$what} =~ s/[\015\012]+$//;
 		croak "*** can't find $what for $pkg\n"
 		    . "*** is it properly installed and available in PKG_CONFIG_PATH?\n"
 			unless $data{$what};
