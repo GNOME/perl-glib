@@ -151,6 +151,7 @@ sub xsdoc2pod
 {
 	my $datafile = shift();
 	my $outdir   = shift() || 'blib/lib';
+	my $index    = shift;
 
 	mkdir $outdir unless (-d $outdir);
 
@@ -159,6 +160,8 @@ sub xsdoc2pod
 
 	our ($xspods, $data);
 	require $datafile;
+
+	my @files = ();
 
 	my $pkgdata;
 	my $ret;
@@ -173,9 +176,15 @@ sub xsdoc2pod
 		$path =~ s/::/\//g;
 		mkdir $path unless (-d $path);
 		$pod = "$path/$pod.pod";
-		print STDERR "podifying $pod\n";
-		open POD, ">$pod" or die "unabled to open ($pod) for output";
+		open POD, ">$pod" or die "can't open $pod for writing: $!\n";
 		select POD;
+		print STDERR "podifying $pod\n";
+
+		push @files, {
+			name => $package,
+			file => $pod,
+			blurb => $pkgdata->{blurb},
+		};
 
 		print "=head1 NAME\n\n$package";
 		print ' - '.$pkgdata->{blurb} if (exists ($pkgdata->{blurb}));
@@ -196,54 +205,62 @@ sub xsdoc2pod
 			print "=head1 INTERFACES\n\n$ret";
 		}
 
-		my @enums = ();
 		my $pods = $pkgdata->{pods};
 		if ($pods) {
 			foreach my $pod (@$pods) {
-				if ($pod->{lines}[0] =~ /^=(?:for\s+)?
-				                          (enum|flags)\s+
-				                          ([:\w]+)/x) {
-					push @enums, $pod;
-					$pod->{type} = $1;
-					$pod->{name} = $2;
-					shift @{ $pod->{lines} };
-					pop @{ $pod->{lines} }
-						if $pod->{lines}[-1] =~ /^=cut/;
-				} else {
-					print join("\n", @{$pod->{lines}})
-					    . "\n";
-				}
+				print join("\n", @{$pod->{lines}})
+				    . "\n";
 			}
 		}
 
 		$ret = podify_methods ($package, $data->{$package}{xsubs});
 		if ($ret)
 		{
-			print "=head1 METHODS\n\n$ret";
+			print "\n=head1 METHODS\n\n$ret";
 		}
 		
 		$ret = podify_properties ($package);	
 		if ($ret)
 		{
-			print "=head1 PROPERTIES\n\n$ret";
+			print "\n=head1 PROPERTIES\n\n$ret";
 		}
 
 		$ret = podify_signals ($package);	
 		if ($ret)
 		{
-			print "=head1 SIGNALS\n\n$ret";
+			print "\n=head1 SIGNALS\n\n$ret";
 		}
 
-		if (@enums) {
-			print "=head1 ENUMS AND FLAGS\n\n";
-			foreach my $ef (@enums) {
-				print "=head2 $ef->{name}\n\n"
-				    . join ("\n", @{$ef->{lines}}) . "\n\n"
+		if ($pkgdata->{enums}) {
+			print "\n=head1 ENUMS AND FLAGS\n\n";
+			foreach my $ef (@{ $pkgdata->{enums} }) {
+				my $pod = $ef->{pod};
+				shift @{ $pod->{lines} };
+				pop @{ $pod->{lines} }
+					if $pod->{lines}[-1] =~ /^=cut/;
+
+				print "=head2 $ef->{type} $ef->{name}\n\n"
+				    . join ("\n", @{$pod->{lines}}) . "\n\n"
 				    . podify_values ($ef->{name}) . "\n";;
 			}
 		}
 
+		print "\n=cut\n\n";
+
 		close POD;
+	}
+
+	if ($index) {
+		open INDEX, ">$index"
+			or die "can't open $index for writing: $!\b";
+		select INDEX;
+
+		foreach (@files) {
+			print join("\t", $_->{file},
+			                  $_->{name}, $_->{blurb}) . "\n";
+		}
+
+		close INDEX;
 	}
 }
 
@@ -269,7 +286,7 @@ our %basic_types = (
 	boolean => 'boolean',
 	int     => 'integer',
 	char    => 'integer',
-	uint    => 'integer',
+	uint    => 'unsigned',
 	float   => 'double',
 	double  => 'double',
 	char    => 'string',
@@ -279,9 +296,10 @@ our %basic_types = (
 	gint8    => 'integer',
 	gint16   => 'integer',
 	gint32   => 'integer',
-	guint8   => 'integer',
-	guint16  => 'integer',
-	guint32  => 'integer',
+	guint8   => 'unsigned',
+	guint16  => 'unsigned',
+	guint32  => 'unsigned',
+	gulong   => 'unsigned',
 	gchar    => 'integer',
 	guint    => 'integer',
 	gfloat   => 'double',
@@ -289,7 +307,7 @@ our %basic_types = (
 	gchar    => 'string',
 
 	SV       => 'scalar',
-	UV       => 'integer',
+	UV       => 'unsigned',
 	IV       => 'integer',
 
 	gchar_length => 'gchar_length',
@@ -366,10 +384,11 @@ I<$packagename> is not a Glib::Object derivative.
 
 =cut
 sub podify_signals {
-	my @sigs;
-	eval { @sigs = Glib::Type->list_signals (shift); 1; };
-	return undef unless (@sigs or not $@);
-	my $str = "=over\n\n";
+    my $str = undef;
+    eval {
+	my @sigs = Glib::Type->list_signals (shift);
+	return undef unless @sigs;
+	$str = "=over\n\n";
 	foreach (@sigs) {
 		$str .= '=item ';
 		$str .= convert_type ($_->{return_type}).' = '
@@ -380,8 +399,8 @@ sub podify_signals {
 		$str .= ")\n\n";
 	}
 	$str .= "=back\n\n";
-
-	$str
+    };
+    return $str
 }
 
 =item $string = podify_ancestors ($packagename)
@@ -486,12 +505,16 @@ sub convert_type {
 
 	my $perl_type;
 
-	if (exists $basic_types{$ctype})
-	{
+	if (exists $basic_types{$ctype}) {
 		$perl_type = $basic_types{$ctype};
-	}
-	else
-	{
+
+	} elsif ($ctype =~ m/::/) {
+		# :: is not valid in GLib type names, so there's no point
+		# in asking the GLib type system if it knows this name,
+		# because it's probably already a perl type name.
+		$perl_type = $ctype;
+
+	} else {
 		eval
 		{
 			$perl_type = Glib::Type->package_from_cname ($ctype);
@@ -579,8 +602,15 @@ sub xsub_to_pod {
 				                  @{ $xsub->{args} };
 				$a = {}, push @{$xsub->{args}}, $a
 					if not defined $a;
-				$a->{type} = $2 if $2;
+				$a->{name} = $1 if not defined $a->{name};
 				$a->{desc} = $3;
+				if ($2) {
+					if ($2 =~ m/^_*hide_*$/i) {
+						$a->{hide}++;
+					} else {
+						$a->{type} = $2;
+					}
+				}
 				# "just eat it!  eat it!  get yourself and
 				# egg and beat it!"  -- weird al
 				splice @podlines, $i, 1;
@@ -605,6 +635,7 @@ sub xsub_to_pod {
 	$str .= "=over\n\n" if @args;
 	foreach my $a (@args) {
 		my $type;
+		next if $a->{hide};
 		if ($a->{name} eq '...') {
 			$type = 'list';
 		} else {
