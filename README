@@ -45,7 +45,9 @@ perl how to get to this library directory so you can use it; there are three
 ways:
 
   in your environment (the easiest):
-    PERL5LIB=/some/other/place/lib/perl5/site_perl:$PERL5LIB
+    # assuming a bourne-style shell
+    PERL5LIB=/some/other/place/lib/perl5/site_perl
+    export PERL5LIB
 
   on the perl command line:
     perl -I /some/other/place/lib/perl5/site_perl yourscript
@@ -70,7 +72,7 @@ from source:
   ExtUtils::Depends >= 0.200
   ExtUtils::PkgConfig >= 1.00
 
-COPYRIGHT AND LICENCE
+COPYRIGHT AND LICENSE
 
 Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for the
 full list)
