@@ -1,6 +1,14 @@
+2004/01/29 20:03 (-0500) rwmcfa1
+
+	* Glib.pm, README: unstable release 1.033
+
+	* NEWS: updated
+
+	1.032 isn't going public, was a test failure with no DISPLAY in Gtk2
+
 2004/01/29 18:44 (-0500) rwmcfa1
 
-	* Glib.pm, README: unstable release 1.031
+	* Glib.pm, README: unstable release 1.032
 
 	* NEWS: updated
 
