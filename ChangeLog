@@ -1,3 +1,8 @@
+2003/11/03 14:03 muppetman
+
+	* GenPod.pm: use the actual instance arg name rather than cutting
+	up the type name.  you'd expect the arg name to be used, anyway.
+
 2003/11/03 12:04 muppetman
 
 	* GType.xs: (list_interfaces) watch out for unregistered interface

@@ -689,8 +689,7 @@ sub compile_signature {
 	my $package = $1 || $xsub->{package};
 	my $obj;
 	if (defined $instance->{type}) {
-		$obj = lc $package;
-		$obj =~ s/^(.*)::/\$/;
+		$obj = '$'.$instance->{name};
 	} else {
 		$obj = $package;
 	}
