@@ -60,24 +60,155 @@ SvGParamFlags (SV * sv)
 	return gperl_convert_flags (g_param_flags_get_type (), sv);
 }
 
+static GHashTable * param_package_by_type = NULL;
+
+void
+gperl_register_param_spec (GType gtype,
+                           const char * package)
+{
+	if (!param_package_by_type) {
+		param_package_by_type =
+			g_hash_table_new_full (g_direct_hash,
+			                       g_direct_equal,
+			                       NULL,
+			                       g_free);
+		g_hash_table_insert (param_package_by_type,
+		                     (gpointer) G_TYPE_PARAM,
+		                     g_strdup ("Glib::ParamSpec"));
+	}
+	g_hash_table_insert (param_package_by_type,
+	                     (gpointer) gtype,
+	                     g_strdup (package));
+	gperl_set_isa (package, "Glib::ParamSpec");
+}
+
+const char *
+gperl_param_spec_package_from_type (GType gtype)
+{
+	g_return_val_if_fail (param_package_by_type != NULL, NULL);
+	return (const char*) g_hash_table_lookup (param_package_by_type,
+	                                          (gpointer) gtype);
+}
+
+/*
+ * reverse lookup for paramspec types will be really rare, so we'll save
+ * some storage space by sacrificing traversal time.
+ */
+struct FindData {
+	const char * package;
+	GType found_type;
+};
+#if GLIB_CHECK_VERSION (2, 4, 0)
+static gboolean
+find_func (gpointer key,
+           gpointer value,
+           gpointer user_data)
+{
+	struct FindData * fd = user_data;
+	if (g_str_equal ((const char *) value, fd->package)) {
+		fd->found_type = key;
+		return TRUE;
+	} else 
+		return FALSE;
+}
+#else
+static void
+find_func (gpointer key,
+           gpointer value,
+           gpointer user_data)
+{
+	struct FindData * fd = user_data;
+	if (g_str_equal ((const char *) value, fd->package))
+		fd->found_type = (GType) key;
+}
+#endif
+
+GType
+gperl_param_spec_type_from_package (const char * package)
+{
+	struct FindData fd = { package, 0 };
+	g_return_val_if_fail (param_package_by_type != NULL, 0);
+#if GLIB_CHECK_VERSION (2, 4, 0)
+	g_hash_table_find (param_package_by_type, find_func, (gpointer) &fd);
+#else
+	g_hash_table_foreach (param_package_by_type, find_func, (gpointer) &fd);
+#endif
+	return fd.found_type;
+}
+
 SV *
 newSVGParamSpec (GParamSpec * pspec)
 {
+	const gchar * pv;
+	HV * property = newHV ();
+	SV * sv;
+	HV * stash;
+	const char * package;
+
 	g_param_spec_ref (pspec);
 	g_param_spec_sink (pspec);
-	return sv_setref_pv (newSV (0), "Glib::ParamSpec", pspec);
+	//return sv_setref_pv (newSV (0), "Glib::ParamSpec", pspec);
+
+	sv_magic ((SV*)property, 0, PERL_MAGIC_ext, (const char*)pspec, 0);
+
+
+	/* for hysterical raisins (backward compatibility with the old
+	 * versions which did not use the same C-to-Perl mapping for the
+	 * paramspec list returned from Glib::Object::list_properties())
+	 * we store a few select keys in the hash directly.
+	 */
+	hv_store (property, "name",  4,
+	          newSVpv (g_param_spec_get_name (pspec), 0), 0);
+
+	/* map type names to package names, if possible */
+	pv = gperl_package_from_type (pspec->value_type);
+	if (!pv) pv = g_type_name (pspec->value_type);
+	hv_store (property, "type",  4, newSVpv (pv, 0), 0);
+
+	pv = gperl_package_from_type (pspec->owner_type);
+	if (!pv)
+		pv = g_type_name (pspec->owner_type);
+	if (pv)
+		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
+
+	pv = g_param_spec_get_blurb (pspec);
+	if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
+	hv_store (property, "flags", 5, newSVGParamFlags (pspec->flags), 0) ;
+
+	/* wrap it, bless it, ship it. */
+	sv = newRV_noinc ((SV*)property);
+
+	package = gperl_param_spec_package_from_type
+					(G_PARAM_SPEC_TYPE (pspec));
+	if (!package) {
+		package = "Glib::ParamSpec";
+		warn ("unhandled paramspec type %s, falling back to %s",
+		      G_PARAM_SPEC_TYPE_NAME (pspec), package);
+	}
+
+	stash = gv_stashpv (package, TRUE);
+
+	sv_bless (sv, stash);
+
+	return sv;
 }
 
 GParamSpec *
 SvGParamSpec (SV * sv)
 {
-	if (!sv || !SvROK (sv) || !sv_derived_from (sv, "Glib::ParamSpec"))
-		croak ("variable is not a Glib::ParamSpec");
-	return (GParamSpec*) SvIV (SvRV (sv));
+	MAGIC * mg;
+	if (!sv || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+		return NULL;
+	return (GParamSpec*) mg->mg_ptr;
 }
 
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
+
+void
+DESTROY (GParamSpec * pspec)
+    CODE:
+	g_param_spec_unref (pspec);
 
 =for position DESCRIPTION
 
@@ -105,6 +236,28 @@ the underlying C libraries.
 BOOT:
 	gperl_register_fundamental (g_param_flags_get_type (),
 	                            "Glib::ParamFlags");
+	gperl_register_param_spec (G_TYPE_PARAM_CHAR, "Glib::Param::Char");
+	gperl_register_param_spec (G_TYPE_PARAM_UCHAR, "Glib::Param::UChar");
+	gperl_register_param_spec (G_TYPE_PARAM_BOOLEAN, "Glib::Param::Boolean");
+	gperl_register_param_spec (G_TYPE_PARAM_INT, "Glib::Param::Int");
+	gperl_register_param_spec (G_TYPE_PARAM_UINT, "Glib::Param::UInt");
+	gperl_register_param_spec (G_TYPE_PARAM_LONG, "Glib::Param::Long");
+	gperl_register_param_spec (G_TYPE_PARAM_ULONG, "Glib::Param::ULong");
+	gperl_register_param_spec (G_TYPE_PARAM_INT64, "Glib::Param::Int64");
+	gperl_register_param_spec (G_TYPE_PARAM_UINT64, "Glib::Param::UInt64");
+	gperl_register_param_spec (G_TYPE_PARAM_ENUM, "Glib::Param::Enum");
+	gperl_register_param_spec (G_TYPE_PARAM_FLAGS, "Glib::Param::Flags");
+	gperl_register_param_spec (G_TYPE_PARAM_FLOAT, "Glib::Param::Float");
+	gperl_register_param_spec (G_TYPE_PARAM_DOUBLE, "Glib::Param::Double");
+	gperl_register_param_spec (G_TYPE_PARAM_STRING, "Glib::Param::String");
+	gperl_register_param_spec (G_TYPE_PARAM_PARAM, "Glib::Param::Param");
+	gperl_register_param_spec (G_TYPE_PARAM_BOXED, "Glib::Param::Boxed");
+	gperl_register_param_spec (G_TYPE_PARAM_POINTER, "Glib::Param::Pointer");
+	gperl_register_param_spec (G_TYPE_PARAM_VALUE_ARRAY, "Glib::Param::ValueArray");
+	gperl_register_param_spec (G_TYPE_PARAM_OBJECT, "Glib::Param::Object");
+#if GLIB_CHECK_VERSION(2,4,0)
+	gperl_register_param_spec (G_TYPE_PARAM_OVERRIDE, "Glib::Param::Override");
+#endif
 
 =for enum Glib::ParamFlags
 =cut
@@ -252,7 +405,7 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 
 ###  GParamSpec* g_param_spec_unichar (const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
 GParamSpec*
-g_param_spec_unichar (const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
+g_param_spec_unichar (class, const gchar *name, const gchar *nick, const gchar *blurb, gunichar default_value, GParamFlags flags) 
     C_ARGS:
 	name, nick, blurb, default_value, flags
 
@@ -263,6 +416,9 @@ g_param_spec_enum (class, const gchar *name, const gchar *nick, const gchar *blu
 	GType gtype;
     CODE:
 	gtype = gperl_fundamental_type_from_package (enum_type);
+	if (!gtype)
+		croak ("package %s is not registered as an enum type",
+		       enum_type);
 	RETVAL = g_param_spec_enum (name, nick, blurb, gtype,
 	                            gperl_convert_enum (gtype, default_value),
 	                            flags);
@@ -276,6 +432,9 @@ g_param_spec_flags (class, const gchar *name, const gchar *nick, const gchar *bl
 	GType gtype;
     CODE:
 	gtype = gperl_fundamental_type_from_package (flags_type);
+	if (!gtype)
+		croak ("package %s is not registered as an flags type",
+		       flags_type);
 	RETVAL = g_param_spec_flags (name, nick, blurb, gtype,
 	                             gperl_convert_flags (gtype, default_value),
 	                             flags);
@@ -350,13 +509,17 @@ param_spec (class, name, nick, blurb, package, flags)
     CODE:
 	RETVAL = NULL;
 	switch (ix) {
-	    case 0: croak ("param specs not supported as param specs yet");
+	    case 0: type = gperl_param_spec_type_from_package (package); break;
 	    case 1: type = gperl_boxed_type_from_package (package); break;
 	    case 2: type = gperl_object_type_from_package (package); break;
 	}
 	if (!type)
 		croak ("type %s is not registered with Glib-Perl", package);
+	warn ("asked for %s => %s\n", package, g_type_name (type));
 	switch (ix) {
+	    case 0:
+		RETVAL = g_param_spec_param (name, nick, blurb, type, flags);
+		break;
 	    case 1:
 		RETVAL = g_param_spec_boxed (name, nick, blurb, type, flags);
 		break;
@@ -390,3 +553,441 @@ scalar (class, name, nick, blurb, flags)
 #### value arrays.
 ###  GParamSpec* g_param_spec_value_array (const gchar *name, const gchar *nick, const gchar *blurb, GParamSpec *element_spec, GParamFlags flags) 
 
+
+
+####
+#### accessors
+####
+####  the various paramspec structures have important members in them, but
+####  the API does not provide accessors for them.  (i presume to reduce
+####  bloat and performance penalties.)  thus, we have to provide our own
+####  accessors in order to be able to find important things like default
+####  and limit values, etc.
+####
+####  an important choice is whether to use the simple and popular
+####  dual-purpose accessor/mutator combo used widely in the Gtk2 module,
+####  or to use get_foo/set_foo pairs.  well, that decision is pretty much
+####  made for us, by the fact that the simple form for pspec.flags would
+####  conflict directly with the GParamFlags constructor.  so, we use the
+####  get_foo form throughout.  set_foo functions are currently not
+####  implemented.
+####
+####  and finally, there's the sticky issue of documentation generation.
+####  i've aliased a many of the repetitive accessors together, and this
+####  results in some problems with the docgen tools, since the aliases
+####  are actually in different packages.  to cut down on confusion and
+####  the overall number of manpages generated, i've hidden all but the
+####  "master" alias from the docs, e.g., for the integer types, only
+####  Int is documented, and a note explains that the others are the same.
+####  suggestions for a better scheme are quite welcome.
+####
+
+# name -> get_name()
+
+GParamFlags
+get_flags (GParamSpec * pspec)
+    CODE:
+	RETVAL = pspec->flags;
+    OUTPUT:
+	RETVAL
+
+const char *
+get_value_type (GParamSpec * pspec)
+    ALIAS:
+	get_owner_type = 1
+    PREINIT:
+	GType type;
+    CODE:
+	switch (ix) {
+	    case 0: type = pspec->value_type; break;
+	    case 1: type = pspec->owner_type; break;
+	    default: g_assert_not_reached (); type = 0;
+	}
+	RETVAL = gperl_package_from_type (type);
+	if (!RETVAL)
+		RETVAL = g_type_name (type);
+    OUTPUT:
+	RETVAL
+
+
+MODULE = Glib::ParamSpec PACKAGE = Glib::Param::Char
+
+ ## actually for all signed integer types
+
+
+=for object Glib::Param::Int - Paramspecs for integer types
+
+=head1 DESCRIPTION
+
+This page documents the extra accessors available for all of the integer type
+paramspecs: Char, Int, Long, and Int64.  Perl really only supports full-size
+integers, so all of these methods return IVs; the distinction of integer size
+is important to the underlying C library and also determines the data value
+range.
+
+=cut
+
+=for see_also Glib::ParamSpec
+=cut
+
+
+=for apidoc Glib::Param::Char::get_minimum __hide__
+=cut
+
+=for apidoc Glib::Param::Long::get_minimum __hide__
+=cut
+
+=for apidoc Glib::Param::Int64::get_minimum __hide__
+=cut
+
+IV
+get_minimum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Int::get_minimum = 1
+	Glib::Param::Long::get_minimum = 2
+	Glib::Param::Int64::get_minimum = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->minimum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->minimum; break;
+	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->minimum; break;
+	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->minimum; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::Char::get_maximum __hide__
+=cut
+
+=for apidoc Glib::Param::Long::get_maximum __hide__
+=cut
+
+=for apidoc Glib::Param::Int64::get_maximum __hide__
+=cut
+
+IV
+get_maximum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Int::get_maximum = 1
+	Glib::Param::Long::get_maximum = 2
+	Glib::Param::Int64::get_maximum = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->maximum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->maximum; break;
+	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->maximum; break;
+	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->maximum; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::Char::get_default_value __hide__
+=cut
+
+=for apidoc Glib::Param::Long::get_default_value __hide__
+=cut
+
+=for apidoc Glib::Param::Int64::get_default_value __hide__
+=cut
+
+IV
+get_default_value (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Int::get_default_value = 1
+	Glib::Param::Long::get_default_value = 2
+	Glib::Param::Int64::get_default_value = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->default_value; break;
+	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->default_value; break;
+	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->default_value; break;
+	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->default_value; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec PACKAGE = Glib::Param::UChar
+
+ ## similarly, all unsigned integer types
+
+
+=for object Glib::Param::UInt
+
+=head1 DESCRIPTION
+
+This page documents the extra accessors available for all of the unsigned
+integer type paramspecs: UChar, UInt, ULong, and UInt64.  Perl really only
+supports full-size integers, so all of these methods return UVs; the
+distinction of integer size is important to the underlying C library and also
+determines the data value range.
+
+=cut
+
+=for see_also Glib::ParamSpec
+=cut
+
+
+=for apidoc Glib::Param::UChar::get_minimum __hide__
+=cut
+
+=for apidoc Glib::Param::ULong::get_minimum __hide__
+=cut
+
+=for apidoc Glib::Param::UInt64::get_minimum __hide__
+=cut
+
+UV
+get_minimum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::UInt::get_minimum = 1
+	Glib::Param::ULong::get_minimum = 2
+	Glib::Param::UInt64::get_minimum = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->minimum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->minimum; break;
+	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->minimum; break;
+	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->minimum; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::UChar::get_maximum __hide__
+=cut
+
+=for apidoc Glib::Param::ULong::get_maximum __hide__
+=cut
+
+=for apidoc Glib::Param::UInt64::get_maximum __hide__
+=cut
+
+UV
+get_maximum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::UInt::get_maximum = 1
+	Glib::Param::ULong::get_maximum = 2
+	Glib::Param::UInt64::get_maximum = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->maximum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->maximum; break;
+	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->maximum; break;
+	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->maximum; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::UChar::get_default_value __hide__
+=cut
+
+=for apidoc Glib::Param::ULong::get_default_value __hide__
+=cut
+
+=for apidoc Glib::Param::UInt64::get_default_value __hide__
+=cut
+
+UV
+get_default_value (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::UInt::get_default_value = 1
+	Glib::Param::ULong::get_default_value = 2
+	Glib::Param::UInt64::get_default_value = 3
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->default_value; break;
+	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->default_value; break;
+	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->default_value; break;
+	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->default_value; break;
+	    default: g_assert_not_reached (); RETVAL = 0;
+	}
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec PACKAGE = Glib::Param::Float
+
+ ## and again for the floating-point types
+
+=for object Glib::Param::Double
+
+=head1 DESCRIPTION
+
+This page documents the extra accessors available for both of the
+floating-point type paramspecs: Float and Double.  Perl really only supports
+doubles, so all of these methods return NVs (that is, the C type "double"); the
+distinction of size is important to the underlying C library and also
+determines the data value range.
+
+=cut
+
+=for see_also Glib::ParamSpec
+=cut
+
+
+=for apidoc Glib::Param::Float::get_minimum __hide__
+=cut
+
+double
+get_minimum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Double::get_minimum = 1
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_FLOAT (pspec)->minimum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->minimum; break;
+	    default: g_assert_not_reached (); RETVAL = 0.0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::Float::get_maximum __hide__
+=cut
+
+double
+get_maximum (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Double::get_maximum = 1
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_FLOAT (pspec)->maximum; break;
+	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->maximum; break;
+	    default: g_assert_not_reached (); RETVAL = 0.0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::Float::get_default_value __hide__
+=cut
+
+double
+get_default_value (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Double::get_default_value = 1
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_FLOAT (pspec)->default_value; break;
+	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->default_value; break;
+	    default: g_assert_not_reached (); RETVAL = 0.0;
+	}
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc Glib::Param::Float::get_epsilon __hide__
+=cut
+
+double
+get_epsilon (GParamSpec * pspec)
+    ALIAS:
+	Glib::Param::Double::get_epsilon = 1
+    CODE:
+	switch (ix) {
+	    case 0: RETVAL = G_PARAM_SPEC_FLOAT (pspec)->epsilon; break;
+	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->epsilon; break;
+	    default: g_assert_not_reached (); RETVAL = 0.0;
+	}
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Boolean
+
+=for see_also Glib::ParamSpec
+=cut
+
+gboolean
+get_default_value (GParamSpec * pspec_boolean)
+    CODE:
+	RETVAL = G_PARAM_SPEC_BOOLEAN (pspec_boolean)->default_value;
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Enum
+
+=for see_also Glib::ParamSpec
+=cut
+
+const char *
+get_enum_class (GParamSpec * pspec_enum)
+    CODE:
+	RETVAL = gperl_fundamental_package_from_type
+			(G_ENUM_CLASS_TYPE
+				(G_PARAM_SPEC_ENUM (pspec_enum)->enum_class));
+    OUTPUT:
+	RETVAL
+
+SV *
+get_default_value (GParamSpec * pspec_enum)
+    PREINIT:
+	GParamSpecEnum * penum;
+    CODE:
+	penum = G_PARAM_SPEC_ENUM (pspec_enum);
+	RETVAL = gperl_convert_back_enum (G_ENUM_CLASS_TYPE (penum->enum_class),
+	                                  penum->default_value);
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Flags
+
+=for see_also Glib::ParamSpec
+=cut
+
+const char *
+get_flags_class (GParamSpec * pspec_flags)
+    CODE:
+	RETVAL = gperl_fundamental_package_from_type
+			(G_FLAGS_CLASS_TYPE
+				(G_PARAM_SPEC_FLAGS (pspec_flags)->flags_class));
+    OUTPUT:
+	RETVAL
+
+SV *
+get_default_value (GParamSpec * pspec_flags)
+    PREINIT:
+	GParamSpecFlags * pflags;
+    CODE:
+	pflags = G_PARAM_SPEC_FLAGS (pspec_flags);
+	RETVAL = gperl_convert_back_flags
+				(G_FLAGS_CLASS_TYPE (pflags->flags_class),
+				 pflags->default_value);
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::String
+
+=for see_also Glib::ParamSpec
+=cut
+
+gchar *
+get_default_value (GParamSpec * pspec_string)
+    CODE:
+	RETVAL = G_PARAM_SPEC_STRING (pspec_string)->default_value;
+    OUTPUT:
+	RETVAL
+
+## the others are fairly uninteresting.
+##  string cset_first
+##  string cset_nth
+##  char substitutor
+##  bool null_fold_if_empty
+##  bool ensure_non_null
+
+##MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::ValueArray
+
+##element_spec
+##fixed_n_elements
+
+## G_TYPE_PARAM_PARAM, "Glib::Param::Param" -- no members
+## G_TYPE_PARAM_BOXED, "Glib::Param::Boxed" -- no members
+## G_TYPE_PARAM_POINTER, "Glib::Param::Pointer" -- no members
+## G_TYPE_PARAM_OBJECT, "Glib::Param::Object" -- no members
+## G_TYPE_PARAM_OVERRIDE, "Glib::Param::Override" -- no public members

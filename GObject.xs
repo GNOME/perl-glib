@@ -1103,29 +1103,8 @@ g_object_list_properties (object_or_class_name)
 #ifdef NOISY
 	warn ("list_properties: %d properties\n", n_props);
 #endif
-	for (i = 0; i < n_props; i++) {
-		const gchar * pv;
-		HV * property = newHV ();
-
-		hv_store (property, "name",  4,
-		          newSVpv (g_param_spec_get_name (props[i]), 0), 0);
-
-		/* map type names to package names, if possible */
-		pv = gperl_package_from_type (props[i]->value_type);
-		if (!pv) pv = g_type_name (props[i]->value_type);
-		hv_store (property, "type",  4, newSVpv (pv, 0), 0);
-
-		pv = gperl_package_from_type (props[i]->owner_type);
-		if (!pv) pv = g_type_name (props[i]->owner_type);
-		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
-
-		/* this one can be NULL, it seems */
-		pv = g_param_spec_get_blurb (props[i]);
-		if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
-		hv_store (property, "flags", 5, newSVGParamFlags (props[i]->flags), 0) ;
-		
-		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
-	}
+	for (i = 0; i < n_props; i++)
+		XPUSHs (sv_2mortal (newSVGParamSpec (props[i])));
 	g_free(props);
 
 

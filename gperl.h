@@ -316,6 +316,8 @@ GParamSpec * SvGParamSpec (SV * sv);
 SV * newSVGParamFlags (GParamFlags flags);
 GParamFlags SvGParamFlags (SV * sv);
 
+const char * gperl_param_spec_package_from_type (GType gtype);
+
 /*
  * helpful debugging stuff
  */

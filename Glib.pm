@@ -242,14 +242,15 @@ have been registered for you:
 
  G_TYPE_STRING     Glib::String
  G_TYPE_INT        Glib::Int
- G_TYPE_UINT       Glib::Uint
+ G_TYPE_UINT       Glib::UInt
  G_TYPE_DOUBLE     Glib::Double
  G_TYPE_BOOLEAN    Glib::Boolean
 
-The remaining fundamentals (char/uchar, short, float, etc) are left off, since
-perl really only has ints, uints, and doubles anyway.  Oh, and we created a
-GBoxed type for Perl scalars so you can use scalars where any boxed type would
-be allowed (e.g. GtkTreeModel columns):
+The remaining fundamentals (char/uchar, short, float, etc) are also registered
+so that we can properly interact with properties of C objects, but perl really
+only uses ints, uints, and doubles.  Oh, and we created a GBoxed type for Perl
+scalars so you can use scalars where any boxed type would be allowed (e.g.
+GtkTreeModel columns):
 
  Glib::Scalar
 

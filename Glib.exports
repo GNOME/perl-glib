@@ -61,6 +61,7 @@ gperl_object_set_no_warn_unreg_subclass
 gperl_object_stash_from_type
 gperl_object_type_from_package
 gperl_package_from_type
+gperl_param_spec_package_from_type
 gperl_prepend_isa
 gperl_register_boxed
 gperl_register_error_domain

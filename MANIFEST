@@ -50,6 +50,7 @@ t/a.t
 t/b.t
 t/c.t
 t/d.t
+t/e.t
 TODO
 typemap
 xsapi.pod.foot

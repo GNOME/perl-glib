@@ -485,6 +485,10 @@ gperl_package_from_type (GType type)
 	if (p)
 		return p;
 
+	p = gperl_param_spec_package_from_type (type);
+	if (p)
+		return p;
+
 	return NULL;
 }
 
@@ -1432,11 +1436,27 @@ Glib's reference documentation generator (see L<Glib::GenPod>).
 =cut
 
 BOOT:
-	gperl_register_fundamental (G_TYPE_BOOLEAN, "Glib::Boolean");
+	gperl_register_fundamental (G_TYPE_CHAR, "Glib::Char");
+	gperl_register_fundamental (G_TYPE_UCHAR, "Glib::UChar");
 	gperl_register_fundamental (G_TYPE_INT, "Glib::Int");
-	gperl_register_fundamental (G_TYPE_UINT, "Glib::Uint");
+	gperl_register_fundamental (G_TYPE_UINT, "Glib::UInt");
+	gperl_register_fundamental (G_TYPE_LONG, "Glib::Long");
+	gperl_register_fundamental (G_TYPE_ULONG, "Glib::ULong");
+	gperl_register_fundamental (G_TYPE_FLOAT, "Glib::Float");
 	gperl_register_fundamental (G_TYPE_DOUBLE, "Glib::Double");
+	gperl_register_fundamental (G_TYPE_BOOLEAN, "Glib::Boolean");
 	gperl_register_boxed (GPERL_TYPE_SV, "Glib::Scalar", NULL);
+
+	/* i love nasty ugly hacks for backwards compat... Glib::UInt used
+	 * to be misspelled as Glib::Uint.  by registering both names to the
+	 * same gtype, we get the mappings for two packages to one gtype, but
+	 * only one mapping (the last and correct one) from type to package.
+	 */
+	//gperl_register_fundamental (G_TYPE_UINT, "Glib::Uint");
+	G_LOCK (types_by_package);
+	g_hash_table_insert (types_by_package, "Glib::Uint",
+			     (gpointer) G_TYPE_UINT);
+	G_UNLOCK (types_by_package);
 
 
 =for apidoc

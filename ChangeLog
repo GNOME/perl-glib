@@ -1,3 +1,37 @@
+2004/06/01 11:18 (-0400) muppetman
+
+	Greatly expanded GParamSpec support.
+
+	* GParamSpec.xs: use attached-magic wrapper hashes and a GType
+	registry for GParamSpecs.  Previous releases used blessed scalars
+	for Glib::ParamSpec and a list of simple hashes from
+	Glib::Object::list_properties; but they really should've been the
+	same object.  this code puts the keys from the old simple hashes into
+	the magical wrapper hash now used for all Glib::ParamSpecs, to retain
+	backwards compatibility.  we also add accessors for all of the
+	interesting members of the various GParamSpec child structures.
+	this allows you to get the extended metadata from paramspecs, such
+	as default or minimum values, etc.  Glib::ParamSpec->param is now
+	supported, making it possible to use Glib::Object's notify signal.
+	lots of new manpages for the various param spec types, consolidated
+	where possible.
+
+	* gperl.h, Glib.exports: add new external function,
+	gperl_param_spec_package_from_type().
+
+	* GObject.xs: use the new and improved newSVGParamSpec() instead of
+	creating a plain hash.
+
+	* GType.xs: search through the paramspec type registry in
+	gperl_package_from_type().  register more fundamental types on boot,
+	with a nasty hack to correct the old mispelling of Glib::UInt (was
+	"Glib::Uint") with some semblance of backwards compat; use the new
+	correct name, but silently allow the old incorrect name.
+
+	* Glib.pm: update docs to reflect the type registration differences.
+
+	* MANIFEST, t/e.t: new test for all this new stuff
+
 2004/05/31 21:05 (-0400) rwmcfa1
 
 	* GenPod.pm: add the type (flags|enum) back to the heading
