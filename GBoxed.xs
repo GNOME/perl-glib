@@ -520,6 +520,9 @@ BOOT:
 	gperl_set_isa ("Glib::String", "Glib::Boxed");
 
 =for object Glib::Boxed Generic wrappers for C structures
+=cut
+
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 

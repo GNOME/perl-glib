@@ -81,6 +81,9 @@ of gmain.h in here, commented out.
 MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
 
 =for object Glib::MainLoop
+=cut
+
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 

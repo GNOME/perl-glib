@@ -54,6 +54,7 @@ the string --disable-apidoc an empty list will be returned and thus no apidoc
 pod will be generated speeding up the build process.
 
 =cut
+
 sub do_pod_files
 {
 	return () if (grep /disable[-_]apidoc/i, @ARGV);
@@ -99,6 +100,7 @@ or 'realclean' keys is that this avoids you having to remember to put Glib's
 stuff in your Makefile.PL's WriteMakefile arguments.
 
 =cut
+
 sub postamble_clean
 {
 	shift; # package name
@@ -129,6 +131,7 @@ anywhere a rule needs to be sure that a loadable and working module resides in
 the blib directory before running.
 
 =cut
+
 sub postamble_docs
 {
 	my ($class, @xs_files) = @_;
@@ -187,6 +190,7 @@ section of each generated page.  May be omitted.
 =back
 
 =cut
+
 sub postamble_docs_full {
 	my $class = shift; # package name
 	my %params = @_;
@@ -321,6 +325,7 @@ the build setups for Glib and Gtk2 for examples.
 Note: This function just returns an empty string on Win32.
 
 =cut
+
 sub postamble_rpms
 {
 	shift; # package name
@@ -367,6 +372,8 @@ dist-srpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)/
 }
 
 package MY;
+
+=back
 
 =head1 NOTICE
 

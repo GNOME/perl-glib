@@ -1,5 +1,14 @@
 2004/02/25 15:21 (-0500) rwmcfa1
 
+	* GObject.xs: use new positioning pod mech. use #if 0 trick to get 
+	tie_properties to act like a real method
+
+	* MakeHelper.pm: extra =back removed
+
+	* GBoxed.xs, GError.xs, GMainLoop.xs, GParamSpec.xs, GType.xs: use new 
+	positioning pod mech.
+
+	* GenPod.pm, ParseXSDoc.pm: new positioning pod mech put in place
 
 2004/02/23 17:05 (-0500) muppetman
 

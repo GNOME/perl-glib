@@ -357,6 +357,9 @@ BOOT:
 	                             "Glib::Thread::Error");
 
 =for object Glib::Error Exception Objects based on GError
+=cut
+
+=pod position=SYNOPSIS
 
 =head1 SYNOPSIS
 
@@ -376,6 +379,10 @@ BOOT:
         die $@;
      }
   }
+
+=cut
+
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 

@@ -1407,8 +1407,9 @@ gperl_type_base_init (gpointer class)
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
 =for flags Glib::SignalFlags
-
 =cut
+
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 
@@ -2147,6 +2148,8 @@ package_from_cname (class, const char * cname)
 	RETVAL
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
+
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 

@@ -79,7 +79,7 @@ SvGParamSpec (SV * sv)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
-=for apidoc
+=pod position=DESCRIPTION
 
 =head1 DESCRIPTION
 

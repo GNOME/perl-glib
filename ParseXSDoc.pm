@@ -379,11 +379,18 @@ sub preprocess_pods {
 	my $self = shift;
 	foreach my $package (keys %{$self->{data}}) {
 		my $pkgdata = $self->{data}{$package};
+
+		foreach (@{$pkgdata->{pods}})
+		{
+			my $firstline = $_->{lines}[0];
+			$_->{position} = $1 
+				if ($firstline =~ /=pod\s+position\s*=\s*(\w+)/);
+		}
+		
 		next unless $pkgdata->{xsubs};
 
 		# look for magic keywords in the =for apidoc
-		my $xsubs = $pkgdata->{xsubs};
-		foreach (@$xsubs)
+		foreach (@{$pkgdata->{xsubs}})
 		{
 			my $firstline = $_->{pod}{lines}[0];
 			$_->{function} = 1 if ($firstline =~ /__function__/);
