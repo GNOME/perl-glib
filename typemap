@@ -69,6 +69,7 @@ T_GCHAR
 T_GCHAR_LEN
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
+        XSauto_length_of_$var = STRLEN_length_of_$var;
 
 T_G_TYPE_OBJECT
 	$var = SvGObject ($arg);
