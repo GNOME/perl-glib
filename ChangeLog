@@ -1,3 +1,9 @@
+2004/08/06 21:10 (-0400) rwmcfa1
+
+	* GenPod.pm: get the types from signals prototypes and properties so 
+	their enum values will be listed at the bottom of the pod. (this is in
+	addition to the xsubs and explicit stuff already in place)
+
 2004/08/01 21:10 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: unstable development release 1.053

@@ -288,7 +288,7 @@ sub xsdoc2pod
 		$ret = podify_pods ($pkgdata->{pods}, 'post_signals');
 		print "$ret\n\n" if ($ret);
 
-		$ret = podify_enums_and_flags ($pkgdata);	
+		$ret = podify_enums_and_flags ($pkgdata, $package);	
 		print "\n=head1 ENUMS AND FLAGS\n\n$ret" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_enums');
@@ -525,6 +525,7 @@ sub podify_signals {
 sub podify_enums_and_flags
 {
 	my $pkgdata = shift;
+	my $package = shift;
 	
 	my %types = ();
 	
@@ -565,6 +566,35 @@ sub podify_enums_and_flags
 					$name = convert_type ($arg->{type});
 					$types{$name}++;
 				}
+			}
+		}
+	}
+
+	if ($package)
+	{
+		my @props;
+		eval { @props = Glib::Object::list_properties($package); 1; };
+		foreach my $prop (@props)
+		{
+			next unless ($prop->{type});
+			$name = convert_type ($prop->{type});
+			$types{$name}++;
+		}
+	
+		my @sigs;
+		eval { @sigs = Glib::Type->list_signals ($package); 1; };
+		foreach my $sig (@sigs)
+		{
+			if ($sig->{return_type})
+			{
+				$name = convert_type ($sig->{return_type});
+				$types{$name}++;
+			}
+			foreach (@{$sig->{param_types}})
+			{
+				next unless ($_);
+				$name = convert_type ($_);
+				$types{$name}++;
 			}
 		}
 	}
