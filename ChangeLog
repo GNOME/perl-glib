@@ -1,7 +1,7 @@
 2004/01/30 22:36 (-0500) muppetman
 
 	* Subclass.pm: pass all unknown import parameters through to
-	Glib::Type->register_object.
+	Glib::Type->register_object.  bump version.
 
 2004/01/29 20:03 (-0500) rwmcfa1
 
