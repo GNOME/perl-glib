@@ -1,3 +1,10 @@
+2003/07/30 09:21 rwmcfa1
+
+	* GBoxed.xs: bug found by matthias blasing that when getting a legal
+	property off off a gobject that had no value assigned would croak with
+	a NULL to boxed error.  croak changed to warn and wrapped in a NOISY. 
+	returns undef from the null test
+
 2003/07/29 14:52 rwmcfa1
 
 	* GObject.xs: #ifdef'd out the warning when returning undef from 
