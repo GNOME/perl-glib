@@ -1,3 +1,11 @@
+Overview of Changes in Glib 1.038
+=================================
+
+* The API is frozen at this release for the 1.04x series.
+* g_main_depth (new in 2.3.5) bound as Glib::main_depth.  [Ross]
+* Glib::GenPod now works with strict, no user-visible changes.  [Ross]
+* POD updates.  [muppet]
+
 Overview of Changes in Glib 1.037
 =================================
 

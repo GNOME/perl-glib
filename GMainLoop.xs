@@ -83,13 +83,14 @@ MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
 =for object Glib::MainLoop
 =cut
 
-#if GLIB_CHECK_VERSION(2,3,4) /* TODO/FIXME: exact version, or 2.4 ??? */
+#if GLIB_CHECK_VERSION(2,3,5) /* FIXME 2.4 */
 
 =for apidoc __function__
+Find the current main loop recursion level.  This is handy in fringe
+situations, but those are very rare; see the C API reference for a more
+in-depth discussion.
 =cut
 int g_main_depth ()
-    C_ARGS:
-	/* void */
 
 #endif
 

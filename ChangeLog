@@ -1,3 +1,10 @@
+2004/03/02 00:42 (-0500) muppetman
+
+	* README, Glib.pm, NEWS: API-frozen unstable release 1.038
+
+	* GMainLoop.xs: change version guard on g_main_depth() to 2.3.5,
+	which was released today; minor cleanup and doc.
+
 2004/03/01 12:17 (-0500) rwmcfa1
 
 	* GMainLoop.xs: g_main_depth bound as Glib::main_depth (ver 2.4)
