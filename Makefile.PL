@@ -159,7 +159,7 @@ rpms/:
 SUBSTITUTE=$substitute
 
 perl-\$(DISTNAME).spec: perl-\$(DISTNAME).spec.in \$(VERSION_FROM) Makefile
-	\$(SUBSTITUTE) \$+ > \$@
+	\$(SUBSTITUTE) \$< > \$@
 
 dist-rpms: Makefile dist perl-\$(DISTNAME).spec rpms/
 	cp \$(DISTNAME)-\$(VERSION).tar.gz rpms/SOURCES/

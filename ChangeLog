@@ -1,4 +1,8 @@
-2003/09/19 00:21 rwmcfa1
+2003/09/21 20:19 rwmcfa1
+
+	* Makefile.PL: fixed bug in specfile generation
+
+2003/09/21 15:03 rwmcfa1
 
 	* (lots of files): license updates/additions
 
