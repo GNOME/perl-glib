@@ -1073,6 +1073,38 @@ install_overrides (GType type)
 }
 
 static void
+add_interfaces (GType instance_type, AV * interfaces)
+{
+        int i;
+	SV * class_name =
+		newSVpv (gperl_object_package_from_type (instance_type), 0);
+
+        for (i = 0; i <= av_len (interfaces); i++) {
+		SV ** svp = av_fetch (interfaces, i, FALSE);
+		if (!svp && !SvOK (*svp))
+			croak ("%s is not a valid interface name",
+			       SvPV_nolen (*svp));
+
+		/* call the interface's setup function on this class. */
+		{
+			dSP;
+			ENTER;
+			PUSHMARK (SP);
+			EXTEND (SP, 2);
+			PUSHs (*svp); /* interface type */
+			PUSHs (class_name); /* target type */
+			PUTBACK;
+			/* this will fail if _ADD_INTERFACE is not defined. */
+			call_method ("_ADD_INTERFACE", G_VOID|G_DISCARD);
+			LEAVE;
+		}
+		gperl_prepend_isa (SvPV_nolen (class_name), SvPV_nolen (*svp));
+	}
+
+	SvREFCNT_dec (class_name);
+}
+
+static void
 gperl_type_get_property (GObject * object,
                          guint property_id,
                          GValue * value,
@@ -1642,13 +1674,17 @@ g_type_register_object (class, parent_package, new_package, ...);
                                 add_signals (new_type, (HV*)SvRV (ST (i+1)));
                         else
                           	croak ("signals must be a hash of signalname => signalspec pairs");
-                }
-		if (strEQ (key, "properties")) {
+                } else if (strEQ (key, "properties")) {
                         if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVAV)
                                 add_properties (new_type, (AV*)SvRV (ST (i+1)));
                         else
                           	croak ("properties must be an array of GParamSpecs");
-                }
+                } else if (strEQ (key, "interfaces")) {
+			if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVAV)
+				add_interfaces (new_type, (AV*)SvRV (ST (i+1)));
+			else
+				croak ("interfaces must be an array of package names");
+		}
 	}
 	
 	/* vfuncs cause a bit of a problem, because the normal mechanisms of
@@ -1996,17 +2032,6 @@ list_signals (class, package)
 		oclass = g_type_class_ref (package_type);
 		if (!oclass)
 			XSRETURN_EMPTY;
-	} else {
-#if 0
-		/* we need to ensure that the interface's prerequisite types
-		 * have been created, in case any signals in this type depend
-		 * on the prerequisite.  however, this only works on 2.2.x...
-		 * what can we do about that? */
-		int i, n;
-		GType * prereqs = g_type_interface_prerequisites (package_type, &n);
-		for (i = 0 ; i < n ; i++)
-			warn ("  prereq %d : %s\n", i, g_type_name (prereqs[i]));
-#endif
 	}
 	sigids = g_signal_list_ids (package_type, &num);
 	if (!num)
