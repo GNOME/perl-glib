@@ -234,6 +234,97 @@ gperl_str_hash (gconstpointer key)
 	return h;
 }
 
+=item GPerlArgv * gperl_argv_new ()
+
+Creates a new Perl argv object whose members can then be passed to functions
+that request argc and argv style arguments.
+
+If the called function(s) modified argv, you can call L<gperl_argv_update> to
+update Perl's @ARGV in the same way.
+
+Remember to call L<gperl_argv_free> when you're done.
+
+=cut
+GPerlArgv*
+gperl_argv_new ()
+{
+	AV * ARGV;
+	SV * ARGV0;
+	int len, i;
+	GPerlArgv *pargv;
+
+	pargv = g_new (GPerlArgv, 1);
+
+	/*
+	 * heavily borrowed from gtk-perl.
+	 *
+	 * given the way perl handles the refcounts on SVs and the strings
+	 * to which they point, i'm not certain that the g_strdup'ing of
+	 * the string values is entirely necessary; however, this compiles
+	 * and runs and doesn't appear either to leak or segfault, so i'll
+	 * leave it.
+	 */
+
+	ARGV = get_av ("ARGV", FALSE);
+	ARGV0 = get_sv ("0", FALSE);
+
+	/* 
+	 * construct the argv argument... we'll have to prepend @ARGV with $0
+	 * to make it look real.  an important wrinkle: client code may strip
+	 * arguments it processes without freeing them (argv is statically
+	 * allocated in conventional usage).  thus, we need to keep a shadow
+	 * copy of argv so we can keep from leaking the stripped strings.
+	 */
+
+	len = av_len (ARGV) + 1;
+
+	pargv->argc = len + 1;
+	pargv->shadow = g_new0 (char*, pargv->argc);
+	pargv->argv = g_new0 (char*, pargv->argc);
+
+	pargv->argv[0] = SvPV_nolen (ARGV0);
+
+	for (i = 0 ; i < len ; i++) {
+		SV ** sv = av_fetch (ARGV, i, 0);
+		if (sv && SvOK (*sv))
+			pargv->shadow[i] = pargv->argv[i+1]
+			                 = g_strdup (SvPV_nolen (*sv));
+	}
+
+	return pargv;
+}
+
+=item void gperl_argv_update (GPerlArgv *pargv)
+
+Updates @ARGV to resemble the stored argv array.
+
+=cut
+void
+gperl_argv_update (GPerlArgv *pargv)
+{
+	AV * ARGV;
+	int i;
+
+	ARGV = get_av ("ARGV", FALSE);
+
+	/* clear and refill @ARGV with whatever gtk_init didn't steal. */
+	av_clear (ARGV);
+	for (i = 1 ; i < pargv->argc ; i++)
+		av_push (ARGV, newSVpv (pargv->argv[i], 0));
+}
+
+=item void gperl_argv_free (GPerlArgv *pargv)
+
+Frees any resources associated with I<pargv>.
+
+=cut
+void
+gperl_argv_free (GPerlArgv *pargv)
+{
+	g_strfreev (pargv->shadow);
+	g_free (pargv->argv);
+	g_free (pargv);
+}
 
 =back
 

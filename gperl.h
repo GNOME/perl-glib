@@ -67,6 +67,15 @@ SV *gperl_sv_from_filename (const gchar *filename);
 gboolean gperl_str_eq (const char * a, const char * b);
 guint    gperl_str_hash (gconstpointer key);
 
+typedef struct {
+  int argc;
+  char **argv;
+  char **shadow;
+} GPerlArgv;
+
+GPerlArgv * gperl_argv_new ();
+void gperl_argv_update (GPerlArgv *pargv);
+void gperl_argv_free (GPerlArgv *pargv);
 
 /* internal trickery */
 gpointer gperl_type_class (GType type);
