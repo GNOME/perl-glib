@@ -226,7 +226,7 @@ SUBSTITUTE=$substitute
 perl-\$(DISTNAME).spec :: perl-\$(DISTNAME).spec.in \$(VERSION_FROM) Makefile
 	\$(SUBSTITUTE) \$< > \$@
 
-dist-rpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)
+dist-rpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)/
 	cp \$(DISTNAME)-\$(VERSION).tar.gz \$(RPMS_DIR)/SOURCES/
 	rpmbuild -ba --define \"_topdir \$(RPMS_DIR)\" perl-\$(DISTNAME).spec
 ";
