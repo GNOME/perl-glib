@@ -133,18 +133,23 @@ sub postamble_docs
 	my @xs_files = @_;
 "
 # documentation stuff
-build/doc.pl: Makefile @xs_files
+build/doc.pl :: Makefile @xs_files 
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
 		-e 'xsdocparse (".join(", ",map {"\"$_\""} @xs_files).")' > \$@
 
-build/xsapi.pod: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
+build/xsapi.pod :: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
 	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
 
-@gend_pods build/podindex: Makefile build/doc.pl
+# passing all of these files through the single podindex file, which is 
+# created at the same time, prevents problems with -j4 where xsdoc2pod would 
+# have multiple instances
+@gend_pods :: build/podindex
+
+build/podindex :: Makefile build/doc.pl \$(INST_LIB)/\$(FULLEXT).pm \$(INST_DYNAMIC)
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
-\$(INST_LIB)/\$(FULLEXT)/index.pod: build/podindex
+\$(INST_LIB)/\$(FULLEXT)/index.pod :: build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) Pod Index\\n\\n=head1 PAGES\\n\\n\"' \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	$^X -nae 'print \" \$\$F[1]\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
@@ -199,10 +204,10 @@ rpms/:
 
 SUBSTITUTE=$substitute
 
-perl-\$(DISTNAME).spec: perl-\$(DISTNAME).spec.in \$(VERSION_FROM) Makefile
+perl-\$(DISTNAME).spec :: perl-\$(DISTNAME).spec.in \$(VERSION_FROM) Makefile
 	\$(SUBSTITUTE) \$< > \$@
 
-dist-rpms: Makefile dist perl-\$(DISTNAME).spec rpms/
+dist-rpms :: Makefile dist perl-\$(DISTNAME).spec rpms/
 	cp \$(DISTNAME)-\$(VERSION).tar.gz rpms/SOURCES/
 	rpmbuild -ba --define \"_topdir $cwd/rpms\" perl-\$(DISTNAME).spec
 ";

@@ -142,7 +142,14 @@ package MY;
 sub postamble 
 {
 	require 'MakeHelper.pm';
-	return Glib::MakeHelper->postamble_clean ()
+	return "
+# these are special for Glib since it's providing the modules,
+# it just has to make sure that they are ready before it can go
+build/doc.pl :: \$(INST_LIB)/Glib/ParseXSDoc.pm
+
+build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
+"
+	     . Glib::MakeHelper->postamble_clean ()
 	     . Glib::MakeHelper->postamble_docs (@main::xs_files)
 	     . Glib::MakeHelper->postamble_rpms (
 			'GLIB_RUN' => $runtime_reqs{'Glib'},
