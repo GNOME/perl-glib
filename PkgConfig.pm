@@ -24,6 +24,33 @@ sub find {
 	my $class = shift;
 	my $pkg = shift;
 	my %data = ();
+	my @pkgs;
+
+	# try as many pkg paramters are there are arguments left on stack
+	while( $pkg and 
+	       system("pkg-config $pkg --modversion > /dev/null 2>&1") )
+	{
+		push @pkgs, $pkg;
+		$pkg = shift;
+	}
+	
+	unless( $pkg )
+	{
+		if( @pkgs > 1 )
+		{
+			croak '*** can not find package for any of ('.join(', ',@pkgs).")\n"
+			    . '*** check that one of them is properly installed and available in PKG_CONFIG_PATH';
+		}
+		else
+		{
+			croak "*** can not find package $pkgs[0]\n"
+			    . '*** check that it is properly installed and available in PKG_CONFIG_PATH';
+		}
+	}
+	else
+	{
+		print "found package $pkg, using it\n";
+	}
 
 	foreach my $what (qw/modversion cflags libs/) {
 		$data{$what} = `pkg-config $pkg --$what`;
@@ -68,15 +95,24 @@ The module contains one function:
 
 =over
 
-=item HASH = Glib::PkgConfig->find (STRING)
+=item HASH = Glib::PkgConfig->find (STRING, [STRING, ...])
 
-Call pkg-config on the library specified by I<STRING> (you'll have to know
-what to use here).  The returned I<HASH> contains the modversion, cflags,
-and libs values under keys with those names.
+Call pkg-config on the library specified by I<STRING> (you'll have to know what
+to use here).  The returned I<HASH> contains the modversion, cflags, and libs
+values under keys with those names. If multiple STRINGS are passed they are
+attempted in the order they are given till a working package is found.
 
-If pkg-config fails to find I<STRING>, this function croaks with a message
-intended to be helpful to whomever is attempting to compile your package.
+If pkg-config fails to find a working I<STRING>, this function croaks with a
+message intended to be helpful to whomever is attempting to compile your
+package.
+
 For example:
+
+  *** can not find package bad1                                   
+  *** check that it is properly installed and available 
+  *** in PKG_CONFIG_PATH 
+
+or
 
   *** can't find cflags for gtk+-2.0
   *** is it properly installed and available in PKG_CONFIG_PATH?
