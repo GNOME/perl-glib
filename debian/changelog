@@ -1,8 +1,14 @@
+libglib-perl (0.96-1) unstable; urgency=low
+
+  * Updated for 0.96 release.
+
+ -- muppet <scott at asofyet dot org>  Thu, 28 Aug 2003 22:22:32 -0400
+
 libglib-perl (0.95-1) unstable; urgency=low
 
   * Updated for 0.95 release.
 
- -- muppet <scott at asofyet dot org>  Fri Aug 22 01:10:18 EDT 2003
+ -- muppet <scott at asofyet dot org>  Fri, 22 Aug 2003 01:10:18 -0400
 
 libglib-perl (0.92-2) unstable; urgency=low
 

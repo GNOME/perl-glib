@@ -1,7 +1,15 @@
-2003/08/28 19:50 muppetman
+2003/08/28 23:30 muppetman
 
-	merged changes from the exceptions branch.  gtk2-perl now attempts to
-	do reasonable handling of exceptions in callbacks.
+	* gperl.h, GClosure.xs, Glib.xs: merged changes from the exceptions
+	branch.  gtk2-perl now attempts to do reasonable handling of 
+	exceptions in callbacks.  still needs pod for the perl-level stuff,
+	but i'm not sure where to put it.
+
+	* Glib.exports: new exportable symbols
+
+	* GParamSpec.xs: hush uninitialized value warning (drop in the bucket)
+
+	* Glib.pm, MANIFEST, README, debian/changelog: update for 0.96 release
 
 2003/08/28 17:45 muppetman
 
