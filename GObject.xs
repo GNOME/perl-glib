@@ -1018,7 +1018,7 @@ g_object_list_properties (object_or_class_name)
 		props = g_object_class_list_properties (object_class, &n_props);
 		g_type_class_unref (object_class);
 	}
-#if GLIB_CHECK_VERSION(2,3,2) /* FIXME 2.4 */
+#if GLIB_CHECK_VERSION(2,4,0)
 	else if (G_TYPE_IS_INTERFACE (type))
 	{
 		gpointer iface = g_type_default_interface_ref (type);

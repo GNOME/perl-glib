@@ -1,3 +1,8 @@
+2004/03/16 22:05 (-0500) muppetman
+
+	* GMainLoop.xs, GObject.xs: bump version checks from 2.3 to 2.4; we
+	don't claim to work with unstable gtk+.
+
 2004/03/16 13:17 (-0500) muppetman
 
 	* GUtils.xs: rename Glib::Version manpage to Glib::version, for

@@ -68,7 +68,7 @@ MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
 =for object Glib::MainLoop
 =cut
 
-#if GLIB_CHECK_VERSION(2,3,5) /* FIXME 2.4 */
+#if GLIB_CHECK_VERSION(2,4,0)
 
 =for apidoc __function__
 Find the current main loop recursion level.  This is handy in fringe
