@@ -1,3 +1,17 @@
+2003/11/21 01:00 (-0500) muppetman
+
+	* GBoxed.xs: implement a generic Glib::Boxed::copy, and some doc
+
+	* GBoxed.xs, GObject.xs, GType.xs, GValue.xs, typemap: replace
+	SvTRUE() with SvOK() as a more efficient test for definedness.
+	SvTRUE() is rather heavy, in that it evaluates to an awful lot
+	of code, where what we generally need is just to see if the scalar
+	is the Perl equivalent of C's NULL.
+
+	* GParamSpec.xs: now that there's a gunichar typemap, implement
+	things that were waiting on it.  not sure why you'd want a unichar
+	param in perl, but the point is to make it possible.  :-)
+
 2003/11/19 14:08 (-0500) muppetman
 
 	cleanup for win32:
