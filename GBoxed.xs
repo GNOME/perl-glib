@@ -585,7 +585,7 @@ DESTROY (sv)
 	char * class;
 	GPerlBoxedDestroyFunc destroy;
     CODE:
-	if (!sv && !SvOK (sv) && !SvROK (sv) && !SvRV (sv))
+	if (!sv || !SvOK (sv) || !SvROK (sv) || !SvRV (sv))
 		croak ("DESTROY called on a bad value");
 
 	/* we need to find the wrapper class associated with whatever type
