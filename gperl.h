@@ -211,6 +211,7 @@ SV * gperl_object_check_type (SV * sv, GType gtype);
 typedef gchar gchar_length;
 typedef gchar gchar_own;
 typedef gchar gchar_ornull;
+typedef char char_ornull;
 typedef GObject GObject_ornull;
 typedef GObject GObject_noinc;
 typedef gchar *GPerlFilename;
@@ -221,7 +222,7 @@ typedef GPerlFilename GPerlFilename_ornull;
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
 #define SvGObject(sv)		(gperl_get_object (sv))
-#define SvGObject_ornull(sv)	((sv && SvTRUE (sv)) ? SvGObject (sv) : NULL)
+#define SvGObject_ornull(sv)	((sv && SvOK (sv)) ? SvGObject (sv) : NULL)
 
 
 /*

@@ -44,6 +44,8 @@ gchar_length *	T_GCHAR_LEN
 const gchar_length *	T_GCHAR_LEN
 gchar_ornull *	T_GCHAR_ORNULL
 const gchar_ornull *	T_GCHAR_ORNULL
+char_ornull *	T_CHAR_ORNULL
+const char_ornull *	T_CHAR_ORNULL
 guchar		T_UV
 guchar *	T_PV
 const guchar *	T_PV
@@ -103,6 +105,13 @@ T_GCHAR_LEN
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
         XSauto_length_of_$var = STRLEN_length_of_$var;
 
+T_CHAR_ORNULL
+	if ($arg && SvOK ($arg)) {
+		$var = ($type)SvPV_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
 T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
 
@@ -159,6 +168,13 @@ T_GCHAR_OWN
 	sv_setpv ((SV*)$arg, $var);
 	SvUTF8_on ($arg);
         g_free ($var);
+
+T_CHAR_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
 
 T_G_TYPE_IO_CONDITION
 	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
