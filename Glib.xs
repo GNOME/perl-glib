@@ -250,6 +250,7 @@ BOOT:
 #endif
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
+	GPERL_CALL_BOOT (boot_Glib__Utils);
 	GPERL_CALL_BOOT (boot_Glib__Log);
 	GPERL_CALL_BOOT (boot_Glib__Type);
 	GPERL_CALL_BOOT (boot_Glib__Boxed);
@@ -286,6 +287,8 @@ filename_to_unicode (const char * class_or_filename, const char *filename=NULL)
     OUTPUT:
         RETVAL
 
+=for apidoc __hide__
+=cut
 void
 filename_from_uri (...)
     PROTOTYPE: $
@@ -309,6 +312,8 @@ filename_from_uri (...)
 	g_free (filename);
 	if (hostname) g_free (hostname);
 
+=for apidoc __hide__
+=cut
 gchar_own *
 filename_to_uri (...)
     PROTOTYPE: $$

@@ -47,6 +47,7 @@ mkdir 'build', 0777;
 # appear in Glib::xsapi
 our @xs_files = qw(
 	Glib.xs
+	GUtils.xs
 	GLog.xs
 	GType.xs
 	GBoxed.xs

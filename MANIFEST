@@ -18,6 +18,7 @@ gperl.h
 gperl_marshal.h
 GSignal.xs
 GType.xs
+GUtils.xs
 GValue.xs
 LICENSE
 Makefile.PL
