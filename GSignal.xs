@@ -363,7 +363,7 @@ BOOT:
 
 ###
 ### ## creating signals ##
-### new signals are currently created as a byproduct of Glib::Type:;register
+### new signals are currently created as a byproduct of Glib::Type::register
 ###
 ##        g_signal_newv
 ##        g_signal_new_valist
@@ -648,6 +648,21 @@ g_signal_handler_is_connected (object, handler_id)
  ## g_signal_handlers_block_by_func(instance, func, data)
  ## g_signal_handlers_unblock_by_func(instance, func, data)
 
+=for apidoc Glib::Object::signal_handlers_block_by_func
+=for arg func (subroutine) function to block
+=for arg data (scalar) data to match, ignored if undef
+=cut
+
+=for apidoc Glib::Object::signal_handlers_unblock_by_func
+=for arg func (subroutine) function to block
+=for arg data (scalar) data to match, ignored if undef
+=cut
+
+=for apidoc Glib::Object::signal_handlers_disconnect_by_func
+=for arg func (subroutine) function to block
+=for arg data (scalar) data to match, ignored if undef
+=cut
+
 int
 do_stuff_by_func (instance, func, data=NULL)
 	GObject * instance
@@ -681,6 +696,20 @@ do_stuff_by_func (instance, func, data=NULL)
 ##					       GClosure		 *class_closure);
 ##void	g_signal_chain_from_overridden	      (const GValue      *instance_and_params,
 ##					       GValue            *return_value);
+=for apidoc
+
+Chain up to an overridden class closure; it is only valid to call this from
+a class closure override.
+
+Translation: because of various details in how GObjects are implemented,
+the way to override a virtual method on a GObject is to provide a new "class
+closure", or default handler for a signal.  This happens when a class is
+registered with the type system (see Glib::Type::register and
+L<Glib::Object::Subclass>).  When called from inside such an override, this
+method runs the overridden class closure.  This is equivalent to calling
+$self->SUPER::$method (@_) in normal Perl objects.
+
+=cut
 void
 g_signal_chain_from_overridden (GObject * instance, ...)
     PREINIT:

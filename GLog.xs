@@ -166,8 +166,7 @@ BOOT:
 	gperl_register_fundamental (g_log_level_flags_get_type (),
 	                            "Glib::LogLevelFlags");
 
-=for enum Glib::LogLevelFlags
-
+=for flags Glib::LogLevelFlags
 =cut
 
 ##
@@ -206,6 +205,9 @@ g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_f
 	RETVAL
 
 ##void g_log_remove_handler (const gchar *log_domain, guint handler_id);
+=for apidoc
+=for arg handler_id as returned by C<set_handler>
+=cut
 void
 g_log_remove_handler (class, gchar_ornull *log_domain, guint handler_id);
     C_ARGS:
@@ -219,7 +221,6 @@ g_log_remove_handler (class, gchar_ornull *log_domain, guint handler_id);
 MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
 =for object Glib::Log
-
 =cut
 
 void g_log (class, gchar_ornull * log_domain, SV * log_level, const gchar *message)
@@ -256,7 +257,6 @@ SV * g_log_set_always_fatal (class, SV * fatal_mask);
 MODULE = Glib::Log	PACKAGE = Glib
 
 =for object Glib::Log
-
 =cut
 
 ###

@@ -724,6 +724,15 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
 =for object Glib::Object Bindings for GObject
 
+=head1 DESCRIPTION
+
+GObject is the base object class provided by the gobject library.  It provides
+object properties with a notification system, and emittable signals.
+
+Glib::Object is the corresponding Perl object class.  Glib::Objects are
+represented by blessed hash references, with a magical connection to the
+underlying C object.
+
 =cut
 
 BOOT:
@@ -765,154 +774,19 @@ DESTROY (SV *sv)
 #endif
 
 
-void
-g_object_set_data (object, key, data)
-	GObject * object
-	gchar * key
-	SV * data
-    CODE:
-	if (SvROK (data) || !SvIOK (data))
-		croak ("set_data only sets unsigned integers, use"
-		       " a key in the object hash for anything else");
-	g_object_set_data (object, key, GUINT_TO_POINTER (SvUV (data)));
+=for apidoc
 
+=for signature object = $class->new (...)
 
-UV
-g_object_get_data (object, key)
-	GObject * object
-	gchar * key
-    CODE:
-        RETVAL = (UV) g_object_get_data (object, key);
-    OUTPUT:
-        RETVAL
+=for arg ... (key/value pairs) property values to set on creation
 
+Instantiate a Glib::Object of type I<$class>.  Any key/value pairs in
+I<...> are used to set properties on the new object; see C<set>.
+This is designed to be inherited by Perl-derived subclasses (see
+L<Glib::Object::Subclass>), but you can actually use it to create
+any GObject-derived type.
 
-void
-g_object_get (object, ...)
-	GObject * object
-    ALIAS:
-	Glib::Object::get = 0
-	Glib::Object::get_property = 1
-    PREINIT:
-	GValue value = {0,};
-	int i;
-    PPCODE:
-	PERL_UNUSED_VAR (ix);
-	EXTEND (SP, items-1);
-	for (i = 1; i < items; i++) {
-		char *name = SvPV_nolen (ST (i));
-		init_property_value (object, name, &value);
-		g_object_get_property (object, name, &value);
-		PUSHs (sv_2mortal (gperl_sv_from_value (&value)));
-		g_value_unset (&value);
-	}
-
-void
-g_object_set (object, ...)
-	GObject * object
-    ALIAS:
-	Glib::Object::set = 0
-	Glib::Object::set_property = 1
-    PREINIT:
-	GValue value = {0,};
-	int i;
-    CODE:
-	PERL_UNUSED_VAR (ix);
-	if (0 != ((items - 1) % 2))
-		croak ("set method expects name => value pairs "
-		       "(odd number of arguments detected)");
-
-	for (i = 1; i < items; i += 2) {
-		char *name = SvPV_nolen (ST (i));
-		SV *newval = ST (i + 1);
-
-		init_property_value (object, name, &value);
-		gperl_value_from_sv (&value, newval);
-		g_object_set_property (object, name, &value);
-		g_value_unset (&value);
-	}
-
-void
-g_object_list_properties (class)
-	SV * class
-    PREINIT:
-	GType type;
-	GObjectClass * object_class = NULL;
-	GParamSpec ** props;
-	guint n_props = 0, i;
-    PPCODE:
-	if (class && SvOK (class) && SvROK (class)) {
-		GObject * object = SvGObject (class);
-		if (!object)
-			croak ("wha?  NULL object in list_properties");
-		type = G_OBJECT_TYPE (object);
-	} else {
-		type = gperl_object_type_from_package (SvPV_nolen (class));
-		if (!type)
-			croak ("package %s is not registered with GPerl",
-			       SvPV_nolen (class));
-	}
-	/* classes registered by perl are kept alive by the bindings.
-	 * those coming straight from C are not.  if we had an actual
-	 * object, the class will be alive, but if we just had a package,
-	 * the class may not exist yet.  thus, we'll have to do an honest
-	 * ref here, rather than a peek. */
-	object_class = g_type_class_ref (type);
-	props = g_object_class_list_properties (object_class, &n_props);
-#ifdef NOISY
-	warn ("list_properties: %d properties\n", n_props);
-#endif
-	for (i = 0; i < n_props; i++) {
-		const gchar * pv;
-		HV * property = newHV ();
-
-		hv_store (property, "name",  4,
-		          newSVpv (g_param_spec_get_name (props[i]), 0), 0);
-
-		/* map type names to package names, if possible */
-		pv = gperl_package_from_type (props[i]->value_type);
-		if (!pv) pv = g_type_name (props[i]->value_type);
-		hv_store (property, "type",  4, newSVpv (pv, 0), 0);
-
-		pv = gperl_package_from_type (props[i]->owner_type);
-		if (!pv) pv = g_type_name (props[i]->owner_type);
-		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
-
-		/* this one can be NULL, it seems */
-		pv = g_param_spec_get_blurb (props[i]);
-		if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
-		hv_store (property, "flags", 5, newSVGParamFlags (props[i]->flags), 0) ;
-		
-		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
-	}
-	g_free(props);
-	g_type_class_unref (object_class);
-
-###
-### rudimentary support for foreign objects.
-###
-
- ## NOTE: note that the cast from arbitrary integer to GObject may result
- ##       in a core dump without warning, because the type-checking macro
- ##       attempts to dereference the pointer to find a GTypeClass 
- ##       structure, and there is no portable way to validate the pointer.
-SV *
-new_from_pointer (class, pointer, noinc=FALSE)
-	guint32 pointer
-	gboolean noinc
-    CODE:
-	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
-    OUTPUT:
-	RETVAL
-
-guint32
-get_pointer (object)
-	GObject * object
-    CODE:
-	RETVAL = GPOINTER_TO_UINT (object);
-    OUTPUT:
-	RETVAL
-
+=cut
 SV *
 g_object_new (class, ...)
 	const char *class
@@ -957,6 +831,7 @@ g_object_new (class, ...)
 			                       * xsub is finished */
 		}
 	}
+#undef FIRST_ARG
 
 	object = g_object_newv (object_type, n_params, params);	
 
@@ -974,6 +849,242 @@ g_object_new (class, ...)
 	}
 	if (oclass)
 		g_type_class_unref (oclass);
-
     OUTPUT:
 	RETVAL
+
+
+=for apidoc Glib::Object::get
+=for arg ... (list) list of property names
+
+Fetch and return the values for the object properties named in I<...>.
+
+=cut
+
+=for apidoc Glib::Object::get_property
+=for arg ... (__hide__)
+
+Alias for C<get>.
+
+=cut
+
+void
+g_object_get (object, ...)
+	GObject * object
+    ALIAS:
+	Glib::Object::get = 0
+	Glib::Object::get_property = 1
+    PREINIT:
+	GValue value = {0,};
+	int i;
+    PPCODE:
+	PERL_UNUSED_VAR (ix);
+	EXTEND (SP, items-1);
+	for (i = 1; i < items; i++) {
+		char *name = SvPV_nolen (ST (i));
+		init_property_value (object, name, &value);
+		g_object_get_property (object, name, &value);
+		PUSHs (sv_2mortal (gperl_sv_from_value (&value)));
+		g_value_unset (&value);
+	}
+
+
+=for apidoc Glib::Object::set
+=for signature $object->set (key => $value, ...)
+=for arg ... (key/value pairs)
+
+Set object properties.
+
+=cut
+
+=for apidoc Glib::Object::set_property
+=for signature $object->set_property (key => $value, ...)
+=for arg ... (__hide__)
+
+Alias for C<set>.
+
+=cut
+
+void
+g_object_set (object, ...)
+	GObject * object
+    ALIAS:
+	Glib::Object::set = 0
+	Glib::Object::set_property = 1
+    PREINIT:
+	GValue value = {0,};
+	int i;
+    CODE:
+	PERL_UNUSED_VAR (ix);
+	if (0 != ((items - 1) % 2))
+		croak ("set method expects name => value pairs "
+		       "(odd number of arguments detected)");
+
+	for (i = 1; i < items; i += 2) {
+		char *name = SvPV_nolen (ST (i));
+		SV *newval = ST (i + 1);
+
+		init_property_value (object, name, &value);
+		gperl_value_from_sv (&value, newval);
+		g_object_set_property (object, name, &value);
+		g_value_unset (&value);
+	}
+
+
+=for apidoc
+
+List all the object properties for I<$object_or_class_name>; returns them as
+a list of hashes, containing these keys:
+
+=over
+
+=item name
+
+=item type
+
+=item owner_type
+
+=item descr
+
+=back
+
+=cut
+void
+g_object_list_properties (object_or_class_name)
+	SV * object_or_class_name
+    PREINIT:
+	GType type;
+	GObjectClass * object_class = NULL;
+	GParamSpec ** props;
+	guint n_props = 0, i;
+    PPCODE:
+	if (object_or_class_name &&
+	    SvOK (object_or_class_name) &&
+	    SvROK (object_or_class_name)) {
+		GObject * object = SvGObject (object_or_class_name);
+		if (!object)
+			croak ("wha?  NULL object in list_properties");
+		type = G_OBJECT_TYPE (object);
+	} else {
+		type = gperl_object_type_from_package
+		                          (SvPV_nolen (object_or_class_name));
+		if (!type)
+			croak ("package %s is not registered with GPerl",
+			       SvPV_nolen (object_or_class_name));
+	}
+	/* classes registered by perl are kept alive by the bindings.
+	 * those coming straight from C are not.  if we had an actual
+	 * object, the class will be alive, but if we just had a package,
+	 * the class may not exist yet.  thus, we'll have to do an honest
+	 * ref here, rather than a peek. */
+	object_class = g_type_class_ref (type);
+	props = g_object_class_list_properties (object_class, &n_props);
+#ifdef NOISY
+	warn ("list_properties: %d properties\n", n_props);
+#endif
+	for (i = 0; i < n_props; i++) {
+		const gchar * pv;
+		HV * property = newHV ();
+
+		hv_store (property, "name",  4,
+		          newSVpv (g_param_spec_get_name (props[i]), 0), 0);
+
+		/* map type names to package names, if possible */
+		pv = gperl_package_from_type (props[i]->value_type);
+		if (!pv) pv = g_type_name (props[i]->value_type);
+		hv_store (property, "type",  4, newSVpv (pv, 0), 0);
+
+		pv = gperl_package_from_type (props[i]->owner_type);
+		if (!pv) pv = g_type_name (props[i]->owner_type);
+		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
+
+		/* this one can be NULL, it seems */
+		pv = g_param_spec_get_blurb (props[i]);
+		if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
+		hv_store (property, "flags", 5, newSVGParamFlags (props[i]->flags), 0) ;
+		
+		XPUSHs (sv_2mortal (newRV_noinc((SV*)property)));
+	}
+	g_free(props);
+	g_type_class_unref (object_class);
+
+
+=for apidoc
+
+GObject provides an arbitrary data mechanism that assigns unsigned integers
+to key names.  Functionality overlaps with the hash used as the Perl object
+instance, so we strongly recommend you use hash keys for your data storage.
+The GObject data values cannot store type information, so they are not safe
+to use for anything but integer values, and you really should use this method
+only if you know what you are doing.
+
+=cut
+void
+g_object_set_data (object, key, data)
+	GObject * object
+	gchar * key
+	SV * data
+    CODE:
+	if (SvROK (data) || !SvIOK (data))
+		croak ("set_data only sets unsigned integers, use"
+		       " a key in the object hash for anything else");
+	g_object_set_data (object, key, GUINT_TO_POINTER (SvUV (data)));
+
+
+=for apidoc
+
+Fetch the integer stored under the object data key I<$key>.  These values do not
+have types; type conversions must be done manually.  See C<set_data>.
+
+=cut
+UV
+g_object_get_data (object, key)
+	GObject * object
+	gchar * key
+    CODE:
+        RETVAL = (UV) g_object_get_data (object, key);
+    OUTPUT:
+        RETVAL
+
+
+###
+### rudimentary support for foreign objects.
+###
+
+=for apidoc Glib::Object::new_from_pointer
+
+=for arg pointer (unsigned) a C pointer value as an integer.
+
+=for arg noinc (boolean) if true, do not increase the GObject's reference count when creating the Perl wrapper.  this typically means that when the Perl wrapper will own the object.  in general you don't want to do that, so the default is false. 
+
+Create a Perl Glib::Object reference for the C object pointed to by I<$pointer>.
+You should need this I<very> rarely; it's intended to support foreign objects.
+
+NOTE: the cast from arbitrary integer to GObject may result in a core dump without
+warning, because the type-checking macro G_OBJECT() attempts to dereference the
+pointer to find a GTypeClass structure, and there is no portable way to validate
+the pointer.
+
+=cut
+SV *
+new_from_pointer (class, pointer, noinc=FALSE)
+	guint32 pointer
+	gboolean noinc
+    CODE:
+	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc
+
+Complement of C<new_from_pointer>.
+
+=cut
+guint32
+get_pointer (object)
+	GObject * object
+    CODE:
+	RETVAL = GPOINTER_TO_UINT (object);
+    OUTPUT:
+	RETVAL
+

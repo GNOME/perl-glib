@@ -716,11 +716,38 @@ MODULE = Glib::Closure	PACKAGE = Glib	PREFIX = gperl_
 
 =cut
 
+=for apidoc
+=for arg func (subroutine)
+
+Install a subroutine to be executed when a signal emission traps an exception
+(a croak or die).  I<$func> should return boolean (true if the handler should
+remain installed) and expect to receive a single scalar.  This scalar will be a
+private copy of $@ which the handler can mangle to its heart's content.
+
+Returns an identifier that may be used with C<remove_exception_handler>.
+
+See C<gperl_install_exception_handler()> in L<Glib::xsapi>.
+
+=cut
 int
 gperl_install_exception_handler (class, SV * func, SV * data=NULL)
     C_ARGS:
 	gperl_closure_new (func, data, 0)
 
+
+=for apidoc
+
+Remove the exception handler identified by I<$tag>, as returned by
+C<install_exception_handler>.  If I<$tag> cannot be found, this
+does nothing.
+
+WARNING:  Do not call this function from within an exception handler.
+If you want to remove your handler during its execution just have it
+return false.
+
+See C<gperl_remove_exception_handler()> in L<Glib::xsapi>.
+
+=cut
 void
 gperl_remove_exception_handler (class, guint tag)
     C_ARGS:

@@ -79,12 +79,34 @@ SvGParamSpec (SV * sv)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
+=for apidoc
+
+=head1 DESCRIPTION
+
+Glib::ParamSpec encapsulates the metadata required to specify parameters.
+You will see these most often when creating new Glib::Object types; see
+C<< Glib::Type->register >> and L<Glib::Object::Subclass>.
+
+Parameter specifications allow you to provide limits for validation as 
+well as nicknames and blurbs to document the parameters.  Blurbs show up
+in reference documentation such as this page or the gtk+ C API reference;
+i'm not really sure where the nicknames get used.  The Perl bindings for
+the most part ignore the difference between dashes and underscores in
+the paramspec names, which typically find use as the actual keys for 
+object parameters.
+
+It's worth noting that Glib offers various sizes of integer and floating
+point values, while Perl really only deals with full integers and double
+precision floating point values.  The size distinction is important for
+the underlying C libraries.
+
+=cut
+
 BOOT:
 	gperl_register_fundamental (g_param_flags_get_type (),
 	                            "Glib::ParamFlags");
 
 =for enum Glib::ParamFlags
-
 =cut
 
 ## stuff from gparam.h

@@ -79,6 +79,29 @@ of gmain.h in here, commented out.
 #endif
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
+
+=for object Glib::MainLoop
+
+=head1 DESCRIPTION
+
+Event-driven programs need some sort of loop which watches for events and
+launches the appropriate actions.  Glib::MainLoop provides this functionality.
+
+Mainloops have context, provided by the MainContext object.  For the most part
+you can use the default context (see C<default>), but if you want to create a
+subcontext for a nested loop which doesn't have the same event sources, etc,
+you can.
+
+Event sources, attached to main contexts, watch for events to happen, and
+launch appropriate actions.  Glib provides a few ready-made event sources,
+the Glib::Timeout, Glib::Idle, and io watch (C<< Glib::IO->add_watch >>).
+
+Under the hood, Gtk+ adds event sources for GdkEvents to dispatch events to
+your widgets.  In fact, Gtk2 provides an abstraction of Glib::MainLoop (See
+C<< Gtk2->main >> and friends), so you may rarely have cause to use
+Glib::MainLoop directly.
+
+=cut
  
  #####################
  ### GMainContext: ###
@@ -217,6 +240,9 @@ GMainContext * g_main_loop_get_context (GMainLoop * loop);
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Source	PREFIX = g_source_
 
+=for object Glib::MainLoop
+=cut
+
  ################
  ### GSource: ###
  ################
@@ -260,7 +286,13 @@ MODULE = Glib::MainLoop	PACKAGE = Glib::Source	PREFIX = g_source_
  ##void g_get_current_time		        (GTimeVal	*result);
 
 
+=for apidoc
 
+Remove an event source.  I<$tag> is the number returned by things like
+C<< Glib::Timeout->add >>, C<< Glib::Idle->add >>, and
+C<< Glib::IO->add_watch >>.
+
+=cut
 gboolean
 g_source_remove (class, tag)
 	guint tag
@@ -274,14 +306,22 @@ g_source_remove (class, tag)
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Timeout	PREFIX = g_timeout_
 
-=for object Glib::Source
-
+=for object Glib::MainLoop
 =cut
 
  ##########################
  ### Idles and timeouts ###
  ##########################
 
+=for apidoc
+=for arg interval number of milliseconds
+=for arg callback (subroutine)
+
+Run I<$callback> every I<$interval> milliseconds until I<$callback> returns
+false.  Returns a source id which may be used with C<< Glib::Source->remove >>.
+Note that a mainloop must be active for the timeout to execute.
+
+=cut
 guint
 g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT)
 	guint interval
@@ -306,10 +346,18 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Idle	PREFIX = g_idle_
 
-=for object Glib::Source
-
+=for object Glib::MainLoop
 =cut
 
+=for apidoc
+=for arg callback (subroutine)
+
+Run I<$callback> when the mainloop is idle.  If I<$callback> returns false,
+it will uninstall itself, otherwise, it will run again at the next idle
+iteration.  Returns a source id which may be used with
+C<< Glib::Source->remove >>.
+
+=cut
 guint
 g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 	SV * callback
@@ -334,17 +382,30 @@ g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::IO	PREFIX = g_io_
 
-=for object Glib::Source
-
+=for object Glib::MainLoop
 =cut
 
 BOOT:
 	gperl_register_fundamental (G_TYPE_IO_CONDITION, "Glib::IOCondition");
 
 =for enum Glib::IOCondition
-
 =cut
 
+=for apidoc
+=for arg fd (file descriptor) file number, e.g. fileno($filehandle)
+=for arg callback (subroutine)
+
+Run I<$callback> when there is an event on I<$fd> that matches I<$condition>.
+The watch uninstalls itself if I<$callback> returns false.
+Returns a source id that may be used with C<< Glib::Source->remove >>.
+
+Glib's IO channels serve the same basic purpose as Perl's file handles, so
+for the most part you don't see GIOChannels in Perl.  The IO watch integrates
+IO operations with the main loop, which Perl file handles don't do.  For
+various reasons, this function requires raw file descriptors, not full
+file handles.  See C<fileno> in L<perlfunc>.
+
+=cut
 guint
 g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_DEFAULT)
 	int fd

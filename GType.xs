@@ -1221,6 +1221,20 @@ gperl_type_class_init (GObjectClass * class)
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
+=head1 DESCRIPTION
+
+This package defines several utilities for dealing with the GLib type system
+from Perl.  Because of some fundamental differences in how the GLib and Perl
+type systems work, a fair amount of the binding magic leaks out, and you can
+find most of that in C<Glib::Type::register>, which registers new object types
+with the GLib type system.
+
+Most of the rest of the functions provide introspection functionality, such as
+listing properties and values and other cool stuff that is used mainly by
+Glib's reference documentation generator (see L<Glib::GenDoc>).
+
+=cut
+
 BOOT:
 	gperl_register_fundamental (G_TYPE_BOOLEAN, "Glib::Boolean");
 	gperl_register_fundamental (G_TYPE_INT, "Glib::Int");
@@ -1400,6 +1414,7 @@ list_ancestors (class, package)
 		parent_gtype = g_type_parent (parent_gtype);
 	}
 
+
 =for apidoc
 
 List the GInterfaces implemented by the type associated with I<package>.
@@ -1434,6 +1449,7 @@ list_interfaces (class, package)
 		XPUSHs (sv_2mortal (newSVpv (name, 0)));
 	}
 	g_free (interfaces);
+
 
 =for apidoc
 
@@ -1545,6 +1561,20 @@ list_signals (class, package)
 	g_type_class_unref (oclass);
 #undef GET_NAME
 
+
+=for apidoc
+
+List the legal values for the GEnum or GFlags type I<$package>.  If I<$package>
+is not a package name registered with the bindings, this name is passed on to
+g_type_from_name() to see if it's a registered flags or enum type that just
+hasn't been registered with the bindings by C<gperl_register_fundamental()>
+(see Glib::xsapi).  If I<$package> is not the name of an enum or flags type,
+this function will croak.
+
+Returns the values as a list of hashes, one hash for each value, containing
+that value's name and nickname.
+
+=cut
 void
 list_values (class, const char * package)
     PREINIT:
@@ -1586,7 +1616,7 @@ list_values (class, const char * package)
 =for apidoc
 
 Convert a C type name to the corresponding Perl package name.  If no package
-is registered to that type, returns I<cname>. 
+is registered to that type, returns I<$cname>. 
 
 =cut
 const char *
@@ -1610,6 +1640,18 @@ package_from_cname (class, const char * cname)
 
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
+
+=head1 DESCRIPTION
+
+Glib maps flag and enum values to the nicknames strings provided by the
+underlying C libraries.  Representing flags this way in Perl is an interesting
+problem, which Glib solves by using some cool overloaded operators. 
+
+The functions described here actually do the work of those overloaded
+operators.  See the description of the flags operators in the "This Is
+Now That" section of L<Glib> for more info.
+
+=cut
 
 int
 bool (SV *a, SV *b, SV *swap)
