@@ -330,6 +330,8 @@ our %basic_types = (
 	GParamSpec	=> 'Glib::ParamSpec',
 	GParamFlags	=> 'Glib::ParamFlags',
 
+	GPerlFilename	=> 'localized file name',
+
 ## TODO/FIXME:
 	GtkTargetList   => 'Gtk2::TargetList',
 	GdkAtom         => 'Gtk2::Gdk::Atom',
@@ -466,52 +468,53 @@ I<$packagename>.
 sub podify_methods
 {
 	my $package = shift;
-	my $xsubs = shift;
+	return undef unless $data->{$package};
+	my $xsubs = $data->{$package}{xsubs};
 	return undef unless $xsubs && @$xsubs;
-	my $str = '';
-	my $n = 0;
+	# we will be re-using $package from here on out.
 
-	my $package;
+	my $str = '';
+	my $nfound = 0;
+	my $nused  = 0;
 	my $method;
+
 	#$str .= "=over\n\n";
 	foreach (@$xsubs) {
 		# skip unless the method is avaiable
 		$_->{symname} =~ m/^(?:([\w:]+)::)?([\w]+)$/;
 		$package = $1 || $_->{package};
 		$method = $2;
-		unless ($package->can ($method))
-		{
+
+		# skip DESTROY altogether
+		next if $method eq 'DESTROY';
+
+		++$nfound;
+
+		# don't document it if we can't actually call it.
+		if ($package->can ($method)) {
+			$str .= xsub_to_pod ($_, '=head2');
+			++$nused;
+		} else {
 			# this print should only be temporary
 			print STDERR "missing: $package->$method\n";
-			next;
 		}
-
-		# skip if it's a DESTROY
-		next if ($method eq 'DESTROY');
-		
-		$str .= xsub_to_pod ($_, '=head2');
-		++$n;
 	}
 	#$str .= "=back\n\n";
 
-	unless ($n)
-	{
-		# no xsub doc was added
-		if (scalar (grep (!/DESTROY/, 
-				map { $_->{symname} } @$xsubs)))
-		{
-			# but non-destroy xsubs are defined, give message
+	if ($nused == 0) {
+		# no xsubs were used.
+		if ($nfound > 0) {
+			# but some were found and not used.  
+			# say something to that effect.
 			print STDERR "No methods found for $package\n";
 			$str = "
 
-This object, $package, has no methods bound. $package may not exist in the 
-version of library these bindings were compiled against.
+Some methods defined for $package are not available in the particular
+library versions against which this module was compiled. 
 
 ";
-		}
-		else
-		{
-			# no methods found and there were none defined
+		} else {
+			# no methods found, nothing to say
 			$str = undef;
 		}
 	}
@@ -805,7 +808,6 @@ sub convert_return_type_to_name {
 sub mkdir_p {
 	use File::Spec;
 	my $path = shift;
-	my $p = '';
 	my @dirs = File::Spec->splitdir ($path);
 	my $p = shift @dirs;
 	do {
