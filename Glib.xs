@@ -278,16 +278,26 @@ gperl_argv_free (GPerlArgv *pargv)
 
 =item char * gperl_format_variable_for_output (SV * sv)
 
-Formats the variable stored in I<sv> for output in error messages.  Currently,
-it returns the stringified contents of the variable, capped at 20 characters.
+Formats the variable stored in I<sv> for output in error messages.  Like
+SvPV_nolen(), but ellipsizes real strings (i.e., not stringified references)
+at 20 chars to trim things down for error messages.
 
 =cut
 char *
 gperl_format_variable_for_output (SV * sv)
 {
-	if (sv)
+	if (sv) {
+		/* disambiguate undef */
+		if (!SvOK (sv))
+			return SvPV_nolen (sv_2mortal (newSVpv ("undef", 5)));
+		/* don't truncate references... */
+		if (SvROK (sv))
+			return SvPV_nolen (sv);
+		/* and quote everything else to disambiguate empty strings
+		 * and the like. */
 		return form (sv_len (sv) > 20 ? "`%.20s...'" : "`%s'",
 		             SvPV_nolen (sv));
+	}
 
 	return NULL;
 }
