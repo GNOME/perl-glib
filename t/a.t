@@ -7,10 +7,11 @@ use Test::More;
 use Glib;
 use Config;
 
-if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/) {
+if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
+    and not Glib->CHECK_VERSION (2,2,4)) {
 	# there is a bug in glib which makes g_log print messages twice
 	# on 64-bit x86 platforms.  yosh has fixed this on the 2.2.x branch
-	# and on HEAD (should be in 2.4.0). 
+	# and in 2.4.0 (actually 2.3.2). 
 	# we don't have versioning API in Glib (yet), so we'll just
 	# have to bail out.
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
