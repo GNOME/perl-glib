@@ -42,6 +42,9 @@ gperl_io_channel_wrap (GType        gtype,
                        GIOChannel * channel,
                        gboolean     own)
 {
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
+	PERL_UNUSED_VAR (own);
 	return newSViv (g_io_channel_unix_get_fd (channel));
 }
 static gpointer
@@ -49,6 +52,9 @@ gperl_io_channel_unwrap (GType        gtype,
                          const char * package,
                          SV         * sv)
 {
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
+	PERL_UNUSED_VAR (sv);
 	croak ("can't unwrap GIOChannels -- how'd you get one in perl?!?\n"
 	       " you appear to have found a bug in gtk2-perl-xs.  congratulations.\n"
 	       " please report this bug to gtk-perl-list@gnome.org\n"

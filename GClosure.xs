@@ -43,6 +43,9 @@ gperl_closure_invalidate (gpointer data,
 			  GClosure * closure)
 {
 	GPerlClosure * pc = (GPerlClosure *)closure;
+	
+	PERL_UNUSED_VAR (data);
+	
 #ifdef NOISY
 	warn ("Invalidating closure for %s\n", pc->name);
 #endif
@@ -73,6 +76,8 @@ gperl_closure_marshal (GClosure * closure,
 	dSP;
 #else
 	SV **SP;
+
+	PERL_UNUSED_VAR (invocation_hint);
 
 	/* make sure we're executed by the same interpreter that created
 	 * the closure object. */
@@ -715,18 +720,14 @@ gperl_run_exception_handlers (void)
 MODULE = Glib::Closure	PACKAGE = Glib	PREFIX = gperl_
 
 int
-gperl_install_exception_handler (SV * class, SV * func, SV * data=NULL)
+gperl_install_exception_handler (class, SV * func, SV * data=NULL)
     C_ARGS:
 	gperl_closure_new (func, data, 0)
-    CLEANUP:
-	UNUSED(class);
 
 void
-gperl_remove_exception_handler (SV * class, guint tag)
+gperl_remove_exception_handler (class, guint tag)
     C_ARGS:
 	tag
-    CLEANUP:
-	UNUSED(class);
 
 
  ##

@@ -180,7 +180,7 @@ BOOT:
 ##
 ##guint g_log_set_handler (const gchar *log_domain, GLogLevelFlags log_levels, GLogFunc log_func, gpointer user_data);
 guint
-g_log_set_handler (SV * class, SV * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
+g_log_set_handler (class, SV * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
     PREINIT:
 	GPerlCallback * callback;
 	GType param_types[] = {
@@ -189,7 +189,6 @@ g_log_set_handler (SV * class, SV * log_domain, SV * log_levels, SV * log_func, 
 		G_TYPE_STRING
 	};
     CODE:
-	UNUSED(class);
 	callback = gperl_callback_new (log_func, user_data,
 	                               3, param_types, G_TYPE_NONE);
 	RETVAL = g_log_set_handler ((SvTRUE (log_domain)
@@ -205,11 +204,9 @@ g_log_set_handler (SV * class, SV * log_domain, SV * log_levels, SV * log_func, 
 
 ##void g_log_remove_handler (const gchar *log_domain, guint handler_id);
 void
-g_log_remove_handler (SV * class, SV *log_domain, guint handler_id);
+g_log_remove_handler (class, SV *log_domain, guint handler_id);
     C_ARGS:
 	(SvTRUE (log_domain) ? SvGChar (log_domain) : NULL), handler_id
-    CLEANUP:
-	UNUSED(class);
 
 ##void g_log_default_handler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data);
 
@@ -218,26 +215,23 @@ g_log_remove_handler (SV * class, SV *log_domain, guint handler_id);
 
 MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
-void g_log (SV * class, SV *log_domain, SV * log_level, const gchar *message)
+void g_log (class, SV *log_domain, SV * log_level, const gchar *message)
     CODE:
-	UNUSED(class);
 	g_log ((SvTRUE (log_domain) ? SvPV_nolen (log_domain) : NULL),
 	       SvGLogLevelFlags (log_level), message);
 
 MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
-SV * g_log_set_fatal_mask (SV * class, const gchar *log_domain, SV * fatal_mask);
+SV * g_log_set_fatal_mask (class, const gchar *log_domain, SV * fatal_mask);
     CODE:
-	UNUSED(class);
 	RETVAL = newSVGLogLevelFlags 
 		(g_log_set_fatal_mask (log_domain,
 		                       SvGLogLevelFlags (fatal_mask)));
     OUTPUT:
 	RETVAL
 
-SV * g_log_set_always_fatal (SV * class, SV * fatal_mask);
+SV * g_log_set_always_fatal (class, SV * fatal_mask);
     CODE:
-	UNUSED(class);
 	RETVAL = newSVGLogLevelFlags 
 		(g_log_set_always_fatal (SvGLogLevelFlags (fatal_mask)));
     OUTPUT:
@@ -263,7 +257,7 @@ MODULE = Glib::Log	PACKAGE = Glib
 ##define g_critical(...) g_log (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, __VA_ARGS__)
 ##define g_warning(...)  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, __VA_ARGS__)
 void
-error (SV * class, SV * domain, const gchar * message)
+error (class, SV * domain, const gchar * message)
     ALIAS:
 	error = 0
 	message = 1
@@ -272,7 +266,6 @@ error (SV * class, SV * domain, const gchar * message)
     PREINIT:
 	GLogLevelFlags flags = G_LOG_LEVEL_MESSAGE;
     CODE:
-	UNUSED(class);
 	switch (ix) {
 		case 0: flags = G_LOG_LEVEL_ERROR; break;
 		case 1: flags = G_LOG_LEVEL_MESSAGE; break;

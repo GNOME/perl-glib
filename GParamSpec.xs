@@ -115,7 +115,6 @@ const gchar* g_param_spec_get_blurb (GParamSpec * pspec)
 ##  GParamSpec* g_param_spec_int64 (const gchar *name, const gchar *nick, const gchar *blurb, gint64 minimum, gint64 maximum, gint64 default_value, GParamFlags flags) 
 GParamSpec*
 IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -130,7 +129,6 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	long  = 3
 	int64 = 4
     CODE:
-	UNUSED(class);
 	RETVAL = NULL;
     	switch (ix) {
 	    case 1:
@@ -164,7 +162,6 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 ##  GParamSpec* g_param_spec_uint64 (const gchar *name, const gchar *nick, const gchar *blurb, guint64 minimum, guint64 maximum, guint64 default_value, GParamFlags flags) 
 GParamSpec*
 UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -179,7 +176,6 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	ulong  = 3
 	uint64 = 4
     CODE:
-	UNUSED(class);
 	RETVAL = NULL;
     	switch (ix) {
 	    case 1:
@@ -210,7 +206,6 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 ##  GParamSpec* g_param_spec_boolean (const gchar *name, const gchar *nick, const gchar *blurb, gboolean default_value, GParamFlags flags) 
 GParamSpec*
 g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -218,8 +213,6 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 	GParamFlags flags
     C_ARGS:
 	name, nick, blurb, default_value, flags
-    CLEANUP:
-	UNUSED(class);
 
 
 #### gunichar not in typemap
@@ -235,7 +228,6 @@ g_param_spec_boolean (class, name, nick, blurb, default_value, flags)
 ##  GParamSpec* g_param_spec_double (const gchar *name, const gchar *nick, const gchar *blurb, gdouble minimum, gdouble maximum, gdouble default_value, GParamFlags flags) 
 GParamSpec*
 g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -246,7 +238,6 @@ g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, 
     ALIAS:
 	float = 1
     CODE:
-	UNUSED(class);
 	if (ix == 1)
 		RETVAL = g_param_spec_float (name, nick, blurb,
 		                             (float)minimum, (float)maximum,
@@ -261,7 +252,6 @@ g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, 
 ##  GParamSpec* g_param_spec_string (const gchar *name, const gchar *nick, const gchar *blurb, const gchar *default_value, GParamFlags flags) 
 GParamSpec*
 g_param_spec_string (class, name, nick, blurb, default_value, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -269,15 +259,12 @@ g_param_spec_string (class, name, nick, blurb, default_value, flags)
 	GParamFlags flags
     C_ARGS:
 	name, nick, blurb, default_value, flags
-    CLEANUP:
-	UNUSED(class);
 
 ###  GParamSpec* g_param_spec_param (const gchar *name, const gchar *nick, const gchar *blurb, GType param_type, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_boxed (const gchar *name, const gchar *nick, const gchar *blurb, GType boxed_type, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_object (const gchar *name, const gchar *nick, const gchar *blurb, GType object_type, GParamFlags flags) 
 GParamSpec*
 typed (class, name, nick, blurb, package, flags)
-	SV * class
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
@@ -290,7 +277,6 @@ typed (class, name, nick, blurb, package, flags)
     PREINIT:
 	GType type = 0;
     CODE:
-	UNUSED(class);
 	RETVAL = NULL;
 	switch (ix) {
 	    case 0: croak ("param specs not supported as param specs yet");

@@ -325,6 +325,8 @@ default_boxed_unwrap (GType        gtype,
 {
 	BoxedWrapper * boxed_wrapper;
 
+	PERL_UNUSED_VAR (gtype);
+
 	if (!SvROK (sv))
 		croak ("expected a blessed reference");
 

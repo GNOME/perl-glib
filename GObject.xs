@@ -793,7 +793,7 @@ g_object_get (object, ...)
 	GValue value = {0,};
 	int i;
     PPCODE:
-	UNUSED(ix);
+	PERL_UNUSED_VAR (ix);
 	EXTEND (SP, items-1);
 	for (i = 1; i < items; i++) {
 		char *name = SvPV_nolen (ST (i));
@@ -813,7 +813,7 @@ g_object_set (object, ...)
 	GValue value = {0,};
 	int i;
     CODE:
-	UNUSED(ix);
+	PERL_UNUSED_VAR (ix);
 	if (0 != ((items - 1) % 2))
 		croak ("set method expects name => value pairs "
 		       "(odd number of arguments detected)");
@@ -864,11 +864,9 @@ g_object_list_properties (object)
  ##       structure, and there is no portable way to validate the pointer.
 SV *
 new_from_pointer (class, pointer, noinc=FALSE)
-	SV * class
 	guint32 pointer
 	gboolean noinc
     CODE:
-	UNUSED(class);
 	RETVAL = gperl_new_object (G_OBJECT (pointer), noinc);
     OUTPUT:
 	RETVAL

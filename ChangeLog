@@ -1,3 +1,9 @@
+2003/10/12 13:42 rwmcfa1
+
+	* (most).xs, gperl.h: UNUSED is no more, PERL_UNUSED_VAR used where 
+	needed, relies on new ParseXS to prevent the other warnings that were
+	its fault, we now only quite the ones that are ours
+
 2003/10/09 22:23 muppetman
 
 	* Glib.pm, META.yml, README, debian/changelog: 1.00

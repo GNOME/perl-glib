@@ -112,7 +112,10 @@ forget_closure (SV * callback,
 {
 #ifdef NOISY
 	warn ("forget_closure %p / %p", callback, closure);
+#else
+	PERL_UNUSED_VAR (callback);
 #endif
+	
 	GPERL_REC_LOCK (closures);
 	closures = g_slist_remove (closures, closure);
 	GPERL_REC_UNLOCK (closures);

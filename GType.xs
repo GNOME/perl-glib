@@ -610,6 +610,9 @@ gperl_signal_class_closure_marshal (GClosure *closure,
         HV *stash;
         SV **slot;
 
+	PERL_UNUSED_VAR (closure);
+	PERL_UNUSED_VAR (marshal_data);
+
 #ifdef NOISY
 	warn ("gperl_signal_class_closure_marshal");
 #endif
@@ -851,6 +854,9 @@ parse_signal_hash (GType instance_type,
 {
 	SignalParams * s = signal_params_new ();
 	SV ** svp;
+	
+	PERL_UNUSED_VAR (instance_type);
+	PERL_UNUSED_VAR (signal_name);
 
 	svp = hv_fetch (hv, "flags", 5, FALSE);
 	if (svp && (*svp) && SvTRUE (*svp))
@@ -1014,6 +1020,8 @@ gperl_type_get_property (GObject * object,
         HV *stash = gperl_object_stash_from_type (pspec->owner_type);
         SV **slot;
         assert (stash);
+	
+	PERL_UNUSED_VAR (property_id);
 
 #ifdef NOISY
 	warn ("%s:%d: gperl_type_get_property - stub", G_STRLOC);
@@ -1053,6 +1061,8 @@ gperl_type_set_property (GObject * object,
         HV *stash = gperl_object_stash_from_type (pspec->owner_type);
         SV **slot;
         assert (stash);
+
+	PERL_UNUSED_VAR (property_id);
 
 #ifdef NOISY
 	warn ("%s:%d: gperl_type_set_property - stub", G_STRLOC);
@@ -1207,7 +1217,6 @@ BOOT:
 
 void
 g_type_register (class, parent_package, new_package, ...);
-	SV * class
 	char * parent_package
 	char * new_package
     PREINIT:
@@ -1217,7 +1226,6 @@ g_type_register (class, parent_package, new_package, ...);
 	GType parent_type, new_type;
 	char * new_type_name, * s;
     CODE:
-	UNUSED(class);
 	/* start with a clean slate */
 	memset (&type_info, 0, sizeof (GTypeInfo));
 	type_info.class_init = (GClassInitFunc) gperl_type_class_init;
