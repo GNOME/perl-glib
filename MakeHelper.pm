@@ -2,27 +2,6 @@
 #
 #
 
-package MY;
-
-#
-# the MakeMaker distributed with perl 5.8.x generates makefiles with
-# a bug that causes object files to be created in the wrong directory.
-# this override fixes that.
-#
-
-sub const_cccmd {
-	my $inherited = shift->SUPER::const_cccmd (@_);
-	use Config;
-	# a more sophisticated match may be necessary, but this works for me.
-	if ($Config{cc} eq "cl") {
-		warn "you are using MSVC... my condolences.\n";
-		$inherited .= ' /Fo$@';
-	} else {
-		$inherited .= ' -o $@';
-	}
-	$inherited;
-}
-
 package Glib::MakeHelper;
 
 =head1 NAME
@@ -233,6 +212,29 @@ dist-rpms :: Makefile dist perl-\$(DISTNAME).spec \$(RPMS_DIR)/
 	cp \$(DISTNAME)-\$(VERSION).tar.gz \$(RPMS_DIR)/SOURCES/
 	rpmbuild -ba --define \"_topdir \$(RPMS_DIR)\" perl-\$(DISTNAME).spec
 ";
+}
+
+package MY;
+
+=head1 NOTICE
+
+The MakeMaker distributed with perl 5.8.x generates makefiles with a bug that
+causes object files to be created in the wrong directory.  There is an override
+inserted by this module under the name MY::const_cccmd to fix this issue.
+
+=cut
+
+sub const_cccmd {
+	my $inherited = shift->SUPER::const_cccmd (@_);
+	use Config;
+	# a more sophisticated match may be necessary, but this works for me.
+	if ($Config{cc} eq "cl") {
+		warn "you are using MSVC... my condolences.\n";
+		$inherited .= ' /Fo$@';
+	} else {
+		$inherited .= ' -o $@';
+	}
+	$inherited;
 }
 
 1;

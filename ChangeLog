@@ -1,3 +1,10 @@
+2003/12/30 10:12 (-0500) rwmcfa1
+
+	* MakeHelper.pm: moved the const_cccmd to the bottom of the file so 
+	that the first package isn't MY (caused issues with CPAN and generally
+	wasn't a good idea.) Also converted the comment about it into a pod 
+	NOTICE so that people will be aware that it's being added.
+
 2003/12/29 16:32 (-0500) rwmcfa1
 
 	* MakeHelper.pm: added DATE to the list of replacements, in a format
