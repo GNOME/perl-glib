@@ -1,6 +1,6 @@
 # $Header$
 
-Glib version 1.050 (unstable)
+Glib version 1.051 (unstable)
 =============================
 
 This module provides perl access to Glib and GLib's GObject libraries.

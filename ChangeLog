@@ -1,3 +1,7 @@
+2004/06/28 00:47 (-0400) muppetman
+
+	* Glib.pm, README, NEWS: unstable development release 1.051
+
 2004/06/28 00:40 (-0400) muppetman
 
 	* GType.xs: document the new property stuff.

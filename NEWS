@@ -1,3 +1,14 @@
+Overview of Changes in Glib 1.051
+=================================
+
+* Code fixes and cleanup for C89 compatibility.  [Albert Chin, muppet]
+* Fine-tune error message format helper.  [muppet]
+* Implement new fallback and explicit handlers for Glib::Object properties;
+  the fallback handlers use the wrapper hash keys (as in the defaults provided
+  by Glib::Object::Subclass), and explicit handlers may now be specified when
+  creating properties.  [muppet]
+* Handle undef gracefully in gperl_value_from_sv().  [muppet]
+
 Overview of Changes in Glib 1.050
 =================================
 
