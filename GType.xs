@@ -554,7 +554,7 @@ SvGChar (SV * sv)
 
 =item SV * newSVGChar (const gchar * str)
 
-copy a UTF8 string into a new SV.
+copy a UTF8 string into a new SV.  if str is NULL, returns &PL_sv_undef.
 
 =cut
 
