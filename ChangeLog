@@ -8,6 +8,10 @@
 	GMainLoop.xs go into Glib::MainLoop, and i reordered some of the
 	xsubs in GObject.xs but changed no code.
 
+	* GenPod.pm: pod updates, cleanup; use two =over paragraphs inside
+	xsub docs to make the argument lists indent readably in the generated
+	manpages.
+
 	* Glib.pm: big updates to the SEE ALSO section.
 
 	* Makefile.PL: even yet still more cleanup
