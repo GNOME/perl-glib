@@ -451,7 +451,7 @@ gperl_type_from_package (const char * package)
 	return 0;
 }
 
-=item GType gperl_type_from_package (GType gtype)
+=item GType gperl_package_from_type (GType gtype)
 
 Look up the name of the package associated with I<gtype>, regardless of how it
 was registered.  Returns NULL if no mapping can be found.
