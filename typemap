@@ -135,7 +135,7 @@ T_GCHAR
 
 T_GCHAR_ORNULL
 	/* newSVGChar() allows NULL, but T_GCHAR does not. allow NULL. */
-	if (str) {
+	if ($var) {
 		sv_setpv ((SV*)$arg, $var);
 		SvUTF8_on ($arg);
 	} else {

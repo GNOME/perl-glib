@@ -1,3 +1,8 @@
+2003/12/23 23:40 (-0500) muppetman
+
+	* typemap: ouch, there was a typo in the T_GCHAR_ORNULL output
+	typemap, resulting in unknown variable errors.
+
 2003/12/23 00:52 (+0100) kaffeetisch
 
 	* typemap: Add typemaps for gsize and gssize.
