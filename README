@@ -1,6 +1,6 @@
 # $Header$
 
-Glib version 1.013
+Glib version 1.030
 ==================
 
 This module provides perl access to Glib and GLib's GObject libraries.
@@ -59,7 +59,7 @@ DEPENDENCIES
 In order to use perl bindings for glib, you must have glib 2.x and its
 prerequisites (pkg-config and a decent standard c library) installed.
 glib-2.x is available from http://www.gtk.org, http://www.gnome.org,
-and etc.
+etc.
 
 Glib uses unicode internally; therefore this module requires perl 5.8.0
 or newer.
@@ -72,7 +72,7 @@ from source:
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under
