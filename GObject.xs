@@ -46,6 +46,13 @@ static GArray     * sink_funcs     = NULL;
 static GQuark wrapper_quark; /* this quark stores the object's wrapper sv */
 
 
+/* thread safety locks for the modifiables above */
+G_LOCK_DEFINE_STATIC (types_by_type);
+G_LOCK_DEFINE_STATIC (types_by_package);
+G_LOCK_DEFINE_STATIC (nowarn_by_type);
+G_LOCK_DEFINE_STATIC (sink_funcs);
+
+
 ClassInfo *
 class_info_new (GType gtype,
 		const char * package)
@@ -86,6 +93,10 @@ gperl_register_object (GType gtype,
 {
 	GType parent_type;
 	ClassInfo * class_info;
+
+	G_LOCK (types_by_type);
+	G_LOCK (types_by_package);
+
 	if (!types_by_type) {
 		/* we put the same data pointer into each hash table, so we
 		 * must only associate the destructor with one of them.
@@ -139,17 +150,20 @@ gperl_register_object (GType gtype,
 		/* not a for loop, because we're modifying the list as we go */
 		i = pending_isa;
 		while (i != NULL) {
-			const char * parent_package;
+			ClassInfo * parent_class_info;
 
 			/* NOTE: reusing class_info --- it's not the same as
 			 * it was at the top of the function */
 			class_info = (ClassInfo*)(i->data);
-			parent_package = gperl_object_package_from_type 
-					(g_type_parent (class_info->gtype));
 
-			if (parent_package) {
+			parent_class_info = (ClassInfo *) 
+			              g_hash_table_lookup (types_by_type,
+			                       (gpointer)g_type_parent
+			                               (class_info->gtype));
+
+			if (parent_class_info) {
 				gperl_set_isa (class_info->package,
-				               parent_package);
+				               parent_class_info->package);
 				pending_isa = g_list_remove (pending_isa, 
 				                             class_info);
 				/* go back to the beginning, in case we
@@ -164,6 +178,9 @@ gperl_register_object (GType gtype,
 			}
 		}
 	}
+
+	G_UNLOCK (types_by_type);
+	G_UNLOCK (types_by_package);
 }
 
 /* 
@@ -190,11 +207,16 @@ gperl_register_sink_func (GType gtype,
                           GPerlObjectSinkFunc func)
 {
 	SinkFunc sf;
+
+	G_LOCK (sink_funcs);
+
 	if (!sink_funcs)
 		sink_funcs = g_array_new (FALSE, FALSE, sizeof (SinkFunc));
 	sf.gtype = gtype;
 	sf.func  = func;
 	g_array_prepend_val (sink_funcs, sf);
+
+	G_UNLOCK (sink_funcs);
 }
 
 /*
@@ -207,6 +229,8 @@ gperl_register_sink_func (GType gtype,
 static void
 gperl_object_take_ownership (GObject * object)
 {
+	G_LOCK (sink_funcs);
+
 	if (sink_funcs) {
 		int i;
 		for (i = 0 ; i < sink_funcs->len ; i++)
@@ -215,9 +239,13 @@ gperl_object_take_ownership (GObject * object)
 			                                SinkFunc, i).gtype)) {
 				g_array_index (sink_funcs,
 				               SinkFunc, i).func (object);
+				G_UNLOCK (sink_funcs);
 				return;
 			}
 	}
+
+	G_UNLOCK (sink_funcs);
+
 	g_object_unref (object);
 }
 
@@ -225,6 +253,8 @@ void
 gperl_object_set_no_warn_unreg_subclass (GType gtype,
                                          gboolean nowarn)
 {
+	G_LOCK (nowarn_by_type);
+
 	if (!nowarn_by_type) {
 		if (!nowarn)
 			return;
@@ -232,15 +262,26 @@ gperl_object_set_no_warn_unreg_subclass (GType gtype,
 		                                   g_direct_equal);
 	}
 	g_hash_table_insert (nowarn_by_type, (gpointer)gtype, (gpointer)nowarn);
+
+	G_UNLOCK (nowarn_by_type);
 }
 
 static gboolean
 gperl_object_get_no_warn_unreg_subclass (GType gtype)
 {
+	gboolean result;
+
+	G_LOCK (nowarn_by_type);
+
 	if (!nowarn_by_type)
-		return FALSE;
-	return (gboolean) g_hash_table_lookup (nowarn_by_type,
-	                                       (gpointer)gtype);
+		result = FALSE;
+	else
+		result = (gboolean) g_hash_table_lookup (nowarn_by_type,
+		                                         (gpointer)gtype);
+
+	G_UNLOCK (nowarn_by_type);
+
+	return result;
 }
 
 /*
@@ -252,8 +293,13 @@ gperl_object_package_from_type (GType gtype)
 {
 	if (types_by_type) {
 		ClassInfo * class_info;
+
+		G_LOCK (types_by_type);
+
 		class_info = (ClassInfo *) 
 			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+
+		G_UNLOCK (types_by_type);
 
 		if (class_info)
 			return class_info->package;
@@ -273,8 +319,13 @@ gperl_object_stash_from_type (GType gtype)
 {
 	if (types_by_type) {
 		ClassInfo * class_info;
+
+		G_LOCK (types_by_type);
+
 		class_info = (ClassInfo *) 
 			g_hash_table_lookup (types_by_type, (gpointer)gtype);
+
+		G_UNLOCK (types_by_type);
 
 		if (class_info)
 			return class_info->stash;
@@ -294,8 +345,14 @@ gperl_object_type_from_package (const char * package)
 {
 	if (types_by_package) {
 		ClassInfo * class_info;
+
+		G_LOCK (types_by_package);
+
 		class_info = (ClassInfo *) 
 			g_hash_table_lookup (types_by_package, package);
+
+		G_UNLOCK (types_by_package);
+
 		if (class_info)
 			return class_info->gtype;
 		else

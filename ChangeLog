@@ -1,3 +1,10 @@
+2003/07/17 11:44 muppetman
+
+	* GBoxed.xs, GObject.xs, GTypes.xs, Glib.xs, Makefile.PL: add the
+	necessary locking to make the perl bindings thread-safe.  thanks go
+	to Brett Kosinski for contributing the initial patch and bugging me
+	about it, which he needed for work on GStreamer	bindings.
+
 2003/07/10 09:50 muppetman
 
 	* Glib.pm: $VERSION is actually treated as a string, write it as one

@@ -76,6 +76,11 @@ MODULE = Glib		PACKAGE = Glib
 
 BOOT:
 	g_type_init ();
+#if defined(G_THREADS_ENABLED) && !defined(GPERL_DISABLE_THREADSAFE)
+	/*warn ("calling g_thread_init (NULL)");*/
+	if (!g_thread_supported ())
+		g_thread_init (NULL);
+#endif
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
 	GPERL_CALL_BOOT (boot_Glib__Type);

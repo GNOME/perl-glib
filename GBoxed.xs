@@ -45,6 +45,10 @@ stuff.
 static GHashTable * info_by_gtype = NULL;
 static GHashTable * info_by_package = NULL;
 
+/* and thread-safety for the above: */
+G_LOCK_DEFINE_STATIC (info_by_gtype);
+G_LOCK_DEFINE_STATIC (info_by_package);
+
 typedef struct _BoxedInfo BoxedInfo;
 typedef struct _BoxedWrapper BoxedWrapper;
 
@@ -87,6 +91,10 @@ gperl_register_boxed (GType gtype,
                       GPerlBoxedWrapperClass * wrapper_class)
 {
 	BoxedInfo * boxed_info;
+
+	G_LOCK (info_by_gtype);
+	G_LOCK (info_by_package);
+
 	if (!info_by_gtype) {
 		info_by_gtype = g_hash_table_new_full (g_direct_hash,
 						       g_direct_equal,
@@ -109,6 +117,9 @@ gperl_register_boxed (GType gtype,
 	warn ("gperl_register_boxed (%d(%s), %s, %p)\n",
 	      gtype, g_type_name (gtype), package, wrapper_class);
 #endif
+
+	G_UNLOCK (info_by_gtype);
+	G_UNLOCK (info_by_package);
 }
 
 GType
@@ -116,8 +127,13 @@ gperl_boxed_type_from_package (const char * package)
 {
 	BoxedInfo * boxed_info;
 
+	G_LOCK (info_by_package);
+
 	boxed_info = (BoxedInfo*)
 		g_hash_table_lookup (info_by_package, package);
+
+	G_UNLOCK (info_by_package);
+
 	if (!boxed_info)
 		return 0;
 	return boxed_info->gtype;
@@ -128,8 +144,13 @@ gperl_boxed_package_from_type (GType type)
 {
 	BoxedInfo * boxed_info;
 
+	G_LOCK (info_by_gtype);
+
 	boxed_info = (BoxedInfo*)
 		g_hash_table_lookup (info_by_gtype, (gpointer)type);
+
+	G_UNLOCK (info_by_gtype);
+
 	if (!boxed_info)
 		return NULL;
 	return boxed_info->package;
@@ -263,8 +284,12 @@ gperl_new_boxed (gpointer boxed,
 	if (!boxed)
 		croak ("NULL pointer made it into gperl_new_boxed");
 
+	G_LOCK (info_by_gtype);
+
 	boxed_info = (BoxedInfo*)
 		g_hash_table_lookup (info_by_gtype, (gpointer) gtype);
+
+	G_UNLOCK (info_by_gtype);
 
 	if (!boxed_info)
 		croak ("GType %s (%d) is not registerer with gperl",
@@ -300,8 +325,11 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 		croak ("variable not allowed to be undef where %s is wanted",
 		       g_type_name (gtype));
 
+	G_LOCK (info_by_gtype);
 	boxed_info = g_hash_table_lookup (info_by_gtype,
 	                                  (gpointer)gtype);
+	G_UNLOCK (info_by_gtype);
+
 	if (!boxed_info)
 		croak ("internal problem: GType %s (%d) has not been registered with GPerl",
 			gtype, g_type_name (gtype));
@@ -340,7 +368,9 @@ DESTROY (sv)
 	/* we need to find the wrapper class associated with whatever type
 	 * the wrapper is blessed into. */
 	class = sv_reftype (SvRV (sv), TRUE);
+	G_LOCK (info_by_package);
 	boxed_info = g_hash_table_lookup (info_by_package, class);
+	G_UNLOCK (info_by_package);
 #ifdef NOISY
 	warn ("Glib::Boxed::DESTROY (%s) for %s -> %s", 
 	      SvPV_nolen (sv),

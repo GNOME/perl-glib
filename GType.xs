@@ -25,6 +25,9 @@
 static GHashTable * types_by_package = NULL;
 static GHashTable * packages_by_type = NULL;
 
+/* locks for the above */
+G_LOCK_DEFINE_STATIC (types_by_package);
+G_LOCK_DEFINE_STATIC (packages_by_type);
 
 /*
  * this is just like gtk_type_class --- it keeps a reference on the classes
@@ -296,6 +299,8 @@ void
 gperl_register_fundamental (GType gtype, const char * package)
 {
 	char * p;
+	G_LOCK (types_by_package);
+	G_LOCK (packages_by_type);
 	if (!types_by_package) {
 		types_by_package = 
 			g_hash_table_new_full (g_str_hash,
@@ -310,19 +315,29 @@ gperl_register_fundamental (GType gtype, const char * package)
 	p = g_strdup (package);
 	g_hash_table_insert (packages_by_type, (gpointer)gtype, p);
 	g_hash_table_insert (types_by_package, p, (gpointer)gtype);
+	G_UNLOCK (types_by_package);
+	G_UNLOCK (packages_by_type);
 }
 
 GType
 gperl_fundamental_type_from_package (const char * package)
 {
-	return (GType) g_hash_table_lookup (types_by_package, package);
+	GType res;
+	G_LOCK (types_by_package);
+	res = (GType) g_hash_table_lookup (types_by_package, package);
+	G_UNLOCK (types_by_package);
+	return res;
 }
 
 const char * 
 gperl_fundamental_package_from_type (GType gtype)
 {
-	return (const char *)
+	const char * res;
+	G_LOCK (packages_by_type);
+	res = (const char *)
 		g_hash_table_lookup (packages_by_type, (gpointer)gtype);
+	G_UNLOCK (packages_by_type);
+	return res;
 }
 
 
@@ -532,6 +547,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 GClosure *
 gperl_signal_class_closure_get(void)
 {
+	/* FIXME does this need a lock? */
 	static GClosure *closure;
 
 	if (closure == NULL) {

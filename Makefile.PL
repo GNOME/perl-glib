@@ -12,7 +12,28 @@ require 'PkgConfig.pm';
 
 mkdir 'build', 0777;
 
-%pkgcfg = Glib::PkgConfig->find ('gobject-2.0');
+%glibcfg = Glib::PkgConfig->find ('gobject-2.0');
+
+# optional thread-safety
+$nothreads = grep /disable[-_]threadsafe/i, @ARGV;
+if (!$nothreads) {
+	eval {
+		%gthreadcfg = Glib::PkgConfig->find ('gthread-2.0');
+	};
+	$nothreads = 1 if $@;
+}
+
+if ($nothreads) {
+	warn " *** \n";
+	warn " *** configuring Glib to build without thread safety\n";
+	warn " *** \n";
+	%gthreadcfg = (
+		cflags => ' -DGPERL_DISABLE_THREADSAFE ',
+		libs => '',
+	);
+}
+
+
 
 if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') }) {
    %pm_files = (
@@ -29,8 +50,8 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
    # add -I. and -I./build to the include path so we can find our own files.
    # this will be inherited by dependant modules, so they can find their
    # generated files.
-   $glib->set_inc ($pkgcfg{cflags} . ' -I. ');
-   $glib->set_libs ($pkgcfg{libs});
+   $glib->set_inc ($glibcfg{cflags} . $gthreadcfg{cflags} . ' -I. ');
+   $glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
    $glib->add_typemaps (cwd().'/typemap');
    $glib->add_headers ('"gperl.h"');
    $glib->install (qw(gperl.h));
