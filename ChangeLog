@@ -1,6 +1,7 @@
 2003/11/29 12:45 (-0500) muppetman
 
-	* Glib.pm, README: bump version to 1.013
+	* Glib.pm, README: bump version to 1.013, make release from
+	rel-1-02-branch.
 
 2003/11/29 12:23 (-0500) rwmcfa1
 
