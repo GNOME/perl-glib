@@ -1,5 +1,9 @@
 #!env perl -w
 
+#
+# mainloop stuff.
+#
+
 use Config;
 
 print "1..14\n";

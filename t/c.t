@@ -2,6 +2,10 @@
 # $Header$
 #
 
+#
+# enums and flags.
+#
+
 use strict;
 use warnings;
 

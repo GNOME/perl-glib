@@ -1,5 +1,9 @@
 #!perl
 
+#
+# more derivation testing, ensuring that signals are inherited properly.
+#
+
 use strict;
 use warnings;
 use Glib;

@@ -3,6 +3,10 @@
 # $Header$
 #
 
+#
+# Glib::Error
+#
+
 use strict;
 use Test::More tests => 36;
 use Glib;

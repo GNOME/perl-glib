@@ -1,3 +1,10 @@
+#
+# check Glib::Object derivation -- make sure that INIT_INSTANCE and
+# FINALIZE_INSTANCE are called in the right order, and that objects
+# actually go away.  since we're testing execution order, we don't
+# use a Test module.
+#
+
 print "1..6\n";
 
 use strict;

@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+#
+# sanity-checking on the property interface.  some of this could have gone
+# into 4.t, but it is here to keep these tests small and digestable since
+# they have freaky, spaghetti-like testing code.
+#
+
 use strict;
 use warnings;
 

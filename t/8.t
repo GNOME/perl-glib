@@ -1,5 +1,9 @@
 #!env perl -w
 
+#
+# more tests for exception handling.
+#
+
 use strict;
 use warnings;
 

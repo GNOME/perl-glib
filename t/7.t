@@ -5,7 +5,8 @@ use warnings;
 
 =comment
 
-test some GSignal stuff...
+test some GSignal stuff - marshaling, exception trapping, order of operations.
+
 based on the Glib::Object::Subclass, since it already worked, but not
 in that test because it would confound too many issues.
 

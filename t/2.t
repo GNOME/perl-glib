@@ -1,6 +1,8 @@
 #
 # $Header$
 #
+# Really simple smoke tests for Glib::Object wrappers.
+#
 
 use strict;
 use warnings;

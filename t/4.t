@@ -1,4 +1,10 @@
-print "1..10\n";
+#
+# test Glib::Object derivation in Perl.
+# derive from a C object in perl, and derive from a Perl object in perl.
+# checks order of execution of initializers and finalizers, so the code
+# gets a little hairy.
+#
+print "1..12\n";
 
 use strict;
 use warnings;
@@ -50,17 +56,35 @@ sub Bar::FINALIZE_INSTANCE {
    print "ok 8\n";
 }
 
-Glib::Type->register (Foo::, Bar::);
+Glib::Type->register (Foo::, Bar::,
+                      properties => [
+                         Glib::ParamSpec->int ('number', 'some number',
+                                               'number in bar but not in foo',
+                                               0, 10, 0, ['readable']),
+                      ]);
 
 {
+   # instantiate a child.  we should get messages from both initializers.
    my $bar = new Bar;
    use POSIX;
+   # make sure we can set parent properties on the child
    $bar->set(some_string => 4);
    print $init_self != $setprop_self ? "not " : "", "ok 5\n";
    print $bar->get("some_string") != 6 ? "not " : "", "ok 7\n";
+   # should see messages from both finalizers here.
 }
 
 print "ok 10\n";
+
+#
+# ensure that any properties added to the subclass were only added to
+# the subclass, and not the parent.
+#
+my @fooprops = Foo->list_properties;
+my @barprops = Bar->list_properties;
+
+print "".(@fooprops == 1 ? "ok 11" : "not ok")." # property count for parent\n";
+print "".(@barprops == 2 ? "ok 12" : "not ok")." # property count for child\n";
 
 
 __END__
