@@ -187,6 +187,12 @@ May be omitted.
 The name of a file containing the POD to be inserted in the 'COPYRIGHT'
 section of each generated page.  May be omitted.
 
+=item NAME => extension name
+
+The name of the extension, used to set $Glib::GenPod::MAIN_MOD (used in the
+generated see-also listings).  May be omitted in favor of the name held
+inside the ExtUtils::Depends object.  If DEPENDS is also specified, NAME wins.
+
 =back
 
 =cut
@@ -206,6 +212,7 @@ sub postamble_docs_full {
 	my @doctypes = ();
 	my $add_types = '';
 	my $copyright = '';
+	my $name = '';
 
 	if ($params{DOCTYPES}) {
 		@doctypes = ('ARRAY' eq ref $params{DOCTYPES})
@@ -259,6 +266,9 @@ sub postamble_docs_full {
 			push @doctypes, $f
 				if -f $f;
 		}
+
+		# the depends object conveniently knows the main module name.
+		$name = $dep->{name};
 	} else {
 		@xs_files = @{ $params{XS_FILES} };
 	}
@@ -280,6 +290,18 @@ sub postamble_docs_full {
 		$copyright = "\$\$Glib::GenPod::COPYRIGHT=\"$copyright\";";
 	}
 
+	# the module name specified explicitly overrides the one in a
+	# depends object.
+	$name = $params{NAME} if $params{NAME};
+	# now sanitize
+	if ($name) {
+		# this is supposed to be a module name; names don't have
+		# things in them that need escaping, so let's leave it alone.
+		# that way, if there's a quoting error, the user will figure
+		# it out real quick.
+		$name = "\$\$Glib::GenPod::MAIN_MOD=\"$name\";";
+	}
+
 	#warn "".scalar(@doctypes)." doctype files\n";
 	#warn "".scalar(@xs_files)." xs files\n";
 	
@@ -290,6 +312,8 @@ sub postamble_docs_full {
 	    . $add_types
 	    . ' '
 	    . $copyright
+	    . ' '
+	    . $name
 	    . ' $(POD_SET) '
 	    . 'xsdoc2pod("build/doc.pl", "$(INST_LIB)", "build/podindex");';
 
