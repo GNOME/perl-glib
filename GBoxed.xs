@@ -110,7 +110,15 @@ gperl_register_boxed (GType gtype,
 	g_hash_table_insert (info_by_gtype, (gpointer) gtype, boxed_info);
 	g_hash_table_insert (info_by_package, (gchar*)package, boxed_info);
 
-	/* FIXME add isa setting stuff like in gperl_register_object? */
+	/* GBoxed types are plain structures, so it would be really
+	 * surprising to find a boxed type that actually inherits another
+	 * boxed type.  we'll do that at the perl level, for example with
+	 * GdkEvent, but at the C level it's not safe.  such things should
+	 * be objects.
+	 *  so, we don't have to worry about the complicated semantics of
+	 * type registration like gperl_register_object, and life is simple
+	 * and beautiful.
+	 */
 	if (package && gtype != G_TYPE_BOXED)
 		gperl_set_isa (package, "Glib::Boxed");
 #ifdef NOISY

@@ -22,6 +22,3 @@ ok(2);
 
 undef $obj;
 ok(3);
-
-# FIXME need to define an instantiatable subclass of GObject and test out
-# ref counting, signals, properties, object data, and all that fun stuff.
