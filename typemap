@@ -137,7 +137,8 @@ T_GPERL_FILENAME_ORNULL
 OUTPUT
 
 T_GPERL_GENERIC_WRAPPER
-	$arg = newSV${(my $ntype = $type) =~ s/\s*\*//; \$ntype} ($var);
+	$arg = newSV${(my $ntype = $type) =~ s/(?:const\s+)?([:\w]+)(?:\s*\*)$/$1/;
+		      \$ntype} ($var);
 
 T_GUNICHAR
 	{

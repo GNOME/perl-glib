@@ -1,3 +1,9 @@
+2004/07/12 20:42 (+0200) kaffeetisch
+
+	* typemap: Make the OUTPUT variant of T_GPERL_GENERIC_WRAPPER do
+	the same as the INPUT one -- that is, strip leading "const"'s and
+	trailing asterisks from the type.
+
 2004/06/28 00:47 (-0400) muppetman
 
 	* Glib.pm, README, NEWS: unstable development release 1.051
