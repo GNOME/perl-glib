@@ -363,6 +363,12 @@ gperl_callback_invoke (GPerlCallback * callback,
 		}
 	}
 	if (callback->data)
+		/* my thinking on why i can just push this SV here...
+		 * if nobody keeps a reference to it (in the called function),
+		 * its refcount will be unaffected.  if they do take a ref,
+		 * that ref will be released at the end of that function.
+		 * so it just works out.  if any of this is untrue, change
+		 * this to XPUSHs (sv_2mortal (newSVsv (callback->data))); */
 		XPUSHs (callback->data);
 
 	va_end (var_args);
@@ -397,4 +403,23 @@ gperl_callback_invoke (GPerlCallback * callback,
 }
 
 
+#if 0
+static const char *
+dump_callback (GPerlCallback * c)
+{
+	SV * sv = newSVpvf ("{%d, [", c->n_params);
+	int i;
+	for (i = 0 ; i < c->n_params ; i++)
+		sv_catpvf (sv, "%s%s", g_type_name (c->param_types[i]),
+		           (i+1) == c->n_params ? "" : ", ");
+	sv_catpvf (sv, "], %s, %s[%d], %s[%d], 0x%p}",
+	           g_type_name (c->return_type),
+		   SvPV_nolen (c->func), SvREFCNT (c->func), 
+		   SvPV_nolen (c->data), SvREFCNT (c->data),
+		   c->priv);
+	sv_2mortal (sv);
+	return SvPV_nolen (sv);
+}
+
+#endif
 
