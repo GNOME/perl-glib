@@ -12,7 +12,7 @@
 #if 0 /* comment with embedded C comments... */
 =for example
 	 
-A typical marshaller's skeleton will look like this:
+A typical marshaller skeleton will look like this:
 
  static void
  some_custom_marshaler (GClosure * closure,
