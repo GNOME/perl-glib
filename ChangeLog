@@ -1,3 +1,11 @@
+2003/12/29 16:32 (-0500) rwmcfa1
+
+	* MakeHelper.pm: added DATE to the list of replacements, in a format
+	that rpm is happy with
+
+	* perl-Glib.spec.in: use the new DATE replacement in conjunction with
+	VERSION to create the changlog on the fly, which is better.
+
 2003/12/23 23:40 (-0500) muppetman
 
 	* typemap: ouch, there was a typo in the T_GCHAR_ORNULL output

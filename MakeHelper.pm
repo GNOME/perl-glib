@@ -204,9 +204,12 @@ sub postamble_rpms
 		      $(RPMS_DIR)/SOURCES $(RPMS_DIR)/SPECS $(RPMS_DIR)/SRPMS};
 	my $cwd = getcwd();
 	
+	chomp (my $date = `date +"%a %b %d %Y"`);
+
 	my %subs = (
 		'VERSION' => '$(VERSION)',
-		'SOURCE' => '$(DISTNAME)-$(VERSION).tar.gz',
+		'SOURCE'  => '$(DISTNAME)-$(VERSION).tar.gz',
+		'DATE'    => $date,
 		@_,
 	);
 	
