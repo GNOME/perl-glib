@@ -36,19 +36,19 @@ Glib::GenPod - POD generation utilities for Glib-based modules
  # or take matters into your own hands
  require $xsdocparse_output_file;
  foreach my $package (sort keys %$data) {
-     print "=head1 $package\n\n";
-     print "=head2 Methods\n\n" . podify_methods ($package) . "\n\n";
+     print "=head1 NAME\n\n$package\n\n";
+     print "=head1 METHODS\n\n" . podify_methods ($package) . "\n\n";
  }
 
 =head1 DESCRIPTION 
 
-This module includes several utilities for creating pod for xs-based Perl which
-build on the Glib module's foundations.  The most important bits are the logic
-to convert the data structures created by xsdocparse.pl to describe xsubs and
-pods into method docs, with call signatures and argument descriptions, and
-converting C type names into Perl type names.  The rest of the module is mostly
-boiler-plate code to format and pretty-print information that may be queried
-from the Glib type system.
+This module includes several utilities for creating pod for xs-based Perl
+modules which build on the Glib module's foundations.  The most important bits
+are the logic to convert the data structures created by xsdocparse.pl to
+describe xsubs and pods into method docs, with call signatures and argument
+descriptions, and converting C type names into Perl type names.  The rest of
+the module is mostly boiler-plate code to format and pretty-print information
+that may be queried from the Glib type system.
 
 To make life easy for module maintainers, we also include a do-it-all function,
 xsdoc2pod(), which does pretty much everything for you.  All of the pieces it
@@ -58,15 +58,15 @@ the default output.
 =head1 DOCUMENTING THE XS FILES
 
 All of the information used as input to the methods included here comes from
-the XS files of your project, and is extracted by the script xsdocparse.pl.
-This program creates an output file containing perl code that may be eval'd
-or require'd to recreate the parsed data structures, which are a list of
-pods from the verbatim C portion of the XS file (the xs api docs), and a
-hash of the remaining data, keyed by package name, and including the pods
-and xsubs read from the rest of each xs file following the first MODULE line.
+the XS files of your project, and is extracted by Glib::ParseXSDoc's
+C<xsdocparse>.  This function creates an file containing Perl code that may be
+eval'd or require'd to recreate the parsed data structures, which are a list of
+pods from the verbatim C portion of the XS file (the xs api docs), and a hash
+of the remaining data, keyed by package name, and including the pods and xsubs
+read from the rest of each xs file following the first MODULE line.
 
 Several custom POD directives are recognized in the XSubs section.  Note that
-each one is sought as a paragraph starter, and must follow a =cut directive.
+each one is sought as a paragraph starter, and must follow a C<=cut> directive.
 
 =over
 
@@ -74,7 +74,7 @@ each one is sought as a paragraph starter, and must follow a =cut directive.
 
 All xsubs and pod from here until the next object directive or MODULE line
 will be placed under the key 'I<Package::Name>' in xsdocparse's data
-structure.  Everything from this line to the next =cut is included as a
+structure.  Everything from this line to the next C<=cut> is included as a
 description POD.
 
 =item =for enum Package::Name
@@ -83,7 +83,7 @@ description POD.
 
 This causes xsdoc2pod to call C<podify_values> on I<Package::Name> when
 writing the pod for the current package (as set by an object directive or
-MODULE line).  Any text in this paragraph, to the next =cut, is included
+MODULE line).  Any text in this paragraph, to the next C<=cut>, is included
 in that section.
 
 =item =for apidoc
@@ -92,7 +92,7 @@ in that section.
 
 Paragraphs of this type document xsubs, and are associated with the xsubs
 by xsdocparse.pl.  If the full symbol name is not included, the paragraph
-must be attached to the xsub declaration (no blank lines between =cut and
+must be attached to the xsub declaration (no blank lines between C<=cut> and
 the xsub).
 
 Within the apidoc PODs, we recognize a few special directives (the "for\s+"
@@ -146,7 +146,7 @@ as dollar signs will be added.  FIXME what about @ for lists?
 
 Given a I<$datafile> containing the output of xsdocparse.pl, create in 
 I<$outdir> a pod file for each package, containing everything we can think
-of for that module.  Output is controlled by the =for object directives
+of for that module.  Output is controlled by the C<=for object> directives
 and such in the source code.
 
 If you don't want each package to create a separate pod file, then use
@@ -591,20 +591,7 @@ sub xsub_to_pod {
 	my @podlines = ();
 	if (defined $xsub->{pod}) {
 		@podlines = @{ $xsub->{pod}{lines} };
-	}# elsif ('ARRAY' eq ref $pods) {
-	#	###print "ARRAY\n";
-	#	for (my $i = 0 ; $i < @$pods ; $i++) {
-	#		if ($pods->[$i][0] =~ /^=for\s+apidoc\s+([:\w]+)\s*$/
-	#		    and ($1 eq $alias))
-	#		{
-	#			$xsub->{pod} = $pods->[$i];
-	#			@podlines = @{ $pods->[$i]{lines} };
-	#			# don't look at him again.
-	#			splice @$pods, $i, 1;
-	#			last;
-	#		}
-	#	}
-	#}
+	}
 
 	# look for annotations in the pod lines.
 	# stuff in the pods overrides whatever we'd generate.
@@ -656,8 +643,11 @@ sub xsub_to_pod {
 		unless @signatures;
 
 	foreach (@signatures) {
+		s/>(\w+)/>B<$1>/;
 		$str .= "$sigprefix $_\n\n";
 	}
+
+	$str .= "=over\n\n";
 
 	#
 	# list all the arg types.
@@ -691,6 +681,8 @@ sub xsub_to_pod {
 		pop @podlines;
 		$str .= join("\n", @podlines)."\n\n";
 	}
+
+	$str .= "=back\n\n";
 
 	$str
 }
@@ -813,7 +805,7 @@ __END__
 
 =head1 SEE ALSO
 
-xsdocparse.pl
+L<Glib::ParseXSDoc>
 
 =head1 AUTHORS
 
