@@ -1,3 +1,7 @@
+2003/07/31 19:40 muppetman
+
+	* Glib.exports, Makefile.PL, gperl.h: a few windows-specific things
+
 2003/07/30 09:21 rwmcfa1
 
 	* GBoxed.xs: bug found by matthias blasing that when getting a legal

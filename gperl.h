@@ -26,6 +26,14 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifdef WIN32
+  /* perl and glib disagree on a few macros... let the wookie win. */
+# undef pipe
+# undef malloc
+# undef realloc
+# undef free
+#endif
+
 #include <glib-object.h>
 
 /*
