@@ -1,3 +1,18 @@
+2003/10/26 11:36 muppetman
+
+	* GSignal.xs: some apidoc comments to play around with
+	* GenPod.pm: sigils don't go in %basic_types, they're added by
+	convert_return_type as needed.  count the number of properties we
+	find that match this type, to return an empty string if this type
+	has none of its own.  added some developers' pod for the various
+	helper functions.  allow 'for' on signature and arg lines.  show
+	default argument values in call signatures.
+	* Makefile.PL: install GenPod.pm.  its manpage will be nonsense
+	for now.
+	* xsdoc2pod.pl: typo
+	* xsdocparse.pl: split & duplicate aliased xsubs automagically.
+	match up apidoc pods and xsubs.
+
 2003/10/25 21:44 rwmcfa1
 
         * GType.xs: can't call newSVpv if package name is not valid, shouldn't
