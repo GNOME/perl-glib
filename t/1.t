@@ -17,14 +17,14 @@ BEGIN { use_ok('Glib') };
 
 #########################
 
-ok (Glib::major_version, 'major_version');
-ok (Glib::minor_version, 'minor_version');
-ok (Glib::micro_version, 'micro_version');
+ok (defined (Glib::major_version), 'major_version');
+ok (defined (Glib::minor_version), 'minor_version');
+ok (defined (Glib::micro_version), 'micro_version');
 ok (Glib->CHECK_VERSION(0,0,0), 'CHECK_VERSION pass');
 ok (!Glib->CHECK_VERSION(50,0,0), 'CHECK_VERSION fail');
-ok (Glib::MAJOR_VERSION, 'MAJOR_VERSION');
-ok (Glib::MINOR_VERSION, 'MINOR_VERSION');
-ok (Glib::MICRO_VERSION, 'MICRO_VERSION');
+ok (defined (Glib::MAJOR_VERSION), 'MAJOR_VERSION');
+ok (defined (Glib::MINOR_VERSION), 'MINOR_VERSION');
+ok (defined (Glib::MICRO_VERSION), 'MICRO_VERSION');
 
 __END__
 
