@@ -1,3 +1,10 @@
+2005/04/04	muppetman
+
+	* GSignal.xs, t/signal_emission_hooks.t, MANIFEST:
+	Bind, document, and test g_signal_add_emission_hook and
+	g_signal_remove_emission_hook, with a little refactoring in
+	GSignal.xs.
+
 2005/03/24	kaffeetisch
 
 	* GType.xs, GValue.xs, gperl.h: Add API that allows binding

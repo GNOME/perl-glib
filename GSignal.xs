@@ -385,6 +385,77 @@ foreach_closure_matched (gpointer instance,
 }
 
 
+static GType
+get_gtype_or_croak (SV * object_or_class_name)
+{
+	GType gtype;
+
+	if (object_or_class_name &&
+	    SvOK (object_or_class_name) &&
+	    SvROK (object_or_class_name)) {
+		GObject * object = SvGObject (object_or_class_name);
+		if (!object)
+			croak ("bad object in signal_query");
+		gtype = G_OBJECT_TYPE (object);
+	} else {
+		gtype = gperl_object_type_from_package
+					(SvPV_nolen (object_or_class_name));
+		if (!gtype)
+			croak ("package %s is not registered with GPerl",
+			       SvPV_nolen (object_or_class_name));
+	}
+	
+	return gtype;
+}
+
+static guint
+parse_signal_name_or_croak (const char * detailed_name,
+			    GType instance_type,
+			    GQuark * detail) /* return, NULL if not wanted */
+{
+	guint signal_id;
+	if (!g_signal_parse_name (detailed_name, instance_type, &signal_id,
+				  detail, TRUE))
+		croak ("Unknown signal %s for object of type %s", 
+			detailed_name, instance_type);
+	return signal_id;
+}
+
+static GPerlCallback *
+gperl_signal_emission_hook_create (SV * func,
+				   SV * data)
+{
+	GType param_types[2];
+	param_types[0] = GPERL_TYPE_SV;
+	param_types[1] = GPERL_TYPE_SV;
+	return gperl_callback_new (func, data, G_N_ELEMENTS (param_types),
+				   param_types, G_TYPE_BOOLEAN);
+}
+
+static gboolean
+gperl_signal_emission_hook (GSignalInvocationHint * ihint,
+			    guint n_param_values,
+			    const GValue * param_values,
+			    gpointer data)
+{
+	GPerlCallback * callback = (GPerlCallback *) data;
+	gboolean retval;
+	AV * av;
+	int i;
+	GValue return_value = {0, };
+	g_value_init (&return_value, G_TYPE_BOOLEAN);
+	av = newAV();
+	for (i = 0 ; i < n_param_values ; i++)
+		av_push (av, sv_2mortal (gperl_sv_from_value (param_values+i)));
+	gperl_callback_invoke (callback, &return_value,
+			       newSVGSignalInvocationHint (ihint),
+			       newRV_noinc ((SV*) av));
+	retval = g_value_get_boolean (&return_value);
+	g_value_unset (&return_value);
+	return retval;
+}
+
+
 =back
 
 =cut
@@ -460,10 +531,8 @@ g_signal_emit (instance, name, ...)
 	GValue * params;
     PPCODE:
 #define ARGOFFSET 2
-	if (!g_signal_parse_name (name, G_OBJECT_TYPE (instance), &signal_id,
-				  &detail, TRUE))
-		croak ("Unknown signal %s for object of type %s", 
-			name, G_OBJECT_TYPE_NAME (instance));
+	signal_id = parse_signal_name_or_croak
+				(name, G_OBJECT_TYPE (instance), &detail);
 
 	g_signal_query (signal_id, &query);
 
@@ -535,20 +604,7 @@ g_signal_query (SV * object_or_class_name, const char * name)
 	GSignalQuery query;
 	GObjectClass * oclass = NULL;
     CODE:
-	if (object_or_class_name &&
-	    SvOK (object_or_class_name) &&
-	    SvROK (object_or_class_name)) {
-		GObject * object = SvGObject (object_or_class_name);
-		if (!object)
-			croak ("bad object in signal_query");
-		itype = G_OBJECT_TYPE (object);
-	} else {
-		itype = gperl_object_type_from_package
-					(SvPV_nolen (object_or_class_name));
-		if (!itype)
-			croak ("package %s is not registered with GPerl",
-			       SvPV_nolen (object_or_class_name));
-	}
+	itype = get_gtype_or_croak (object_or_class_name);
 	if (G_TYPE_IS_CLASSED (itype)) {
 		/* ref the class to ensure that the signals get created,
 		 * otherwise they may not exist at the time we query. */
@@ -589,8 +645,65 @@ void g_signal_stop_emission_by_name (GObject * instance, const gchar * detailed_
 ##					     GSignalEmissionHook  hook_func,
 ##					     gpointer	       	  hook_data,
 ##					     GDestroyNotify	  data_destroy);
+=for apidoc
+=for arg detailed_signal (string) of the form "signal-name::detail"
+=for arg hook_func (subroutine)
+Add an emission hook for a signal.  The hook will be called for any emission
+of that signal, independent of the instance.  This is possible only for
+signals which don't have the C<G_SIGNAL_NO_HOOKS> flag set.
+
+The I<$hook_func> should be reference to a subroutine that looks something
+like this:
+
+  sub emission_hook {
+      my ($invocation_hint, $parameters, $hook_data) = @_;
+      # $parameters is a reference to the @_ to be passed to
+      # signal handlers, including the instance as $parameters->[0].
+      return $stay_connected;  # boolean
+  }
+
+This function returns an id that can be used with C<remove_emission_hook>.
+
+Since 1.100.
+=cut
+gulong
+g_signal_add_emission_hook (object_or_class_name, detailed_signal, hook_func, hook_data=NULL)
+	SV * object_or_class_name
+	const char * detailed_signal
+	SV * hook_func
+	SV * hook_data
+    PREINIT:
+	GType           itype;
+	guint           signal_id;
+	GQuark          quark;
+	GPerlCallback * callback;
+    CODE:
+	itype = get_gtype_or_croak (object_or_class_name);
+	signal_id = parse_signal_name_or_croak (detailed_signal, itype, &quark);
+	callback = gperl_signal_emission_hook_create (hook_func, hook_data);
+	RETVAL = g_signal_add_emission_hook
+			(signal_id, quark, gperl_signal_emission_hook,
+			 callback, (GDestroyNotify)gperl_callback_destroy);
+    OUTPUT:
+	RETVAL
+
 ##void	g_signal_remove_emission_hook	    (guint		  signal_id,
 ##					     gulong		  hook_id);
+=for apidoc
+Remove a hook that was installed by C<add_emission_hook>.
+
+Since 1.100.
+=cut
+void
+g_signal_remove_emission_hook (SV * object_or_class_name, const char * signal_name, gulong hook_id);
+    PREINIT:
+	guint signal_id;
+	GType gtype;
+    CODE:
+	gtype = get_gtype_or_croak (object_or_class_name);
+	signal_id = parse_signal_name_or_croak (signal_name, gtype, NULL);
+	g_signal_remove_emission_hook (signal_id, hook_id);
+
 ##
 ##
 ##/* --- signal handlers --- */
