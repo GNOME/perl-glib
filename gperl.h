@@ -214,6 +214,7 @@ typedef gchar gchar_length;
 typedef gchar gchar_own;
 typedef gchar gchar_ornull;
 typedef char char_ornull;
+typedef char char_own;
 typedef GObject GObject_ornull;
 typedef GObject GObject_noinc;
 typedef gchar *GPerlFilename;

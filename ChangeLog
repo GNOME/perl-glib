@@ -1,3 +1,12 @@
+2004/08/01 17:58 (+0200) kaffeetisch
+
+	* MakeHelper.pm: Move select_files_by_version and
+	read_source_list_file from Gtk2's Makefile.PL here so that other
+	modules can use them too.  Also add Ross' cool "evenification"
+	hack to select_files_by_version.
+
+	* gperl.h, typemap: Add a char_own typemap.
+
 2004/07/18 21:00 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: unstable development release 1.052

@@ -45,6 +45,7 @@ const gchar_length *	T_GCHAR_LEN
 gchar_ornull *	T_GCHAR_ORNULL
 const gchar_ornull *	T_GCHAR_ORNULL
 char_ornull *	T_CHAR_ORNULL
+char_own *	T_CHAR_OWN
 const char_ornull *	T_CHAR_ORNULL
 guchar		T_UV
 guchar *	T_PV
@@ -176,6 +177,10 @@ T_CHAR_ORNULL
 	} else {
 		SvSetSV ($arg, &PL_sv_undef);
 	}
+
+T_CHAR_OWN
+	sv_setpv ((SV*)$arg, $var);
+        g_free ($var);
 
 T_G_TYPE_IO_CONDITION
 	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
