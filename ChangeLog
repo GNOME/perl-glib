@@ -1,6 +1,6 @@
 2003/06/01 16:16 muppetman
 
-	applied patch from Marc Lehmann (pgc at goof dot com)
+	applied patch from Marc Lehmann (pcg at goof dot com)
 
 	* GObject.xs: allow $object->get and $object->set to work on
 	multiple properties.
