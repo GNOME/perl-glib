@@ -78,7 +78,7 @@ sub do_pod_files
 
 	my %pod_files = ();
 
-	open PARSE, '>build/Glib.doc.pl';
+	open PARSE, '>build/doc.pl';
 	select PARSE;
 	my $pods = xsdocparse (@_);
 	select STDOUT;
@@ -86,15 +86,12 @@ sub do_pod_files
 	foreach (@$pods)
 	{
 		my $pod = $_;
-		my $path = '$(INST_LIB)/$(NAME)';
-		$pod =~ s/^[^\:]*:://;
-		$path = "$path/$1" if ($pod =~ s/^(.*)::([^\:]+)/$2/);
-		$path =~ s/::/\//g;
-		$pod = "$path/$pod.pod";
+		my $path = '$(INST_LIB)';
+		$pod = File::Spec->catfile ($path, split (/::/, $_)) . ".pod";
 		push @gend_pods, $pod;
 		$pod_files{$pod} = '$(INST_MAN3DIR)/'.$_.'.$(MAN3EXT)';
 	}
-	$pod_files{'$(INST_LIB)/$(NAME)/index.pod'} = '$(INST_MAN3DIR)/$(NAME)::index.$(MAN3EXT)';
+	$pod_files{'$(INST_LIB)/$(FULLEXT)/index.pod'} = '$(INST_MAN3DIR)/$(NAME)::index.$(MAN3EXT)';
 
 	return %pod_files;
 }
@@ -136,21 +133,21 @@ sub postamble_docs
 	my @xs_files = @_;
 "
 # documentation stuff
-build/\$(NAME).doc.pl: Makefile @xs_files
+build/doc.pl: Makefile @xs_files
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
 		-e 'xsdocparse (".join(", ",map {"\"$_\""} @xs_files).")' > \$@
 
-build/xsapi.pod: build/\$(NAME).doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
-	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/\$(NAME).doc.pl > \$@
+build/xsapi.pod: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
+	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
 
-@gend_pods build/podindex: Makefile build/\$(NAME).doc.pl
+@gend_pods build/podindex: Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
-		-e \"xsdoc2pod('build/\$(NAME).doc.pl', '\$(INST_LIB)/\$(NAME)', 'build/podindex')\"
+		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
-\$(INST_LIB)/\$(NAME)/index.pod: build/podindex
+\$(INST_LIB)/\$(FULLEXT)/index.pod: build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) Pod Index\\n\\n=head1 PAGES\\n\\n\"' \\
-		> \$(INST_LIB)/\$(NAME)/index.pod
-	$^X -nae 'print \" \$\$F[1]\\n\";' < build/podindex >> \$(INST_LIB)/\$(NAME)/index.pod
+		> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	$^X -nae 'print \" \$\$F[1]\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
 "
 }
 

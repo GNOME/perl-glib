@@ -155,6 +155,7 @@ this function's code as a starting point for your own pretty-printer.
 =cut
 sub xsdoc2pod
 {
+	use File::Spec;
 	my $datafile = shift();
 	my $outdir   = shift() || 'blib/lib';
 	my $index    = shift;
@@ -175,14 +176,11 @@ sub xsdoc2pod
 	{
 		$pkgdata = $data->{$package};
 
-		my $pod = $package;
-		my $path = $outdir;
-		$pod =~ s/^[^\:]*:://;
-		$path = "$path/$1" if ($pod =~ s/^(.*)::([^\:]+)/$2/);
-		$path =~ s/::/\//g;
-		mkdir $path or die "can't create directory $path: $!\n"
-			unless (-d $path);
-		$pod = "$path/$pod.pod";
+		my $pod = File::Spec->catfile ($outdir, split /::/, $package)
+		        . '.pod';
+		my (undef, @dirs, undef) = File::Spec->splitpath ($pod);
+		mkdir_p (File::Spec->catdir (@dirs));
+
 		open POD, ">$pod" or die "can't open $pod for writing: $!\n";
 		select POD;
 		print STDERR "podifying $pod\n";
@@ -687,8 +685,8 @@ sub compile_signature {
 
 	# find the method's short name
 	my $method = $xsub->{symname};
-	$method =~ s/^.*:://;
-	my $package = $xsub->{package};
+	$method =~ s/^(.*):://;
+	my $package = $1 || $xsub->{package};
 	my $obj;
 	if (defined $instance->{type}) {
 		$obj = lc $package;
@@ -773,6 +771,21 @@ sub convert_return_type_to_name {
 		$type = '$' . lc $type;
 	}
 	return $type;
+}
+
+
+
+sub mkdir_p {
+	use File::Spec;
+	my $path = shift;
+	my $p = '';
+	use Data::Dumper;
+	my @dirs = File::Spec->splitdir ($path);
+	my $p = shift @dirs;
+	do {
+		mkdir $p or die "can't create dir $p: $!\n" unless -d $p;
+		$p = File::Spec->catdir ($p, shift @dirs);
+	} while (@dirs);
 }
 
 1;
