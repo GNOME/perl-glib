@@ -1,3 +1,15 @@
+2004/04/11 22:40 (-0400) muppetman
+
+	* GenPod.pm: document the __hide__, __gerror__, and __function__
+	modifiers for the apidoc directive.  Add $MAIN_MOD to the head of the
+	see alsos list if it's set, so that the generated pages link to the
+	correct extension.  Clean up the semantics of the copyright
+	generation stuff, and make the docs a little clearer.
+
+	* MakeHelper.pm: set $Glib::GenPod::MAIN_MOD with the module name in
+	Glib::MakeHelper::postamble_docs_full, either from the depends object
+	or the NAME key.
+
 2004/04/12 01:25 (+0200) kaffeetisch
 
 	* GenPod.pm
