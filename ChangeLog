@@ -1,3 +1,9 @@
+2004/05/31 15:11 (-0400) rwmcfa1
+
+	* GenPod.pm: reworked flags/enums code, added autodetection based on
+	return and param types. so all pod files should now docuement the
+	flags/enums used within them as returns and/or parameters.
+
 2004/05/16 17:44 (-0400) rwmcfa1
 
 	* GObject.xs: code to allow gobject tracking which and threadsafeness.

@@ -1,6 +1,11 @@
 #
 #
 #
+# TODO:
+#	should we look at signals etc. for enums/flags?
+#	we're getting warnings about unregistered types with new enums/flags 
+#	stuff, quell them.
+#
 
 package Glib::GenPod;
 
@@ -26,6 +31,7 @@ our @EXPORT = qw(
 	podify_ancestors
 	podify_interfaces
 	podify_methods
+	podify_enums_and_flags
 );
 
 our $COPYRIGHT = undef;
@@ -282,24 +288,8 @@ sub xsdoc2pod
 		$ret = podify_pods ($pkgdata->{pods}, 'post_signals');
 		print "$ret\n\n" if ($ret);
 
-		if ($pkgdata->{enums}) {
-			print "\n=head1 ENUMS AND FLAGS\n\n";
-			foreach my $ef (@{ $pkgdata->{enums} }) {
-				my $pod = $ef->{pod};
-				shift @{ $pod->{lines} };
-				pop @{ $pod->{lines} }
-					if $pod->{lines}[-1] =~ /^=cut/;
-
-				# the name may be a C name...
-				my $name = convert_type ($ef->{name});
-				my $type = UNIVERSAL::isa ($name, 'Glib::Flags')
-				         ? 'flags' : 'enum';
-
-				print "=head2 $type $name\n\n"
-				    . join ("\n", @{$pod->{lines}}) . "\n\n"
-				    . podify_values ($ef->{name}) . "\n";;
-			}
-		}
+		$ret = podify_enums_and_flags ($pkgdata);	
+		print "\n=head1 ENUMS AND FLAGS\n\n$ret" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_enums');
 		print "$ret\n\n" if ($ret);
@@ -531,6 +521,70 @@ sub podify_signals {
     };
     return $str
 }
+
+sub podify_enums_and_flags
+{
+	my $pkgdata = shift;
+	
+	my %types = ();
+	
+	my $name;
+	my $pod;
+	my %info = ();
+	foreach (@{$pkgdata->{enums}})
+	{
+		$name = convert_type ($_->{name});
+			
+		$pod = $_->{pod};
+		shift @{ $pod->{lines} };
+		pop @{ $pod->{lines} } if $pod->{lines}[-1] =~ /^=cut/;
+
+		$info{$name} = {
+			type => $_->{type},
+			pod  => $pod->{lines},
+		};
+		$types{$name}++;
+	}
+
+	foreach my $xsub (@{$pkgdata->{xsubs}})
+	{
+		if ($xsub->{return_type})
+		{
+			foreach my $ret (@{$xsub->{return_type}})
+			{
+				$name = convert_type ($ret);
+				$types{$name}++;
+			}
+		}
+		if ($xsub->{args})
+		{
+			foreach my $arg (@{$xsub->{args}})
+			{
+				if ($arg->{type})
+				{
+					$name = convert_type ($arg->{type});
+					$types{$name}++;
+				}
+			}
+		}
+	}
+
+	my $ret = '';
+	foreach (sort keys %types)
+	{
+		if (UNIVERSAL::isa ($_, 'Glib::Flags') or
+		    UNIVERSAL::isa ($_, 'Glib::Enum') or 
+		    exists $info{$_})
+		{
+			$ret .= "=head2 $_\n\n";
+			$ret .= join ("\n", @{$info{$_}{pod}}) . "\n\n"
+				if ($info{$_}{pod});
+			$ret .= podify_values ($_) . "\n";
+		}
+	}
+	return $ret;
+}
+
 
 =item $string = podify_pods ($pods, $position)
 
