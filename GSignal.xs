@@ -393,11 +393,11 @@ BOOT:
 
 =for apidoc
 
-=signature retval = $object->signal_emit ($name, ...)
+=for signature retval = $object->signal_emit ($name, ...)
 
-=arg name (string) the name of the signal
+=for arg name (string) the name of the signal
 
-=arg ... (list) any arguments to pass to handlers.
+=for arg ... (list) any arguments to pass to handlers.
 
 Emit the signal I<name> on I<$object>.  The number and types of additional
 arguments in I<...> are determined by the signal; similarly, the presence
