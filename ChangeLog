@@ -1,3 +1,10 @@
+2003/10/26 21:31 rwmcfa1
+	
+	* GenPod.pm: put the pod files in blib using the fully correct paths 
+	and file names
+
+	* Makefile.PL: merge bug, well that and not looking closely.
+
 2003/10/26 17:10 rwmcfa1
 
 	* GObject.xs: test out a blurb

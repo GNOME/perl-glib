@@ -18,7 +18,7 @@ use base Exporter;
 sub xsdoc2pod
 {
 	my $datafile = shift();
-	my $outdir   = shift() || 'build/pod';
+	my $outdir   = shift() || 'blib/lib';
 
 	mkdir $outdir unless (-d $outdir);
 
@@ -34,8 +34,13 @@ sub xsdoc2pod
 	{
 		$pkgdata = $data->{$package};
 
-		$package =~ m/([^\:]+)$/;
-		my $pod = "$outdir/$1.pod";
+		my $pod = $package;
+		my $path = "$outdir";
+		$pod =~ s/^[^\:]*:://;
+		$path = "$path/$1" if ($pod =~ s/^(.*)::([^\:]+)/$2/);
+		$path =~ s/::/\//g;
+		mkdir $path unless (-d $path);
+		$pod = "$path/$pod.pod\n";
 		open POD, ">$pod" or die "unabled to open ($pod) for output";
 		select POD;
 
