@@ -191,6 +191,41 @@ See C<call_sv> in L<perlcall> for more information.
 	}
 
 
+/***************************************************************************/
+
+/*
+=item dGPERL_CALLBACK_MARSHAL_SP
+
+Declare the stack pointer such that it can be properly initialized by
+C<GPERL_CALLBACK_MARSHAL_INIT>.  Do I<not> just use C<dSP>.
+
+=item GPERL_CALLBACK_MARSHAL_INIT(callback)
+
+Initialize the callback stuff.  This must happen before any other Perl API
+statements in the callback marshaller.  In a threaded Perl, this ensures that
+the proper interpreter context is used; if this isn't first, you'll mix and
+match two contexts and bad things will happen.
+
+=cut
+*/
+#ifdef PERL_IMPLICIT_CONTEXT
+
+# define dGPERL_CALLBACK_MARSHAL_SP	\
+	SV ** sp;
+
+# define GPERL_CALLBACK_MARSHAL_INIT(callback)	\
+	PERL_SET_CONTEXT (callback->priv);	\
+	SPAGAIN;
+
+#else
+
+# define dGPERL_CALLBACK_MARSHAL_SP	\
+	dSP;
+
+# define GPERL_CALLBACK_MARSHAL_INIT(callback)	\
+	/* nothing to do */
+
+#endif
 
 
 #endif /* __GPERL_MARSHAL_H__ */
