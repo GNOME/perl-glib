@@ -51,7 +51,8 @@ use overload
    '-'    => \&sub,
    '>='   => \&ge,
    '*'    => \&intersect, '&'    => \&intersect,
-   '/'    => \&xor,
+   '/'    => \&xor,       '^'    => \&xor,
+   '@{}'  => \&as_arrayref,
    '""'   => sub { "[ @{$_[0]} ]" };
    
 package Glib::Object::Property;
@@ -241,17 +242,18 @@ Beware that Perl will always return to you the nickname form, with the dash.
 Flags have some additional magic abilities in the form of overloaded
 operators:
 
-  +  union of two flagsets ("add", | is also accepted)
-  -  difference of two flagsets ("sub")
-  *  intersection of two bitsets ("and", & is also accepted)
-  /  symmetric difference ("xor", you will rarely need this)
-  >= contains-operator (is the left set a superset of the right set?)
+  + or |   union of two flagsets ("add")
+  -        difference of two flagsets ("sub", "remove")
+  * or &   intersection of two bitsets ("and")
+  / or ^   symmetric difference ("xor", you will rarely need this)
+  >=       contains-operator ("is the left set a superset of the right set?")
 
 In addition, flags in boolean context indicate wether they are empty or
 not, which allows you to write common operations naturally:
 
   $widget->set_events ($widget->get_events - "motion_notify_mask");
-  $widget->set_events ($widget->get_events - ["motion_notify_mask", "button_press_mask"]);
+  $widget->set_events ($widget->get_events - ["motion_notify_mask",
+                                              "button_press_mask"]);
 
   # shift pressed (both work, it's a matter of taste)
   if ($event->state >= "shift-mask") { ...

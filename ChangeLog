@@ -1,3 +1,14 @@
+2003/11/08 12:10 pcg
+
+	The "more evil things?" release.
+
+        * GType.xs: Allow |, & and ^ as operators on flags, too.
+	* GType.xs: GFlags are now represented as blessed IV's, which indeed
+        gave a _substantial_ speed improvement at an unimportant place. But
+        it also saves memory and code, and looks nice, so I just had to do it.
+        * GLog.xs: simplify newSVGLogLevelFlags, as excluding single values
+        should no longer be necessary.
+
 2003/11/08 11:30 pcg
 
         * GType.xs: In addition to the change yesterday, make sure

@@ -75,16 +75,7 @@ g_log_level_flags_get_type (void)
 SV *
 newSVGLogLevelFlags (GLogLevelFlags flags)
 {
-	GFlagsClass * class = gperl_type_class (g_log_level_flags_get_type ());
-	GFlagsValue * vals = class->values;
-	AV * av = newAV ();
-	while (vals && vals->value_nick && vals->value_name) {
-		if ((vals->value != G_LOG_FATAL_MASK) &&
-		    (vals->value & flags))
-			av_push (av, newSVpv (vals->value_nick, 0));
-		vals++;
-	}
-	return newRV_noinc ((SV*) av);
+	return gperl_convert_back_flags (g_log_level_flags_get_type (), flags);
 }
 
 GLogLevelFlags
@@ -210,6 +201,7 @@ g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_f
 	/* we have no choice but to leak the callback. */
 	/* FIXME what about keeping a hash by the ID, and freeing it on
 	 *       Glib::Log->remove_handler ($id)? */
+        /*pcg: would probably take more memory in typical programs... */
     OUTPUT:
 	RETVAL
 

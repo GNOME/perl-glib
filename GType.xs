@@ -328,8 +328,8 @@ gint
 gperl_convert_flags (GType type,
 		     SV * val)
 {
-	if (SvPOK (val))
-		return gperl_convert_flag_one (type, SvPV_nolen (val));
+	if (SvROK (val) && sv_derived_from (val, "Glib::Flags"))
+        	return SvIV (SvRV (val));
 	if (SvROK (val) && SvTYPE (SvRV(val)) == SVt_PVAV) {
 		AV* vals = (AV*) SvRV(val);
 		gint value = 0;
@@ -339,19 +339,17 @@ gperl_convert_flags (GType type,
 					 SvPV_nolen (*av_fetch (vals, i, 0)));
 		return value;
 	}
+	if (SvPOK (val))
+		return gperl_convert_flag_one (type, SvPV_nolen (val));
+
 	croak ("FATAL: invalid flags %s value %s, expecting a string scalar or an arrayref of strings",
 	       g_type_name (type), SvPV_nolen (val));
 	return 0; /* not reached */
 }
 
-=item SV * gperl_convert_back_flags (GType type, gint val)
-
-convert a bitfield to a list of strings.
-
-=cut
-SV *
-gperl_convert_back_flags (GType type,
-			  gint val)
+static SV *
+flags_as_arrayref (GType type,
+		   gint val)
 {
 	const char * package;
 	SV * rv;
@@ -364,12 +362,31 @@ gperl_convert_back_flags (GType type,
                 }
 		vals++;
 	}
-	rv = newRV_noinc ((SV*) flags);
+	return newRV_noinc ((SV*) flags);
+}
+
+=item SV * gperl_convert_back_flags (GType type, gint val)
+
+convert a bitfield to a list of strings.
+
+=cut
+SV *
+gperl_convert_back_flags (GType type,
+			  gint val)
+{
+	const char * package;
+	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	package = gperl_fundamental_package_from_type (type);
-	if (package)
-		return sv_bless (rv, gv_stashpv (package, TRUE));
-	else
-		return rv;
+
+	if (package) {
+		return sv_bless (newRV_noinc (newSViv (val)), gv_stashpv (package, TRUE));
+        } else {
+                /* return as non-blessed array, and warn. */
+                warn ("GFlags %s has no registered perl package, returning as array",
+                      g_type_name (type));
+
+		return flags_as_arrayref (type, val);
+        }
 }
 
 =back
@@ -1595,7 +1612,8 @@ package_from_cname (class, const char * cname)
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 
 int
-bool (SV *a, SV *b, int swap)
+bool (SV *a, SV *b, SV *swap)
+    PROTOTYPE: $;@
     CODE:
         RETVAL = !!gperl_convert_flags (
                      gperl_fundamental_type_from_package (
@@ -1603,6 +1621,24 @@ bool (SV *a, SV *b, int swap)
                      ),
                      a
                    );
+    OUTPUT:
+        RETVAL
+
+SV *
+as_arrayref (SV *a, SV *b, SV *swap)
+    PROTOTYPE: $;@
+    CODE:
+{
+	GType gtype;
+	char *package;
+        gint a_;
+
+	package = sv_reftype (SvRV (a), TRUE);
+	gtype = gperl_fundamental_type_from_package (package);
+        a_ = gperl_convert_flags (gtype, a);
+
+        RETVAL = flags_as_arrayref (gtype, a_);
+}
     OUTPUT:
         RETVAL
 
