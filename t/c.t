@@ -136,7 +136,7 @@ is ($obj->get ('some_enum'), 'value-one', 'enum property');
 $obj->set (some_enum => 'value-two');
 is ($obj->get ('some_enum'), 'value-two', 'enum property, after set');
 
-ok (eq_array ([$obj->get ('some_flags')], ['value-one']), 'flags property');
+ok (eq_array ($obj->get ('some_flags'), ['value-one']), 'flags property');
 $obj->set (some_flags => ['value-one', 'value-two']);
 is ($obj->get ('some_flags'), ['value-one', 'value-two'], 
 	'flags property, after set');
