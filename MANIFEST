@@ -3,7 +3,6 @@ AUTHORS
 ChangeLog
 Changes
 devel.pod
-fetch_faq.pl
 GBoxed.xs
 GClosure.xs
 GenPod.pm
