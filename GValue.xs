@@ -65,8 +65,11 @@ gperl_value_from_sv (GValue * value,
 		     SV * sv)
 {
 	char* tmp;
-	int typ = G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value)); 
-	/* printf("TYPE: %d, S: %s\n", typ, g_strdup(SvPV_nolen(sv))); */
+	int typ;
+	if (!sv || !SvOK (sv))
+		return TRUE; /* use the GValue type's default */
+	typ = G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value)); 
+	/*printf ("TYPE: %d, S: %s\n", typ, SvPV_nolen(sv));*/
 	switch (typ) {
     		case G_TYPE_INTERFACE:
 			/* pygtk mentions something about only handling 
