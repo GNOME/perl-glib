@@ -397,6 +397,7 @@ sub preprocess_pods {
 			if ($firstline) {
 				$_->{function} = ($firstline =~ /__function__/);
 				$_->{hidden} = ($firstline =~ /__hide__/);
+				$_->{gerror} = ($firstline =~ /__gerror__/);
 			}
 		}
 	}

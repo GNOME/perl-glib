@@ -987,6 +987,9 @@ sub xsub_to_pod {
 		$str .= join("\n", @podlines)."\n\n";
 	}
 
+	$str .= "May croak with a L<Glib::Error> in \$@ on failure.\n\n"
+		if ($xsub->{gerror});
+
 	$str .= "=back\n\n";
 
 	$str

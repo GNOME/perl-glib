@@ -1,3 +1,8 @@
+2004/03/07 03:33 (-0500) rwmcfa1
+
+	* GenPod.pm, ParseXSDoc.pm: added support for the __gerror__ keyword on
+	=for apidoc lines. to be used at a latter date.
+
 2004/03/05 00:28 (-0500) muppetman
 
 	* Makefile.PL: add version checks to the import attempts for our
