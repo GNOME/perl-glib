@@ -20,7 +20,7 @@
 
 package Glib::Object::Subclass;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Glib;
 
@@ -146,7 +146,7 @@ Get a property value, see C<SET_PROPERTY>.
 The default implementation looks like this:
 
    my ($self, $pspec) = @_;
-   return $self->{$pspec->get_name};
+   return ($self->{$pspec->get_name} || $pspec->get_default_value);
 
 =item SET_PROPERTY $self, $pspec, $newval                 [not a method]
 
@@ -198,34 +198,24 @@ do that.  Especially watch out for other classes in your ISA tree.
 
 *new = \&Glib::Object::new;
 
-sub GET_PROPERTY {
-   my ($self, $pspec) = @_;
-   $self->{$pspec->get_name};
-}
-
-sub SET_PROPERTY {
-   my ($self, $pspec, $newval) = @_;
-   $self->{$pspec->get_name} = $newval;
-}
-
 sub import {
+   # we seem to be imported by classes using classes which use us.
+   # ignore anything that doesn't look like a registration attempt.
+   return unless @_ > 1;
+
    my ($self, $superclass, %arg) = @_;
    my $class = caller;
-
-   # the CHECK callback will be executed after the module is compiled
-   my $check = sub {
-      # "optionally" supply defaults
-      for (qw(new GET_PROPERTY SET_PROPERTY)) {
-         defined &{"$class\::$_"}
-            or *{"$class\::$_"} = \&$_;
-      }
-   };
-   eval "package $class; CHECK { &\$check }";
 
    Glib::Type->register_object(
       $superclass, $class,
       %arg,
    );
+
+   # ensure that we have a perlish new().  the old version of this
+   # code used a CHECK block to put a new() in if we didn't already
+   # have one in the package, but it may be too late to run a CHECK
+   # block when we get here.  so, we use the old-fashioned way...
+   unshift @{ $class."::ISA" }, __PACKAGE__;
 }
 
 1;
@@ -236,6 +226,11 @@ To create gobject properties, supply a list of Glib::ParamSpec objects as the
 value for the key 'properties'.  There are lots of different paramspec
 constructors, documented in the C API reference's Parameters and Values page,
 as well as L<Glib::ParamSpec>.
+
+As of Glib 1.060, you can also specify explicit getters and setters for your
+properties at creation time.  The default values in your properties are also
+honored if you don't set anything else.  See Glib::Type::register_object in
+L<Glib::Type> for an example.
 
 =head1 SIGNALS
 
