@@ -178,7 +178,6 @@ gperl_try_convert_flag (GType type,
                         const char * val_p,
                         gint * val)
 {
-	SV *r;
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	while (vals && vals->value_nick && vals->value_name) {
 		if (streq_enum (val_p, vals->value_name) || 
@@ -560,9 +559,9 @@ create_signal (GType instance_type,
 {
 	GSignalFlags signal_flags = 0;
 	GType return_type = G_TYPE_NONE;
-	guint n_params, i;
-	GType * param_types;
-	guint signal_id;
+	guint n_params = 0, i;
+	GType * param_types = NULL;
+	guint signal_id = 0;
 	SV ** svp;
 
 	svp = hv_fetch (hv, "return_type", 11, FALSE);
