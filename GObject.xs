@@ -1064,7 +1064,7 @@ g_object_set_data (object, key, data)
 	if (SvROK (data) || !SvIOK (data))
 		croak ("set_data only sets unsigned integers, use"
 		       " a key in the object hash for anything else");
-	g_object_set_data (object, key, GUINT_TO_POINTER (SvUV (data)));
+	g_object_set_data (object, key, INT2PTR (gpointer, SvUV (data)));
 
 
 =for apidoc
@@ -1078,7 +1078,7 @@ g_object_get_data (object, key)
 	GObject * object
 	gchar * key
     CODE:
-        RETVAL = (UV) g_object_get_data (object, key);
+        RETVAL = PTR2UV (g_object_get_data (object, key));
     OUTPUT:
         RETVAL
 

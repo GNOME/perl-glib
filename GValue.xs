@@ -115,7 +115,7 @@ gperl_value_from_sv (GValue * value,
 			break;
 		case G_TYPE_POINTER:
 			g_value_set_pointer (value,
-			                     GINT_TO_POINTER (SvIV (sv)));
+			                     INT2PTR (gpointer, SvIV (sv)));
 			break;
 		case G_TYPE_BOXED:
 			/* SVs need special treatment! */
@@ -210,7 +210,7 @@ gperl_sv_from_value (const GValue * value)
 			return newSVGChar (g_value_get_string (value));
 
 		case G_TYPE_POINTER:
-			return newSViv((IV) g_value_get_pointer(value));
+			return newSViv (PTR2IV (g_value_get_pointer (value)));
 
 		case G_TYPE_BOXED:
 			/* special case for SVs, which are stored directly
