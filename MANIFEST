@@ -3,6 +3,7 @@ ChangeLog
 Changes
 GBoxed.xs
 GClosure.xs
+GIOChannel.xs
 GMainLoop.xs
 GObject.xs
 GParamSpec.xs
@@ -20,6 +21,9 @@ PkgConfig.pm
 README
 README.api-changes
 Subclass.pm
+TODO
+apidoc.pl
+devel.pod
 gperl.h
 ppport.h
 t/1.t
@@ -27,5 +31,13 @@ t/2.t
 t/3.t
 t/4.t
 t/5.t
+t/6.t
 typemap
+xsapi.pod.head
+xsapi.pod.foot
 META.yml                                Module meta-data in YAML
+debian/changelog
+debian/compat
+debian/control
+debian/copyright
+debian/rules
