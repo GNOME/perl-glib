@@ -1,0 +1,16 @@
+This is the debian package for the Glib module.
+It was created by James Curbo <James Curbo <hannibal@adtrw.org>> using dh-make-perl.
+
+This module was downloaded from http://gtk2-perl.sf.net/
+
+The upstream author is:
+
+muppet, <scott at asofyet dot org>, who borrowed heavily from the work
+of Göran Thyni, <gthyni at kirra dot net> and Guillaume Cottenceau
+<gc at mandrakesoft dot com> on the first gtk2-perl module, and from
+the sourcecode of the original gtk-perl and pygtk projects.  Marc Lehmann
+<pcg at goof dot com> did lots of great work on the magic of making
+Glib::Object wrapper and subclassing work like they should..
+
+This module is licensed under the GPL. The full text of the GPL is 
+available on Debian systems in /usr/share/common-licenses/GPL

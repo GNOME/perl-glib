@@ -1,0 +1,24 @@
+Source: libglib-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 3.0.16), perl (>= 5.8.0-7), libextutils-depends-perl (>= 0.1)
+Maintainer: James Curbo <hannibal@adtrw.org>
+Standards-Version: 3.6.0
+
+Package: libglib-perl
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}, libextutils-depends-perl (>= 0.1)
+Description:  Perl wrappers for the GLib utility and Object libraries
+ This wrapper attempts to provide a perlish interface while remaining
+ as true as possible to the underlying C API, so that any reference
+ materials you can find on using GLib may still apply to using the
+ libraries from perl.  Where GLib's functionality overlaps perl's,
+ perl's is favored; for example, you will find perl lists and arrays in
+ place of GSList or GList objects.  Some concepts have been eliminated;
+ you need never worry about reference-counting on GObjects or GBoxed
+ structures.  Other concepts have been converted to a perlish analogy;
+ the GType id will never be seen in perl, as the package name serves
+ that purpose.
+ .
+ This module also provides facilities for creating wrappers for other
+ GObject-based libraries.

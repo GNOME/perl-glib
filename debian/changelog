@@ -1,0 +1,13 @@
+libglib-perl (0.92-2) unstable; urgency=low
+
+  * Updated to latest CVS.
+  * Fixed some packaging issues.
+
+ -- James Curbo <hannibal@adtrw.org>  Sun, 10 Aug 2003 18:10:57 -0500
+
+libglib-perl (0.92-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- James Curbo <hannibal@adtrw.org>  Wed,  6 Aug 2003 18:35:14 -0500
+
