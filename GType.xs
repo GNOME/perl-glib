@@ -207,7 +207,6 @@ gperl_convert_enum (GType type, SV * val)
 	 * SV so it will be properly GC'd
 	 */
 	vals = gperl_type_enum_get_values (type);
-	warn ("gperl_convert_enum: value table: 0x%p\n", vals);
 	r = newSVpv ("", 0);
 	while (vals && vals->value_nick) {
 		sv_catpv (r, vals->value_nick);
