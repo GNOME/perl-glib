@@ -327,7 +327,9 @@ BOOT:
 =for apidoc __hide__
 =cut
 const char *
-filename_from_unicode (const char * class_or_filename, const char *filename=NULL)
+filename_from_unicode (class_or_filename, filename=NULL)
+	GPerlFilename_const class_or_filename
+	GPerlFilename_const filename
     PROTOTYPE: $
     CODE:
 	RETVAL = items < 2 ? class_or_filename : filename;
