@@ -1,3 +1,7 @@
+2005/02/07 23:40 (-0500) muppetman
+
+	* Glib.pm, NEWS, README:
+
 2005/02/07 23:30 (-0500) muppetman
 
 	* t/9.t: Disable the async signal test on win32.

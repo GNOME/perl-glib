@@ -1,3 +1,16 @@
+Overview of changes in Glib 1.073
+=================================
+
+* Bind, doc, and test g_signal_query as Glib::Object::signal_query. [muppet]
+* Fatal log messages call abort() rather than croak().  Croaking wasn't
+  all that useful (didn't stop in the perl debugger as expected), and 
+  aborting allows you to get a C backtrace in gdb.  [muppet]
+* Fix Glib::MakeHelper::select_files_by_version on Win32.  [muppet]
+* Implement missing support for the boxed type GStrv as a native perl
+  anonymous array of strings.  [muppet]
+* Docgen fixes.  [muppet]
+* Test suite updates and fixes.  [Ross, muppet]
+
 Overview of changes in Glib 1.072
 =================================
 
