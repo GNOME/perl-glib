@@ -228,9 +228,8 @@ sub import {
 
 To create gobject properties, supply a list of Glib::ParamSpec objects as the
 value for the key 'properties'.  There are lots of different paramspec
-constructors, documented in the C API reference's Parameters and Values page.
-
-TODO:  put a list here with the proper perl syntax for each
+constructors, documented in the C API reference's Parameters and Values page,
+as well as L<Glib::ParamSpec>.
 
 =head1 SIGNALS
 
@@ -243,11 +242,11 @@ keys are allowed to default.
 
 =item flags => GSignalFlags
 
-If not present, assumed to be run-first
+If not present, assumed to be 'run-first'.
 
 =item param_types => reference to a list of package names
 
-If not present, assumed to be empty (no parameters)
+If not present, assumed to be empty (no parameters).
 
 =item class_closure => reference to a subroutine to call as the class closure.
 
