@@ -1,6 +1,6 @@
 # $Header$
 
-Glib version 1.073
+Glib version 1.074
 ==================
 
 This module provides perl access to Glib and GLib's GObject libraries.
@@ -56,7 +56,7 @@ ways:
 
   in the code of your perl script:
     use lib '/some/other/place/lib/perl5/site_perl';
-  
+
 
 DEPENDENCIES
 

@@ -131,10 +131,9 @@ WriteMakefile(
 print "
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
-   This is an unstable development release of Glib.  The API is not
-   frozen and things are subject to change at any time.  Report any
-   bugs to gtk-perl-list AT gnome DOT org as soon as possible.
-   Please use the stable 1.06x series for important work.
+   This is a development release of Glib.  The API is now frozen and
+   things will not change much anymore.  Report any bugs to
+   gtk-perl-list AT gnome DOT org as soon as possible.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
@@ -175,7 +174,7 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 
 __END__
 
-Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
 the full list)
 
 This library is free software; you can redistribute it and/or modify it under
