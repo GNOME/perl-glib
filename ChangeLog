@@ -1,3 +1,9 @@
+2003/06/27 17:00 muppetman
+
+	* GObject.xs: get_data and set_data work only with UVs now,
+	because it's not safe to treat them as anything else, and
+	since we can use hash keys they aren't needed for anything else.
+
 2003/06/27 12:00 muppetman
 
 	merged realobjects-branch back onto HEAD.  this was a week's worth
