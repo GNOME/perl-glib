@@ -1,3 +1,10 @@
+2003/11/11 10:40 (-0500) rwmcfa1
+	
+	* GClosure.xs: if PERL_IMPLICIT_CONTEXT is not defined then the call 
+	to the macro GPERL_CLOSURE_MARSHAL_INIT has the wrong number of 
+	prarameters. there's probably a better way to handle this, buf for
+	now this will allow things to compile.
+
 2003/11/11 00:36 (-0500) muppetman
 
 	* MANIFEST, debian/*: remove the debian packaging files, since having
