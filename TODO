@@ -8,3 +8,4 @@
   - gperl_value_from_sv should change to void return since it croaks on error.
 - modify Glib::Type::register to allow you to create GEnum and GFlags types
   in Perl.  currently it only allows GObject types.
+- need a test for the flags stuff --- 6.t?

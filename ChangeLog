@@ -1,3 +1,10 @@
+2003/11/16 02:44 (-0500) muppetman
+
+	* GClosure.xs, GType.xs: clean up the stack properly after call_sv
+	to stop internal bleeding.
+
+	* TODO: updated
+
 2003/11/14 04:31 pcg
 
         * Glib.pm: rework the doc for filename conversion. horribly buggy
