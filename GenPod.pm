@@ -4,7 +4,7 @@
 
 package Glib::GenPod;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # FIXME/TODO
 #use strict;
@@ -17,6 +17,7 @@ use POSIX qw(strftime);
 use base Exporter;
 
 our @EXPORT = qw(
+	add_types
 	xsdoc2pod
 	podify_properties
 	podify_values
@@ -363,26 +364,49 @@ our %basic_types = (
 
 	FILE => 'file handle',
 
-	# there are a little special -- they don't actually get 
-	# registered with the GType system.
-	GMainContext	=> 'Glib::MainContext',
-	GMainLoop	=> 'Glib::MainLoop',
-	GParamSpec	=> 'Glib::ParamSpec',
-	GParamFlags	=> 'Glib::ParamFlags',
-
 	GPerlFilename	=> 'localized file name',
 	GPerlFilename_const	=> 'localized file name',
-
-## TODO/FIXME:  we need a way to add to this hash at runtime, to alleviate
-##              the need for the terrible hack of putting other people's
-##              types down here.  the trick is figuring out how to get the
-##              mappings in from the command line (e.g., Makefile rules).
-##              A file, maybe?
-	GtkTargetList   => 'Gtk2::TargetList',
-	GdkAtom         => 'Gtk2::Gdk::Atom',
-	GdkBitmap       => 'Gtk2::Gdk::Bitmap',
-	GdkNativeWindow => 'Gtk2::Gdk::NativeWindow',
 );
+
+=item add_types (@filenames)
+
+Parse the given I<@filenames> for entries to add to the C<%basic_types> used
+for C type name to Perl package name mappings of types that are not registered
+with the Glib type system.  The file format is dead simple: blank lines are
+ignored; /#.*$/ is stripped from each line as comments; the first token on
+each line is considered to be a C type name, and the remaining tokens are the
+description of that type.  For example, a valid file may look like this:
+
+  # a couple of special types
+  FooBar      Foo::Bar
+  Frob        localized frobnicator
+
+C type decorations such as "const" and "*" are implied (do not include them),
+and the _ornull variant is handled for you.
+
+=cut
+sub add_types {
+	my @files = @_;
+	foreach my $f (@files) {
+		open IN, $f or die "can't open types file $f: $!\n";
+		my $n = 0;
+		while (<IN>) {
+			chomp;
+			s/#.*//;
+			next if m/^\s*$/;
+			my ($c_name, @bits) = split;
+			if (@bits) {
+				$basic_types{$c_name} = join ' ', @bits;
+				$n++;
+			} else {
+				warn "$f:$.: no description for $c_name\n"
+			}
+		}
+		print "loaded $n extra types from $f\n";
+		close IN;
+	}
+}
+
 
 =item $string = podify_properties ($packagename)
 
