@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More
-	tests => 32;
+	tests => 33;
 
 BEGIN { use_ok 'Glib'; }
 
