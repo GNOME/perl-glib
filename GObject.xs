@@ -629,9 +629,8 @@ get_pointer (object)
 	RETVAL
 
 SV *
-g_object_new (class, object_class, ...)
-	SV * class
-	const char * object_class
+g_object_new (class, ...)
+	const char *class
     PREINIT:
 	int n_params = 0;
 	GParameter * params = NULL;
@@ -639,10 +638,10 @@ g_object_new (class, object_class, ...)
 	GObject * object;
 	GObjectClass *oclass = NULL;
     CODE:
-	object_type = gperl_object_type_from_package (object_class);
+	object_type = gperl_object_type_from_package (class);
 	if (!object_type)
 		croak ("%s is not registered with gperl as an object type",
-		       object_class);
+		       class);
 	if (G_TYPE_IS_ABSTRACT (object_type))
 		croak ("cannot create instance of abstract (non-instantiatable)"
 		       " type `%s'", g_type_name (object_type));
@@ -660,7 +659,7 @@ g_object_new (class, object_class, ...)
 				/* FIXME this bails out, but does not clean up 
 				 * properly. */
 				croak ("type %s does not support property %s, skipping",
-				       object_class, key);
+				       class, key);
 			g_value_init (&params[i].value,
 			              G_PARAM_SPEC_VALUE_TYPE (pspec));
 			if (!gperl_value_from_sv (&params[i].value, 

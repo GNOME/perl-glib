@@ -8,6 +8,8 @@
         * gperl.h: fix some of the documentation to reflect the new model.
         * Glib.pm: remove overloading, its hould be no longer necessary,
         which should give a speed boost as objects are no longer AMAGIC.
+        * GObject.xs: remove unused class argument from ->new to make it
+        usable as a proper base class.
 
 2003/06/20 11:29 muppetman
 
