@@ -38,6 +38,15 @@ arrays and the like.
 
 /****************************************************************************
  * GValue handling
+ * 
+ * we have code here to handle the fundamental types listed in the API
+ * reference, plus the G_TYPE_ENUM and G_TYPE_FLAGS fundamentals.
+ * we won't, however, handle any *other* fundamentals created by
+ * g_type_fundamental_next().  if we want to handle that, we probably
+ * need to move away from a switch statement to an array of function
+ * pointers (at least for the non-standard ones) so that the perl bindings
+ * for the library that creates these new fundamentals can register 
+ * conversion functions for them.
  */
 
 =item gboolean gperl_value_from_sv (GValue * value, SV * sv)
@@ -66,16 +75,12 @@ gperl_value_from_sv (GValue * value,
     			g_value_set_object(value, gperl_get_object(sv));
 			break;
 		case G_TYPE_CHAR:
-			if ((tmp = SvGChar(sv)))
-				g_value_set_char(value, tmp[0]);
-			else
-				return FALSE;
+			tmp = SvGChar (sv);
+			g_value_set_char(value, tmp ? tmp[0] : 0);
 			break;
 		case G_TYPE_UCHAR:
-			if ((tmp = SvPV_nolen(sv)))
-				g_value_set_char(value, tmp[0]);
-			else
-				return FALSE;
+			tmp = SvPV_nolen (sv);
+			g_value_set_uchar(value, tmp ? tmp[0] : 0);
 			break;
 		case G_TYPE_BOOLEAN:
 			/* undef is also false. */
@@ -111,18 +116,6 @@ gperl_value_from_sv (GValue * value,
 		case G_TYPE_POINTER:
 			g_value_set_pointer(value, (gpointer) SvIV(sv));
 			break;
-		case G_TYPE_PARAM:
-			g_value_set_param(value, (gpointer) SvIV(sv));
-			break;
-		case G_TYPE_OBJECT:
-			g_value_set_object(value, gperl_get_object_check (sv, G_VALUE_TYPE(value)));
-			break;
-		case G_TYPE_ENUM:
-			g_value_set_enum(value, gperl_convert_enum(G_VALUE_TYPE(value), sv));
-			break;
-		case G_TYPE_FLAGS:
-			g_value_set_flags(value, gperl_convert_flags(G_VALUE_TYPE(value), sv));
-			break;
 		case G_TYPE_BOXED:
 			/* SVs need special treatment! */
 			if (G_VALUE_HOLDS (value, GPERL_TYPE_SV))
@@ -133,10 +126,24 @@ gperl_value_from_sv (GValue * value,
 			else
 				g_value_set_boxed (value, gperl_get_boxed_check (sv, G_VALUE_TYPE(value)));
 			break;
+		case G_TYPE_PARAM:
+			g_value_set_param(value, (gpointer) SvIV(sv));
+			break;
+		case G_TYPE_OBJECT:
+			g_value_set_object(value, gperl_get_object_check (sv, G_VALUE_TYPE(value)));
+			break;
+
+		case G_TYPE_ENUM:
+			g_value_set_enum(value, gperl_convert_enum(G_VALUE_TYPE(value), sv));
+			break;
+		case G_TYPE_FLAGS:
+			g_value_set_flags(value, gperl_convert_flags(G_VALUE_TYPE(value), sv));
+			break;
 			
 		default:
-			warn ("[gperl_value_from_sv] FIXME: unhandled type - %d (%s fundamental for %s)\n",
-			      typ, g_type_name(G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value))), G_VALUE_TYPE_NAME(value));
+			/* if we get here, there's something seriously wrong. */
+			croak ("[gperl_value_from_sv] FIXME: unhandled type - %d (%s fundamental for %s)\n",
+			       typ, g_type_name(G_TYPE_FUNDAMENTAL(G_VALUE_TYPE(value))), G_VALUE_TYPE_NAME(value));
 			return FALSE;
 	}
 	return TRUE;
@@ -163,6 +170,11 @@ gperl_sv_from_value (const GValue * value)
 			   just blindly treating them as objects until
 			   this breaks and i understand what they mean. */
 			return gperl_new_object (g_value_get_object (value), FALSE);
+		case G_TYPE_CHAR:
+			return newSViv (g_value_get_char (value));
+
+		case G_TYPE_UCHAR:
+			return newSVuv (g_value_get_uchar (value));
 
 		case G_TYPE_BOOLEAN:
 			return newSViv(g_value_get_boolean(value));
@@ -211,6 +223,9 @@ gperl_sv_from_value (const GValue * value)
 						G_VALUE_TYPE (value),
 						FALSE);
 
+		case G_TYPE_PARAM:
+			croak ("[gperl_sv_from_value] G_TYPE_PARAM not implemented");
+
 		case G_TYPE_OBJECT:
 			return gperl_new_object (g_value_get_object (value), FALSE);
 
@@ -223,9 +238,9 @@ gperl_sv_from_value (const GValue * value)
 							 g_value_get_flags (value));
 
 		default:
-			warn ("[gperl_sv_from_value] FIXME: unhandled type - %d (%s fundamental for %s)\n",
-			      typ, g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value))),
-			      G_VALUE_TYPE_NAME (value));
+			croak ("[gperl_sv_from_value] FIXME: unhandled type - %d (%s fundamental for %s)\n",
+			       typ, g_type_name (G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value))),
+			       G_VALUE_TYPE_NAME (value));
 	}
 	
 	return NULL;
