@@ -1,3 +1,9 @@
+2003/11/02 16:55 muppetman
+
+	* ParseXSDoc.pm: match void\s* instead of just void when looking for
+	methods with void return.  use scalar(localtime) instead of the
+	identical strftime format.
+
 2003/11/02 16:17 muppetman
 
 	* Glib.pm: undo my silly "atleast" version-check import stuff, and 
