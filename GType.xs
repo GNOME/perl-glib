@@ -358,8 +358,10 @@ gperl_convert_back_flags (GType type,
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	AV * flags = newAV ();
 	while (vals && vals->value_nick && vals->value_name) {
-		if ((val & vals->value) == vals->value)
+		if ((val & vals->value) == vals->value) {
+                	val -= vals->value;
 			av_push (flags, newSVpv (vals->value_nick, 0));
+                }
 		vals++;
 	}
 	rv = newRV_noinc ((SV*) flags);

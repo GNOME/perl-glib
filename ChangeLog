@@ -1,3 +1,12 @@
+2003/11/08 11:30 pcg
+
+        * GType.xs: In addition to the change yesterday, make sure
+        that gperl_convert_back_flags only ever returns distinct,
+        non-overlapping flag values. This requires an inherent ordering
+        in the flag values, but if this isn't the case we can always sort
+        the values first on bit-count (doh), or use a heuristic such as
+        prefering single bit values.
+
 2003/11/08 01:03 (-0500) muppetman
 
 	* GClosure.xs: simplify, man...  both dSP and the PERL_UNUSED_VAR()
