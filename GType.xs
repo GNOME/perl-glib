@@ -1419,6 +1419,7 @@ list_interfaces (class, package)
 		}
 		XPUSHs (sv_2mortal (newSVpv (name, 0)));
 	}
+	g_free (interfaces);
 
 =for apidoc
 
