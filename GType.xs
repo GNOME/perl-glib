@@ -702,24 +702,27 @@ gperl_type_set_property (GObject * object,
 static void
 gperl_type_finalize (GObject * instance)
 {
-	dSP;
 	GObjectClass *parent_class;
 
-        instance->ref_count += 2; /* HACK: temporarily revive the object. */
+        if (!PL_in_clean_objs) {
+                dSP;
 
-        ENTER;
-        SAVETMPS;
+                instance->ref_count += 2; /* HACK: temporarily revive the object. */
 
-        PUSHMARK (SP);
-        XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
-        PUTBACK;
+                ENTER;
+                SAVETMPS;
 
-        call_method ("FINALIZE_INSTANCE", G_VOID|G_DISCARD);
+                PUSHMARK (SP);
+                XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+                PUTBACK;
 
-        FREETMPS;
-        LEAVE;
+                call_method ("FINALIZE_INSTANCE", G_VOID|G_DISCARD);
 
-        instance->ref_count -= 2; /* HACK END */
+                FREETMPS;
+                LEAVE;
+
+                instance->ref_count -= 2; /* HACK END */
+        }
 
         parent_class = g_type_class_peek_parent (G_OBJECT_GET_CLASS (instance));
 	parent_class->finalize (instance);

@@ -284,11 +284,13 @@ gperl_object_type_from_package (const char * package)
 static void
 gobject_destroy_wrapper (SV *obj)
 {
-        if (!PL_in_clean_objs) { /* during global destruction all effort is wasted. */
-                sv_unmagic (SvRV (obj), PERL_MAGIC_ext); /* remove gobject, which no longer exists. */
-                /* we could optimize away the call to DESTROY here for non-perl classes. */
-                SvREFCNT_dec (obj);
-        }
+	if (PL_in_clean_objs)
+        	return;
+
+        sv_unmagic (SvRV (obj), PERL_MAGIC_ext);
+
+        /* we might want to optimize away the call to DESTROY here for non-perl classes. */
+        SvREFCNT_dec (obj);
 }
 
 /*
@@ -379,7 +381,7 @@ gperl_new_object (GObject * object,
                 /* create the wrapper to return, increases the combined refcount by one. */
                 sv = newSVsv (obj);
 
-                /* and decrease it again, so we effectively increaed it by one in this block. */
+                /* and decrease it again, so we effectively increased it by one in this block. */
                 SvREFCNT_dec (SvRV (obj));
 
         } else {
@@ -487,7 +489,7 @@ DESTROY (SV *sv)
 	GObject *object = gperl_get_object (sv);
 
         if (!object) /* Happens on object destruction. */
-          return;
+                return;
 #ifdef NOISY
         warn ("DESTROY (%p)[%d] => %s (%p)[%d]", 
               object, object->ref_count,
@@ -496,10 +498,18 @@ DESTROY (SV *sv)
 #endif
         /* gobject object still exists, so take back the refcount we lend it. */
         /* this operation does NOT change the refcount of the combined object. */
-	if (!PL_in_clean_objs) /* all effort is wasted during global destruction. */
-          SvREFCNT_inc (SvRV (sv));
-          
-        g_object_unref (object);
+
+	if (PL_in_clean_objs) {
+                /* be careful during global destruction. basically,
+                 * don't bother, since refcounting is no longer meaningful. */
+                sv_unmagic (SvRV (sv), PERL_MAGIC_ext);
+
+                g_object_steal_qdata (object, wrapper_quark);
+        } else {
+                SvREFCNT_inc (SvRV (sv));
+                g_object_unref (object);
+        }
+
 
 
 void
