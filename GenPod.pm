@@ -328,13 +328,14 @@ our %basic_types = (
 	string     => 'string',
 
 	# other C names which may sneak through
-	boolean => 'boolean',
-	int     => 'integer',
-	char    => 'integer',
-	uint    => 'unsigned',
-	float   => 'double',
-	double  => 'double',
-	char    => 'string',
+	boolean  => 'boolean',
+	int      => 'integer',
+	char     => 'integer',
+	uint     => 'unsigned',
+	float    => 'double',
+	double   => 'double',
+	char     => 'string',
+	unsigned => 'unsigned',
 
 	gboolean => 'boolean',
 	gint     => 'integer',
