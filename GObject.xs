@@ -523,32 +523,22 @@ DESTROY (SV *sv)
         g_object_unref (object);
 
 
-
 void
 g_object_set_data (object, key, data)
 	GObject * object
 	gchar * key
 	SV * data
     CODE:
-	g_object_set_data_full (object, key,
-	                        gperl_sv_copy (data),
-				(GDestroyNotify) gperl_sv_free);
+	if (SvROK (data) || !SvIOK (data))
+		croak ("set_data only sets unsigned integers, use"
+		       " a key in the object hash for anything else");
+	g_object_set_data (object, key, GUINT_TO_POINTER (SvUV (data)));
 
 
-SV *
+UV
 g_object_get_data (object, key)
 	GObject * object
 	gchar * key
-    CODE:
-	RETVAL = (SV*) g_object_get_data (object, key);
-	/* the output section will call sv_2mortal on RETVAL... so let's
-	 * make a copy! */
-	if (RETVAL)
-		RETVAL = newSVsv (RETVAL);
-	else
-		RETVAL = newSVsv (&PL_sv_undef);
-    OUTPUT:
-	RETVAL
 
 
 void
