@@ -36,6 +36,14 @@
 
 	* GType.xs: add Glib::Double
 
+2003/06/17 18:21 muppetman
+
+	* gperl.h, xs/GObject.xs: move sink functions into Glib, 
+	to avoid some problems in which GtkObject created via 
+	Glib::Object->new don't have gtk_object_sink called on them.
+	this problem is actually more generic than just GtkObject (other
+	libraries do similar things).
+
 2003/06/09 13:49 muppetman
 
 	* gperl.h, typemap: corrected broken handling for GObject output
