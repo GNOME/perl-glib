@@ -732,6 +732,43 @@ init_property_value (GObject * object,
 
 =cut
 
+/*
+ * $sv = $object->{name}
+ *
+ * if the key doesn't exist with name, convert - to _ and try again.
+ * that is, support both "funny-name" and "funny_name".
+ *
+ * if create is true, autovivify the key (and always return a value).
+ * if create is false, returns NULL is there is no such key.
+ */
+SV *
+_gperl_fetch_wrapper_key (GObject * object,
+                          const char * name,
+                          gboolean create)
+{
+	SV ** svp;
+	SV * svname;
+	HV * wrapper_hash;
+	wrapper_hash = g_object_get_qdata (object, wrapper_quark);
+	svname = newSVpv (name, strlen (name));
+	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
+	                create);
+	if (!svp) {
+		/* the key doesn't exist with that name.  do s/-/_/g and
+		 * try again. */
+		register char * c;
+		for (c = SvPV_nolen (svname); c <= SvEND (svname) ; c++)
+			if (*c == '-')
+				*c = '_';
+		svp = hv_fetch (wrapper_hash,
+		                SvPV_nolen (svname), SvLEN (svname)-1,
+		                FALSE);
+	}
+	SvREFCNT_dec (svname);
+
+	return (svp ? *svp : NULL);
+}
+
 #if GPERL_THREAD_SAFE
 static void
 _inc_ref_and_count (GObject * key, gint value, gpointer user_data)
@@ -845,10 +882,13 @@ DESTROY (SV *sv)
 #endif
         g_object_unref (object);
 #ifdef NOISY
+	warn ("DESTROY> (%p) done\n", object);
+	/*
         warn ("DESTROY> (%p)[%d] => %s (%p)[%d]", 
               object, object->ref_count,
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
+	*/
 #endif
 
 =for apidoc
@@ -1013,7 +1053,6 @@ g_object_set (object, ...)
 		g_object_set_property (object, name, &value);
 		g_value_unset (&value);
 	}
-
 
 =for apidoc
 

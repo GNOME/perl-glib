@@ -28,6 +28,11 @@
 #include "gperl.h"
 #include "gperl_marshal.h"
 
+/* private helper, defined in GObject.xs, not exported */
+extern SV * _gperl_fetch_wrapper_key (GObject * object,
+                                      const char * name,
+                                      gboolean create);
+
 /* for fundamental types */
 static GHashTable * types_by_package = NULL;
 static GHashTable * packages_by_type = NULL;
@@ -1022,6 +1027,98 @@ add_signals (GType instance_type, HV * signals)
 	g_type_class_unref (oclass);
 }
 
+typedef struct {
+	SV * getter;
+	SV * setter;
+} PropHandler;
+
+static void
+prop_handler_free (PropHandler * p)
+{
+	if (p->getter) SvREFCNT_dec (p->getter);
+	if (p->setter) SvREFCNT_dec (p->setter);
+	g_free (p);
+}
+
+static GHashTable *
+find_handlers_for_type (GType type,
+                        gboolean create)
+{
+	GHashTable * handlers;
+	static GHashTable * allhandlers = NULL;
+	if (NULL == allhandlers)
+		allhandlers = g_hash_table_new_full (g_direct_hash, 
+						     g_direct_equal,
+						     NULL,
+						     (GDestroyNotify)
+							g_hash_table_destroy);
+
+	handlers = g_hash_table_lookup (allhandlers, (gpointer)type);
+	if (!handlers && create) {
+		handlers = g_hash_table_new_full (g_direct_hash,
+		                                  g_direct_equal,
+		                                  NULL,
+		                                  (GDestroyNotify)
+		                                         prop_handler_free);
+		g_hash_table_insert (allhandlers, (gpointer)type, handlers);
+	}
+
+	return handlers;
+}
+
+static void
+prop_handler_install (GType instance_type,
+                      guint prop_id,
+                      SV * setter,
+		      SV * getter)
+{
+	GHashTable * handlers;
+	PropHandler * thishandler;
+
+	handlers = find_handlers_for_type (instance_type, setter || getter);
+	if (!handlers)
+		return;
+
+	thishandler = g_hash_table_lookup (handlers,
+	                                   GUINT_TO_POINTER (prop_id));
+	if (!thishandler) {
+		thishandler = g_new (PropHandler, 1);
+		g_hash_table_insert (handlers,
+				     GUINT_TO_POINTER (prop_id),
+				     thishandler);
+	} else {
+		if (thishandler->setter)
+			SvREFCNT_dec (thishandler->setter);
+		if (thishandler->getter)
+			SvREFCNT_dec (thishandler->getter);
+	}
+	thishandler->setter = setter ? newSVsv (setter) : NULL;
+	thishandler->getter = getter ? newSVsv (getter) : NULL;
+}
+
+static void
+prop_handler_lookup (GType instance_type,
+                     guint prop_id,
+		     SV ** setter,
+		     SV ** getter)
+{
+	GHashTable * handlers;
+	PropHandler * thishandler;
+
+	handlers = find_handlers_for_type (instance_type, setter || getter);
+	if (handlers &&
+	    (NULL != (thishandler =
+	                    g_hash_table_lookup (handlers,
+	                                         GUINT_TO_POINTER (prop_id)))))
+	{
+		if (setter) *setter = thishandler->setter;
+		if (getter) *getter = thishandler->getter;
+	} else {
+		if (setter) *setter = NULL;
+		if (getter) *getter = NULL;
+	}
+}
+
 static void
 add_properties (GType instance_type, AV * properties)
 {
@@ -1030,9 +1127,44 @@ add_properties (GType instance_type, AV * properties)
 
 	oclass = g_type_class_ref (instance_type);
 
-        for (propid = 0; propid <= av_len (properties); propid++)
-		g_object_class_install_property (oclass, propid + 1,
-		                                 SvGParamSpec (*av_fetch (properties, propid, 1)));
+        for (propid = 0; propid <= av_len (properties); propid++) {
+		SV * sv = *av_fetch (properties, propid, 1);
+		GParamSpec * pspec = NULL;
+		if (sv_derived_from (sv, "Glib::ParamSpec"))
+			pspec = SvGParamSpec (sv);
+		else if (SVt_PVHV == SvTYPE (SvRV (sv))) {
+			HV * hv = (HV*) SvRV (sv);
+			SV ** svp;
+			SV * setter = NULL;
+			SV * getter = NULL;
+			svp = hv_fetch (hv, "pspec", 5, FALSE);
+			if (!svp)
+				croak ("Param description hash at index %d "
+				       "for %s does not contain key pspec",
+				       propid,
+				       gperl_object_package_from_type
+				       			(instance_type));
+			pspec = SvGParamSpec (*svp);
+
+			svp = hv_fetch (hv, "get", 3, FALSE);
+			if (svp) getter = *svp;
+
+			svp = hv_fetch (hv, "set", 3, FALSE);
+			if (svp) setter = *svp;
+
+			prop_handler_install (instance_type,
+			                      propid+1, setter, getter);
+
+		} else {
+			croak ("item %d (%s) in property list for %s is "
+			       "neither a Glib::ParamSpec nor a param "
+			       "description hash",
+			       propid, 
+			       gperl_format_variable_for_output (sv),
+			       gperl_object_package_from_type (instance_type));
+		}
+		g_object_class_install_property (oclass, propid + 1, pspec);
+	}
 
 	g_type_class_unref (oclass);
 }
@@ -1112,18 +1244,97 @@ add_interfaces (GType instance_type, AV * interfaces)
 	SvREFCNT_dec (class_name);
 }
 
+
+/* set value to the default value of the given pspec, if the pspec supports
+ * default values.
+ */
+static void
+get_default_property_value (GValue * value,
+                            GParamSpec * pspec)
+{
+	/* 
+	 * not all pspec types support a default value, and user code can
+	 * add pspec types; thus, glib does not provide a unified way to
+	 * get a default value for a param.  also, the default value member
+	 * may be at different offsets in the various param spec structs,
+	 * so to do this in pure C we'd have to create a whole slew of
+	 * helper functions to set the default values and put them in a
+	 * hash table (or an if-else tree -- since the type codes are dynamic,
+	 * we can't use them in a switch).  however, that would leave us with
+	 * code bloat and a maintenance problem, since we'd have to add code
+	 * for each new param type, and we'd never handle custom params.
+	 *
+	 * instead, let's use the existing infrastructure in the bindings,
+	 * and let perl's oo system do the hard work for us.  this will catch
+	 * any custom params as well (provided their default_value accessors
+	 * have been bound), at a slight cost in performance.
+	 */
+	const char * package;
+	GV * method = NULL;
+	HV * stash;
+	package = gperl_param_spec_package_from_type (G_PARAM_SPEC_TYPE (pspec));
+	if (!package)
+		croak ("Param spec type %s is not registered with GPerl",
+		       g_type_name (G_PARAM_SPEC_TYPE (pspec)));
+	stash = gv_stashpv (package, FALSE);
+	assert (stash)
+	method = gv_fetchmethod (stash, "get_default_value");
+
+	if (method) {
+		SV * sv;
+
+		dSP;
+		ENTER;
+		SAVETMPS;
+		PUSHMARK (SP);
+		PUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+		PUTBACK;
+
+		call_sv ((SV *)GvCV (method), G_SCALAR);
+		SPAGAIN;
+
+		sv = POPs;
+		gperl_value_from_sv (value, sv);
+
+		PUTBACK;
+		FREETMPS;
+		LEAVE;
+
+	} else {
+		/* no method, so no way to fetch a default value.
+		 * do nothing. */
+	}
+}
+
 static void
 gperl_type_get_property (GObject * object,
-                         guint property_id,
-                         GValue * value,
-                         GParamSpec * pspec)
+		 guint property_id,
+		 GValue * value,
+		 GParamSpec * pspec)
 {
-        HV *stash = gperl_object_stash_from_type (pspec->owner_type);
+        HV *stash;
         SV **slot;
+	SV * getter;
+
+	prop_handler_lookup (G_OBJECT_TYPE (object), property_id, NULL, &getter);
+	if (getter) {
+		dSP;
+		ENTER;
+		SAVETMPS;
+		PUSHMARK (SP);
+		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+		PUTBACK;
+		call_sv (getter, G_SCALAR);
+		SPAGAIN;
+		gperl_value_from_sv (value, POPs);
+		PUTBACK;
+		FREETMPS;
+		LEAVE;
+		return;
+	}
+
+        stash = gperl_object_stash_from_type (pspec->owner_type);
         assert (stash);
-
-	PERL_UNUSED_VAR (property_id);
-
         slot = hv_fetch (stash, "GET_PROPERTY", sizeof ("GET_PROPERTY") - 1, 0);
 
         /* does the function exist? then call it. */
@@ -1148,7 +1359,19 @@ gperl_type_get_property (GObject * object,
                   PUTBACK;
                   FREETMPS;
                   LEAVE;
-        }
+
+        } else {
+		/* no GET_PROPERTY; look in the wrapper hash. */
+		SV * val = _gperl_fetch_wrapper_key
+				(object, g_param_spec_get_name (pspec), FALSE);
+		if (val)
+			gperl_value_from_sv (value, val);
+		else {
+			/* no value in the wrapper hash.  get the pspec's
+			 * default, if it has one. */
+			get_default_property_value (value, pspec);
+		}
+	}
 }
 
 static void
@@ -1157,12 +1380,28 @@ gperl_type_set_property (GObject * object,
                          const GValue * value,
                          GParamSpec * pspec)
 {
-        HV *stash = gperl_object_stash_from_type (pspec->owner_type);
-        SV **slot;
+        HV  * stash;
+        SV ** slot;
+	SV  * setter;
+
+	prop_handler_lookup (G_OBJECT_TYPE (object), property_id, &setter, NULL);
+	if (setter) {
+		dSP;
+		ENTER;
+		SAVETMPS;
+		PUSHMARK (SP);
+		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+		XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
+		PUTBACK;
+		call_sv (setter, G_VOID|G_DISCARD);
+		SPAGAIN;
+		FREETMPS;
+		LEAVE;
+		return;
+	}
+
+        stash = gperl_object_stash_from_type (pspec->owner_type);
         assert (stash);
-
-	PERL_UNUSED_VAR (property_id);
-
         slot = hv_fetch (stash, "SET_PROPERTY", sizeof ("SET_PROPERTY") - 1, 0);
 
         /* does the function exist? then call it. */
@@ -1182,7 +1421,19 @@ gperl_type_set_property (GObject * object,
 
                   FREETMPS;
                   LEAVE;
-        }
+
+        } else {
+		/* no SET_PROPERTY.  fall back to setting the value into
+		 * a key with the pspec's name in the wrapper hash. */
+		SV * val = _gperl_fetch_wrapper_key
+				(object, g_param_spec_get_name (pspec), TRUE);
+		if (val) {
+			SV * newval = sv_2mortal (gperl_sv_from_value (value));
+			SvSetSV (val, newval);
+		} else {
+			/* XXX couldn't create the key.  what to do? */
+		}
+	}
 }
 
 static void

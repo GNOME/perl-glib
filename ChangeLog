@@ -1,3 +1,13 @@
+2004/06/28 00:17 (-0400) muppetman
+
+	* GObject.xs, GType.xs, t/f.t: add new semantics for Glib::Object
+	properties.  when no GET_PROPERTY or SET_PROPERTY is defined, fall
+	back to using the key in the wrapper hash with the same name as the
+	property; also allow creation of properties with explicit getter and
+	setter functions, which override [SG]ET_PROPERTY and the fallback.
+	discussion of the ideas here is archived in the mailing list:
+	http://mail.gnome.org/archives/gtk-perl-list/2004-June/msg00091.html
+
 2004/06/21 22:15 (-0400) muppetman
 
 	* Glib.xs: fine-tune gperl_format_variable_for_output(); don't
