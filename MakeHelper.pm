@@ -58,7 +58,7 @@ pod will be generated speeding up the build process.
 sub do_pod_files
 {
 	return () if (grep /disable[-_]apidoc/i, @ARGV);
-	print STDERR "Including ApiDoc pod.\n";
+	print STDERR "Including ApiDoc pod...\n";
 
 	shift; # package name
 

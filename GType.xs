@@ -2314,9 +2314,7 @@ void
 list_signals (class, package)
 	gchar * package
     PREINIT:
-	int            i;
-	guint          j;
-	int            num;
+	guint          i, j, num;
 	const char   * pkgname;
 	guint        * sigids;
 	GType          package_type;

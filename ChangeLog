@@ -1,3 +1,13 @@
+2004/09/19 23:31 (+0200) kaffeetisch
+
+	* GBoxed.xs: Use gperl_format_variable_for_output when croaking in
+	the unwrap function.
+
+	* GType.xs, Glib.xs: Fix two signedness issues.
+
+	* MakeHelper.pm: Print an ellipsis after "Including ApiDoc pod" to
+	indicate that it might take some time to comlete.
+
 2004/09/11 15:23 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: stable release 1.060

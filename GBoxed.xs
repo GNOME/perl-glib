@@ -331,7 +331,9 @@ default_boxed_unwrap (GType        gtype,
 		croak ("expected a blessed reference");
 
 	if (!sv_derived_from (sv, package))
-		croak ("variable is not of type %s", package);
+		croak ("%s is not of type %s",
+		       gperl_format_variable_for_output (sv),
+		       package);
 
 	boxed_wrapper = INT2PTR (BoxedWrapper*, SvIV (SvRV (sv)));
 	if (!boxed_wrapper)
