@@ -288,7 +288,6 @@ gperl_object_type_from_package (const char * package)
 		       "called before any classes were registered");
 }
 
-#define NOISY //D
 /* this gets called when the gobject is about to be destroyed */
 static void
 gobject_dispose (GObject *object)
@@ -309,7 +308,6 @@ gobject_dispose (GObject *object)
                 /* this path will only be executed once (modulo bugs). */
                 /* this operation does NOT change the refcount of the combined object. */
         	g_object_ref (object);
-                warn ("xDISPOSE %d\n", SvREFCNT (w->obj));
                 SvREFCNT_dec (w->obj);
         } else {
                 /* no perl object attached, just dispose it as usual */
@@ -420,7 +418,6 @@ gperl_new_object (GObject * object,
 
                 g_object_set_qdata (object, wrapper_quark, (gpointer)w);
 
-                warn ("bp1\n");
         } else {
                 /* increase the refcount by one. */
                 /* this ensures both branches of this if increase the refcount
@@ -432,7 +429,6 @@ gperl_new_object (GObject * object,
         /* this increases the combined object's refcount */
         /* we need to do this before we unref. */
         sv = newRV_inc (w->obj);
-        warn ("bp2\n");
 
         /* bless into package... could be optimized to be done
          * once only, but then flags must be restored manually. */
@@ -446,7 +442,6 @@ gperl_new_object (GObject * object,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
 	      sv, SvREFCNT (sv));
 #endif
-        warn ("bp4\n");
 	return sv;
 }
 
@@ -531,13 +526,6 @@ BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
 	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-data");
 	dispose_quark = g_quark_from_static_string ("Perl-old-dispose");
-
-SV *
-_copy (GObject *object)
-	CODE:
-        RETVAL = gperl_new_object (object, 0);
-        OUTPUT:
-        RETVAL
 
 void
 g_object_set_data (object, key, data)
