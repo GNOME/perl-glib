@@ -2,6 +2,7 @@
 
 	* Glib.pm, GType.pm: implement == and eq for flags, the latter
         because some functions use eq as a generic comparison function.
+        Also enable fallback for flags values, should work just fine.
 
 2003/11/09 18:54 (-0500) muppetman
 

@@ -54,7 +54,8 @@ use overload
    '*'    => \&intersect, '&'    => \&intersect,
    '/'    => \&xor,       '^'    => \&xor,
    '@{}'  => \&as_arrayref,
-   '""'   => sub { "[ @{$_[0]} ]" };
+   '""'   => sub { "[ @{$_[0]} ]" },
+   fallback => 1;
    
 package Glib::Object::Property;
 
@@ -248,6 +249,7 @@ operators:
   * or &   intersection of two bitsets ("and")
   / or ^   symmetric difference ("xor", you will rarely need this)
   >=       contains-operator ("is the left set a superset of the right set?")
+  ==       equality
 
 In addition, flags in boolean context indicate wether they are empty or
 not, which allows you to write common operations naturally:
