@@ -758,7 +758,10 @@ sub clean_out_empty_pods
 		next if ((exists $pod->{pods} and scalar @{$pod->{pods}}) or
 				 exists $pod->{enums} or 
 				 scalar (grep (!/DESTROY/, 
-								 map { $_->{symname} } @{$pod->{xsubs}})));
+								 map { $_->{hidden} 
+								       ? ()
+									   : $_->{symname} }
+								 	@{$pod->{xsubs}})));
 		print STDERR "Deleting $_ from doc.pl's \$data\n";
 		delete $data->{$_}; 
 	}
