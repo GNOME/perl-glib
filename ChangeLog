@@ -1,3 +1,10 @@
+2004/04/11 19:16 (-0400) muppetman
+
+	* GClosure.xs: don't clobber $_ when warning of unhandled exceptions.
+	apparently the SAVE_DEFSV trick from a while back doesn't work.
+
+	* Subclass.pm: beef up the docs.
+
 2004/04/08 23:22 (-0400) muppetman
 
 	* Glib.pm, README, NEWS: stable release 1.041
