@@ -1,3 +1,5 @@
+AUTHORS
+ChangeLog
 Changes
 Depends.pm
 GBoxed.xs
@@ -10,6 +12,7 @@ gperl.h
 GSignal.xs
 GType.xs
 GValue.xs
+LICENSE
 Makefile.PL
 MANIFEST
 PkgConfig.pm
