@@ -104,7 +104,7 @@ statement also initalizes C<pc> (the perl closure object) on the stack.
 
 #else
 
-# define GPERL_CLOSURE_MARSHAL_INIT(marshal_data)	\
+# define GPERL_CLOSURE_MARSHAL_INIT(closure, marshal_data)	\
 	PERL_UNUSED_VAR (marshal_data);				\
 	pc = (GPerlClosure *) closure;
 

@@ -1,4 +1,11 @@
 2003/11/11 10:40 (-0500) rwmcfa1
+
+	* GClosure.xs, gperl_marshal.h: yeah, that wasn't the right way to
+	handle that.  i forgot the update the non-PERL_IMPLICIT_CONTEXT side
+	of the #ifdef when adding the second arg.  backed out the change to
+	GClosure.xs, fixed gperl_marshal.h.
+
+2003/11/11 10:40 (-0500) rwmcfa1
 	
 	* GClosure.xs: if PERL_IMPLICIT_CONTEXT is not defined then the call 
 	to the macro GPERL_CLOSURE_MARSHAL_INIT has the wrong number of 

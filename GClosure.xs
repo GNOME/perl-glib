@@ -73,11 +73,7 @@ gperl_closure_marshal (GClosure * closure,
 	guint i;
 	dGPERL_CLOSURE_MARSHAL_ARGS;
 
-#ifdef PERL_IMPLICIT_CONTEXT
 	GPERL_CLOSURE_MARSHAL_INIT (closure, marshal_data);
-#else
-	GPERL_CLOSURE_MARSHAL_INIT (marshal_data);
-#endif
 
 	PERL_UNUSED_VAR (invocation_hint);
 
