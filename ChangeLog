@@ -1,3 +1,10 @@
+2003/09/26 04:10 muppetman
+
+	* Glib.pm, META.yml, README, debian/changelog: 1.00rc3
+
+	* GClosure.xs: assert that we have a callback before doing anything
+	to it.  Clean up a bad comment char.
+
 2003/09/21 20:19 rwmcfa1
 
 	* Makefile.PL: fixed bug in specfile generation
