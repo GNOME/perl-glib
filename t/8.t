@@ -14,21 +14,10 @@ use Glib::Object::Subclass
    Glib::Object::,
    signals    =>
       {
-          first => {
-             flags       => [qw(run-first)],
-             return_type => undef,
-             param_types => [],
-          },
-          second => {
-             flags       => [qw(run-first)],
-             return_type => undef,
-             param_types => [],
-          },
+          first => {},
+          second => {},
       },
    ;
-
-sub do_first  { print " # do_first\n"; }
-sub do_second { print " # do_second\n"; }
 
 sub first  { $_[0]->signal_emit ('first'); }
 sub second { $_[0]->signal_emit ('second'); }
@@ -89,7 +78,7 @@ ok( Glib->install_exception_handler (sub {
    ok (1, "calling first");
    $my->first;
    ok (1, "after eval");
-   print " # calling first out of eval, expect this to kill the program";
+   print " # calling first out of eval - should not result in crash\n";
    $my->first;
 }
 

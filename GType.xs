@@ -570,28 +570,19 @@ newSVGChar (const gchar * str)
 
 
 
+/**************************************************************************/
 /*
  * support for pure-perl GObject subclasses.
  *
- * we don't need to worry about overriding virtual functions; the perl
- * type system helps us out there --- a method defined in the subclass'
- * package will be chosen first as it will be found first in the @ISA,
- * and the perl code can use SUPER to get to the parent class' methods.
+ * this includes 
+ *   * creating new object properties
+ *   * creating new signals
+ *   * overriding the class closures (that is, default handlers) of
+ *     existing signals
  *
- * we can use hard-coded object method names to avoid the need to pass
- * function pointers around.
- * 
- * then there's the hard part -- overriding virtual functions.
- * when called from perl, this is not a problem, as the standard perl 
- * method lookup works great, but when called from C, as with something
- * like widget's size request method and such, the actual C function 
- * pointer in the class structure must be changed.  this doesn't do that.
- * it would be possible to supply a new vtable for each class, but that
- * could get really messy really quickly.  haven't figured that one out
- * yet.
- *
- * most of the rest of this implementation is directly inspired by or
- * in some cases copied from pygtk.
+ * it looks like a huge quivering mass of scary-looking, visually dense
+ * code, but it's really simple at the core; the verbosity comes from
+ * lots of boilerplate translations and such.
  */
 
 /* a closure used for the `class closure' of a signal.  As this gets
@@ -609,39 +600,23 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 				    gpointer invocation_hint,
 				    gpointer marshal_data)
 {
-	GObject *object;
 	GSignalInvocationHint *hint = (GSignalInvocationHint *)invocation_hint;
+	GSignalQuery query;
 	gchar * tmp;
 	SV * method_name;
 	guint i;
-
-	dSP;
+        HV *stash;
+        SV **slot;
 
 #ifdef NOISY
 	warn ("gperl_signal_class_closure_marshal");
 #endif
 	g_return_if_fail(invocation_hint != NULL);
 
-	ENTER;
-	SAVETMPS;
-
-	PUSHMARK (SP);
-
-	/* get the object passed as the first argument to the closure */
-	object = g_value_get_object (&param_values[0]);
-	g_return_if_fail (object != NULL && G_IS_OBJECT (object));
-	EXTEND (SP, 1 + n_param_values);
-	PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-
-	/* push parameter values onto the stack */
-	for (i = 1; i < n_param_values; i++)
-		PUSHs (sv_2mortal (gperl_sv_from_value ((GValue*)
-		                                        &param_values[i])));
-
-	PUTBACK;
+	g_signal_query (hint->signal_id, &query);
 
 	/* construct method name for this class closure */
-	method_name = newSVpvf ("do_%s", g_signal_name (hint->signal_id));
+	method_name = newSVpvf ("do_%s", query.signal_name);
 
 	/* convert dashes to underscores.  g_signal_name converts all the
 	 * underscores in the signal name to dashes, but dashes are not
@@ -649,21 +624,63 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 	for (tmp = SvPV_nolen (method_name); *tmp != '\0'; tmp++)
 		if (*tmp == '-') *tmp = '_';
 
-#ifdef NOISY
-	warn ("    calling method %s", SvPV_nolen (method_name));
-#endif
-	/* now call it */
-	if (return_value) {
-		if (1 != call_sv (method_name, G_SCALAR))
-			croak ("somethin' ain't right");
-		SPAGAIN;
-		gperl_value_from_sv (return_value, POPs);
-	} else {
-		call_sv (method_name, G_VOID|G_DISCARD);
-	}
+	stash = gperl_object_stash_from_type (query.itype);
+        assert (stash);
+	tmp = SvPV (method_name, i);
+        slot = hv_fetch (stash, tmp, i, 0);
 
-	FREETMPS;
-	LEAVE;
+        /* does the function exist? then call it. */
+        if (slot && GvCV (*slot)) {	
+		GObject *object;
+		int flags;
+		dSP;
+	
+		ENTER;
+		SAVETMPS;
+
+		PUSHMARK (SP);
+
+		/* get the object passed as the first argument to the closure */
+		object = g_value_get_object (&param_values[0]);
+		g_return_if_fail (object != NULL && G_IS_OBJECT (object));
+		EXTEND (SP, 1 + n_param_values);
+		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
+
+		/* push parameter values onto the stack */
+		for (i = 1; i < n_param_values; i++)
+			PUSHs (sv_2mortal (gperl_sv_from_value
+							((GValue*)
+							&param_values[i])));
+
+		PUTBACK;
+
+#ifdef NOISY
+		warn ("    calling method %s", SvPV_nolen (method_name));
+#endif
+		/* now call it */
+
+		flags = G_EVAL | (return_value ? G_SCALAR : G_VOID|G_DISCARD);
+		call_method (SvPV_nolen (method_name), flags);
+
+		if (SvTRUE (ERRSV)) 
+			gperl_run_exception_handlers ();
+
+		if (return_value) {
+			SPAGAIN;
+			gperl_value_from_sv (return_value, POPs);
+		}
+
+		FREETMPS;
+		LEAVE;
+/*
+	} else {
+		croak ("cannot find object method %s of %s in emission of "
+		       "signal %s\n   if you want to disable the class "
+		       "closure or use a different method,\n   then specify "
+		       "the class_closure key when creating the signal.\n"
+		       "   croaking", SvPV_nolen (method_name),
+		       g_type_name (query.itype), query.signal_name);
+*/	}
 }
 
 /**
@@ -692,74 +709,200 @@ gperl_signal_class_closure_get(void)
 	return closure;
 }
 
-static void
-create_signal (GType instance_type,
-               const gchar * signal_name,
-               HV * hv)
+typedef struct {
+	GClosure           * class_closure;
+	GSignalFlags         flags;
+	GSignalAccumulator   accumulator;
+	GPerlCallback      * accu_data;
+	GType                return_type;
+	GType              * param_types;
+	guint                n_params;
+} SignalParams;
+
+static SignalParams *
+signal_params_new (void)
 {
-	GSignalFlags signal_flags = 0;
-	GType return_type = G_TYPE_NONE;
-	guint n_params = 0, i;
-	GType * param_types = NULL;
-	guint signal_id = 0;
+	SignalParams * s = g_new0 (SignalParams, 1);
+	s->flags = G_SIGNAL_RUN_FIRST;
+	s->return_type = G_TYPE_NONE;
+	return s;
+}
+
+static void
+signal_params_free (SignalParams * s)
+{
+	if (s) g_free (s->param_types);
+	/* the closure will have been sunken and reffed by the signal. */
+	/* we are leaking the accumulator.  i don't know any other way. */
+	g_free (s);
+}
+
+static gboolean
+gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
+                               GValue *return_accu,
+                               const GValue *handler_return,
+                               gpointer data)
+{
+	GPerlCallback * callback = (GPerlCallback *)data;
+	dSP;
+	SV * sv;
+	HV * hv;
+	int n;
+	gboolean retval;
+
+//	warn ("gperl_real_signal_accumulator");
+
+	/* invoke the callback, with custom marshalling */
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK (SP);
+
+	PUSHs (sv_2mortal (newSVGSignalInvocationHint (ihint)));
+	PUSHs (sv_2mortal (gperl_sv_from_value (return_accu)));
+	PUSHs (sv_2mortal (gperl_sv_from_value (handler_return)));
+
+	if (callback->data)
+		XPUSHs (callback->data);
+
+	PUTBACK;
+
+//warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
+//warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return))));
+
+	n = call_sv (callback->func, G_EVAL|G_ARRAY);
+
+	if (SvTRUE (ERRSV)) {
+		warn ("### WOAH!  unhandled exception in a signal accumulator!\n"
+		      "### this is really uncool, and for now i'm not even going to\n"
+		      "### try to recover.\n"
+		      "###    aborting");
+		abort ();
+	}
+
+	if (n != 2) {
+		warn ("###\n"
+		      "### signal accumulator functions must return two values on the perl stack:\n"
+		      "### the (possibly) modified return_acc\n"
+		      "### and a boolean value, true if emission should continue\n"
+		      "###\n"
+		      "### your sub returned %d value%s\n"
+		      "###\n"
+		      "### there's no resonable way to recover from this.\n"
+		      "### you must fix this code.\n"
+		      "###    aborting",
+		      n, n==1?"":"s");
+		abort ();
+	}
+
+	SPAGAIN;
+
+	/*
+	 * pop the results off the stack... don't forget that they come back
+	 * in reverse order.  (seems so obvious, but, well... i feel dumb.)
+	 */
+	sv = POPs;
+	gperl_value_from_sv (return_accu, sv);
+
+	sv = POPs;
+	retval = SvTRUE (sv);
+
+//warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
+//warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return))));
+
+	FREETMPS;
+	LEAVE;
+
+	return retval;
+}
+
+/*
+parse a hash describing a new signal into a SignalParams struct.
+
+all keys are allowed to default.
+
+we look for:
+
+  flags => GSignalFlags, if not present, assumed to be run-first
+  param_types => reference to a list of package names,
+                 if not present, assumed to be empty (no parameters)
+  class_closure => reference to a subroutine to call as the class closure.
+                   may also be a string interpreted as the name of a 
+                   subroutine to call, but you should be very very very
+                   careful about that.
+                   if not present, the library will attempt to call the
+                   method named "do_signal_name" for the signal "signal_name"
+                   (uses underscores).
+  return_type => package name for return value.  if undefined or not present,
+                 the signal expects no return value.  if defined, the signal
+                 is expected to return a value; flags must be set such that
+                 the signal does not run only first (at least use 'run-last').
+  accumulator => quoting the Glib manual: "The signal accumulator is a
+                 special callback function that can be used to collect
+                 return values of the various callbacks that are called
+                 during a signal emission."
+  
+ */
+static SignalParams *
+parse_signal_hash (GType instance_type,
+                   const gchar * signal_name,
+                   HV * hv)
+{
+	SignalParams * s = signal_params_new ();
 	SV ** svp;
 
-	svp = hv_fetch (hv, "return_type", 11, FALSE);
-	if (svp && (*svp) && SvTRUE (*svp)) {
-		return_type = gperl_type_from_package (SvPV_nolen (*svp));
-		if (!return_type)
-			croak ("unknown or unregistered return type %s",
-			       SvPV_nolen (*svp));
-	}
+	svp = hv_fetch (hv, "flags", 5, FALSE);
+	if (svp && (*svp) && SvTRUE (*svp))
+		s->flags = SvGSignalFlags (*svp);
 
 	svp = hv_fetch (hv, "param_types", 11, FALSE);
 	if (svp && (*svp) && SvTRUE (*svp) && SvROK (*svp)
 	    && SvTYPE (SvRV (*svp)) == SVt_PVAV) {
+		guint i;
 		AV * av = (AV*) SvRV (*svp);
-		n_params = av_len (av) + 1;
-		param_types = g_new (GType, n_params);
-		for (i = 0 ; i < n_params ; i++) {
+		s->n_params = av_len (av) + 1;
+		s->param_types = g_new (GType, s->n_params);
+		for (i = 0 ; i < s->n_params ; i++) {
 			svp = av_fetch (av, i, 0);
 			if (!svp) croak ("how did this happen?");
-			param_types[i] =
+			s->param_types[i] =
 				gperl_type_from_package (SvPV_nolen (*svp));
-			if (!param_types[i])
+			if (!s->param_types[i])
 				croak ("unknown or unregistered param type %s",
 				       SvPV_nolen (*svp));
 		}
 	}
 
-	/* FIXME there's no built-in GFlags type for GSignalFlags! */
-//	svp = hv_fetch (hv, "flags", 5, FALSE);
-//	if (svp && (*svp) && SvTRUE (*svp))
-//		signal_flags = SvGSignalFlags (*svp);
-        signal_flags = G_SIGNAL_RUN_FIRST;
+	svp = hv_fetch (hv, "class_closure", 13, FALSE);
+	if (svp && *svp) {
+		if (SvTRUE (*svp))
+			s->class_closure =
+				gperl_closure_new (*svp, NULL, FALSE);
+		/* else the class closure is NULL */
+	} else {
+		s->class_closure = gperl_signal_class_closure_get ();
+	}
 
-	signal_id = g_signal_newv (signal_name, instance_type, signal_flags,
-	                           gperl_signal_class_closure_get (),
-				   NULL, NULL, NULL,
-				   return_type, n_params, param_types);
-#ifdef NOISY
-        warn ("created signal %s with id %d", signal_name, signal_id);
-#endif
-	g_free (param_types);
+	svp = hv_fetch (hv, "return_type", 11, FALSE);
+	if (svp && (*svp) && SvTRUE (*svp)) {
+		s->return_type = gperl_type_from_package (SvPV_nolen (*svp));
+		if (!s->return_type)
+			croak ("unknown or unregistered return type %s",
+			       SvPV_nolen (*svp));
+	}
 
-	if (signal_id == 0)
-		croak ("failed to create signal");
+	svp = hv_fetch (hv, "accumulator", 11, FALSE);
+	if (svp && *svp) {
+		SV * func = *svp;
+		svp = hv_fetch (hv, "accu_data", 9, FALSE);
+		s->accumulator = gperl_real_signal_accumulator;
+		s->accu_data = gperl_callback_new (func, svp ? *svp : NULL,
+		                                   0, NULL, 0);
+	}
+
+	return s;
 }
 
-static void
-override_signal (GType instance_type,
-                 const gchar *signal_name)
-{
-	guint signal_id;
-
-	signal_id = g_signal_lookup(signal_name, instance_type);
-	if (!signal_id)
-		croak ("could not look up %s", signal_name);
-	g_signal_override_class_closure (signal_id, instance_type,
-	                                 gperl_signal_class_closure_get ());
-}
 
 static void
 add_signals (GType instance_type, HV * signals)
@@ -772,17 +915,74 @@ add_signals (GType instance_type, HV * signals)
 	hv_iterinit (signals);
 	while (NULL != (he = hv_iternext (signals))) {
 		I32 keylen;
-		char * signal_name = hv_iterkey (he, &keylen);
-		SV * value = hv_iterval (signals, he);
+		char * signal_name;
+		guint signal_id;
+		SV * value;
+
+		/* the key is the signal name */
+		signal_name = hv_iterkey (he, &keylen);
+//		warn ("\n#####\nsignal name: %s\n", signal_name);
+		/* if the signal is defined at this point, we're going to
+		 * override the installed closure. */
+		signal_id = g_signal_lookup (signal_name, instance_type);
+
+		/* parse the key's value... */
+		value = hv_iterval (signals, he);
 		if (SvROK (value) && SvTYPE (SvRV (value)) == SVt_PVHV) {
-			HV * hv = (HV*) SvRV (value);
-			SV ** override = hv_fetch (hv, "override", 8, 0);
-			if (override && SvTRUE (*override))
-				override_signal (instance_type, signal_name);
-			else
-				create_signal (instance_type, signal_name, hv);
+			/*
+			 * value is a hash describing a new signal.
+			 */
+			SignalParams * s;
+
+			if (signal_id) {
+				GSignalQuery q;
+				g_signal_query (signal_id, &q);
+				croak ("signal %s already exists in %s",
+				       signal_name, g_type_name (q.itype));
+			}
+
+			s = parse_signal_hash (instance_type,
+			                       signal_name,
+			                       (HV*) SvRV (value));
+//			warn ("\ncreating signal %s with accumulator %p and accu_data %p\n", signal_name, s->accumulator, s->accu_data);
+//			sv_setsv (DEFSV, newSVGSignalFlags (s->flags));
+//			eval_pv ("warn ('   flags ['.join (', ', @$_).\"]\n\")", 0);
+			signal_id = g_signal_newv (signal_name,
+			                           instance_type,
+			                           s->flags,
+			                           s->class_closure,
+			                           s->accumulator,
+						   s->accu_data, 
+						   NULL, /* c_marshaller */
+			                           s->return_type,
+			                           s->n_params,
+			                           s->param_types);
+			signal_params_free (s);
+			if (signal_id == 0)
+				croak ("failed to create signal %s",
+				       signal_name);
+
+		} else if ((SvPOK (value) && SvTRUE (value)) ||
+		           (SvROK (value) && SvTYPE (SvRV (value)) == SVt_PVCV)) {
+			/*
+			 * a subroutine reference or method name to override
+			 * the class closure for this signal.
+			 */
+			GClosure * closure;
+			if (!signal)
+				croak ("can't override class closure for "
+				       "unknown signal %s", signal_name);
+			closure = gperl_closure_new (value, NULL, FALSE);
+			g_signal_override_class_closure (signal_id,
+			                                 instance_type,
+			                                 closure);
+			
 		} else {
-			croak ("value for key 'signals' must be a hash reference");
+			croak ("value for signal key '%s' must be either a "
+			       "subroutine (the class closure override) or "
+			       "a reference to a hash describing the signal"
+			       " to create",
+			       signal_name);
 		}
 	}
 

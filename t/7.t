@@ -13,9 +13,12 @@ we do not use Test::More or even Test::Simple because we need to test
 order of execution...  the ok() funcs from those modules assume you
 are doing all your tests in order, but our stuff will jump around.
 
+
+my apologies for the extreme density and ugliness of this code.
+
 =cut
 
-print "1..21\n";
+print "1..33\n";
 
 use Glib;
 
@@ -27,32 +30,85 @@ use Glib::Object::Subclass
    Glib::Object::,
    signals    =>
       {
+          # a simple void-void signal
           something_changed => {
-             flags       => [qw(run-first)],
-             return_type => undef,
-             param_types => [],
+             class_closure => undef, # disable the class closure
+             flags         => [qw/run-last action/],
+             return_type   => undef,
+             param_types   => [],
           },
+          # test the marshaling of parameters
           test_marshaler => {
-###### FIXME FIXME FIXME something is broken here...
-             flags       => [qw(run-first run-last run-cleanup)],
-             ##return_type => 'Glib::Double',
-             return_type => undef,
+             flags       => 'run-last',
              param_types => [qw/Glib::String Glib::Boolean Glib::Uint Glib::Object/],
           },
+          # one that returns a value
+          returner => {
+             flags       => 'run-last',
+             return_type => 'Glib::Double',
+             # using the default accumulator, which just returns the last
+             # value
+          },
+          # more complicated/sophisticated value returner
+          list_returner => {
+             class_closure => sub {
+                       print "ok 31 # hello from the class closure\n";
+                       -1
+             },
+             flags         => 'run-last',
+             return_type   => 'Glib::Scalar',
+             accumulator   => sub {
+                 # the accumulator gets (ihint, return_accu, handler_return)
+                 # let's turn the return_accu into a list of all the handlers'
+                 # return values.  this is weird, but the sort of thing you
+                 # might actually want to do.
+                 print "# in accumulator, got $_[2], previously "
+		      . (defined ($_[1]) ? $_[1] : 'undef')
+		      . "\n";
+                 if ('ARRAY' eq ref $_[1]) {
+                        push @{$_[1]}, $_[2];
+                 } else {
+                        $_[1] = [$_[2]];
+                 }
+                 # we must return two values --- a boolean that says whether
+                 # the signal keeps emitting, and the accumulated return value.
+                 # we'll stop emitting if the handler returns the magic 
+                 # value 42.
+                 ($_[2] != 42, $_[1])
+	     },
+	  },
       },
    ;
 
-sub do_something_changed {
-	print "# do_something_changed\n";
-}
 sub do_test_marshaler {
-	#print "@_\n";
+	print "# do_test_marshaller: @_\n";
 	return 2.718;
 }
 
-sub something_changed { $_[0]->signal_emit ('something_changed'); }
-sub test_marshaler    { shift->signal_emit ('test-marshaler', @_); }
+sub do_emit {
+	my $name = shift;
+	print "\n\n".("="x79)."\n";
+	print "emitting: $name"
+	   . (__PACKAGE__->can ("do_$name") ? " (closure exists)" : "")
+	   . "\n";
+	my $ret = shift->signal_emit ($name, @_);
+	#use Data::Dumper;
+	#print Dumper( $ret );
+	print "\n".("-"x79)."\n";
+	return $ret;
+}
 
+sub do_returner {
+	print "ok 23\n";
+	-1.5;
+}
+
+sub something_changed { do_emit 'something_changed', @_ }
+sub test_marshaler    { do_emit 'test_marshaler', @_ }
+sub list_returner     { do_emit 'list_returner', @_ }
+sub returner          { do_emit 'returner', @_ }
+
+#############
 package main;
 
 my $a = 0;
@@ -146,7 +202,7 @@ sub func_b {
 	   if ($_[0] =~ m/unhandled/m) {
 	   	print "ok 19 # unhandled exception just warns\n"
 	   } elsif ($_[0] =~ m/isn't numeric/m) {
-	   	print "ok 18 # unhandled exception just warns\n"
+	   	print "ok 18 # string value isn't numeric\n"
 	   } else {
 		print "not ok # got something unexpected in __WARN__: $_[0]\n";
 	   }
@@ -154,9 +210,31 @@ sub func_b {
    $my->test_marshaler (qw/foo bar baz/, $my);
    print "ok 20\n";
    }
+
+   use Data::Dumper;
+   $my->signal_connect (returner => sub { print "ok 22\n"; 0.5 });
+   # the class closure should be called in between these two
+   $my->signal_connect_after (returner => sub { print "ok 24\n"; 42.0 });
+   print "ok 21\n";
+   my $ret = $my->returner;
+   # we should have the return value from the last handler
+   print $ret == 42.0 ? "ok 25\n" : "not ok # expected 42.0, got $ret\n";
+
+   # now with our special accumulator
+   $my->signal_connect (list_returner => sub { print "ok 27\n"; 10 });
+   $my->signal_connect (list_returner => sub { print "ok 28\n"; '15' });
+   $my->signal_connect (list_returner => sub { print "ok 29\n"; [20] });
+   $my->signal_connect (list_returner => sub { print "ok 30\n"; {thing => 25} });
+   # class closure should before the "connect_after" ones,
+   # and this one will stop everything by returning the magic value.
+   $my->signal_connect_after (list_returner => sub { print "ok 32 # stopper\n"; 42 });
+   # if this one is called, the accumulator isn't working right
+   $my->signal_connect_after (list_returner => sub { print "not ok # shouldn't get here\n"; 0 });
+   print "ok 26\n";
+   print Dumper( $my->list_returner );
 }
 
-print "ok 21\n";
+print "ok 33\n";
 
 
 
