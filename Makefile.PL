@@ -48,6 +48,7 @@ WriteMakefile(
                              ExtUtils::Depends => 0.1,
                            },
     ABSTRACT_FROM	=> 'Glib.pm', # retrieve abstract from module
+    XSPROTOARG		=> '-noprototypes',
     MAN3PODS		=> $glib ? \%pod_files : {},
     $glib ? $glib->get_makefile_vars : (),
 );
