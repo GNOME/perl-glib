@@ -1,3 +1,15 @@
+Overview of changes in Glib 1.072
+=================================
+
+* Ensure that asynchronous signals, deferred by perl's safe signal handling,
+  are delivered on time when a main loop is running.  [Jan Hudec, muppet]
+* Fix win32 linkage.  [muppet, thanks to Tyler Hepworth]
+* Test fixes.  [Ross]
+* Bind and test g_get_user_data_dir, g_get_user_config_dir,
+  g_get_user_cache_dir, g_get_system_data_dirs, g_get_system_config_dirs,
+  and g_get_language_names.  [Torsten]
+* Documentation updates.  [Torsten, muppet]
+
 Overview of changes in Glib 1.071
 =================================
 
