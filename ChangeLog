@@ -1,3 +1,8 @@
+2003/06/26 13:00 muppetman
+
+	* GObject.xs: undo the removal of recursive package lookups, so
+	gtk programs won't die on unknown style and GC subclasses
+
 2003/06/26 17:05 pcg
 
         * META.yml: Add module meta-data in YAML for CPAN.
