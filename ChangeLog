@@ -1,3 +1,12 @@
+2003/05/30 23:55 muppetman (while watching zep at the albert hall)
+
+	* GType.xs: initial values, try to avoid warnings and bugs
+
+	* AUTHORS, GClosure.xs, gperl.h, typemap: applied more patches from
+	Brett Kosinski; added typemaps for gint64 and guint64, ensure that
+	closures and callbacks are executed by the interpreters that created
+	them.
+
 2003/05/29 15:51 muppetman
 
 	* GType.xs, gperl.h: applied patch (with liberal modifications) from
