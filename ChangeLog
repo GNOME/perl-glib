@@ -1,3 +1,10 @@
+2003/10/02 03:34 rwmcfa1
+
+	* Glib.xs: core dumps occur in gperl_croak_gerror when NULL is passed 
+	for err, assertion now checks for it. only binding authors would run
+	across this one, but know it will be more ovbious what they've done 
+	wrong, speaking from expirence...
+
 2003/10/02 03:13 muppetman
 
 	* gperl.h: bad nesting of parens in a debugging macro

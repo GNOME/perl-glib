@@ -97,6 +97,11 @@ gperl_croak_gerror (const char * prefix, GError * err)
 	 * in an SV, which will be garbage-collected, and free the GError
 	 * before croaking. */
 	SV * svmsg;
+	
+	/* this really could only happen if there's a problem with XS bindings
+	 * so we'll use a assertion to catch it, rather than handle null */
+	g_return_if_fail (err != NULL);
+	
 	if (prefix && strlen (prefix)) {
 		svmsg = newSV(0);
 		sv_catpvf (svmsg, "%s: %s", prefix, err->message);
