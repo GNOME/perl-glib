@@ -137,7 +137,7 @@ The default implementation looks like this:
    my ($self, $pspec) = @_;
    return $self->{$pspec->get_name};
 
-=item SET_PROPERTY $self, $newval                         [not a method]
+=item SET_PROPERTY $self, $pspec, $newval                 [not a method]
 
 C<GET_PROPERTY> and C<SET_PROPERTY> are called whenever somebody does
 C<< $object->get ($propname) >> or C<< $object->set ($propname => $newval) >>
