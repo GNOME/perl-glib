@@ -1,5 +1,4 @@
 /*
-/*
  * Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the full
  * list)
  *
@@ -388,11 +387,11 @@ gperl_callback_invoke (GPerlCallback * callback,
 	va_list var_args;
 #ifndef PERL_IMPLICIT_CONTEXT
 	dSP;
+	g_return_if_fail (callback != NULL);
 #else
 	SV ** SP;
-
+	g_return_if_fail (callback != NULL);
 	PERL_SET_CONTEXT (callback->priv);
-
 	SPAGAIN;
 #endif
 
