@@ -502,7 +502,8 @@ the sourcecode of the original gtk-perl and pygtk projects.  Marc Lehmann
 E<lt>pcg at goof dot comE<gt> did lots of great work on the magic of making
 Glib::Object wrapper and subclassing work like they should.  Ross McFarland
 <rwmcfa1 at neces dot com> wrote quite a bit of the documentation generation
-tools.
+tools.  Torsten Schoenfeld <kaffeetisch at web dot de> contributed little
+patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 
