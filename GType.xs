@@ -687,6 +687,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		if (return_value) {
 			SPAGAIN;
 			gperl_value_from_sv (return_value, POPs);
+			PUTBACK;
 		}
 
 		FREETMPS;
@@ -825,9 +826,7 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	sv = POPs;
 	retval = SvTRUE (sv);
 
-/* warn ("return_accum is '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (return_accu))));
- * warn ("handler_return was '%s'\n", SvPV_nolen (sv_2mortal (gperl_sv_from_value (handler_return)))); */
-
+	PUTBACK;
 	FREETMPS;
 	LEAVE;
 
@@ -1061,6 +1060,7 @@ gperl_type_get_property (GObject * object,
 
                   gperl_value_from_sv (value, POPs);
 
+                  PUTBACK;
                   FREETMPS;
                   LEAVE;
         }
