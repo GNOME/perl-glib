@@ -10,7 +10,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -20,9 +20,12 @@ ok (defined (Glib::minor_version), 'minor_version');
 ok (defined (Glib::micro_version), 'micro_version');
 ok (Glib->CHECK_VERSION(0,0,0), 'CHECK_VERSION pass');
 ok (!Glib->CHECK_VERSION(50,0,0), 'CHECK_VERSION fail');
-ok (defined (Glib::MAJOR_VERSION), 'MAJOR_VERSION');
-ok (defined (Glib::MINOR_VERSION), 'MINOR_VERSION');
-ok (defined (Glib::MICRO_VERSION), 'MICRO_VERSION');
+my @version = Glib->GET_VERSION_INFO;
+print "Glib was compiled for glib version ".join(".",@version)."\n";
+is (scalar (@version), 3, 'version info list is 3 items long');
+is (Glib::MAJOR_VERSION, $version[0], 'MAJOR_VERSION');
+is (Glib::MINOR_VERSION, $version[1], 'MINOR_VERSION');
+is (Glib::MICRO_VERSION, $version[2], 'MICRO_VERSION');
 
 print "user name: ".Glib::get_user_name."\n";
 print "real name: ".Glib::get_real_name."\n";

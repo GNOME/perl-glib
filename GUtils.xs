@@ -138,7 +138,7 @@ void g_set_application_name (const gchar *application_name);
 
 ## this is a ridiculous amount of doc for six numbers and one checker method.
 
-=for object Glib::Version Library Versioning Utilities
+=for object Glib::version Library Versioning Utilities
 =cut
 
 =for position SYNOPSIS
@@ -319,6 +319,20 @@ MAJOR_VERSION ()
 	}
     OUTPUT:
 	RETVAL
+
+=for apidoc
+=for signature (MAJOR, MINOR, MICRO) = Glib->GET_VERSION_INFO
+Shorthand to fetch as a list the glib version for which Glib was compiled.
+See C<Glib::MAJOR_VERSION>, etc.
+=cut
+void
+GET_VERSION_INFO (class)
+    PPCODE:
+	EXTEND (SP, 3);
+	PUSHs (sv_2mortal (newSViv (GLIB_MAJOR_VERSION)));
+	PUSHs (sv_2mortal (newSViv (GLIB_MINOR_VERSION)));
+	PUSHs (sv_2mortal (newSViv (GLIB_MICRO_VERSION)));
+	PERL_UNUSED_VAR (ax);
 
 =for apidoc
 Provides a mechanism for checking the version information that Glib was
