@@ -42,7 +42,9 @@ gperl_object_check_type
 newSVGSignalFlags
 SvGSignalFlags
 gperl_signal_connect
+gperl_signal_set_marshaller_for
 gperl_closure_new
+gperl_closure_new_with_marshaller
 gperl_callback_new
 gperl_callback_destroy
 gperl_callback_invoke
