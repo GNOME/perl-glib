@@ -30,7 +30,7 @@ our @EXPORT = qw(
 
 our $COPYRIGHT = undef;
 our $AUTHORS = 'Gtk2-Perl Team';
-our $MAIN_MOD = 'L<Gtk2>';
+our $MAIN_MOD = undef;
 our $YEAR = strftime "%Y", gmtime;
 
 our ($xspods, $data);
@@ -102,9 +102,9 @@ in that section.
 =item =for see_also L<some_thing_to_see>
 
 Used to add extra see alsos onto the end of the parents, if any, for a given
-object. Anything following the space behind see_also up to the end of the line
-will be placed onto the list of see also's. There may be any number of these in
-each package.
+object.  Anything following the space behind see_also up to the end of the
+line will be placed onto the list of "see also"s.  There may be any number of
+these in each package.
 
 =item =for apidoc
 
@@ -153,6 +153,30 @@ in parentheses).  The arg name does I<not> need to include a sigil,
 as dollar signs will be added.  FIXME what about @ for lists?
 
 =back
+
+Also, we honor a couple of "modifiers" on the =for apidoc line, following the
+symbol name, if present:
+
+=over
+
+=item - __hide__
+
+Do not document this xsub.  This is handy in certain situations, e.g., for
+private functions.  DESTROY always has this turned on, for example.
+
+=item - __gerror__
+
+This function or method can generate a Glib::Error exception.
+
+=item - __function__
+
+Generate a function-style signature for this xsub.  The default is to
+generate method-style signatures.
+
+=back
+
+(These are actually handled by Glib::ParseXSDoc, but we list them here
+because, well, they're an important part of how you document the XS files.)
 
 =back
 
@@ -287,7 +311,11 @@ sub xsdoc2pod
 		}
 		else
 		{
-			pop @$parents; # don't link to yourself
+			# don't link to yourself
+			pop @$parents;
+			# link to the toplevel, if we can.
+			unshift @$parents, $MAIN_MOD if $MAIN_MOD;
+
 			$ret = podify_see_alsos (@$parents,
 			                         $pkgdata->{see_alsos}
 						 ? @{ $pkgdata->{see_alsos} }
@@ -746,31 +774,42 @@ sub podify_see_alsos
 
 =item $string = get_copyright
 
-Returns a string that will/should be placed on each page. The package global
-variable COPYRIGHT can be used to override the text placed here. The package
-global variable AUTHORS should be set to the text to appear just after the year
-of the Copyright line, it defaults to Gtk2-Perl Team. The package gloabal
-variable MAIN_MOD should be set to a pod link pointing towards the main file
-for a package in which the full copyright appears. Finally the package global
-variable YEAR maybe set to the year to place in the copyright, default is to
-use current year.
+Returns a string that will/should be placed on each page.  You can control
+the text of this string by setting the package variable $COPYRIGHT to
+whatever you like.
 
-To set AUTHORS, COPYRIGHT, and/or MAIN_MOD do something similar to the
-following in the first part of your postamble section in Makefile.PL. All of
+If $COPYRIGHT is not set, we will attempt to create one for you, using the
+values of the variables $YEAR, $AUTHOR, and $MAIN_MOD.  $YEAR defaults to
+the current year, $AUTHORS defaults to 'The Gtk2-Perl Team', and $MAIN_MOD
+defaults to empty.  You want $MAIN_MOD to be set to the main module of your
+extension for the SEE ALSO section, and on the assumption that a decent
+license notice can be found in that module's doc, we point the reader there.
+
+So, in general, you will want to specify at least one of these, so that you
+don't credit your work to us under the LGPL.
+
+To set $COPYRIGHT, $AUTHORS, and/or $MAIN_MOD do something similar to the
+following in the first part of your postamble section in Makefile.PL.  All of
 the weird escaping is required because this is going through several levels of
-variable expansion. All occurances of <br> are replaced with newlines.
+variable expansion.  All occurences of <br> in $COPYRIGHT are replaced with
+newlines, to make it easier to put in a multi-line string.
 
   POD_SET=\\\$\$Glib::GenPod::COPYRIGHT='Copyright 1999 team-foobar<br>LGPL';
+
+Glib::MakeHelper::postamble_docs_full() does this sort of thing for you.
 
 =cut
 
 sub get_copyright
 {
-	my $str = $COPYRIGHT || "
-Copyright (C) $YEAR $AUTHORS
-
-This software is licensed under the LGPL; see $MAIN_MOD for a full notice.
-";
+	my $str = $COPYRIGHT;
+	if (! $str) {
+		# construct a default.
+		$str = "\nCopyright (C) $YEAR $AUTHORS\n\n";
+		$str .= "This software is licensed under the LGPL;"
+		     . " see $MAIN_MOD for a full notice.\n"
+			if $MAIN_MOD;
+	}
 
 	# a way to make returns	
 	$str =~ s/<br>/\n/g;
