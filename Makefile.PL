@@ -25,9 +25,10 @@ if ($glib = eval { require ExtUtils::Depends; ExtUtils::Depends->new ('Glib') })
    $glib->install (qw(gperl.h));
    $glib->save_config ('build/IFiles.pm');
    $glib->add_pm ('Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
-               'PkgConfig.pm' => '$(INST_LIBDIR)/Glib/PkgConfig.pm');
+                  'PkgConfig.pm'    => '$(INST_LIBDIR)/Glib/PkgConfig.pm',
+                  'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm');
    $glib->add_xs ('Glib.xs', 'GType.xs', 'GBoxed.xs', 'GObject.xs', 'GValue.xs',
-               'GClosure.xs', 'GSignal.xs', 'GMainLoop.xs', 'GParamSpec.xs');
+                  'GClosure.xs', 'GSignal.xs', 'GMainLoop.xs', 'GParamSpec.xs');
 }
 
 WriteMakefile(

@@ -43,7 +43,6 @@ g_param_flags_get_type (void)
       {0, NULL, NULL}
     };
     etype = g_flags_register_static ("GPerlParamFlags", values);
-    warn ("registered GPerlParamFlags to %d", etype);
   }
   return etype;
 }

@@ -909,8 +909,6 @@ g_type_register (class, parent_package, new_package, ...);
 	/* and with the bindings */
 	gperl_register_object (new_type, new_package);
 
-	gperl_set_isa (new_package, "Glib::Object::Base");
-
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals")) {

@@ -1,4 +1,4 @@
-2003/06/26 11:49 pcg
+2003/06/26 17:05 pcg
 
         * META.yml: Add module meta-data in YAML for CPAN.
         * Glib.pm: podify and clean up docs.
@@ -8,6 +8,8 @@
 	* gperl.h: make gperl_sv_from_value arg const.
         * GType.xs: implement standard class "methods" as functions.
         Implement properties using an array, not a hash.
+        * Subclass.pm: new file, still under construction.
+        * t/4.t: new testcase.
 
 2003/06/24 23:16 muppetman
 
