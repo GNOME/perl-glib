@@ -1,3 +1,10 @@
+2004/02/27 14:38 (-0500) rwmcfa1
+
+	* GenPod.pm: mystery solved, Exporter needed quotes around it in the use
+	base call. as to why it died the way it was with "Unknown error" i don't
+	yet know, looking into it. use stict is now uncommented, and this issue
+	is closed so far as Glib is concerned. 
+
 2004/02/27 13:58 (-0500) rwmcfa1
 
 	* GenPod.pm: use warnings now used. Also turned on strict to get rid of

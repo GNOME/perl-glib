@@ -6,8 +6,7 @@ package Glib::GenPod;
 
 our $VERSION = '0.02';
 
-# FIXME/TODO
-#use strict;
+use strict;
 use warnings;
 use Carp;
 use File::Spec;
@@ -16,7 +15,7 @@ use POSIX qw(strftime);
 
 use Glib;
 
-use base Exporter;
+use base 'Exporter';
 
 our @EXPORT = qw(
 	add_types
