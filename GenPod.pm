@@ -142,7 +142,7 @@ as dollar signs will be added.  FIXME what about @ for lists?
 
 =cut
 
-=item xsdoc2pod ($datafile, $outdir='blib/lib')
+=item xsdoc2pod ($datafile, $outdir='blib/lib', index=undef)
 
 Given a I<$datafile> containing the output of xsdocparse.pl, create in 
 I<$outdir> a pod file for each package, containing everything we can think
