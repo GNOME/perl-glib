@@ -12,6 +12,7 @@
         * GType.xs: rename INSTANCE_INIT to INIT_INSTANCE and make it a
         function call as opposed to a method call. Also call FINALIZE_INSTANCE
         on object finalization time.
+        * t/3.t: simple creation/destruction test.
 
 2003/06/20 11:29 muppetman
 
