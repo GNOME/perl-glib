@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-print "1..6\n";
+print "1..9\n";
 
 use Glib;
 
@@ -36,7 +36,7 @@ sub INIT_INSTANCE {
 }
 
 sub FINALIZE_INSTANCE {
-   print "ok 5\n";
+   print "ok 8\n";
 }
 
 sub GET_PROPERTY {
@@ -50,9 +50,32 @@ package main;
    $my->set(some_string => "xyz");
    print $my->{some_string} eq "xyz" ? "" : "not ", "ok 3\n";
    print $my->get("some_string") == 77 ? "" : "not ", "ok 4\n";
+
+
+   # verify that invalid property names result in an exception.
+   # there are two places to test this, new() and set().
+   eval {
+      $my = new MyClass some_string => "foo",
+                        invalid_param => 1,
+			some_string => "bar";
+      print "not ok # should not get here\n";
+   };
+   #print "\$@ = '$@'\n";
+   print ($@ !~ /does not support property/ ? "not " : "", "ok 5\n");
+   eval {
+      $my->set (some_string => "foo",
+                invalid_param => 1,
+                some_string => "bar");
+      print "not ok # should not get here\n";
+   };
+   #print "\$@ = '$@'\n";
+   print ($@ !~ /does not support property/ ? "not " : "", "ok 6\n");
+   # set should have bailed out before setting some_string to bar.
+   # cannot use get() here, because GET_PROPERTY always returns 77.
+   print $my->{some_string} ne 'foo' ? "not " : "", "ok 7\n";
 }
 
-print "ok 6\n";
+print "ok 9\n";
 
 
 

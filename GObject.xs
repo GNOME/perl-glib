@@ -700,9 +700,14 @@ init_property_value (GObject * object,
 	GParamSpec * pspec;
 	pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), 
 	                                      name);
-	if (!pspec)
-		croak ("property %s not found in object class %s",
-		       name, G_OBJECT_TYPE_NAME (object));
+	if (!pspec) {
+		const char * classname =
+			gperl_object_package_from_type (G_OBJECT_TYPE (object));
+		if (!classname)
+			classname = G_OBJECT_TYPE_NAME (object);
+		croak ("type %s does not support property '%s'",
+		       classname, name);
+	}
 	g_value_init (value, G_PARAM_SPEC_VALUE_TYPE (pspec));
 }
 
@@ -822,18 +827,26 @@ g_object_new (class, ...)
 			const char * key = SvPV_nolen (ST (FIRST_ARG+i*2+0));
 			GParamSpec * pspec;
 			pspec = g_object_class_find_property (oclass, key);
-			if (!pspec) 
-				/* FIXME this bails out, but does not clean up 
-				 * properly.  is there any way we can? */
-				croak ("type %s does not support property %s, skipping",
+			if (!pspec) {
+				/* clean up... */
+				int j;
+				for (j = 0 ; j < i ; j++)
+					g_value_unset (&params[j].value);
+				g_free (params);
+				/* and bail out. */
+				croak ("type %s does not support property '%s'",
 				       class, key);
+			}
 			g_value_init (&params[i].value,
 			              G_PARAM_SPEC_VALUE_TYPE (pspec));
-			if (!gperl_value_from_sv (&params[i].value, 
-			                          ST (FIRST_ARG+i*2+1)))
-				/* FIXME and neither does this */
-				croak ("could not convert value for property %s",
-				       key);
+			/* note: this croaks if there is a problem.  this is
+			 * usually the right thing to do, because if it
+			 * doesn't know how to convert the value, then there's
+			 * something seriously wrong; however, it means that
+			 * if there is a problem, all non-trivial values we've
+			 * converted will be leaked. */
+			gperl_value_from_sv (&params[i].value,
+			                     ST (FIRST_ARG+i*2+1));
 			params[i].name = key; /* will be valid until this
 			                       * xsub is finished */
 		}
@@ -1005,7 +1018,7 @@ g_object_list_properties (object_or_class_name)
 		props = g_object_class_list_properties (object_class, &n_props);
 		g_type_class_unref (object_class);
 	}
-#if GLIB_CHECK_VERSION(2,3,2) /* TODO/FIXME: exact version, or 2.4 ??? */
+#if GLIB_CHECK_VERSION(2,3,2) /* FIXME 2.4 */
 	else if (G_TYPE_IS_INTERFACE (type))
 	{
 		gpointer iface = g_type_default_interface_ref (type);
