@@ -1366,8 +1366,9 @@ void
 list_ancestors (class, package)
 	gchar * package
     PREINIT:
-	GType package_gtype;
-	GType parent_gtype;
+	GType        package_gtype;
+	GType        parent_gtype;
+	const char * pkg;
     PPCODE:
 	package_gtype = gperl_type_from_package (package);
 	XPUSHs (sv_2mortal (newSVpv (package, 0)));
@@ -1377,8 +1378,11 @@ list_ancestors (class, package)
 	parent_gtype = g_type_parent (package_gtype);
 	while (parent_gtype)
 	{
-		XPUSHs (sv_2mortal (newSVpv (
-			gperl_package_from_type (parent_gtype), 0)));
+		pkg = gperl_package_from_type (parent_gtype);
+		if (!pkg)
+			croak("problem looking up parent package name, "
+			      "gtype %d", parent_gtype);
+		XPUSHs (sv_2mortal (newSVpv (pkg, 0)));
 		parent_gtype = g_type_parent (parent_gtype);
 	}
 
@@ -1401,6 +1405,8 @@ list_interfaces (class, package)
 		croak ("%s is not registered with either GPerl or GLib",
 		       package);
 	interfaces = g_type_interfaces (package_gtype, NULL);
+	if (!interfaces)
+		XSRETURN_EMPTY;
 	for (i = 0; interfaces[i] != 0; i++)
 	{
 		XPUSHs (sv_2mortal (newSVpv (
@@ -1475,7 +1481,12 @@ list_signals (class, package)
 		croak ("%s is not registered with either GPerl or GLib",
 		       package);
 
+	if (!G_TYPE_IS_CLASSED (package_type) || 
+	    !G_TYPE_IS_INSTANTIATABLE(package_type))
+		XSRETURN_EMPTY;
 	oclass = g_type_class_ref (package_type);
+	if (!oclass)
+		XSRETURN_EMPTY;
 	sigids = g_signal_list_ids (package_type, &num);
 	if (!num)
 		XSRETURN_EMPTY;
@@ -1565,8 +1576,8 @@ package_from_cname (class, const char * cname)
     CODE:
 	gtype = g_type_from_name (cname);
 	if (!gtype) {
-		warn ("%s is not registered with the GLib type system",
-		      cname);
+		croak ("%s is not registered with the GLib type system",
+		       cname);
 		RETVAL = cname;
 	} else {
 		RETVAL = gperl_package_from_type (gtype);
