@@ -1,3 +1,14 @@
+2004/03/16 13:17 (-0500) muppetman
+
+	* GUtils.xs: rename Glib::Version manpage to Glib::version, for
+	consistency with other modules and the fact that it's really a
+	'meta' manpage.
+	
+	* GUtils.xs, t/1.t: Add, document, and test Glib::GET_VERSION_INFO.
+
+	* GenPod.pm: sort the names going into podindex, which has the effect
+	of sorting the items listed in the <package>::index pod page.
+
 2004/03/13 22:05 (-0500) muppetman
 
 	* MakeHelper.pm: portability fixes; ask Config what make program we're
