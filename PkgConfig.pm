@@ -36,3 +36,74 @@ sub find {
 }
 
 1;
+
+=head1 NAME
+
+Glib::PkgConfig - simplistic interface to pkg-config
+
+=head1 SYNOPSIS
+
+ use Glib::PkgConfig;
+
+ $package = 'gtk+-2.0';
+
+ %pkg_info = Glib::PkgConfig->find ($package);
+ print "modversion:  $pkg_info{modversion}\n";
+ print "cflags:      $pkg_info{cflags}\n";
+ print "libs:        $pkg_info{libs}\n";
+
+=head1 DESCRIPTION
+
+The pkg-config program retrieves information about installed libraries,
+usually for the purposes of compiling against and linking to them.
+
+Glib::PkgConfig is a very simplistic interface to this utility, intended
+for use in the Makefile.PL of perl extensions which bind libraries that
+pkg-config knows.  It is really just boilerplate code that you would've
+written yourself.
+
+=head2 USAGE
+
+The module contains one function:
+
+=over
+
+=item HASH = Glib::PkgConfig->find (STRING)
+
+Call pkg-config on the library specified by I<STRING> (you'll have to know
+what to use here).  The returned I<HASH> contains the modversion, cflags,
+and libs values under keys with those names.
+
+If pkg-config fails to find I<STRING>, this function croaks with a message
+intended to be helpful to whomever is attempting to compile your package.
+For example:
+
+  *** can't find cflags for gtk+-2.0
+  *** is it properly installed and available in PKG_CONFIG_PATH?
+
+=back
+
+=head1 SEE ALSO
+
+Glib::PkgConfig was designed to work with ExtUtils::Depends for compiling
+the various modules of the gtk2-perl project.
+
+  ExtUtils::Depends
+
+  Glib
+
+  http://gtk2-perl.sourceforge.net/
+
+=head1 AUTHOR
+
+muppet E<lt>scott at asofyet dot orgE<gt>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2003 by muppet and the gtk2-perl team
+
+This library is free software; you can redistribute it and/or modify
+it under the terms of the Lesser General Public License (LGPL).  For 
+more information, see http://www.fsf.org/licenses/lgpl.txt
+
+=cut
