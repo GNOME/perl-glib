@@ -515,7 +515,6 @@ param_spec (class, name, nick, blurb, package, flags)
 	}
 	if (!type)
 		croak ("type %s is not registered with Glib-Perl", package);
-	warn ("asked for %s => %s\n", package, g_type_name (type));
 	switch (ix) {
 	    case 0:
 		RETVAL = g_param_spec_param (name, nick, blurb, type, flags);
