@@ -1,3 +1,8 @@
+2003/11/14 04:31 pcg
+
+        * Glib.pm: rework the doc for filename conversion. horribly buggy
+        it still was.
+
 2003/11/13 21:32 (-0500) muppetman
 
 	* Glib.pm, README: bump version to 1.011 for first 1.02 beta
