@@ -1,3 +1,9 @@
+libglib-perl (1.00rc3-1) unstable; urgency=low
+
+  * Updated for 1.00rc3 release.
+
+ -- muppet <scott at asofyet dot org>  Fri, 26 Sep 2003 04:12:00 -0400
+
 libglib-perl (1.00rc2-1) unstable; urgency=low
 
   * Updated for 1.00rc2 release.  Removed runtime dependency on ExtUtils::Depends

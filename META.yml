@@ -1,6 +1,6 @@
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Glib
-version:      1.00rc2
+version:      1.00rc3
 version_from: Glib.pm
 installdirs:  site
 requires:
