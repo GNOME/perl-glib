@@ -1,3 +1,8 @@
+2005/03/07	kaffeetisch
+
+	* Glib.pm, Makefile.PL, META.yml, NEWS, README: Stable release
+	1.080.
+
 2005/03/06	kaffeetisch
 
 	* GBoxed.xs: Fix a typo.

@@ -128,17 +128,6 @@ WriteMakefile(
     $glib ? $glib->get_makefile_vars : (),
 );
 
-print "
-WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-
-   This is a development release of Glib.  The API is now frozen and
-   things will not change much anymore.  Report any bugs to
-   gtk-perl-list AT gnome DOT org as soon as possible.
-
-WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-
-";
-
 package MY;
 
 # rule to build the documentation

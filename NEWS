@@ -1,3 +1,25 @@
+Overview of changes in Glib 1.080
+=================================
+
+ Since 1.06x (the previous stable series)
+ ----------------------------------------
+  * Support for GParamSpecUnichar and GStrv.
+  * Timely delivery of Perl's asynchronous signals.
+  * Fatal log messages call abort() rather than croak().
+  * Glib::MainLoop's are properly freed after use.
+  * New API:
+    - Glib::get_user_data_dir,
+    - Glib::get_user_config_dir,
+    - Glib::get_user_cache_dir,
+    - Glib::get_system_data_dirs,
+    - Glib::get_system_config_dirs,
+    - Glib::get_language_names,
+    - Glib::Object::signal_query.
+
+ Since 1.074
+ -----------
+  * Nothing.
+
 Overview of changes in Glib 1.074
 =================================
 
@@ -39,6 +61,14 @@ Overview of changes in Glib 1.070
 
 * Add support for GParamSpecUnichar.  [Torsten]
 * Generate a correct META.yml.  [muppet]
+
+Overview of Changes in Glib 1.062
+=================================
+
+* Properly create META.yml.  [muppet]
+* Fix exports and some documentation.  [muppet]
+* Fix RPM generation on x86_64.  [Ross]
+* Fix test failure with newer versions of Test::More.  [Ross]
 
 Overview of Changes in Glib 1.061
 =================================
