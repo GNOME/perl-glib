@@ -1,6 +1,11 @@
+2003/12/18 13:54 (-0500) rwmcfa1
+
+	* MakeHelper.pm: rpms now build in HOME/rpms dir, one change to fix
+	them all.
+
 2003/12/16 22:00 (-0500) rwmcfa1
 
- 	* GType.xs: warnings fixes, minor (non-problem) bugs
+	* GType.xs: warnings fixes, minor (non-problem) bugs
 
 2003/12/16 13:16 (-0500) rwmcfa1
 
