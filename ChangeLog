@@ -1,4 +1,3 @@
-2003/06/22 14:52 pcg
 
         * GObject.xs: big change in how perl wrappers are implemented. the
         new implementation will only ever create one perl wrapper (a real
@@ -10,6 +9,9 @@
         which should give a speed boost as objects are no longer AMAGIC.
         * GObject.xs: remove unused class argument from ->new to make it
         usable as a proper base class.
+        * GType.xs: rename INSTANCE_INIT to INIT_INSTANCE and make it a
+        function call as opposed to a method call. Also call FINALIZE_INSTANCE
+        on object finalization time.
 
 2003/06/20 11:29 muppetman
 

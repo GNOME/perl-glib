@@ -278,14 +278,12 @@ gperl_object_type_from_package (const char * package)
 
 /*
  * this function is called whenever the gobject gets destroyed. this only
- * happens if the perl object is no longer referenced anywehre else, so
+ * happens if the perl object is no longer referenced anywhere else, so
  * put it to final rest here.
  */
 static void
 gobject_destroy_wrapper (SV *obj)
 {
-	/* call FINALIZE/DESTROY here, if ever. */
-
         if (!PL_in_clean_objs) { /* during global destruction all effort is wasted. */
                 /* these two lines inhibit the call to DESTROY, just an optimization. */
                 /* optionally restore the original DESTROY handlers temporarily. */

@@ -700,8 +700,35 @@ gperl_type_set_property (GObject * object,
 }
 
 static void
+gperl_type_finalize (GObject * instance)
+{
+	dSP;
+	GObjectClass *parent_class;
+
+        instance->ref_count += 2; /* HACK: temporarily revive the object. */
+
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK (SP);
+        XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+        PUTBACK;
+
+        call_method ("FINALIZE_INSTANCE", G_VOID|G_DISCARD);
+
+        FREETMPS;
+        LEAVE;
+
+        instance->ref_count -= 2; /* HACK END */
+
+        parent_class = g_type_class_peek_parent (G_OBJECT_GET_CLASS (instance));
+	parent_class->finalize (instance);
+}
+
+static void
 gperl_type_class_init (GObjectClass * class)
 {
+	class->finalize     = gperl_type_finalize;
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
 }
@@ -709,27 +736,30 @@ gperl_type_class_init (GObjectClass * class)
 static void
 gperl_type_instance_init (GObject * instance)
 {
-	dSP;
+        /* be sure to ref the object here --- we're still in creation,
+         * we don't want the object to go away with the temporary wrapper! */
+        SV *obj = sv_2mortal (gperl_new_object (instance, FALSE));
+        SV **init = hv_fetch (SvSTASH (SvRV(obj)), "INIT_INSTANCE", sizeof ("INIT_INSTANCE") - 1, 0);
 
-	ENTER;
-	SAVETMPS;
+        /* does the function exist? then call it. */
+        if (init && GvCV (*init)) {
+                dSP;
 
-	PUSHMARK (SP);
+                ENTER;
+                SAVETMPS;
 
-	/* be sure to ref the object here --- we're still in creation,
-	 * we don't want the object to go away with the temporary wrapper! */
-	XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+                PUSHMARK (SP);
 
-	PUTBACK;
+                XPUSHs (obj);
 
-	call_method ("INSTANCE_INIT", G_VOID|G_DISCARD);
+                PUTBACK;
 
-	SPAGAIN;
+                call_sv ((SV *)GvCV (*init), G_VOID|G_DISCARD);
 
-	FREETMPS;
-	LEAVE;
+                FREETMPS;
+                LEAVE;
+        }
 }
-
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
