@@ -1,3 +1,13 @@
+2003/10/26 17:10 rwmcfa1
+
+	* GObject.xs: test out a blurb
+
+	* GenPod.pm: xsdoc2pod script incorporated, will make it easier for 
+	other modules to use this stuff
+
+	* Makefile.PL: go ahead and include GenPod.pm in the scheme of things.
+	use GenPod in it's current incarnation to do the api docs
+
 2003/10/26 11:36 muppetman
 
 	* GSignal.xs: some apidoc comments to play around with

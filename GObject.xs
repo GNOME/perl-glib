@@ -722,6 +722,10 @@ init_property_value (GObject * object,
 
 MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
+=for object Glib::Object Bindings for GObject
+
+=cut
+
 BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
 	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-object");

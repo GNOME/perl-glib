@@ -5,6 +5,7 @@ use Glib;
 use base Exporter;
 
 @EXPORT = qw(
+	xsdoc2pod
 	podify_properties
 	podify_values
 	podify_signals
@@ -12,6 +13,73 @@ use base Exporter;
 	podify_interfaces
 	podify_methods
 );
+
+
+sub xsdoc2pod
+{
+	my $datafile = shift();
+	my $outdir   = shift() || 'build/pod';
+
+	mkdir $outdir unless (-d $outdir);
+
+	die "usage: $0 datafile [outdir]\n"
+		unless defined $datafile;
+
+	our ($xspods, $data);
+	require $datafile;
+
+	my $pkgdata;
+	my $ret;
+	foreach my $package (sort keys %$data)
+	{
+		$pkgdata = $data->{$package};
+
+		$package =~ m/([^\:]+)$/;
+		my $pod = "$outdir/$1.pod";
+		open POD, ">$pod" or die "unabled to open ($pod) for output";
+		select POD;
+
+		print "=head1 NAME\n\n$package";
+		print ' - '.$pkgdata->{blurb} if (exists ($pkgdata->{blurb}));
+		print "\n\n";
+
+		print "=head1 DESCRIPTION\n\n".$pkgdata->{desc}."\n\n"
+			if (exists ($pkgdata->{desc}));
+
+		$ret = podify_ancestors ($package);
+		if ($ret)
+		{
+			print "=head1 HIERARCHY\n\n$ret";
+		}
+		
+		$ret = podify_interfaces ($package);
+		if ($ret)
+		{
+			print "=head1 INTERFACES\n\n$ret";
+		}
+
+		$ret = podify_methods ($package, $data->{$package}{xsubs});
+		if ($ret)
+		{
+			print "=head1 METHODS\n\n$ret";
+		}
+		
+		$ret = podify_properties ($package);	
+		if ($ret)
+		{
+			print "=head1 PROPERTIES\n\n$ret";
+		}
+
+		$ret = podify_signals ($package);	
+		if ($ret)
+		{
+			print "=head1 SIGNALS\n\n$ret";
+		}
+
+		close POD;
+	}
+}
+
 
 # more sensible names for the basic types
 %basic_types = (

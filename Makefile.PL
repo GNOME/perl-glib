@@ -79,6 +79,7 @@ my $glib = ExtUtils::Depends->new ('Glib');
 );
 %pm_files = (
      'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
+     'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
      'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
      'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
      'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
@@ -86,6 +87,7 @@ my $glib = ExtUtils::Depends->new ('Glib');
 );
 %pod_files = (
    'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
+   'GenPod.pm'       => '$(INST_MAN3DIR)/Glib/GenPod.$(MAN3EXT)',
    'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
    'GenPod.pm',      => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
@@ -149,11 +151,15 @@ sub postamble {
 		} keys %subs).'\'';
 
 	return "
-build/Glib.doc.pl: @main::xs_files xsdocparse.pl
+build/\$(NAME).doc.pl: @main::xs_files xsdocparse.pl
 	$^X xsdocparse.pl @main::xs_files > \$@
 
-build/xsapi.pod: build/Glib.doc.pl apidoc.pl
-	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/Glib.doc.pl > \$@
+build/xsapi.pod: build/\$(NAME).doc.pl apidoc.pl
+	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/\$(NAME).doc.pl > \$@
+
+pod: all build/\$(NAME).doc.pl
+	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -M\$(NAME)::GenPod \\
+		-e \"xsdoc2pod('build/\$(NAME).doc.pl', '\$(INST_LIB)/\$(NAME)')\"
 
 realclean ::
 	-\$(RM_RF) build perl-\$(DISTNAME).spec
