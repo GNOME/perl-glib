@@ -157,7 +157,7 @@ build/doc.pl :: Makefile @xs_files
 
 build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
-		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
+		-e \"\$(POD_SET) xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex');\"
 
 \$(INST_LIB)/\$(FULLEXT)/:
 	mkdir -p \$@

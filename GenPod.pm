@@ -589,6 +589,13 @@ of the Copyright line, it defaults to Gtk2-Perl Team. The package gloabal
 variable MAIN_MOD should be set to a pod link pointing towards the main file
 for a package in which the full copyright appears.
 
+To set AUTHORS, COPYRIGHT, and/or MAIN_MOD do something similar to the
+following in the first part of your postamble section in Makefile.PL. All of
+the weird escaping is require because this is going through several levels of
+variable expansion.
+
+  POD_SET=\\\$\$Glib::GenPod::AUTHORS='foobar';
+
 =cut
 
 sub get_copyright
