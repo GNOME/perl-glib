@@ -1,7 +1,7 @@
 # $Header$
 
-Glib version 1.036 (unstable)
-============================
+Glib version 1.037 (unstable)
+=============================
 
 This module provides perl access to Glib and GLib's GObject libraries.
 GLib is a portability and utility library; GObject provides a generic

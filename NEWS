@@ -1,4 +1,28 @@
-Overview of Changes in Glib 1.035
+Overview of Changes in Glib 1.037
+=================================
+
+* Added bindings for missing utility functions, with tests and doc:
+  g_get_user_name, g_get_real_name, g_get_home_dir, g_get_tmp_dir,
+  g_get_application_name, g_set_application_name.  [muppet]
+* Decided on versioning API, implemented, used, and documented it.  There's
+  more documentation on the versioning stuff than code to implement it.
+  New functions:  Glib->CHECK_VERSION, Glib::MAJOR_VERSION,
+  Glib::MINOR_VERSION, Glib::MICRO_VERSION, Glib->check_version,
+  Glib::major_version, Glib::minor_version, Glib::micro_version.
+  [Ross, muppet]
+* GPerlClosure's exception handlers no longer clobber $_.  [muppet]
+* Add the ability to register new error domains and throw Glib::Errors from
+  Perl.  New utility function, Glib::Error::matches (binding for
+  g_error_matches), makes it easy to test errors.  New xs utility function
+  for parsing a perl data structure into a GError.  [muppet]
+* POD generation cleanups and fixes and enhancements.  [Ross]
+  - Methods are now sorted for readability
+  - Plain functions get proper non-method signatures
+  - Hiding works better, more extensibly
+  - Can now specify where in the file the POD should code.
+* Miscellaneous bug fixes.  [Torsten, Ross, muppet]
+
+Overview of Changes in Glib 1.036
 =================================
 
 * GErrors are now translated into exception objects instead of plain,

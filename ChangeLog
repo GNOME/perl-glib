@@ -1,8 +1,12 @@
+2004/02/27 02:00 (-0500) muppetman
+
+	* Glib.pm, README, NEWS: unstable release 1.037
+
 2004/02/26 10:16 (-0500) muppetman
 
 	* t/1.t: correct the skip count.  bad muppet.
 
-2004/02/26 09:30 (-0500) muppetman
+2004/02/26 21:45 (-0500) muppetman
 
 	* README: fix the spelling of license; update the sandbox instructions.
 
