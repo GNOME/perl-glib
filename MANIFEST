@@ -6,6 +6,7 @@ devel.pod
 GBoxed.xs
 GClosure.xs
 GenPod.pm
+GError.xs
 GIOChannel.xs
 Glib.exports
 Glib.pm
@@ -15,6 +16,8 @@ GMainLoop.xs
 GObject.xs
 GParamSpec.xs
 gperl.h
+gperl-gtypes.c
+gperl-gtypes.h
 gperl_marshal.h
 GSignal.xs
 GType.xs
@@ -47,6 +50,7 @@ t/9.t
 t/a.t
 t/b.t
 t/c.t
+t/d.t
 TODO
 typemap
 xsapi.pod.foot

@@ -42,6 +42,7 @@ mkdir 'build', 0777;
 # appear in Glib::xsapi
 our @xs_files = qw(
 	Glib.xs
+	GError.xs
 	GUtils.xs
 	GLog.xs
 	GType.xs
@@ -61,7 +62,6 @@ our %pm_files = (
      'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
      'MakeHelper.pm'   => '$(INST_LIBDIR)/Glib/MakeHelper.pm',
      'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
-#     'build/xsapi.pod' => '$(INST_LIBDIR)/Glib/xsapi.pod',
 );
 our %pod_files = (
    'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
@@ -72,7 +72,6 @@ our %pod_files = (
    '$(INST_LIB)/$(FULLEXT)/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
    Glib::MakeHelper->do_pod_files (@xs_files),
 );
-
 
 my %glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
 
@@ -105,10 +104,11 @@ $glib->set_inc ($glibcfg{cflags} . $gthreadcfg{cflags} . ' -I. ');
 $glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
 my $cwd = cwd();
 $glib->add_typemaps (map {File::Spec->catfile($cwd,$_)} 'typemap');
-$glib->install (qw(gperl.h gperl_marshal.h doctypes));
-$glib->save_config ('build/IFiles.pm');
 $glib->add_pm (%pm_files);
 $glib->add_xs (@xs_files);
+$glib->add_c (qw(gperl-gtypes.c));
+$glib->install (qw(gperl.h gperl_marshal.h doctypes));
+$glib->save_config ('build/IFiles.pm');
 
 # exports list needed for win32, unused on others
 our @exports;

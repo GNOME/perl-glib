@@ -20,7 +20,9 @@
 
 @exports = qw(
 _gperl_call_XS
+gperl_sv_from_gerror
 gperl_croak_gerror
+gperl_register_error_domain
 gperl_alloc_temp
 gperl_str_eq
 gperl_str_hash

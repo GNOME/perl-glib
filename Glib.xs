@@ -64,59 +64,6 @@ _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark)
 }
 
 
-
-=item void gperl_croak_gerror (const char * prefix, GError * err)
-
-Croak with the message in I<err>.  I<prefix> may be NULL, but I<err> may not.
-
-Use this when wrapping a function that uses #GError for reporting runtime
-errors.  The bindings map the concept of #GError to runtime exceptions;
-thus, where a C programmer would wrap a function call with code that
-checks for a #GError and bails out when one is found, the perl developer
-simply wraps a block of code in an eval(), and the bindings croak() when
-a #GError is found.
-
-Since croak() does not return, this function handles the magic behind 
-not leaking the memory associated with the #GError.  To use this you'd
-do something like
-
- PREINIT:
-   GError * error = NULL;
- CODE:
-   if (!funtion_that_can_fail (something, &error))
-      gperl_croak_gerror (NULL, error);
-
-it's just that simple!
-
-=cut
-void
-gperl_croak_gerror (const char * prefix, GError * err)
-{
-	/* croak does not return, which doesn't give us the opportunity
-	 * to free the GError.  thus, we create a copy of the croak message
-	 * in an SV, which will be garbage-collected, and free the GError
-	 * before croaking. */
-	SV * svmsg;
-	
-	/* this really could only happen if there's a problem with XS bindings
-	 * so we'll use a assertion to catch it, rather than handle null */
-	g_return_if_fail (err != NULL);
-	
-	if (prefix && strlen (prefix)) {
-		svmsg = newSV(0);
-		sv_catpvf (svmsg, "%s: %s", prefix, err->message);
-	} else {
-		svmsg = newSVpv (err->message, 0);
-	}
-	/* don't need this */
-	g_error_free (err);
-	/* mark it as ready to be collected */
-	sv_2mortal (svmsg);
-	croak (SvPV_nolen (svmsg));
-}
-
-
-
 =item gpointer gperl_alloc_temp (int nbytes)
 
 Allocate and return a pointer to an I<nbytes>-long temporary buffer that will
@@ -154,7 +101,7 @@ gperl_filename_from_sv (SV *sv)
 {
         dTHR;
 
-        GError *error = 0;
+        GError *error = NULL;
         gchar *lname;
         STRLEN len;
         gchar *filename = SvPVutf8 (sv, len);
@@ -163,7 +110,7 @@ gperl_filename_from_sv (SV *sv)
 	 * will be the length of the output when this call finishes. */
         lname = g_filename_from_utf8 (filename, len, 0, &len, &error);
         if (!lname)
-        	gperl_croak_gerror (filename, error);
+        	gperl_croak_gerror (NULL, error);
 
         filename = gperl_alloc_temp (len + 1);
         memcpy (filename, lname, len);
@@ -180,7 +127,7 @@ Convert the filename into an utf8 string as used by gtk/glib and perl.
 SV *
 gperl_sv_from_filename (const gchar *filename)
 {
-	GError *error = 0;
+	GError *error = NULL;
         SV *sv;
 	gssize len;
         gchar *str = g_filename_to_utf8 (filename, -1, NULL, &len, &error);
@@ -342,6 +289,7 @@ BOOT:
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
 	GPERL_CALL_BOOT (boot_Glib__Utils);
+	GPERL_CALL_BOOT (boot_Glib__Error);
 	GPERL_CALL_BOOT (boot_Glib__Log);
 	GPERL_CALL_BOOT (boot_Glib__Type);
 	GPERL_CALL_BOOT (boot_Glib__Boxed);

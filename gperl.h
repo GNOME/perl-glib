@@ -57,8 +57,14 @@ void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
 		_gperl_call_XS (aTHX_ name, cv, mark);	\
 	}
 
+/* it is rare that you should ever want or need this function. */
+SV * gperl_sv_from_gerror (GError * error);
 
-void gperl_croak_gerror (const char * prefix, GError * err);
+void gperl_croak_gerror (const char * ignored, GError * err);
+
+void gperl_register_error_domain (GQuark domain,
+                                  GType error_enum,
+                                  const char * package);
 
 gpointer gperl_alloc_temp (int nbytes);
 gchar *gperl_filename_from_sv (SV *sv);

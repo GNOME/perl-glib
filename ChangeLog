@@ -1,3 +1,26 @@
+2004/02/18 01:35 (-0500) muppetman
+
+	A GError.xs
+	A gperl-gtypes.h
+	A gperl-gtypes.c
+	A t/d.t
+	M MANIFEST
+	M Makefile.PL
+	M Glib.exports
+	M Glib.xs
+	M Glib.pm
+	M gperl.h
+	  change gperl_croak_gerror() to turn GErrors into exception objects.
+	  the objects overload the stringify operator to be indistinguishable
+	  from normal exceptions, resulting in no API change for old code.
+	  gperl_croak_gerror()'s prefix argument is now useless, and has
+	  been renamed to ignore, but not removed (to retain ABI and source
+	  API compatibility).  add gperl_register_error_domain(), and use it
+	  for built-ins.  doing this properly requires GEnum GTypes for the
+	  error code enums, which are not provided by GLib, so we provide
+	  just the relevant ones in private files which can be recreated
+	  in the future as needed.
+
 2004/02/18 01:31 (-0500) muppetman
 
 	* ParseXSDoc.pm: quell some doc messages unless NOISYDOC is set in

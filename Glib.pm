@@ -80,7 +80,19 @@ use overload
    '@{}'  => \&as_arrayref,
    '""'   => sub { "[ @{$_[0]} ]" },
    fallback => 1;
-   
+
+package Glib::Error;
+
+use overload
+   '""' => sub { $_[0]->message.$_[0]->location },
+   fallback => 1;
+
+sub location { $_[0]->{location} }
+sub message { $_[0]->{message} }
+sub domain { $_[0]->{domain} }
+sub value { $_[0]->{value} }
+sub code { $_[0]->{code} }
+
 package Glib::Object::Property;
 
 use Carp;
