@@ -1,3 +1,24 @@
+2003/11/13 13:23 (-0500) muppetman
+
+	* GenPod.pm: add a sensible type name mapping for GPerlFilename;
+	will show up in docs as 'localized file name'.
+	Fix podify_methods to take only the package name, and remove the
+	second my $package in the same scope.
+	Minor re-work to logic of when to skip and when to count methods;
+	intent was to support hidden xsubs, but those are caught at the parser
+	level now.
+	Changed the message that gets written when all methods are defined
+	but missing.
+
+	* Glib.pm: fix some typos
+
+	* Glib.xs: hide filename_(to|from)_unicode from the docgen stuff,
+	to keep from overwriting the manpage generated for Glib.pm.  these
+	functions are already documented by hand in Glib.pm, anyway.
+
+	* ParseXSDoc.pm: allow the token \b__hide__\b on the =for apidoc
+	line to hide an xsub.
+
 2003/11/12 20:45 pcg
 
 	* gperl.h, typemap: Add GPerlFilename_const.
