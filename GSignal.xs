@@ -651,16 +651,11 @@ g_signal_handler_is_connected (object, handler_id)
 ##	RETVAL
 
  ### the *_by_func functions all have the same signature, and thus are
- ### handled by do_stuff_by_func.
+ ### handled by signal_handlers_block_by_func.
 
  ## g_signal_handlers_disconnect_by_func(instance, func, data)
  ## g_signal_handlers_block_by_func(instance, func, data)
  ## g_signal_handlers_unblock_by_func(instance, func, data)
-
-=for apidoc Glib::Object::signal_handlers_block_by_func
-=for arg func (subroutine) function to block
-=for arg data (scalar) data to match, ignored if undef
-=cut
 
 =for apidoc Glib::Object::signal_handlers_unblock_by_func
 =for arg func (subroutine) function to block
@@ -672,13 +667,16 @@ g_signal_handler_is_connected (object, handler_id)
 =for arg data (scalar) data to match, ignored if undef
 =cut
 
+=for apidoc
+=for arg func (subroutine) function to block
+=for arg data (scalar) data to match, ignored if undef
+=cut
 int
-do_stuff_by_func (instance, func, data=NULL)
+signal_handlers_block_by_func (instance, func, data=NULL)
 	GObject * instance
 	SV * func
 	SV * data
     ALIAS:
-	Glib::Object::signal_handlers_block_by_func = 0
 	Glib::Object::signal_handlers_unblock_by_func = 1
 	Glib::Object::signal_handlers_disconnect_by_func = 2
     PREINIT:
@@ -688,9 +686,8 @@ do_stuff_by_func (instance, func, data=NULL)
 	    case 0: callback = g_signal_handlers_block_matched; break;
 	    case 1: callback = g_signal_handlers_unblock_matched; break;
 	    case 2: callback = g_signal_handlers_disconnect_matched; break;
+	    default: g_assert_not_reached ();
 	}
-	if (!callback)
-		croak ("internal problem -- xsub aliased to invalid ix");
 	RETVAL = foreach_closure_matched (instance, G_SIGNAL_MATCH_CLOSURE,
 	                                  0, 0, func, data, callback);
     OUTPUT:
