@@ -361,10 +361,11 @@ BOOT:
 	      (GLIB_MAJOR_VERSION == (glib_major_version) && 
 	       GLIB_MINOR_VERSION == (glib_minor_version) &&
 	       GLIB_MICRO_VERSION >= (glib_micro_version))))
-		warn ("*** Glib has linked against C libraries older than what "
-		      "it was compiled against, we'll continue, but expect "
-		      "problems!\n");
-		/* TODO/FIXME: better msg */
+		warn ("*** This build of Glib was compiled with glib %d.%d.%d,"
+		      " but is currently running with %d.%d.%d, which is too"
+		      " old.  We'll continue, but expect problems!\n",
+		    GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+		    glib_major_version, glib_minor_version, glib_micro_version);
 
 ##
 ## NOTE: in order to avoid overwriting the docs for the main Glib.pm, 
