@@ -197,11 +197,11 @@ gperl_sv_from_gerror (GError * error)
 
 =item gperl_gerror_from_sv (SV * sv, GError ** error)
 
-You should rarely need this function.  This parses a perl data
-structure into a GError.  If I<sv> is undef, sets *I<error> to NULL,
-otherwise, allocates a new GError with C<g_error_new_literal()> and
-writes through I<error>; the caller is responsible for calling
-C<g_error_free()>.  (gperl_croak_gerror() does this, for example.)
+You should rarely need this function.  This parses a perl data structure into
+a GError.  If I<sv> is undef (or the empty string), sets *I<error> to NULL,
+otherwise, allocates a new GError with C<g_error_new_literal()> and writes
+through I<error>; the caller is responsible for calling C<g_error_free()>.
+(gperl_croak_gerror() does this, for example.)
 
 =cut
 void
@@ -213,8 +213,13 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 	HV * hv;
 	SV ** svp;
 
-	/* undef is legal */
-	if (!sv || !SvOK (sv)) {
+	/* pass back NULL if the sv is false.  we need to allow for the
+	 * empty string because $@ is often '' rather than undef; as a 
+	 * side effect, 0 is also allowed.  we just won't advertise that.
+	 * the logic here is a bit ugly to avoid running the overloaded
+	 * stringification operator via SvTRUE(). */
+	if (!sv || !SvOK (sv) || /* not defined */
+	    (!SvROK (sv) && !SvTRUE (sv))) { /* not a ref, but still false */
 		*error = NULL;
 		return;
 	}

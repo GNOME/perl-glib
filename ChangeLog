@@ -1,3 +1,8 @@
+2004/02/23 17:05 (-0500) muppetman
+
+	* GError.xs: allow '' as well as undef when an SV into a GError,
+	as $@ is usually '' to say 'no error'.
+
 2004/02/23 15:16 (-0500) rwmcfa1
 
 	* t/1.t: versions could be 0, which would fail before, check for
