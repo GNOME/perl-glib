@@ -1,3 +1,9 @@
+2004/08/27 13:42 (-0400) rwmcfa1
+
+	* GenPod.pm: preprocess_pod wasn't being called on each pod section
+	as it used to be and still should be. couldn't get to sfcvs webui to
+	find out when it quit being, but it's been a while.
+
 2004/08/15 17:33 (-0400) muppetman
 
 	* README, NEWS, Glib.pm: unstable development release 1.054

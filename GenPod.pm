@@ -237,6 +237,8 @@ sub xsdoc2pod
 
 		$package = $pkgdata->{object} if (exists $pkgdata->{object});
 
+		preprocess_pod ($_) foreach (@{$pkgdata->{pods}});
+
 		push @files, {
 			name => $package,
 			file => $pod,
