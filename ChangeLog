@@ -1,3 +1,9 @@
+2004/01/21 15:14 (-0500) muppetman
+
+	* ParseXSDoc.pm: allow space padding on either side of the arguments
+	in the xsub declaration.  also make the error messages more 
+	digestable (by removing the __WARN__ handler, was for debug only).
+
 2004/01/21 14:57 (-0500) rwmcfa1
 
 	* MakeHelper.pm: we need to create the directory in which index.pod will

@@ -12,7 +12,7 @@ our @EXPORT = qw(
 	xsdocparse
 );
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 =head1 NAME
 
@@ -466,11 +466,11 @@ sub parse_xsub {
 
 	my $filename = $self->{filename};
 	my $oldwarn = $SIG{__WARN__};
-$SIG{__WARN__} = sub {
-		warn "$self->{filename}:$.:  "
-		   . join(" / ", $self->{module}||"", $self->{package}||"")
-		   . "\n    $_[0]\n   ".Dumper(\@thisxsub)
-};
+#$SIG{__WARN__} = sub {
+#		warn "$self->{filename}:$.:  "
+#		   . join(" / ", $self->{module}||"", $self->{package}||"")
+#		   . "\n    $_[0]\n   ".Dumper(\@thisxsub)
+#};
 
 	my $lineno = $. - @thisxsub;
 	my %xsub = (
@@ -498,7 +498,12 @@ $SIG{__WARN__} = sub {
 		}
 	}
 
-	if ($thisxsub[0] =~ /^([^(]+\s+\*?)\b([:\w]+)\s*\(\s*(.+)\s*\)\s*;?\s*$/) {
+	if ($thisxsub[0] =~ /^([^(]+\s+\*?)   # return type, possibly with a *
+						  \b([:\w]+)\s*   # symbol name
+						  \(              # open paren
+						    (.*)          # whatever's inside, if anything
+						  \)              # close paren, maybe with space
+						  \s*;?\s*$/x) {  # and maybe other junk at the end
 		# all on one line
 		$xsub{symname} = $2;
 		$args = $3;
@@ -506,7 +511,8 @@ $SIG{__WARN__} = sub {
 		$xsub{return_type} = [$r]
 			unless $r =~ /^void\s*$/;
 		shift @thisxsub; $lineno++;
-	} elsif ($thisxsub[1] =~ /^(\S+)\s*\((.+)\);?\s*$/) {
+
+	} elsif ($thisxsub[1] =~ /^(\S+)\s*\((.*)\);?\s*$/) {
 		# multiple lines
 		$xsub{symname} = $1;
 		$args = $2;
@@ -518,7 +524,15 @@ $SIG{__WARN__} = sub {
 		shift @thisxsub; $lineno++;
 	}
 
-	# we'll get empty arg strings on non-methods.
+	# eat padding spaces from the arg string.  i tried several ways of
+	# building this into the regexen above, but found nothing that still
+	# allowed the arg string to be empty, which we'll have for functions
+	# (not methods) without resorting to extremely arcane negatory
+	# lookbeside assertiveness operators.
+	$args =~ s/^\s*//;
+	$args =~ s/\s*$//;
+
+	# we can get empty arg strings on non-methods.
 	#warn "$filename:$lineno: WTF : args string is empty\n"
 	#	if not defined $args;
 
@@ -564,8 +578,8 @@ $SIG{__WARN__} = sub {
 		} elsif ($argstr[$i] =~ /^g?int\s+length\((\w+)\)$/) {
 			#warn " ******* $i is string length of $1 *****\n";
 		} else {
-			warn "$filename:$lineno: don't know how to parse arg $i\n"
-			   . "      '$argstr[$i]'\n";
+			warn "$filename:$lineno: ($xsub{symname}) don't know how to"
+			   . " parse arg $i, '$argstr[$i]'\n";
 		}
 	}
 
