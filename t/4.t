@@ -1,23 +1,25 @@
-print "1..9\n";
+print "1..10\n";
 
 use Glib;
 
 print "ok 1\n";
 
 sub Foo::INIT_INSTANCE {
+   $init_self = $_[0]*1;
    print "ok 2\n";
 }
 
 sub Foo::FINALIZE_INSTANCE {
-   print "ok 8\n";
+   print "ok 9\n";
 }
 
 sub Foo::SET_PROPERTY {
+   $setprop_self = $_[0]*1;
    print "ok $_[2]\n";
 }
 
 sub Foo::GET_PROPERTY {
-   print "ok 5\n";
+   print "ok 6\n";
    6;
 }
 
@@ -38,16 +40,18 @@ sub Bar::INIT_INSTANCE {
 }
 
 sub Bar::FINALIZE_INSTANCE {
-   print "ok 7\n";
+   print "ok 8\n";
 }
 
 Glib::Type->register (Foo::, Bar::);
 
 {
    my $bar = new Bar;
+   use POSIX;
    $bar->set(some_string => 4);
-   print "ok ", $bar->get("some_string"), "\n";
+   print $init_self != $setprop_self ? "not " : "", "ok 5\n";
+   print $bar->get("some_string") != 6 ? "not " : "", "ok 7\n";
 }
 
-print "ok 9\n";
+print "ok 10\n";
 

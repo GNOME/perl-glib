@@ -784,16 +784,13 @@ gperl_type_finalize (GObject * instance)
                 }
 
                 class = g_type_class_peek_parent (class);
-#ifdef NOISY
-                warn ("gperl_type_finalize %p ? %p parent_class->finalize", 
-                       gperl_type_finalize, parent_class->finalize);
-#endif
         } while (class);
 }
 
 static void
 gperl_type_instance_init (GObject * instance)
 {
+        dSP;            
 	/*
 	 * for new objects, this may be the place where the initial 
 	 * perl object is created.  we won't worry about the owner
@@ -805,6 +802,9 @@ gperl_type_instance_init (GObject * instance)
         HV *stash = gperl_object_stash_from_type (G_OBJECT_TYPE (instance));
         SV **slot;
 	g_assert (stash != NULL);
+
+        ENTER;                         
+        SAVETMPS;
 
 	obj = sv_2mortal (gperl_new_object (instance, FALSE));
         /* we need to re-bless the wrapper because classes change
@@ -821,20 +821,16 @@ gperl_type_instance_init (GObject * instance)
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
-                  dSP;            
-                
-                  ENTER;                         
-                  SAVETMPS;
-
                   PUSHMARK (SP);
-                  XPUSHs (sv_2mortal (gperl_new_object (instance, FALSE)));
+                  XPUSHs (obj);
                   PUTBACK;
 
                   call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
 
-                  FREETMPS;
-                  LEAVE;
         }
+
+        FREETMPS;
+        LEAVE;
 }
 
 static void

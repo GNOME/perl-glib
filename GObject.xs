@@ -316,6 +316,9 @@ gobject_destroy_wrapper (SV *obj)
 	if (PL_in_clean_objs)
         	return;
 
+#ifdef NOISY
+        warn ("gobject_destroy_wrapper (%p)[%d]", obj, SvREFCNT (obj));
+#endif
         sv_unmagic (obj, PERL_MAGIC_ext);
 
         /* we might want to optimize away the call to DESTROY here for non-perl classes. */
@@ -386,8 +389,8 @@ gperl_new_object (GObject * object,
                 sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
 
 		/* this is the one refcount that represents all non-zero perl
-		 * refcounts.   it is just temporarily given to the gobject,
-		 * DESTROY takes it back again.  this effectively increases
+		 * refcounts. it is just temporarily given to the gobject,
+		 * DESTROY takes it back again. this effectively increases
 		 * the combined refcount by one. */
                 g_object_ref (object);
 
@@ -413,28 +416,39 @@ gperl_new_object (GObject * object,
                  * in turn will trigger perl wrapper destruction. */
 
 #ifdef NOISY
-		warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
+		warn ("gperl_new_object%d %s(%p)[%d] => %s (%p) (NEW)", own,
 		      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
 		      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
-		      sv);
+		      SvRV (sv));
 #endif
         } else {
                 /* create the wrapper to return, increases the combined
                  * refcount by one. */
                 sv = newRV_inc (obj);
+
+                /* Now we need to handle the case of a gobject that has
+                 * been DESTROYed but gets "revived" later. This operation
+                 * does not alter the refcount of the combined object.
+                 * This can only happen if the call with own is not
+                 * the first call. Unfortunately, this is the common case
+                 * for gobjectclasses implemented in perl.
+                 */
+                if (object->ref_count == 1 && own) {
+                        g_object_ref (object);
+                	SvREFCNT_dec (obj);
+                }
+                  
         }
 
+#ifdef NOISY
+	warn ("gperl_new_object%d %s(%p)[%d] => %s (%p)[%d] (PRE-OWN)", own,
+	      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
+	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+	      SvRV (sv), SvREFCNT (SvRV (sv)));
+#endif
 	if (own)
 		gperl_object_take_ownership (object);
 
-/*
-#ifdef NOISY
-	warn ("gperl_new_object %s(%p)[%d] => %s (%p)", 
-	      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
-	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
-	      sv);
-#endif
-*/
 	return sv;
 }
 
@@ -503,7 +517,7 @@ DESTROY (SV *sv)
         if (!object) /* Happens on object destruction. */
                 return;
 #ifdef NOISY
-        warn ("DESTROY (%p)[%d] => %s (%p)[%d]", 
+        warn ("DESTROY< (%p)[%d] => %s (%p)[%d]", 
               object, object->ref_count,
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
@@ -521,6 +535,12 @@ DESTROY (SV *sv)
                 SvREFCNT_inc (SvRV (sv));
         }
         g_object_unref (object);
+#ifdef NOISY
+        warn ("DESTROY> (%p)[%d] => %s (%p)[%d]", 
+              object, object->ref_count,
+              gperl_object_package_from_type (G_OBJECT_TYPE (object)),
+              sv, SvREFCNT (SvRV(sv)));
+#endif
 
 
 void
@@ -539,6 +559,10 @@ UV
 g_object_get_data (object, key)
 	GObject * object
 	gchar * key
+        CODE:
+        RETVAL = (UV) g_object_get_data (object, key);
+        OUTPUT:
+        RETVAL
 
 
 void
@@ -689,7 +713,6 @@ g_object_new (class, ...)
 	 * gperl_object_take_ownership to be called. */
 	RETVAL = gperl_new_object (object, TRUE);
 
-    //cleanup: /* C label, not the XS keyword */
 	if (n_params) {
 		int i;
 		for (i = 0 ; i < n_params ; i++)
