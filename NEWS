@@ -1,3 +1,8 @@
+Overview of Changes in Glib 1.043
+=================================
+
+* Conform more closely to the C89 standard to increase portability.  [Albert Chin]
+
 Overview of Changes in Glib 1.042
 =================================
 
