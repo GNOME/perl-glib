@@ -36,6 +36,9 @@ unless (eval "use ExtUtils::Depends;"
    );
    exit 1; # not reached
 }
+# client modules may use Glib::MakeHelper -- he's not installed at this
+# point, so we have to require him directly.
+require 'MakeHelper.pm';
 
 mkdir 'build', 0777;
 
@@ -70,11 +73,9 @@ our %pod_files = (
    'GenPod.pm'       => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
    'build/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
+   Glib::MakeHelper->do_pod_files (@xs_files),
 );
 
-require 'MakeHelper.pm';
-import Glib::MakeHelper;
-do_pod_files (@xs_files);
 
 my %glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
 
@@ -141,10 +142,9 @@ package MY;
 sub postamble 
 {
 	require 'MakeHelper.pm';
-	import Glib::MakeHelper;
-	return postamble_clean ()
-	      .postamble_docs ()
-	      .postamble_rpms (
+	return Glib::MakeHelper->postamble_clean ()
+	     . Glib::MakeHelper->postamble_docs (@main::xs_files)
+	     . Glib::MakeHelper->postamble_rpms (
 			'GLIB_RUN' => $runtime_reqs{'Glib'},
 			'GLIB' => $build_reqs{'Glib'},
 			'PERL_EXTUTILS_DEPENDS' => 

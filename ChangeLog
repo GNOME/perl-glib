@@ -1,3 +1,18 @@
+2003/10/28 23:18 muppetman
+
+	* MakeHelper.pm: don't be an Exporter.  take a shift-off class arg
+	on all subs.  this allows them to be overridden, and removes the
+	requirement for each client package to import the symbols.
+	added pod for just about everything.
+	do_pod_files now returns the generated pod_files hash rather than 
+	fiddling with one in main::.  it still uses the local @gend_pods,
+	though.
+	postamble_clean() takes an optional list of extra clean files.
+	postamble_docs() takes a list of xs files instead of expecting
+	to find @main:xs_files.
+
+	* Makefile.PL: use the new semantics of the MakeHelper functions.
+
 2003/10/28 16:47 rwmcfa1
 
 	* Glib/GClosure.xs, Glib/GLog.xs: put things in the appropriate doc 
