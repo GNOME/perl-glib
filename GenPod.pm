@@ -185,6 +185,8 @@ sub xsdoc2pod
 		select POD;
 		print STDERR "podifying $pod\n";
 
+		$package = $pkgdata->{object} if (exists $pkgdata->{object});
+
 		push @files, {
 			name => $package,
 			file => $pod,
@@ -218,7 +220,7 @@ sub xsdoc2pod
 			}
 		}
 
-		$ret = podify_methods ($package, $data->{$package}{xsubs});
+		$ret = podify_methods ($package, $pkgdata->{xsubs});
 		if ($ret)
 		{
 			print "\n=head1 METHODS\n\n$ret";

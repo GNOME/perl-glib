@@ -269,6 +269,12 @@ sub parse_file {
 				$self->{object} = $1;
 				if ($2) {
 					$self->pkgdata->{blurb} = $2;
+					if ($self->pkgdata->{blurb} =~ s/\((.*)\)//)
+					{
+						print STDERR "Documenting object $1 in file "
+									.$self->{object}."\n";
+						$self->pkgdata->{object} = $1;
+					}
 					$self->pkgdata->{blurb} =~ s/^\s*-\s*//;
 				}
 			} elsif (/^=for\s+(enum|flags)\s+([\w:]+)/) {

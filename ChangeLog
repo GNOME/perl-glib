@@ -1,3 +1,11 @@
+2003/11/09 22:30 (-0500) rwmcfa1
+
+	* ParseXSDoc.pm: allow the (Object::To::Doc) construct in =for object
+	directives.
+
+	* GenPod.pm: support the new object directive allowing files to be 
+	named independantly from the objects documented in them.
+
 2003/11/10 00:59 pcg
 
 	* Glib.pm, GType.pm: implement == and eq for flags, the latter
