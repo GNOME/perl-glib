@@ -150,8 +150,8 @@ sub postamble {
 build/Glib.doc.pl: @main::xs_files xsdocparse.pl
 	$^X xsdocparse.pl @main::xs_files > \$@
 
-build/xsapi.pod: build/Glib.doc.pl apidoc2.pl
-	$^X apidoc2.pl xsapi.pod.head xsapi.pod.foot build/Glib.doc.pl > \$@
+build/xsapi.pod: build/Glib.doc.pl apidoc.pl
+	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/Glib.doc.pl > \$@
 
 realclean ::
 	-\$(RM_RF) build perl-\$(DISTNAME).spec
