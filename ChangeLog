@@ -1,3 +1,7 @@
+2004/02/12 19:00 (-0500) muppetman
+
+	* Glib.pm, Makefile.PL, README, NEWS: unstable release 1.035
+
 2004/02/10 01:37 (-0500) muppetman
 
 	Some infrastructure changes allow us to enhance the quality of

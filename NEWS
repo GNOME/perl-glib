@@ -1,3 +1,15 @@
+Overview of Changes in Glib 1.035
+=================================
+
+* Updated ExtUtils::Depends requirement to 0.200.
+* Added Glib::MakeHelper::postamble_docs_full(), a more featureful, easier
+  to use, and more scalable front-end to the pod documentation generation
+  tools.  [muppet]
+* Extended Glib::Type::list_properties to handle properties on GInterfaces,
+  which is a new feature in gtk+ 2.4.  [Ross]
+* Added Glib::ParamSpec::scalar() for creating SV properties without needing
+  to know about boxed types.  [Ross]
+
 Overview of Changes in Glib 1.034
 =================================
 
