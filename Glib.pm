@@ -49,11 +49,63 @@ our @EXPORT = qw(
 
 );
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 sub dl_load_flags { 0x01 }
 
 bootstrap Glib $VERSION;
+
+
+#
+# additional base class for perl-derived objects.
+# it provides some default implementations for the required methods.
+# FIXME the docs here belong in POD.
+#
+package Glib::Object::Base;
+
+# default constructor just passes everything on
+sub new { Glib::Object::new (@_); }
+
+# INIT_INSTANCE is called on each class in the ascestry, as the object
+# is being created (i.e., from g_object_new()).  use this function to
+# initialize any member data.
+# the default initializer does nothing.
+sub INIT_INSTANCE {} #warn "Glib::Object::Base::INIT_INSTANCE : @_" }
+
+# GET_PROPERTY and SET_PROPERTY are called whenever somebody does
+# $object->get (name) or $object->set (name=>$newval).  this is your
+# hook that allows you to store/fetch any way you need to (maybe you
+# have to calculate something or read a file).
+#   GET_PROPERTY is different from a C get_property method in that
+# this perl method returns the retrieved value.  for symmetry, the
+# newval and pspec args on SET_PROPERTY are swapped from the C usage.
+#   the default get and set methods store property data in the object
+# as hash values named for the parameter name.
+sub GET_PROPERTY {
+	my ($self, $prop_id, $pspec) = @_;
+	#warn "Glib::Object::Base::GET_PROPERTY : @_";
+	return $self->{$pspec->get_name};
+}
+sub SET_PROPERTY {
+	my ($self, $prop_id, $pspec, $newval) = @_;
+	#warn "Glib::Object::Base::SET_PROPERTY : @_";
+	$self->{$pspec->get_name} = $newval;
+}
+
+# FINALIZE_INSTANCE is called as the GObject is being finalized, that
+# is, as it's being really destroyed.  this is independent of DESTROY
+# on the perl object; in fact, you must NOT override DESTROY (it's not
+# useful to you, in any case).
+#   use this hook to release anything you have to clean up manually. 
+# FINALIZE is an overridden method, so keep in mind that you will have
+# to chain manually to $self->SUPER::FINALIZE_INSTANCE.
+#   default finalizer has nothing to do, and does not chain, so as to
+# avoid an infinite loop (it chains at a lower level).
+sub FINALIZE_INSTANCE {
+	#warn "Glib::Object::Base::FINALIZE_INSTANCE : @_";
+}
+
+package Glib;
 
 1;
 __END__
