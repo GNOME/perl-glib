@@ -1,3 +1,9 @@
+
+- ability to add a GInterface to a new GObject subclass.
+- modify Glib::Type::register to allow you to create GEnum and GFlags types
+  in Perl.  currently it only allows GObject types.
+- need a test for the flags stuff --- 6.t?
+
 - GEnum type for G_PRIORITY_VALUES?
 - can't implement g_idle_remove_by_data because ... well, how would you
   search for the data value?
@@ -6,6 +12,3 @@
   types, since gperl_sv_from_value and gperl_value_from_sv croak on unknown
   or unimplemented data types.
   - gperl_value_from_sv should change to void return since it croaks on error.
-- modify Glib::Type::register to allow you to create GEnum and GFlags types
-  in Perl.  currently it only allows GObject types.
-- need a test for the flags stuff --- 6.t?
