@@ -27,7 +27,7 @@ use warnings;
 require DynaLoader;
 our @ISA = qw(DynaLoader);
 
-our $VERSION = '1.01';
+our $VERSION = '1.011';
 
 # this is the 'lite' version of what we could get Exporter to do for us.
 # we export nothing, so it seems silly to drag in all of Exporter::Heavy
@@ -35,6 +35,7 @@ our $VERSION = '1.01';
 sub import {
 	my $pkg = shift;
 	foreach (@_) {
+		no strict;
 		$pkg->VERSION ($_);
 	}
 }
