@@ -28,7 +28,7 @@ sub find {
 
 	# try as many pkg paramters are there are arguments left on stack
 	while( $pkg and 
-	       system("pkg-config $pkg --modversion > /dev/null 2>&1") )
+	       system "pkg-config $pkg --exists --silence-errors" )
 	{
 		push @pkgs, $pkg;
 		$pkg = shift;
@@ -39,12 +39,12 @@ sub find {
 		if( @pkgs > 1 )
 		{
 			croak '*** can not find package for any of ('.join(', ',@pkgs).")\n"
-			    . '*** check that one of them is properly installed and available in PKG_CONFIG_PATH';
+			    . "*** check that one of them is properly installed and available in PKG_CONFIG_PATH\n";
 		}
 		else
 		{
 			croak "*** can not find package $pkgs[0]\n"
-			    . '*** check that it is properly installed and available in PKG_CONFIG_PATH';
+			    . "*** check that it is properly installed and available in PKG_CONFIG_PATH\n";
 		}
 	}
 	else

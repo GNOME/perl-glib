@@ -1,3 +1,12 @@
+2003/08/14 16:54 muppetman
+
+	* apidoc.pl, Makefile.PL: use a simple perl script instead of shell
+	commands in the makefile to create xsapi.pod; not all platforms have
+	the shell tools, and this will let us sneak in more sophisticated
+	stuff later.
+
+	* PkgConfig.pm: portability fixes
+
 2003/08/14 11:50 muppetman
 
 	* devel.pod, Makefile.PL, Glib.pm: new manpage, Glib::devel, describes
