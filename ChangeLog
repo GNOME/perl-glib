@@ -1,3 +1,17 @@
+2003/08/13 23:44 muppetman
+
+	* GObject.xs: fatalistic commentary
+
+	* GIOChannel.xs, Glib.xs, Makefile.PL: new file GIOChannel.xs
+
+	* GClosure.xs, GMainLoop.xs, GSignal.xs, gperl.h: closure
+	correctness and simplification fixes
+
+	* GValue.xs: reordering to assure that all the same types are
+	handled in both switches; croak on unhandled types rather than
+	just warn --- an unhandled type is a bug that we need to know
+	about; it may require a handler registration mechanism.
+
 2003/08/12 12:06 rwmcfa1
 
 	* PkgConfig.pm: can now take multiple pkg name parameters, see t/6.t
