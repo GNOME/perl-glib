@@ -48,7 +48,6 @@ typedef struct _SinkFunc  SinkFunc;
 struct _ClassInfo {
 	GType   gtype;
 	char  * package;
-        HV *	stash;
 };
 
 struct _SinkFunc {
@@ -83,12 +82,6 @@ class_info_new (GType gtype,
 	class_info = g_new0 (ClassInfo, 1);
 	class_info->gtype = gtype;
 	class_info->package = g_strdup (package);
-        /* Taking a reference to the stash is not really correct,
-         * as the stash might be replaced, giving us the wrong stash.
-         * Fortunately doing this is not documented nor really supported,
-         * nor does perl cope with it gracefully. So this just shields us
-         * from segfaults. */
-        class_info->stash = (HV *)SvREFCNT_inc (gv_stashpv (package, 1));
 
 	return class_info;
 }
@@ -97,7 +90,6 @@ void
 class_info_destroy (ClassInfo * class_info)
 {
 	if (class_info) {
-                SvREFCNT_dec (class_info->stash);
 		g_free (class_info->package);
 		g_free (class_info);
 	}
@@ -394,24 +386,11 @@ not registered.  The stash is useful for C<bless>ing.
 HV *
 gperl_object_stash_from_type (GType gtype)
 {
-	if (types_by_type) {
-		ClassInfo * class_info;
-
-		G_LOCK (types_by_type);
-
-		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer) gtype);
-
-		G_UNLOCK (types_by_type);
-
-		if (class_info)
-			return class_info->stash;
-                else
-                  	return NULL;
-	} else
-		croak ("internal problem: gperl_object_stash_from_type "
-		       "called before any classes were registered");
-	return NULL; /* not reached */
+	const char * package = gperl_object_package_from_type (gtype);
+	if (package)
+		return gv_stashpv (package, TRUE);
+	else
+		return NULL;
 }
 
 
