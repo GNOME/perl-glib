@@ -1,3 +1,22 @@
+2004/07/18 21:00 (-0400) muppetman
+
+	* GObject.xs: one last bug; always prefer to create the key with an
+	underscore in its name.  this preserves the semantics of the old
+	property stuff from Glib::Object::Subclass::SET_PROPERTY(), although
+	it means we'll always try twice on keys with no dashes.
+
+	* Subclass.pm: remove the CHECK block (and the associated bugs) by
+	changing how Subclass works.  we now rely on the new default property 
+	handlers, and thus have no further need for GET_PROPERTY() and
+	SET_PROPERTY(); by prepending Glib::Object::Subclass to the new
+	class's @ISA, we can inherit new() normally.  tested extensively in
+	my sandbox and a couple of people reported that all was well.
+
+	* t/f.t: yes, it's bad form to change the tests to fit the code, but
+	this test was verifying old behavior that we can't produce any longer,
+	and which was actually quite annoying in practice.  verify the new
+	semantics.
+
 2004/07/12 20:42 (+0200) kaffeetisch
 
 	* typemap: Make the OUTPUT variant of T_GPERL_GENERIC_WRAPPER do
