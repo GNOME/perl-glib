@@ -1,3 +1,8 @@
+2003/07/04 13:35 muppetman
+
+	* Makefile.PL: patch from Thierry Vignaud fixed my copy and paste
+	bug which leads to errors when ExtUtils::Depends isn't present.
+
 2003/06/28 03:16 pcg
 
 	* GType.xs: remove superfluous gperl_object_new call.
