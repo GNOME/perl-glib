@@ -179,8 +179,8 @@ gperl_signal_set_marshaller_for (GType instance_type,
 	} else {
 		if (!marshallers)
 			marshallers =
-				g_hash_table_new_full (g_str_hash,
-				                       g_str_equal,
+				g_hash_table_new_full (gperl_str_hash,
+				                       (GEqualFunc)gperl_str_eq,
 				                       g_free,
 				                       g_free);
 		if (marshaller)
