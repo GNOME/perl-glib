@@ -1,3 +1,7 @@
+2004/01/14 10:59 (-0500) rwmcfa1
+
+	* GObject.xs: added pod documentation for tie_properties
+
 2004/01/14 00:21 (-0500) muppetman
 
 	* GBoxed.xs, GType.xs, GValue.xs: more spots where we should use

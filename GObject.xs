@@ -741,6 +741,23 @@ underlying C object.
 
 =cut
 
+=head1 TIE PROPERTIES
+
+A special method avaiable to Glib::Object derivatives, it uses perl's tie
+features to associate hash keys with the properties of the object. For example:
+
+  $button->tie_properties;
+  # equivilent to $button->set (label => 'Hello World');
+  $button->{label} = 'Hello World';
+  print "the label is: ".$button->{label}."\n";
+
+Care must be taken when using tie_properties with objects of types created with
+Glib::Object::Subclass as there may be clashes with existing hash keys that
+could cause infinite loops. The solution is to use custom property get/set
+functions to alter the storage locations of the properties.
+
+=cut
+
 BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
 	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-object");
