@@ -1,3 +1,12 @@
+Overview of Changes in Glib 1.052
+=================================
+
+* Remove CHECK block from Glib::Object::Subclass's import(), making it
+  possible to use Subclass in evals.  Changes should be perfectly backwards
+  compatible, with a few bugs fixed.  [muppet]
+* The OUTPUT variant of T_GPERL_GENERIC_WRAPPER can now handle leading
+  "const" and trailing asterisks, like the INPUT variant.  [Torsten]
+
 Overview of Changes in Glib 1.051
 =================================
 
