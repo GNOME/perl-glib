@@ -1,3 +1,9 @@
+2004/02/08 20:46 (-0500) muppetman
+
+	* Glib.pm, README, NEWS: unstable release 1.034
+
+	* GenPod.pm: add bool and CV to %basic_types.
+
 2004/02/07 02:22 (-0500) muppetman
 
 	* GType.xs: add the ability to add GInterfaces to new GObject types

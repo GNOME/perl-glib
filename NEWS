@@ -1,3 +1,14 @@
+Overview of Changes in Glib 1.034
+=================================
+
+* Added infrastructure for installing Perl implementations of GObject vfuncs.
+  [muppet]
+* Added infrastructure for adding GInterfaces to perl-derived GObject types.
+  [muppet]
+* Added GPerlArgv utilities for unified @ARGV handling.  [Torsten]
+* Added startup-time linked version checking.  [Ross]
+* Several 64-bit portability fixes.  [muppet]
+
 Overview of Changes in Glib 1.033
 =================================
 
