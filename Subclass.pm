@@ -23,7 +23,7 @@ use Glib;
 
 =head1 NAME
 
-Glib::Object::Subclass - create gobject classes in perl
+Glib::Object::Subclass - register a perl class as a gobjectclass
 
 =head1 SYNOPSIS
 
