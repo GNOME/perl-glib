@@ -1,3 +1,11 @@
+2003/10/02 03:13 muppetman
+
+	* gperl.h: bad nesting of parens in a debugging macro
+
+	* GClosure.xs: bug in error-handling code in gperl_callback_invoke
+	made it a little hard to track down the fact that a callback was
+	created with the wrong parameter type.
+
 2003/10/01 11:20 rwmcfa1
 
 	* Glib/GBoxed.xs, Glib/GLog.xs, Glib/GObject.xs, Glib/GSignal.xs,
