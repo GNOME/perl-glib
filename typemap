@@ -36,8 +36,10 @@ glong		T_IV
 gulong		T_UV
 gchar		T_IV
 gchar *		T_GCHAR
-gchar_own *	T_GCHAR_OWN
 const gchar *	T_GCHAR
+gchar_own *	T_GCHAR_OWN
+gchar_length *	T_GCHAR_LEN
+const gchar_length *	T_GCHAR_LEN
 guchar		T_UV
 guchar *	T_PV
 const guchar *	T_PV
@@ -63,6 +65,10 @@ T_GCHAR
 	/* same as SvGChar(), but not in a function */
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV_nolen ($arg);
+
+T_GCHAR_LEN
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
 
 T_G_TYPE_OBJECT
 	$var = SvGObject ($arg);

@@ -1,8 +1,8 @@
 2003/07/05 06:37 pcg
 
 	* typemap: add gchar_own*, for functions that return allocated
-        strings.
-        * gperl.h: add gchar_own typedef.
+        strings and gchar_length* for functions expecting a length() input.
+        * gperl.h: add gchar_own and gchar_len typedefs.
 
 2003/07/04 13:35 muppetman
 
