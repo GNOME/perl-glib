@@ -423,7 +423,12 @@ gperl_callback_invoke (GPerlCallback * callback,
 				/* we modified the stack -- we need to make 
 				 * sure perl sees that! */
 				PUTBACK;
-				errstr = newSVpvn (error, 0);
+				errstr = newSVpvf ("error while collecting"
+				                   " varargs parameters: %s\n"
+						   "is your GPerlCallback "
+						   "created properly? "
+						   " bailing out",
+						   error);
 				g_free (error);
 				/* this won't return */
 				croak (SvPV_nolen (errstr));
