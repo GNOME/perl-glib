@@ -76,21 +76,44 @@ of gmain.h in here, commented out.
 ###define G_PRIORITY_DEFAULT_IDLE     200
 ###define G_PRIORITY_LOW	            300
 
-##MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
+#endif
+
+MODULE = Glib::MainLoop	PACKAGE = Glib::MainContext	PREFIX = g_main_context_
  
  #####################
  ### GMainContext: ###
  #####################
 
-##GMainContext *g_main_context_new       (void);
+GMainContext *
+g_main_context_new (class)
+	SV * class
+    C_ARGS:
+	/*void*/
+    CLEANUP:
+	g_main_context_unref (RETVAL); /* release the typemap's ref, so the 
+	                                  wrapper owns the object */
+
+void
+DESTROY (maincontext)
+	GMainContext * maincontext
+    CODE:
+	g_main_context_unref (maincontext);
+
+ ## these are automatic, now
 ##void          g_main_context_ref       (GMainContext *context);
 ##void          g_main_context_unref     (GMainContext *context);
-##GMainContext *g_main_context_default   (void);
-##
-##gboolean      g_main_context_iteration (GMainContext *context,
-##					gboolean      may_block);
-##gboolean      g_main_context_pending   (GMainContext *context);
-##
+
+GMainContext *
+g_main_context_default (class)
+	SV * class
+    C_ARGS:
+	/*void*/
+
+gboolean g_main_context_iteration (GMainContext *context, gboolean may_block);
+
+gboolean g_main_context_pending (GMainContext *context);
+
+
 ##/* For implementation of legacy interfaces */
 ##GSource *g_main_context_find_source_by_id (GMainContext *context,
 ##	   				     guint source_id);
@@ -134,35 +157,58 @@ of gmain.h in here, commented out.
 ##				   GPollFD      *fd);
 
 
-##MODULE = Glib::MainLoop	PACKAGE = Glib::MainLoop	PREFIX = g_main_loop_
+MODULE = Glib::MainLoop	PACKAGE = Glib::MainLoop	PREFIX = g_main_loop_
 
  ##################
  ### GMainLoop: ###
  ##################
 
-##GMainLoop *g_main_loop_new        (GMainContext *context,
-##			    	   gboolean      is_running);
-##void       g_main_loop_run        (GMainLoop    *loop);
-##void       g_main_loop_quit       (GMainLoop    *loop);
+ ## the OUTPUT typemap for GMainLoop* takes a ref on the object, and the
+ ## DESTROY method for the wrapper releases it.  g_main_loop_new returns
+ ## a new object that is to be owned by the wrapper, so it releases the
+ ## typemap's reference in the CLEANUP section.
+
+##GMainLoop *g_main_loop_new (GMainContext *context, gboolean is_running);
+GMainLoop *
+g_main_loop_new (class, context=NULL, is_running=FALSE)
+	SV * class
+	GMainContext *context
+	gboolean is_running
+    C_ARGS:
+	context, is_running
+    CLEANUP:
+	g_main_loop_ref (RETVAL);
+
+void
+DESTROY (mainloop)
+	GMainLoop * mainloop
+    CODE:
+	g_main_loop_unref (mainloop);
+
+void g_main_loop_run (GMainLoop *loop);
+
+void g_main_loop_quit (GMainLoop *loop);
+
+ ## see above, these are taken care of for you
 ##GMainLoop *g_main_loop_ref        (GMainLoop    *loop);
 ##void       g_main_loop_unref      (GMainLoop    *loop);
-##gboolean   g_main_loop_is_running (GMainLoop    *loop);
-##GMainContext *g_main_loop_get_context (GMainLoop    *loop);
+
+gboolean g_main_loop_is_running (GMainLoop * loop);
+
+GMainContext * g_main_loop_get_context (GMainLoop * loop);
 
  ##/* ============== Compat main loop stuff ================== */
  ##
  ###ifndef G_DISABLE_DEPRECATED
  ##
- ##/* Legacy names for GMainLoop functions
- ## */
+ ##/* Legacy names for GMainLoop functions */
  ###define 	g_main_new(is_running)	g_main_loop_new (NULL, is_running);
  ###define         g_main_run(loop)        g_main_loop_run(loop)
  ###define         g_main_quit(loop)       g_main_loop_quit(loop)
  ###define         g_main_destroy(loop)    g_main_loop_unref(loop)
  ###define         g_main_is_running(loop) g_main_loop_is_running(loop)
  ##
- ##/* Functions to manipulate the default main loop
- ## */
+ ##/* Functions to manipulate the default main loop */
  ##
  ###define	g_main_iteration(may_block) g_main_context_iteration      (NULL, may_block)
  ###define g_main_pending()            g_main_context_pending        (NULL)
@@ -171,7 +217,6 @@ of gmain.h in here, commented out.
  ##
  ###endif /* G_DISABLE_DEPRECATED */
 
-#endif
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Source	PREFIX = g_source_
 

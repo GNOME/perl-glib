@@ -49,6 +49,10 @@ GObject_noinc*	T_G_TYPE_OBJECT_NOINC
 
 GIOCondition	T_G_TYPE_IO_CONDITION
 
+GMainContext*	T_G_MAIN_CONTEXT
+GMainLoop*	T_G_MAIN_LOOP
+
+#####
 INPUT
 
 T_GCHAR
@@ -65,6 +69,16 @@ T_G_TYPE_OBJECT_ORNULL
 T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
 
+T_G_MAIN_CONTEXT
+	if (!$arg || !SvTRUE ($arg) || !SvROK ($arg)) {
+		$var = NULL;
+	} else {
+		$var = ($type) SvIV (SvRV ($arg));
+	}
+T_G_MAIN_LOOP
+	$var = ($type) SvIV (SvRV ($arg))
+
+######
 OUTPUT
 
 T_GCHAR
@@ -80,3 +94,11 @@ T_G_TYPE_OBJECT_NOINC
 
 T_G_TYPE_IO_CONDITION
 	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
+
+T_G_MAIN_CONTEXT
+	sv_setref_pv ($arg, \"Glib::MainContext\", $var);
+	g_main_context_ref ($var);
+T_G_MAIN_LOOP
+	sv_setref_pv ($arg, \"Glib::MainLoop\", $var);
+	g_main_loop_ref ($var);
+
