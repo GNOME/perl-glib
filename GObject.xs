@@ -617,7 +617,7 @@ gperl_new_object (GObject * object,
 	if(perl_gobject_tracking)
 	{
 		G_LOCK (perl_gobjects);
-//g_printerr ("adding object: 0x%p - %d\n", object, object->ref_count);
+/*g_printerr ("adding object: 0x%p - %d\n", object, object->ref_count);*/
 		if (!perl_gobjects)
 			perl_gobjects = g_hash_table_new (g_direct_hash, g_direct_equal);
 		g_hash_table_insert (perl_gobjects, (gpointer)object, (gpointer)1);
@@ -753,7 +753,7 @@ CLONE (gchar * class)
     	if (perl_gobject_tracking && strcmp (class, "Glib::Object") == 0)
 	{
 		G_LOCK (perl_gobjects);
-//g_printerr ("we're in clone: %s\n", class);
+/*g_printerr ("we're in clone: %s\n", class);*/
 		g_hash_table_foreach (perl_gobjects, 
 				      (GHFunc)_inc_ref_and_count, NULL);
 		G_UNLOCK (perl_gobjects);
@@ -831,13 +831,13 @@ DESTROY (SV *sv)
 		count--;
 		if (count > 0)
 		{
-//g_printerr ("decing: %p - %d\n", object, count);
+/*g_printerr ("decing: %p - %d\n", object, count);*/
 			g_hash_table_replace (perl_gobjects, object, 
 					      (gpointer)count);
 		}
 		else
 		{
-//g_printerr ("removing: %p\n", object);
+/*g_printerr ("removing: %p\n", object);*/
 			g_hash_table_remove (perl_gobjects, object);
 		}
 		G_UNLOCK (perl_gobjects);

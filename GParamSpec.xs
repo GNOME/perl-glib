@@ -147,7 +147,6 @@ newSVGParamSpec (GParamSpec * pspec)
 
 	g_param_spec_ref (pspec);
 	g_param_spec_sink (pspec);
-	//return sv_setref_pv (newSV (0), "Glib::ParamSpec", pspec);
 
 	sv_magic ((SV*)property, 0, PERL_MAGIC_ext, (const char*)pspec, 0);
 

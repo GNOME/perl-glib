@@ -374,7 +374,6 @@ filename_from_uri (...)
 	GError * error = NULL;
     PPCODE:
 	/* support multiple call syntaxes. */
-	//uri = items < 2 ? SvGChar (ST (0)) : SvGChar (ST (1));
 	uri = items < 2 ? SvPVutf8_nolen (ST (0)) : SvPVutf8_nolen (ST (1));
 	filename = g_filename_from_uri (uri,
 	                                GIMME_V == G_ARRAY ? &hostname : NULL, 
@@ -397,7 +396,7 @@ filename_to_uri (...)
 	char * hostname = NULL;
 	GError * error = NULL;
     CODE:
-	// FIXME FIXME this is broken somehow
+	/* FIXME FIXME this is broken somehow */
 	if (items == 2) {
 		filename = SvPV_nolen (ST (0));
 		hostname = SvOK (ST (1)) ? SvPV_nolen (ST (1)) : NULL;

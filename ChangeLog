@@ -1,3 +1,14 @@
+2004/06/08 21:55 (-0400) muppetman
+
+	* AUTHORS, GLog.xs, GObject.xs, GParamSpec.xs, GType.xs, Glib.xs:
+	patch from Albert Chin keeps us honest in ANSI/C89 compatibility,
+	to allow compilation on IRIX.  C++ comments are not allowed in C
+	files (some were on dead code, so i just removed them in applying
+	the patch); and C89 doesn't allow for non-static member
+	initialization (the FOO_TYPE_BAR macros usually evalulate to
+	function calls, so we have to do the param_types arrays the hard
+	and ugly way.)
+
 2004/06/02 13:41 (-0400) muppetman
 
 	Unstable development release 1.050

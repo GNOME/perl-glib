@@ -1452,7 +1452,6 @@ BOOT:
 	 * same gtype, we get the mappings for two packages to one gtype, but
 	 * only one mapping (the last and correct one) from type to package.
 	 */
-	//gperl_register_fundamental (G_TYPE_UINT, "Glib::Uint");
 	G_LOCK (types_by_package);
 	g_hash_table_insert (types_by_package, "Glib::Uint",
 			     (gpointer) G_TYPE_UINT);

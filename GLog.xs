@@ -189,12 +189,12 @@ guint
 g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
     PREINIT:
 	GPerlCallback * callback;
-	GType param_types[] = {
-		G_TYPE_STRING,
-		g_log_level_flags_get_type (),
-		G_TYPE_STRING
-	};
+	GType param_types[3];
     CODE:
+	param_types[0] = G_TYPE_STRING;
+	param_types[1] = g_log_level_flags_get_type ();
+	param_types[2] = G_TYPE_STRING;
+
 	callback = gperl_callback_new (log_func, user_data,
 	                               3, param_types, G_TYPE_NONE);
 	RETVAL = g_log_set_handler (log_domain,
