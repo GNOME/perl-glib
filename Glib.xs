@@ -159,11 +159,12 @@ gperl_filename_from_sv (SV *sv)
         STRLEN len;
         gchar *filename = SvPVutf8 (sv, len);
 
-        lname = g_filename_from_utf8 (filename, len, 0, 0, &error);
+	/* look out: len is the length of the input when we call, but
+	 * will be the length of the output when this call finishes. */
+        lname = g_filename_from_utf8 (filename, len, 0, &len, &error);
         if (!lname)
         	gperl_croak_gerror (filename, error);
 
-        len = strlen (lname);
         filename = gperl_alloc_temp (len + 1);
         memcpy (filename, lname, len);
         g_free (lname);
@@ -181,12 +182,13 @@ gperl_sv_from_filename (const gchar *filename)
 {
 	GError *error = 0;
         SV *sv;
-        gchar *str = g_filename_to_utf8 (filename, -1, 0, 0, &error);
+	int len;
+        gchar *str = g_filename_to_utf8 (filename, -1, NULL, &len, &error);
 
         if (!filename)
         	gperl_croak_gerror (str, error);
 
-        sv = newSVpv (str, 0);
+        sv = newSVpv (str, len);
         g_free (str);
 
         SvUTF8_on (sv);
@@ -276,7 +278,7 @@ filename_from_unicode (GPerlFilename filename)
         
 =for apidoc __hide__
 =cut
-GPerlFilename
+GPerlFilename_const
 filename_to_unicode (const char *filename)
 	PROTOTYPE: $
 	CODE:
