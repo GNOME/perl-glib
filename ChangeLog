@@ -1,3 +1,9 @@
+2003/10/23 16:04 rwmcfa1
+
+	* GType.xs: Glib::Type->list_ancestors, list_interfaces, and
+	list_signals added. with that V commit this starts to bring together
+	some petty powerful magic.
+
 2003/10/23 15:51 muppetman
 
 	* GType.xs: Glib::Type->list_values ($enum_or_flags_package).

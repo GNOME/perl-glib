@@ -54,7 +54,7 @@ gperl_type_class (GType type)
 	class = g_type_get_qdata (type, quark_static_class);
 	if (!class) {
 		if (!quark_static_class)
-			quark_static_class = g_quark_from_static_string 
+			quark_static_class = g_quark_from_static_string
 						("GPerlStaticTypeClass");
 		class = g_type_class_ref (type);
 		g_assert (class != NULL);
@@ -78,14 +78,14 @@ gperl_register_fundamental (GType gtype, const char * package)
 	G_LOCK (types_by_package);
 	G_LOCK (packages_by_type);
 	if (!types_by_package) {
-		types_by_package = 
+		types_by_package =
 			g_hash_table_new_full (g_str_hash,
 			                       g_str_equal,
 			                       NULL, NULL);
 		packages_by_type =
 			g_hash_table_new_full (g_direct_hash,
 			                       g_direct_equal,
-			                       NULL, 
+			                       NULL,
 			                       (GDestroyNotify)g_free);
 	}
 	p = g_strdup (package);
@@ -117,7 +117,7 @@ look up the package corresponding to a I<gtype> registered by
 gperl_register_fundamental().
 
 =cut
-const char * 
+const char *
 gperl_fundamental_package_from_type (GType gtype)
 {
 	const char * res;
@@ -134,11 +134,11 @@ gperl_fundamental_package_from_type (GType gtype)
  */
 
 static gboolean
-streq_enum (register const char * a, 
+streq_enum (register const char * a,
 	    register const char * b)
 {
 	while (*a && *b) {
-		if (*a == *b || 
+		if (*a == *b ||
 		    ((*a == '-' || *a == '_') && (*b == '-' || *b == '_'))) {
 			a++;
 			b++;
@@ -186,7 +186,7 @@ gperl_try_convert_enum (GType type,
 	if (*val_p == '-') val_p++;
 	vals = gperl_type_enum_get_values (type);
 	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_nick) || 
+		if (streq_enum (val_p, vals->value_nick) ||
 		    streq_enum (val_p, vals->value_name)) {
 			*val = vals->value;
 			return TRUE;
@@ -209,7 +209,7 @@ gperl_convert_enum (GType type, SV * val)
 	GEnumValue * vals;
 	if (gperl_try_convert_enum (type, val, &ret))
 		return ret;
-	
+
 	/*
 	 * This is an error, val should be included in the enum type.
 	 * croak with a message.  note that we build the message in an
@@ -285,14 +285,14 @@ gperl_try_convert_flag (GType type,
 {
 	GFlagsValue * vals = gperl_type_flags_get_values (type);
 	while (vals && vals->value_nick && vals->value_name) {
-		if (streq_enum (val_p, vals->value_name) || 
+		if (streq_enum (val_p, vals->value_name) ||
 		    streq_enum (val_p, vals->value_nick)) {
                         *val = vals->value;
                         return TRUE;
 		}
 		vals++;
 	}
-        
+
         return FALSE;
 }
 
@@ -302,7 +302,7 @@ croak if I<val> is not part of I<type>, otherwise return corresponding value.
 
 =cut
 gint
-gperl_convert_flag_one (GType type, 
+gperl_convert_flag_one (GType type,
 			const char * val_p)
 {
 	SV *r;
@@ -351,7 +351,7 @@ gperl_convert_flags (GType type,
 					 SvPV_nolen (*av_fetch (vals, i, 0)));
 		return value;
 	}
-	croak ("FATAL: invalid flags %s value %s, expecting a string scalar or an arrayref of strings", 
+	croak ("FATAL: invalid flags %s value %s, expecting a string scalar or an arrayref of strings",
 	       g_type_name (type), SvPV_nolen (val));
 	return 0; /* not reached */
 }
@@ -441,11 +441,11 @@ gperl_type_from_package (const char * package)
 		return t;
 
 	t = gperl_boxed_type_from_package (package);
-	if (t)	
+	if (t)
 		return t;
 
 	t = gperl_fundamental_type_from_package (package);
-	if (t)	
+	if (t)
 		return t;
 
 	return 0;
@@ -457,7 +457,7 @@ Look up the name of the package associated with I<gtype>, regardless of how it
 was registered.  Returns NULL if no mapping can be found.
 
 =cut
-const char * 
+const char *
 gperl_package_from_type (GType type)
 {
 	const char * p;
@@ -466,11 +466,11 @@ gperl_package_from_type (GType type)
 		return p;
 
 	p = gperl_boxed_package_from_type (type);
-	if (p)	
+	if (p)
 		return p;
 
 	p = gperl_fundamental_package_from_type (type);
-	if (p)	
+	if (p)
 		return p;
 
 	return NULL;
@@ -576,7 +576,7 @@ newSVGChar (const gchar * str)
 /*
  * support for pure-perl GObject subclasses.
  *
- * this includes 
+ * this includes
  *   * creating new object properties
  *   * creating new signals
  *   * overriding the class closures (that is, default handlers) of
@@ -635,11 +635,11 @@ gperl_signal_class_closure_marshal (GClosure *closure,
         slot = hv_fetch (stash, tmp, i, 0);
 
         /* does the function exist? then call it. */
-        if (slot && GvCV (*slot)) {	
+        if (slot && GvCV (*slot)) {
 		GObject *object;
 		int flags;
 		dSP;
-	
+
 		ENTER;
 		SAVETMPS;
 
@@ -667,7 +667,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		flags = G_EVAL | (return_value ? G_SCALAR : G_VOID|G_DISCARD);
 		call_method (SvPV_nolen (method_name), flags);
 
-		if (SvTRUE (ERRSV)) 
+		if (SvTRUE (ERRSV))
 			gperl_run_exception_handlers ();
 
 		if (return_value) {
@@ -831,7 +831,7 @@ we look for:
   param_types => reference to a list of package names,
                  if not present, assumed to be empty (no parameters)
   class_closure => reference to a subroutine to call as the class closure.
-                   may also be a string interpreted as the name of a 
+                   may also be a string interpreted as the name of a
                    subroutine to call, but you should be very very very
                    careful about that.
                    if not present, the library will attempt to call the
@@ -845,7 +845,7 @@ we look for:
                  special callback function that can be used to collect
                  return values of the various callbacks that are called
                  during a signal emission."
-  
+
  */
 static SignalParams *
 parse_signal_hash (GType instance_type,
@@ -854,7 +854,7 @@ parse_signal_hash (GType instance_type,
 {
 	SignalParams * s = signal_params_new ();
 	SV ** svp;
-	
+
 	PERL_UNUSED_VAR (instance_type);
 	PERL_UNUSED_VAR (signal_name);
 
@@ -959,7 +959,7 @@ add_signals (GType instance_type, HV * signals)
 			                           s->flags,
 			                           s->class_closure,
 			                           s->accumulator,
-						   s->accu_data, 
+						   s->accu_data,
 						   NULL, /* c_marshaller */
 			                           s->return_type,
 			                           s->n_params,
@@ -983,7 +983,7 @@ add_signals (GType instance_type, HV * signals)
 			g_signal_override_class_closure (signal_id,
 			                                 instance_type,
 			                                 closure);
-			
+
 		} else {
 			croak ("value for signal key '%s' must be either a "
 			       "subroutine (the class closure override) or "
@@ -1020,7 +1020,7 @@ gperl_type_get_property (GObject * object,
         HV *stash = gperl_object_stash_from_type (pspec->owner_type);
         SV **slot;
         assert (stash);
-	
+
 	PERL_UNUSED_VAR (property_id);
 
 #ifdef NOISY
@@ -1030,9 +1030,9 @@ gperl_type_get_property (GObject * object,
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
-                  dSP;            
-                
-                  ENTER;                         
+                  dSP;
+
+                  ENTER;
                   SAVETMPS;
 
                   PUSHMARK (SP);
@@ -1072,9 +1072,9 @@ gperl_type_set_property (GObject * object,
 
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
-                  dSP;            
-                
-                  ENTER;                         
+                  dSP;
+
+                  ENTER;
                   SAVETMPS;
 
                   PUSHMARK (SP);
@@ -1119,9 +1119,9 @@ gperl_type_finalize (GObject * instance)
 
                                 /* does the function exist? then call it. */
                                 if (slot && GvCV (*slot)) {
-                                          dSP;            
-                                        
-                                          ENTER;                         
+                                          dSP;
+
+                                          ENTER;
                                           SAVETMPS;
 
                                           PUSHMARK (SP);
@@ -1148,9 +1148,9 @@ gperl_type_finalize (GObject * instance)
 static void
 gperl_type_instance_init (GObject * instance)
 {
-        dSP;            
+        dSP;
 	/*
-	 * for new objects, this may be the place where the initial 
+	 * for new objects, this may be the place where the initial
 	 * perl object is created.  we won't worry about the owner
 	 * semantics here, but since initializers are called from the
 	 * inside out, we will need to worry about making sure we get
@@ -1161,7 +1161,7 @@ gperl_type_instance_init (GObject * instance)
         SV **slot;
 	g_assert (stash != NULL);
 
-        ENTER;                         
+        ENTER;
         SAVETMPS;
 
 	obj = sv_2mortal (gperl_new_object (instance, FALSE));
@@ -1252,7 +1252,7 @@ g_type_register (class, parent_package, new_package, ...);
 	for (s = new_type_name ; *s != '\0' ; s++)
 		if (*s == ':')
 			*s = '_';
-	new_type = g_type_register_static (parent_type, new_type_name, 
+	new_type = g_type_register_static (parent_type, new_type_name,
 	                                   &type_info, 0);
 #ifdef NOISY
 	warn ("registered %s, son of %s nee %s(%d), as %s(%d)",
@@ -1281,6 +1281,106 @@ g_type_register (class, parent_package, new_package, ...);
                 }
 	}
 
+void
+list_ancestors (class, package)
+	gchar * package
+    PREINIT:
+	GType package_gtype;
+	GType parent_gtype;
+    PPCODE:
+	package_gtype = gperl_type_from_package (package);
+	XPUSHs (sv_2mortal (newSVpv (package, 0)));
+	if (!package_gtype)
+		croak ("%s is not registered with either GPerl or GLib",
+		       package);
+	parent_gtype = g_type_parent (package_gtype);
+	while (parent_gtype)
+	{
+		XPUSHs (sv_2mortal (newSVpv (
+			gperl_package_from_type (parent_gtype), 0)));
+		parent_gtype = g_type_parent (parent_gtype);
+	}
+
+void
+list_interfaces (class, package)
+	gchar * package
+    PREINIT:
+	int     i;
+	GType   package_gtype;
+	GType * interfaces;
+    PPCODE:
+	package_gtype = gperl_type_from_package (package);
+	if (!package_gtype)
+		croak ("%s is not registered with either GPerl or GLib",
+		       package);
+	interfaces = g_type_interfaces (package_gtype, NULL);
+	for (i = 0; interfaces[i] != 0; i++)
+	{
+		XPUSHs (sv_2mortal (newSVpv (
+			gperl_package_from_type (interfaces[i]), 0)));
+	}
+
+void
+list_signals (class, package)
+	gchar * package
+    PREINIT:
+	int            i;
+	int            j;
+	int            num;
+	const char   * pkgname;
+	guint        * sigids;
+	GType          package_type;
+	GSignalQuery   siginfo;
+	GObjectClass * oclass = NULL;
+	HV           * hv;
+	AV           * av;
+    PPCODE:
+#define GET_NAME(name, gtype)				\
+	(name) = gperl_package_from_type (gtype);	\
+	if (!(name))					\
+		(name) = g_type_name (gtype);		\
+
+	package_type = gperl_type_from_package (package);
+	if (!package_type)
+		croak ("%s is not registered with either GPerl or GLib",
+		       package);
+
+	oclass = g_type_class_ref (package_type);
+	sigids = g_signal_list_ids (package_type, &num);
+	if (!num)
+		XSRETURN_EMPTY;
+	EXTEND(SP, num);
+	for (i = 0; i < num; i++)
+	{
+		g_signal_query (sigids[i], &siginfo);
+		hv = newHV ();
+		hv_store (hv, "signal_id", 9, newSViv (siginfo.signal_id), 0);
+		hv_store (hv, "signal_name", 11,
+				newSVpv (siginfo.signal_name, 0), 0);
+		GET_NAME (pkgname, siginfo.itype);
+		if (pkgname)
+			hv_store (hv, "itype", 5, newSVpv (pkgname, 0), 0);
+		hv_store (hv, "signal_flags", 12,
+			newSVGSignalFlags (siginfo.signal_flags), 0);
+		if (siginfo.return_type != G_TYPE_NONE)
+		{
+			GET_NAME (pkgname, siginfo.return_type);
+			if (pkgname)
+				hv_store (hv, "return_type", 11,
+					newSVpv (pkgname, 0), 0);
+		}
+		av = newAV ();
+		for (j = 0; j < siginfo.n_params; j++)
+		{
+			GET_NAME (pkgname, siginfo.param_types[j]
+					& ~G_SIGNAL_TYPE_STATIC_SCOPE);
+			av_push (av, newSVpv (pkgname, 0));
+		}
+		hv_store (hv, "param_types", 11, newRV_noinc ((SV*)av), 0);
+		PUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
+	}
+	g_type_class_unref (oclass);
+#undef GET_NAME
 
 void
 list_values (class, const char * package)
@@ -1295,7 +1395,7 @@ list_values (class, const char * package)
 	if (!type)
 		croak ("%s is not registered with either GPerl or GLib",
 		       package);
-	/* 
+	/*
 	 * unfortunately, GFlagsValue and GEnumValue different structures
 	 * that happen to have identical definitions, so even though it
 	 * is very inviting to use the same code for them, it's not
