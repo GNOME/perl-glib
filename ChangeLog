@@ -1,3 +1,31 @@
+2003/06/27 12:00 muppetman
+
+	merged realobjects-branch back onto HEAD.  this was a week's worth
+	of work, mostly by pcg with some help from me.  here's a summary of
+	changelog items from that branch:
+
+	* README.api-changes: clearinghouse for API gripes, please amend
+	* GParamSpec.xs, Glib.xs, typemap, gperl.h, Makefile.PL: support
+	for pspecs, so we can add properties to gobjects.
+	* Subclass.pm, t/[345].t: extra module to ease implementation of
+	subclasses, and some tests for it
+	* Glib.pm: pod updates
+        * GObject.xs: big change in how perl wrappers are implemented.
+	the new implementation will only ever create one perl wrapper (a
+	real hash, with magic containing the gobject's address) for any
+	gobject. The combined perl+gobject will stay alive as long as one
+	of the partners is alive. The only real changes are in
+	gperl_new_object and in the DESTROY method.
+        * GType.xs: rename INSTANCE_INIT to INIT_INSTANCE and make it a
+        function call as opposed to a method call. Also call FINALIZE_INSTANCE
+        on object finalization time.  implemented creation of properties
+	for an object in Glib::Type::register, and implemented calling
+	of SET_PROPERTY and GET_PROPERTY on the resultant object.
+
+	other changes during the merge:
+	* Makefile.PL: install MAN3PODS with the correct names.
+	* PkgConfig.pm: add some documentation
+
 2003/06/25 09:25 muppetman
 
 	* GValue.xs, GClosure.xs: add a MODULE directive to appease
