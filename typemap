@@ -1,0 +1,57 @@
+#
+# $Header$
+#
+
+TYPEMAP
+
+gboolean	T_BOOL
+gint		T_IV
+guint		T_UV
+gint8		T_IV
+guint8		T_UV
+gint16		T_IV
+guint16		T_UV
+gint32		T_IV
+guint32		T_UV
+glong		T_IV
+gulong		T_UV
+gchar		T_IV
+#gchar *		T_PV
+gchar *		T_GCHAR
+#const gchar *	T_PV
+const gchar *	T_GCHAR
+guchar		T_UV
+guchar *	T_PV
+const guchar *	T_PV
+gfloat		T_FLOAT
+gdouble		T_DOUBLE
+
+GObject *	T_G_TYPE_OBJECT
+
+GIOCondition	T_G_TYPE_IO_CONDITION
+
+INPUT
+
+T_GCHAR
+	/* same as SvGChar(), but not in a function */
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV_nolen ($arg);
+
+T_G_TYPE_OBJECT
+	$var = gperl_get_object ($arg);
+
+T_G_TYPE_IO_CONDITION
+	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
+
+OUTPUT
+
+T_GCHAR
+	/* same as newSVGChar(), but not in a function */
+	sv_setpv ((SV*)$arg, $var);
+	SvUTF8_on ($arg);
+
+T_G_TYPE_OBJECT
+	$arg = gperl_new_object ($var);
+
+T_G_TYPE_IO_CONDITION
+	$arg = gperl_convert_back_flags (G_TYPE_IO_CONDITION, $var);
