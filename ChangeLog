@@ -1,3 +1,7 @@
+2003/10/03 15:54 muppetman
+
+	* Glib.pm, META.yml, README, debian/changelog: 1.00rc4
+
 2003/10/02 03:34 rwmcfa1
 
 	* Glib.xs: core dumps occur in gperl_croak_gerror when NULL is passed 
