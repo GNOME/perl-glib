@@ -175,10 +175,23 @@ BOOT:
 	gperl_register_fundamental (g_log_level_flags_get_type (),
 	                            "Glib::LogLevelFlags");
 
+=for enum Glib::LogLevelFlags
+
+=cut
+
 ##
 ## Logging mechanism
 ##
 ##guint g_log_set_handler (const gchar *log_domain, GLogLevelFlags log_levels, GLogFunc log_func, gpointer user_data);
+=for apidoc
+
+=for arg log_domain name of the domain to handle with this callback.
+
+=arg log_levels (GLogLevelFlags) log levels to handle with this callback
+
+=arg log_func (subroutine) handler function
+
+=cut
 guint
 g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
     PREINIT:

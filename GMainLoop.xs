@@ -274,6 +274,10 @@ g_source_remove (class, tag)
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Timeout	PREFIX = g_timeout_
 
+=for object Glib::Source
+
+=cut
+
  ##########################
  ### Idles and timeouts ###
  ##########################
@@ -302,6 +306,10 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Idle	PREFIX = g_idle_
 
+=for object Glib::Source
+
+=cut
+
 guint
 g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 	SV * callback
@@ -325,6 +333,17 @@ g_idle_add (class, callback, data=NULL, priority=G_PRIORITY_DEFAULT_IDLE)
 
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::IO	PREFIX = g_io_
+
+=for object Glib::Source
+
+=cut
+
+BOOT:
+	gperl_register_fundamental (G_TYPE_IO_CONDITION, "Glib::IOCondition");
+
+=for enum Glib::IOCondition
+
+=cut
 
 guint
 g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_DEFAULT)

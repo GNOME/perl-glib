@@ -338,6 +338,14 @@ foreach_closure_matched (gpointer instance,
 
 MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 
+BOOT:
+	gperl_register_fundamental (g_signal_flags_get_type (),
+	                            "Glib::SignalFlags");
+
+=for flags Glib::SignalFlags
+
+=cut
+
 ##
 ##/* --- typedefs --- */
 ##typedef struct _GSignalQuery		 GSignalQuery;
