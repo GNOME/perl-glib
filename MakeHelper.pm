@@ -129,7 +129,7 @@ sub postamble_docs
 	shift; # package name
 	my @xs_files = @_;
 "
-BLIB_MOD_EXISTS=pm_to_blib
+BLIB_DONE=linkext
 
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
@@ -141,7 +141,7 @@ build/doc.pl :: Makefile @xs_files
 # have multiple instances
 @gend_pods :: build/podindex \$(POD_DEPENDS)
 
-build/podindex :: \$(BLIB_MOD_EXISTS) Makefile build/doc.pl
+build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
