@@ -7,6 +7,7 @@ package Glib::GenPod;
 # FIXME/TODO
 #use strict;
 #use warnings;
+use Carp;
 use Glib;
 use Data::Dumper;
 
@@ -219,6 +220,9 @@ sub xsdoc2pod
 		my $pods = $pkgdata->{pods};
 		if ($pods) {
 			foreach my $pod (@$pods) {
+				# TODO: this step could be moved to be run once
+				# before starting, up top
+				preprocess_pod ($pod);
 				print join("\n", @{$pod->{lines}})
 				    . "\n";
 			}
@@ -593,6 +597,37 @@ sub get_copyright
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
   02111-1307  USA.
 "
+}
+
+sub preprocess_pod
+{
+	my $pod = shift;
+
+	foreach (@{$pod->{lines}})
+	{
+		# =for include filename
+		# =for include !cmd
+		if (/^=for\s+include\s+(!)?(.*)$/)
+		{
+			if ($1)
+			{
+				chomp($_ = `$2`);
+			}
+			else
+			{
+				if (open INC, "<$2")
+				{
+					local $/ = undef;
+					$_ = <INC>;
+				}
+				else
+				{
+					carp "\n\nunable to open $2 for inclusion, at ".
+					     $parser->{filename}.':'.($. - @lines);
+				}
+			}
+		}
+	}
 }
 
 =back

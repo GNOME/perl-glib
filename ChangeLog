@@ -1,3 +1,10 @@
+2003/11/28 14:47 (-0500) rwmcfa1
+
+	* ParseXSDoc.pm, GenPod.pm: moved inclusion processing into GenPod 
+	rather that ParseXSDoc, it will need to be run later than parse.
+
+	* MakeHelper.pm: DOC_PL_DEPENDS is now POD_DEPENDS, related to ^
+
 2003/11/25 12:02 (-0500) muppetman
 
 	* GType.xs: clean up some odd leaks; use proper contexts in the

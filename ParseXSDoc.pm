@@ -428,32 +428,6 @@ sub slurp_pod_paragraph {
 		last if $line =~ m/$term_regex/;
 	}
 
-	foreach (@lines)
-	{
-		# =for include filename
-		# =for include !cmd
-		if (/^=for\s+include\s+(!)?(.*)$/)
-		{
-			if ($1)
-			{
-				chomp($_ = `$2`);
-			}
-			else
-			{
-				if (open INC, "<$2")
-				{
-					local $/ = undef;
-					$_ = <INC>;
-				}
-				else
-				{
-					carp "\n\nunable to open $2 for inclusion, at ".
-					     $parser->{filename}.':'.($. - @lines);
-				}
-			}
-		}
-	}
-
 	return {
 		filename => $parser->{filename},
 		line => $. - @lines,
