@@ -20,6 +20,7 @@
  */
 
 #include "gperl.h"
+#define NOISY//D
 
 typedef struct _ClassInfo ClassInfo;
 typedef struct _SinkFunc  SinkFunc;
@@ -303,7 +304,7 @@ gobject_dispose (GObject *object)
               w ? SvREFCNT (w->obj) : -1);
 #endif
 
-        if (w) {
+        if (object->ref_count == 1 && w) {
         	/* perl object still exists, so borrow a refcount from it. */
                 /* this path will only be executed once (modulo bugs). */
                 /* this operation does NOT change the refcount of the combined object. */
