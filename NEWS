@@ -1,3 +1,36 @@
+Overview of Changes in 1.040
+============================
+
+  Since 1.02x (the previous stable series)
+  ----------------------------------------
+  * Updated build requirements:
+    - ExtUtils::Depends 0.2
+    - ExtUtils::PkgConfig 1.03
+  * Support for a few new API features in glib-2.4.x.
+  * Functions that use GErrors in C throw magical Glib::Error exception
+    objects; these objects overload the stringification operator, so old code
+    won't be broken, but new code can match errors without worrying about
+    translated error messages.  User code and other extensions can register
+    their own error domains.  See the Glib::Error manpage for more info.
+  * Glib::Type enhancements
+    - Perl code can register enum and flags types for use as Glib::Object
+      property types.
+    - During Glib::Object class initialization, invoke INIT_BASE in the
+      object's package, if it exists.  (Analogue for GTypeClass's base_init.)
+    - It is now possible to add GInterface implementations to Glib::Object
+      types derived in Perl code.
+    - New param spec, Glib::ParamSpec::scalar
+  * Glib::MakeHelper is generally more helpful.
+  * The POD generation tools allow specification of cumulative data type
+    descriptions, and much finer control over the format and content of the
+    generated documentation.
+  * Glib can now export useful constants on request.
+  * New versioning API, see Glib::version.
+
+  Since 1.0391
+  ------------
+  * Nothing.  :-)
+
 Overview of Changes in 1.0391
 =============================
 
