@@ -1,3 +1,21 @@
+2003/11/09 18:54 (-0500) muppetman
+
+	writing documentation while mechagodzilla and titanosaur destroy
+	tokyo... again.  http://us.imdb.com/title/tt0073373/
+
+	* GClosure.xs, GLog.xs, GMainLoop.xs, GObject.xs, GParamSpec.xs,
+	GSignal.xs GType.xs: added lots of apidoc pod.  All the packages in
+	GMainLoop.xs go into Glib::MainLoop, and i reordered some of the
+	xsubs in GObject.xs but changed no code.
+
+	* Glib.pm: big updates to the SEE ALSO section.
+
+	* Makefile.PL: even yet still more cleanup
+
+	* ParseXSDoc.pm: pod cleanup
+
+	* TODO: updated
+
 2003/11/09 16:29 (-0500) rwmcfa1
 
 	* ParseXSDoc.pm: added the method clean_out_empty_pods to prevent empty

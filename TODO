@@ -6,4 +6,5 @@
   types, since gperl_sv_from_value and gperl_value_from_sv croak on unknown
   or unimplemented data types.
   - gperl_value_from_sv should change to void return since it croaks on error.
-- perl methods to list possible GEnum and GFlags methods
+- modify Glib::Type::register to allow you to create GEnum and GFlags types
+  in Perl.  currently it only allows GObject types.
