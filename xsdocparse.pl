@@ -470,29 +470,20 @@ sub sanitize_type {
 }
 
 
-#sub check_group_pod {
-#	my $pod = shift;
-#	if (/^=for group\s+(.*)$/) {
-#		my $which = $1;
-#		my $what = $2;
-#		if ($which eq 'object') {
-#			$what =~ s/^\s*//;
-#			$what =~ s/\s*//;
-#			($package, @members) = split /[\s,]+/, $what;
-#			$group = {
-#				name => $package,
-#				members => \@members,
-#			};
-#		} elsif (not defined $package) {
-#			warn "$filename:$.: =for $what found before any"
-#			   . " object or MODULE directive";
-#
-#		} else {
-#			$data{$package}{pods} = []
-#				unless defined $data{$package}{pods};
-#			$list = $data{$package}{pods};
-#		}
-#	}
-#}
+__END__
 
+Copyright (C) 2003 by muppet
 
+This library is free software; you can redistribute it and/or modify it under
+the terms of the GNU Library General Public License as published by the Free
+Software Foundation; either version 2.1 of the License, or (at your option) any
+later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Library General Public License for more
+details.
+
+You should have received a copy of the GNU Library General Public License along
+with this library; if not, write to the Free Software Foundation, Inc., 59
+Temple Place - Suite 330, Boston, MA  02111-1307  USA.
