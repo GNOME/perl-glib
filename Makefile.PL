@@ -9,9 +9,9 @@ use ExtUtils::MakeMaker;
 use File::Spec;
 use Cwd;
 
-# minimum required version of dependancies we need to build
+# minimum required version of dependencies we need to build
 our %build_reqs = (
-	'perl-ExtUtils-Depends'   => '0.1',
+	'perl-ExtUtils-Depends'   => '0.200',
 	'perl-ExtUtils-PkgConfig' => '1.00',
 	'Glib'                    => '2.0.0',
 );
@@ -96,7 +96,7 @@ else
 	);
 }
 
-my $glib = ExtUtils::Depends->new ('Glib');
+our $glib = ExtUtils::Depends->new ('Glib');
 
 # add -I. and -I./build to the include path so we can find our own files.
 # this will be inherited by dependant modules, so they can find their
@@ -106,7 +106,7 @@ $glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
 my $cwd = cwd();
 $glib->add_typemaps (map {File::Spec->catfile($cwd,$_)} 'typemap');
 $glib->add_headers ('"gperl.h"');
-$glib->install (qw(gperl.h gperl_marshal.h));
+$glib->install (qw(gperl.h gperl_marshal.h doctypes));
 $glib->save_config ('build/IFiles.pm');
 $glib->add_pm (%pm_files);
 $glib->add_xs (@xs_files);
@@ -156,7 +156,11 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 
 "
 	     . Glib::MakeHelper->postamble_clean ()
-	     . Glib::MakeHelper->postamble_docs (@main::xs_files)
+	     . Glib::MakeHelper->postamble_docs_full (
+			DEPENDS => $main::glib,
+			DOCTYPES => 'doctypes',
+			COPYRIGHT_FROM => 'copyright.pod',
+	       )
 	     . Glib::MakeHelper->postamble_rpms (
 			'GLIB' => $build_reqs{'Glib'},
 			'PERL_EXTUTILS_DEPENDS' => 
@@ -165,6 +169,7 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 				$build_reqs{'perl-ExtUtils-PkgConfig'},
 		);
 }
+
 
 __END__
 
