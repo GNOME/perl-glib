@@ -1,3 +1,13 @@
+2003/08/28 17:25 muppetman
+
+	* GClosure.xs, gperl.h, t/7.t, t/8.t, t/9.t: tear down and rebuild
+	exception-handling again.  now all closures trap exceptions, and the
+	exceptions are cleared.  both XS and perl code can install closures
+	to handle the trapped exceptions via a mechanism separate from
+	$SIG{__DIE__}.
+
+	* Glib.xs: GClosure.xs now has perl subs, and so needs booting
+
 2003/08/26 00:48 muppetman
 
 	* GClosure.xs, t/8.t, t/9.t: hacking away at reasonable exception
