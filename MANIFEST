@@ -27,11 +27,6 @@ README.api-changes
 Subclass.pm
 TODO
 apidoc.pl
-debian/changelog
-debian/compat
-debian/control
-debian/copyright
-debian/rules
 devel.pod
 gperl.h
 gperl_marshal.h
