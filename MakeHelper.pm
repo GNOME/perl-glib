@@ -216,7 +216,38 @@ sub postamble_docs_full {
 	if (UNIVERSAL::isa ($params{DEPENDS}, 'ExtUtils::Depends')) {
 		my $dep = $params{DEPENDS};
 
-		# fetch list of XS files from depends object
+		# fetch list of XS files from depends object.
+		# HACK ALERT: the older versions of ExtUtils::Depends
+		# (<0.2) use a different key layout and don't store enough
+		# metadata about the dependencies, so we require >=0.2;
+		# however, the older versions don't support import version
+		# checking (in fact they don't support version-checking at
+		# all), so the "use" test in a Makefile.PL can't tell if
+		# it has loaded a new enough version!
+		# the rewrite at version 0.200 added the get_dep() method,
+		# which we use, so let's check for that.
+		unless (defined &ExtUtils::Depends::get_deps) {
+			use ExtUtils::MakeMaker;
+			warn "ExtUtils::Depends is too old, need at "
+			   . "least version 0.2";
+			# this is so that CPAN builds will do the upgrade
+			# properly.
+			WriteMakefile(
+				PREREQ_FATAL => 1,
+				PREREQ_PM => { 'ExtUtils::Depends' => 0.2, },
+			);
+			exit 1; # not reached.
+		}
+		# continue with the excessive validation...
+		croak "value of DEPENDS key must be an ExtUtils::Depends object"
+			unless UNIVERSAL::isa $dep, 'ExtUtils::Depends';
+		croak "corrupt or invalid ExtUtils::Depends instance -- "
+		    . "the xs key is "
+		    .(exists ($dep->{xs}) ? "missing" : "broken")."!"
+			unless exists $dep->{xs}
+			   and 'ARRAY' eq ref $dep->{xs};
+
+		# finally, *this* is what we wanted.
 		@xs_files = @{$dep->{xs}};
 
 		# fetch doctypes files from the depends' dependencies.
