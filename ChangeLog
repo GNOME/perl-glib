@@ -1,3 +1,12 @@
+2004/02/03 00:57 (-0500) muppetman
+
+	* GType.xs: remove debugging print
+
+	* GenPod.pm: add 'unsigned' to list of built-in mappings
+
+	* t/9.t, t/a.t: add mipsel, mips, and alpha to the list of 64-bit
+	platforms on which to skip tests which exercise glib bugs.
+
 2004/01/30 22:36 (-0500) muppetman
 
 	* Subclass.pm: pass all unknown import parameters through to
