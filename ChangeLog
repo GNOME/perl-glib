@@ -1,3 +1,12 @@
+2004/01/22 09:44 (-0500) rwmcfa1
+
+	* MakeHelper.pm: and i thought i was done. don't know what i was 
+	thinking with the last one, laying in bed sleepless last night the 
+	problem came to me. this is another attempt at a solution. this one 
+	will work, but depends on makefile conditionals which may not be as 
+	portable as i would like. also a fix to prevent the mkdir change from 
+	a while ago from happening everytime make is done.
+
 2004/01/21 20:56 (-0500) rwmcfa1
 
 	* MakeHelper.pm: yet another attempt at completely clearing up the 

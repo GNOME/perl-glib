@@ -123,16 +123,28 @@ There is a special Makefile variable POD_DEPENDS that should be set to the
 list of files that need to be created before the doc.pl step is run, include
 files.
 
+There is also a variable BLIB_DONE which should be used as a dependancy
+anywhere a rule needs to be sure that a loadable and working module resides in
+the blib directory before running.
+
 =cut
 sub postamble_docs
 {
 	shift; # package name
 	my @xs_files = @_;
 "
-BLIB_DONE=blib_done
 
-blib_done : @xs_files
-	touch \$@
+# BLIB_DONE should be set to something we can depend on that will ensure that
+# we are safe to link against an up to date module out of blib. basically what
+# we need to wait on is the static/dynamic lib file to be created. the
+# following trick is intended to handle both of those cases without causing the
+# other to happen.
+BLIB_DONE=
+ifeq (\$(LINKTYPE), dynamic)
+	BLIB_DONE=\$(INST_DYNAMIC)
+else
+	BLIB_DONE=\$(INST_STATIC)
+endif
 
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
@@ -148,10 +160,10 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
-\$(INST_LIB)/\$(FULLEXT) ::
-	mkdir -p \$(INST_LIB)/\$(FULLEXT)
+\$(INST_LIB)/\$(FULLEXT)/:
+	mkdir -p \$@
 
-\$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT) build/podindex
+\$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	$^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
