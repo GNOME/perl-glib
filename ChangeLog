@@ -1,3 +1,16 @@
+2004/02/05 21:21 (-0500) muppetman
+
+	* Glib.pm, README: stable bugfix release 1.022
+
+2004/02/04 23:46 (-0500) muppetman
+
+	* GBoxed.xs, GObject.xs, GType.xs, GValue.xs, t/2.t:
+	more portability fixes, backported from HEAD.  the previous fixes for
+	using GUINT_TO_POINTER were a little overzealous; it's inappropriate
+	for GType, which is the same size as a pointer (a gulong, not a
+	guint).  also ensure that g_object_[sg]et_data and G_TYPE_POINTER
+	GValues are handled properly.
+
 2004/01/15 23:20 (-0500) muppetman
 
 	* Glib.pm, README: stable bugfix release 1.021

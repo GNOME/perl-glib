@@ -27,7 +27,7 @@ use warnings;
 require DynaLoader;
 our @ISA = qw(DynaLoader);
 
-our $VERSION = '1.021';
+our $VERSION = '1.022';
 
 # this is the 'lite' version of what we could get Exporter to do for us.
 # we export nothing, so it seems silly to drag in all of Exporter::Heavy
