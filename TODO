@@ -1,21 +1,24 @@
-- old versions of ExtUtils::Depends and ExtUtils::PkgConfig don't support
-  the import version checking properly, so we can't reliably detect when
-  they are too old; we need a more intelligent way to check for that.
-
-- API for finding out what version of glib we're linked against.
-  - use that API to add TODO guards to 9.t and a.t (the ones that exercise
-    GLib bugs on x86_64).  i think the safe versions are 2.2.5 and 2.3.3.
-
 - documentation generation:
   - hush things up a bit, we don't need so much status info
     perhaps there should be an env var to enable these messages, or a
     "doc lint" tool.
 
+- Glib::ParamSpec::param_spec: currently unimplemented, because it
+  wants a GType derived from G_TYPE_PARAM_SPEC, but we don't provide
+  GType <=> package mappings for that tree.  adding
+
+- the ability to create new GSources in Perl could be handy, and wouldn't be
+  hard to implement (a hash in place of GSourceFuncs).
+
 - GEnum type for G_PRIORITY_VALUES?
 - can't implement g_idle_remove_by_data because ... well, how would you
   search for the data value?
 - proper cleanup for bad parameter types in Glib::Object::new?
+  - would require either iterating over the list twice or cleaning up before
+    the croak.  the latter is probably the way to go.
+  - there is no way to clean up if gperl_sv_from_value() fails.
 - GValue.xs may require the ability to register handlers for new fundamental
   types, since gperl_sv_from_value and gperl_value_from_sv croak on unknown
   or unimplemented data types.
   - gperl_value_from_sv should change to void return since it croaks on error.
+    (can't do this without breaking ABI)

@@ -1,3 +1,31 @@
+2004/03/08 23:52 (-0500) muppetman
+
+	FIXME sweep:
+
+	* GMainLoop.xs, GType.xs: cleanup and commentary
+
+	* GObject.xs, t/5.t: make the 'bad property' message from set() match
+	the one from new().  clean up properly before croaking if new()
+	encounters a bad property name.  verify this behavior with tests.
+
+	* GParamSpec.xs: fix ALIAS on param_spec/boxed/object to remove
+	invalid symbol; document the fact that param_spec is unimplemented.
+
+	* GValue.xs: fix a nasty bug in gperl_value_from_sv that would've
+	resulted in a segfault when trying to read the C pointer out of an
+	SV containing a GParamSpec; implement the other direction in
+	gperl_sv_from_value.  there's currently no way to trigger these in
+	Glib or Gtk2, but it would be conceivable to run across GParamSpec
+	properties in other GObject-based bindings, so we don't want to barf
+	on them.
+
+	* GenPod.pm: rework and simplify internal function podify_see_alsos()
+
+	* t/9.t, t/a.t: use version guards on tests that suffer from GLib
+	bugs that are now fixed.
+
+	* TODO: updated
+
 2004/03/07 23:54 (-0500) muppetman
 
 	* GenPod.pm: don't add L<> around items that already have it in
