@@ -66,6 +66,7 @@ GMainLoop*	T_G_MAIN_LOOP
 GPerlFilename		T_GPERL_FILENAME
 GPerlFilename_const	T_GPERL_FILENAME
 GPerlFilename_own	T_GPERL_FILENAME_OWN
+GPerlFilename_ornull	T_GPERL_FILENAME_ORNULL
 
 #####
 INPUT
@@ -114,6 +115,12 @@ T_G_MAIN_LOOP
 
 T_GPERL_FILENAME
 	$var = ($type) gperl_filename_from_sv ($arg)
+
+T_GPERL_FILENAME_ORNULL
+	$var = ($type)
+		(($arg && SvOK ($arg))
+		 ? gperl_filename_from_sv ($arg)
+		 : NULL)
 
 ######
 OUTPUT

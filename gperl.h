@@ -197,6 +197,7 @@ typedef GObject GObject_noinc;
 typedef gchar *GPerlFilename;
 typedef const gchar *GPerlFilename_const;
 typedef gchar *GPerlFilename_own;
+typedef GPerlFilename GPerlFilename_ornull;
 
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
