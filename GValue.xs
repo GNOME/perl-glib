@@ -54,9 +54,10 @@ arrays and the like.
 set a I<value> from a whatever is in I<sv>.  I<value> must be initialized 
 so the code knows what kind of value to coerce out of I<sv>.
 
-Returns TRUE if the code knows how to perform the conversion. FIXME this
-really ought to always succeed; a failed conversion should be considered a bug
-or unimplemented code!
+Return value is always TRUE; if the code knows how to perform the conversion,
+it croaks.  (The return value is for backward compatibility.) In reality,
+this really ought to always succeed; a failed conversion should be considered
+a bug or unimplemented code!
 
 =cut
 gboolean
@@ -127,8 +128,7 @@ gperl_value_from_sv (GValue * value,
 				g_value_set_boxed (value, gperl_get_boxed_check (sv, G_VALUE_TYPE(value)));
 			break;
 		case G_TYPE_PARAM:
-			/* FIXME is this right? */
-			g_value_set_param(value, (gpointer) SvIV(sv));
+			g_value_set_param(value, SvGParamSpec (sv));
 			break;
 		case G_TYPE_OBJECT:
 			g_value_set_object(value, gperl_get_object_check (sv, G_VALUE_TYPE(value)));
@@ -227,7 +227,7 @@ gperl_sv_from_value (const GValue * value)
 						FALSE);
 
 		case G_TYPE_PARAM:
-			croak ("[gperl_sv_from_value] G_TYPE_PARAM not implemented");
+			return newSVGParamSpec (g_value_get_param (value));
 
 		case G_TYPE_OBJECT:
 			return gperl_new_object (g_value_get_object (value), FALSE);
