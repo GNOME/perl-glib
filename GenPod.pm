@@ -25,6 +25,7 @@ our @EXPORT = qw(
 
 our $COPYRIGHT = undef;
 our $AUTHORS = 'Gtk2-Perl Team';
+our $MAIN_MOD = 'L<Gtk2>';
 
 =head1 NAME
 
@@ -572,30 +573,18 @@ sub podify_see_alsos
 Returns a string that will/should be placed on each page. The package global
 variable COPYRIGHT can be used to override the text placed here. The package
 global variable AUTHORS should be set to the text to appear just after the year
-of the Copyright line, it defaults to Gtk2-Perl Team.
+of the Copyright line, it defaults to Gtk2-Perl Team. The package gloabal
+variable MAIN_MOD should be set to a pod link pointing towards the main file
+for a package in which the full copyright appears.
 
 =cut
 
 sub get_copyright
 {
 	return $COPYRIGHT || "
-  Copyright (C) 2003 $AUTHORS 
-  (see the file AUTHORS for the full list)
+Copyright (C) 2003 $AUTHORS
 
-  This library is free software; you can redistribute it and/or modify 
-  it under the terms of the GNU Library General Public License as 
-  published by the Free Software Foundation; either version 2.1 of the 
-  License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful, but 
-  WITHOUT ANY WARRANTY; without even the implied warranty of 
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-  Library General Public License for more details.
-
-  You should have received a copy of the GNU Library General Public 
-  License along with this library; if not, write to the Free Software 
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
-  02111-1307  USA.
+This software is licensed under the LGPL; see $MAIN_MOD for a full notice.
 "
 }
 
