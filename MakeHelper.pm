@@ -148,6 +148,8 @@ sub postamble_docs
 	shift; # package name
 	my @xs_files = @_;
 "
+BLIB_MOD_EXISTS=pm_to_blib
+
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
@@ -156,9 +158,9 @@ build/doc.pl :: Makefile @xs_files
 # passing all of these files through the single podindex file, which is 
 # created at the same time, prevents problems with -j4 where xsdoc2pod would 
 # have multiple instances
-@gend_pods :: pure_all build/podindex \$(POD_DEPENDS)
+@gend_pods :: build/podindex \$(POD_DEPENDS)
 
-build/podindex :: pure_all Makefile build/doc.pl \$(INST_LIB)/\$(FULLEXT).pm \$(INST_DYNAMIC)
+build/podindex :: \$(BLIB_MOD_EXISTS) Makefile build/doc.pl
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e \"xsdoc2pod('build/doc.pl', '\$(INST_LIB)', 'build/podindex')\"
 
