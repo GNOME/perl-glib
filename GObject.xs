@@ -19,6 +19,27 @@
  * $Header$
  */
 
+/* 
+ * the POD directives in here will be stripped by xsubpp before compilation,
+ * and are intended to be extracted by podselect when creating xs api 
+ * reference documentation.  pod must NOT appear within C comments, because
+ * it gets replaced by a comment that says "embedded pod stripped".
+ */
+
+=head2 GObject
+
+To deal with the intricate interaction of the different reference-counting semantics of Perl objects versus GObjects, the bindings create a combined PerlObject+GObject, with the GObject's pointer in magic attached to the Perl object, and the Perl object's pointer in the GObject's user data.  Thus it's not really a "wrapper", but we refer to it as one, because "combined Perl object + GObject" is a cumbersome and confusing mouthful.
+
+GObjects are represented as blessed hash references.  The GObject user data mechanism is not typesafe, and thus is used only for unsigned integer values; the Perl-level hash is available for any type of user data.  The combined nature of the wrapper means that data stored in the hash will stick around as long as the object is alive.
+
+Since the C pointer is stored in attached magic, the C pointer is not available to the Perl developer via the hash object, so there's no need to worry about breaking it from perl.
+
+Propers go to Marc Lehmann for dreaming most of this up.
+
+=over
+
+=cut
+
 #include "gperl.h"
 
 typedef struct _ClassInfo ClassInfo;
@@ -82,11 +103,18 @@ class_info_destroy (ClassInfo * class_info)
 	}
 }
 
-/*
- * tell the GPerl type subsystem what perl package corresponds with a 
- * given GType.  creates internal forward and reverse mappings and sets
- * up @ISA magic.
- */
+
+=item void gperl_register_object (GType gtype, const char * package)
+
+tell the GPerl type subsystem what Perl package corresponds with a given
+GObject by GType.  automagically sets up @I<package>::ISA for you.
+
+note that @ISA will not be created for gtype until gtype's parent has
+been registered.  if you are experiencing strange problems with a class'
+@ISA not being set up, change the order in which you register them.
+
+=cut
+
 void
 gperl_register_object (GType gtype,
                        const char * package)
@@ -183,13 +211,33 @@ gperl_register_object (GType gtype,
 	G_UNLOCK (types_by_package);
 }
 
+
+=item void gperl_register_sink_func (GType gtype, GPerlObjectSinkFunc func)
+
+Tell gperl_new_object() to use I<func> to claim ownership of objects derived
+from I<gtype>.
+
+gperl_new_object() always refs a GObject when wrapping it for the first time.
+To have the Perl wrapper claim ownership of a GObject as part of
+gperl_new_object(), you unref the object after ref'ing it. however, different
+GObject subclasses have different ways to claim ownership; for example,
+GtkObject simply requires you to call gtk_object_sink().  To make this concept
+generic, this function allows you to register a function to be called when then
+wrapper should claim ownership of the object.  The I<func> registered for a
+given I<type> will be called on any object for which C<< g_type_isa
+(G_TYPE_OBJECT (object), type) >> succeeds.
+
+If no sinkfunc is found for an object, g_object_unref() will be used.
+
+Even though GObjects don't need sink funcs, we need to have them in Glib
+as a hook for upstream objects.  If we create a GtkObject (or any
+other type of object which uses a different way to claim ownership) via
+Glib::Object->new, any upstream wrappers, such as gtk2perl_new_object(), will
+B<not> be called.  Having a sink func facility down here enables us always to
+do the right thing.
+
+=cut
 /* 
- * why do we need sink funcs in Glib?  because if we create a GtkObject
- * (or any other type of object which uses a different way to claim
- * ownership) via Glib::Object->new, the upstream wrappers, such as
- * gtk2perl_new_object, will *not* be called.  having sink funcs down
- * here enables us always to do the right thing.
- *
  * this stuff is directly inspired by pygtk.  i didn't actually copy
  * and paste the code, but it sure looks like i did, down to the names.
  * hey, they were the obvious names!
@@ -249,6 +297,23 @@ gperl_object_take_ownership (GObject * object)
 	g_object_unref (object);
 }
 
+
+=item void gperl_object_set_no_warn_unreg_subclass (GType gtype, gboolean nowarn)
+
+how's that for a long and supposedly self-documenting function name!
+(sorry...).   basically, it does just as it says -- if I<nowarn> is true, 
+do not spew a warning if a GType derived from I<gtype> is not registered
+with the bindings' type system.  this is important for things like
+GtkStyles (unregistered subclasses come from theme engines) and GdkGCs
+(unregistered subclasses come from various gdk backends) for which it's not
+possible or practical to force the registration of the classes.  in
+general, we want to warn about the unregistered types because it may mean
+that a developer has forgotten something.
+
+note: this assumes I<gtype> has already been registered with
+gperl_register_object().
+
+=cut
 void
 gperl_object_set_no_warn_unreg_subclass (GType gtype,
                                          gboolean nowarn)
@@ -284,10 +349,13 @@ gperl_object_get_no_warn_unreg_subclass (GType gtype)
 	return result;
 }
 
-/*
- * get the package corresponding to gtype; 
- * returns NULL if gtype is not registered.
- */
+
+=item const char * gperl_object_package_from_type (GType gtype)
+
+get the package corresponding to I<gtype>; returns NULL if I<gtype>
+is not registered.
+
+=cut
 const char *
 gperl_object_package_from_type (GType gtype)
 {
@@ -310,10 +378,14 @@ gperl_object_package_from_type (GType gtype)
 		       "called before any classes were registered");
 }
 
-/*
- * get the stash corresponding to gtype; 
- * returns NULL if gtype is not registered.
- */
+
+=item HV * gperl_object_stash_from_type (GType gtype)
+
+Get the stash corresponding to I<gtype>; returns NULL if I<gtype> is
+not registered.  The stash is useful for C<bless>ing.
+
+=cut
+
 HV *
 gperl_object_stash_from_type (GType gtype)
 {
@@ -336,10 +408,14 @@ gperl_object_stash_from_type (GType gtype)
 		       "called before any classes were registered");
 }
 
-/*
- * inverse of gperl_object_package_from_type, 
- * returns 0 if package is not registered.
- */
+
+=item GType gperl_object_type_from_package (const char * package)
+
+Inverse of gperl_object_package_from_type(),  returns 0 if I<package>
+is not registered.
+
+=cut
+
 GType
 gperl_object_type_from_package (const char * package)
 {
@@ -382,9 +458,43 @@ gobject_destroy_wrapper (SV *obj)
         SvREFCNT_dec (obj);
 }
 
-/*
- * extensive commentary in gperl.h
- */
+
+=item SV * gperl_new_object (GObject * object, gboolean own)
+
+Use this function to get the perl part of a GObject.  If I<object>
+has never been seen by perl before, a new, empty perl object will
+be created and added to a private key under I<object>'s qdata.  If
+I<object> already has a perl part, a new reference to it will be
+created. The gobject + perl object together form a combined object that
+is properly refcounted, i.e. both parts will stay alive as long as at
+least one of them is alive, and only when both perl object and gobject are
+no longer referenced will both be freed.
+
+The perl object will be blessed into the package corresponding to the GType
+returned by calling G_OBJECT_TYPE() on I<object>; if that class has not
+been registered via gperl_register_object(), this function will emit a
+warning to that effect (with warn()), and attempt to bless it into the
+first known class in the object's ancestry.  Since Glib::Object is
+already registered, you'll get a Glib::Object if you are lazy, and thus
+this function can fail only if I<object> isn't descended from GObject,
+in which case it croaks.  (In reality, if you pass a non-GObject to this
+function, you'll be lucky if you don't get a segfault, as there's not
+really a way to trap that.)  In practice these warnings can be unavoidable,
+so you can use gperl_object_set_no_warn_unreg_subclass() to quell them
+on a class-by-class basis.
+
+However, when perl code is calling a GObject constructor (any function
+which returns a new GObject), call gperl_new_object() with I<own> set to
+%TRUE; this will cause the first matching sink function to be called
+on the GObject to claim ownership of that object, so that it will be
+destroyed when the perl object goes out of scope. The default sink func
+is g_object_unref(); other types should supply the proper function;
+e.g., GtkObject should use gtk_object_sink() here.
+
+Returns the blessed perl object, or #&PL_sv_undef if object was #NULL.
+
+=cut
+
 SV *
 gperl_new_object (GObject * object,
                   gboolean own)
@@ -511,6 +621,17 @@ gperl_new_object (GObject * object,
 	return sv;
 }
 
+
+=item GObject * gperl_get_object (SV * sv)
+
+retrieve the GObject pointer from a Perl object.  Returns NULL if I<sv> is not
+linked to a GObject.
+
+Note, this one is not safe -- in general you want to use
+gperl_get_object_check().
+
+=cut
+
 GObject *
 gperl_get_object (SV * sv)
 {
@@ -520,6 +641,15 @@ gperl_get_object (SV * sv)
 		return NULL;
 	return (GObject *) mg->mg_ptr;
 }
+
+
+=item GObject * gperl_get_object_check (SV * sv, GType gtype);
+
+croaks if I<sv> is undef or is not blessed into the package corresponding 
+to I<gtype>.  use this for bringing parameters into xsubs from perl.
+Returns the same as gperl_get_object() (provided it doesn't croak first).
+
+=cut
 
 GObject *
 gperl_get_object_check (SV * sv,
@@ -534,6 +664,15 @@ gperl_get_object_check (SV * sv,
 		croak ("variable is not of type %s", package);
 	return gperl_get_object (sv);
 }
+
+
+=item SV * gperl_object_check_type (SV * sv, GType gtype)
+
+Essentially the same as gperl_get_object_check().
+
+FIXME this croaks if the types aren't compatible, but it would be useful if it just return FALSE instead.
+
+=cut
 
 SV *
 gperl_object_check_type (SV * sv,
@@ -560,6 +699,23 @@ init_property_value (GObject * object,
 	g_value_init (value, G_PARAM_SPEC_VALUE_TYPE (pspec));
 }
 
+
+=item typedef GObject GObject_noinc
+
+=item typedef GObject GObject_ornull
+
+=item newSVGObject(obj)
+
+=item newSVGObject_noinc(obj)
+
+=item SvGObject(sv)
+
+=item SvGObject_ornull(sv)
+
+
+=back
+
+=cut
 
 MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
@@ -618,9 +774,9 @@ UV
 g_object_get_data (object, key)
 	GObject * object
 	gchar * key
-        CODE:
+    CODE:
         RETVAL = (UV) g_object_get_data (object, key);
-        OUTPUT:
+    OUTPUT:
         RETVAL
 
 

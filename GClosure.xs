@@ -19,6 +19,21 @@
  * $Header$
  */
 
+=head2 GClosure / GPerlClosure
+
+GPerlClosure is a wrapper around the gobject library's GClosure with
+special handling for marshalling perl subroutines as callbacks.
+This is specially tuned for use with GSignal and stuff like io watch,
+timeout, and idle handlers.
+
+For generic callback functions, which need parameters but do not get
+registered with the type system, this is sometimes overkill.  See
+GPerlCallback, below.
+
+=over
+
+=cut
+
 #include "gperl.h"
 #include <gobject/gvaluecollector.h>
 
@@ -151,6 +166,19 @@ gperl_closure_marshal (GClosure * closure,
 	LEAVE;
 }
 
+
+=item GClosure * gperl_closure_new (gchar * name, SV * target, SV * callback, SV * data, gboolean swap)
+
+Create and return a new GPerlClosure.  I<callback> and I<data> will be copied
+for storage; I<callback> must not be NULL.  If I<swap> is TRUE, I<data> will be
+swapped with the instance during invocation (this is used to implement
+g_signal_connect_swapped()).
+
+If compiled under a thread-enabled perl, the closure will be created and
+marshaled in such a way as to ensure that the same interpreter which created
+the closure will be used to invoke it.
+
+=cut
 GClosure *
 gperl_closure_new (gchar * name,
 		   SV * target,
@@ -212,36 +240,55 @@ gperl_gclosure_destroy (SV * closure)
 }
 */
 
+=back
 
+=head2 GPerlCallback
 
+generic callback functions usually get invoked directly, and are not passed
+parameter lists as GValues.  we could very easily wrap up such generic
+callbacks with something that converts the parameters to GValues and then
+channels everything through GClosure, but this has two problems:  1) the above
+implementation of GClosure is tuned to marshalling signal handlers, which
+always have an instance object, and 2) it's more work than is strictly
+necessary.
 
-/*
- * GPerlCallback
- *
- * generic callback functions usually get invoked directly, and are not
- * passed parameter lists as GValues.  we could very easily wrap up such
- * generic callbacks with something that converts the parameters to
- * GValues and then channels everything through GClosure, but this has
- * two problems:  1) the above implementation of GClosure is tuned to 
- * marshalling signal handlers, which always have an instance object, and
- * 2) it's more work than is strictly necessary.
- *
- * additionally, generic callbacks aren't always kind to the GClosure
- * paradigm.
- *
- * so, here's GPerlCallback, which is designed specifically to run
- * generic callback functions.  it reads parameters off the C stack and
- * converts them into parameters on the perl stack.  (it uses the GValue
- * to/from SV mechanism to do so, but doesn't allocate any temps on the
- * heap.)  the callback object itself stores the parameter type list.
- *
- * unfortunately, since the data element is always last, but the number
- * of arguments is not known until we have the callback object, we can't
- * pass gperl_callback_invoke directly to functions requiring a callback;
- * you'll have to write a proxy callback which calls gperl_callback_invoke.
- */
+additionally, generic callbacks aren't always kind to the GClosure paradigm.
 
+so, here's GPerlCallback, which is designed specifically to run generic
+callback functions.  it reads parameters off the C stack and converts them into
+parameters on the perl stack.  (it uses the GValue to/from SV mechanism to do
+so, but doesn't allocate any temps on the heap.)  the callback object itself
+stores the parameter type list.
 
+unfortunately, since the data element is always last, but the number of
+arguments is not known until we have the callback object, we can't pass
+gperl_callback_invoke directly to functions requiring a callback; you'll have
+to write a proxy callback which calls gperl_callback_invoke.
+
+=over
+
+=item GPerlCallback * gperl_callback_new (SV * func, SV * data, gint n_params, GType param_types[], GType return_type)
+
+Create and return a new GPerlCallback; use gperl_callback_destroy when you are
+finished with it.
+
+I<func>: perl subroutine to call.  this SV will be copied, so don't worry about
+reference counts.  must B<not> be #NULL.
+
+I<data>: scalar to pass to I<func> in addition to all other arguments.  the SV
+will be copied, so don't worry about reference counts.  may be #NULL.
+
+I<n_params>: the number of elements in I<param_types>.
+
+I<param_types>: the #GType of each argument that should be passed from the
+invocation to I<func>.  may be #NULL if I<n_params> is zero, otherwise it must
+be I<n_params> elements long or nasty things will happen.  this array will be
+copied; see gperl_callback_invoke() for how it is used.
+
+I<return_type>: the #GType of the return value, or 0 if the function has void
+return.
+
+=cut
 GPerlCallback *
 gperl_callback_new (SV    * func,
                     SV    * data,
@@ -279,6 +326,11 @@ gperl_callback_new (SV    * func,
 }
 
 
+=item void gperl_callback_destroy (GPerlCallback * callback)
+
+Dispose of I<callback>.
+
+=cut
 void
 gperl_callback_destroy (GPerlCallback * callback)
 {
@@ -304,6 +356,30 @@ gperl_callback_destroy (GPerlCallback * callback)
 }
 
 
+=item void gperl_callback_invoke (GPerlCallback * callback, GValue * return_value, ...)
+
+Marshall the variadic parameters according to I<callback>'s param_types, and
+then invoke I<callback>'s subroutine in scalar context, or void context if the
+return type is G_TYPE_VOID.  If I<return_value> is not NULL, then value
+returned (if any) will be copied into I<return_value>.
+
+A typical callback handler would look like this:
+
+  static gint
+  real_c_callback (Foo * f, Bar * b, int a, gpointer data)
+  {
+          GPerlCallback * callback = (GPerlCallback*)data;
+          GValue return_value = {0,};
+          gint retval;
+          g_value_init (&return_value, callback->return_type);
+          gperl_callback_invoke (callback, &return_value,
+                                 f, b, a);
+          retval = g_value_get_int (&return_value);
+          g_value_unset (&return_value);
+          return retval;
+  }
+
+=cut
 void
 gperl_callback_invoke (GPerlCallback * callback,
                        GValue * return_value,
@@ -422,6 +498,10 @@ dump_callback (GPerlCallback * c)
 }
 
 #endif
+
+=back
+
+=cut
 
 /* ExtUtils::ParseXS requires at least one MODULE line to be present */
 MODULE = Glib::Closure	PACKAGE = Glib::Closure	PREFIX = g_closure_

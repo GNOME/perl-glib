@@ -19,6 +19,20 @@
  * $Header$
  */
 
+=head2 GValue
+
+GValue is GLib's generic value container, and it is because of GValue that the
+run time type handling of GObject parameters and GClosure marshaling can
+function, and most usages of these functions will be from those two points.
+
+Client code will run into uses for gperl_sv_from_value() and
+gperl_value_from_sv() when trying to convert lists of parameters into GValue
+arrays and the like.
+
+=over
+
+=cut
+
 #include "gperl.h"
 
 
@@ -26,6 +40,16 @@
  * GValue handling
  */
 
+=item gboolean gperl_value_from_sv (GValue * value, SV * sv)
+
+set a I<value> from a whatever is in I<sv>.  I<value> must be initialized 
+so the code knows what kind of value to coerce out of I<sv>.
+
+Returns TRUE if the code knows how to perform the conversion. FIXME this
+really ought to always succeed; a failed conversion should be considered a bug
+or unimplemented code!
+
+=cut
 gboolean
 gperl_value_from_sv (GValue * value,
 		     SV * sv)
@@ -119,6 +143,15 @@ gperl_value_from_sv (GValue * value,
 }
 
 
+=item SV * gperl_sv_from_value (const GValue * value)
+
+coerce whatever is in I<value> into a perl scalar and return it.
+
+Returns NULL if the code doesn't know how to perform the conversion.  FIXME
+this really ought to always succeed; a failed conversion should be considered a
+bug or unimplemented code!
+
+=cut
 SV *
 gperl_sv_from_value (const GValue * value)
 {
@@ -197,6 +230,10 @@ gperl_sv_from_value (const GValue * value)
 	
 	return NULL;
 }
+
+=back
+
+=cut
 
 /* apparently this line is required by ExtUtils::ParseXS, but not by xsubpp. */
 MODULE = Glib::Value	PACKAGE = Glib::Value	PREFIX = g_value_

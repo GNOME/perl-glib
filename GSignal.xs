@@ -19,9 +19,27 @@
  * $Header$
  */
 
+=head2 GSignal
+
+=over
+
+=cut
+
 #include "gperl.h"
 
 
+=item gulong gperl_signal_connect (SV * instance, char * detailed_signal, SV * callback, SV * data, GConnectFlags flags)
+
+The actual workhorse behind GObject::signal_connect, the binding for
+g_signal_connect, for use from within XS.  This creates a C<GPerlClosure>
+wrapper for the given I<callback> and I<data>, and connects that closure to the
+signal named I<detailed_signal> on the given GObject I<instance>.  This is only
+good for named signals.  I<flags> is the same as for g_signal_connect().
+I<data> may be NULL, but I<callback> must not be.
+
+Returns the id of the installed callback.
+
+=cut
 gulong
 gperl_signal_connect (SV * instance,
                       char * detailed_signal,
@@ -43,6 +61,9 @@ gperl_signal_connect (SV * instance,
 	return ((GPerlClosure*)closure)->id;
 }
 
+=back
+
+=cut
 
 MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 

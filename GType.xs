@@ -19,6 +19,12 @@
  * $Header$
  */
 
+=head2 GType / GEnum / GFlags
+
+=over
+
+=cut
+
 #include "gperl.h"
 
 /* for fundamental types */
@@ -58,6 +64,71 @@ gperl_type_class (GType type)
 	return class;
 }
 
+=item void gperl_register_fundamental (GType gtype, const char * package)
+
+register a mapping between I<gtype> and I<package>.  this is for "fundamental"
+types which have no other requirements for metadata storage, such as GEnums,
+GFlags, or real GLib fundamental types like G_TYPE_INT, G_TYPE_FLOAT, etc.
+
+=cut
+void
+gperl_register_fundamental (GType gtype, const char * package)
+{
+	char * p;
+	G_LOCK (types_by_package);
+	G_LOCK (packages_by_type);
+	if (!types_by_package) {
+		types_by_package = 
+			g_hash_table_new_full (g_str_hash,
+			                       g_str_equal,
+			                       NULL, NULL);
+		packages_by_type =
+			g_hash_table_new_full (g_direct_hash,
+			                       g_direct_equal,
+			                       NULL, 
+			                       (GDestroyNotify)g_free);
+	}
+	p = g_strdup (package);
+	g_hash_table_insert (packages_by_type, (gpointer)gtype, p);
+	g_hash_table_insert (types_by_package, p, (gpointer)gtype);
+	G_UNLOCK (types_by_package);
+	G_UNLOCK (packages_by_type);
+}
+
+=item GType gperl_fundamental_type_from_package (const char * package)
+
+look up the GType corresponding to a I<package> registered by
+gperl_register_fundamental().
+
+=cut
+GType
+gperl_fundamental_type_from_package (const char * package)
+{
+	GType res;
+	G_LOCK (types_by_package);
+	res = (GType) g_hash_table_lookup (types_by_package, package);
+	G_UNLOCK (types_by_package);
+	return res;
+}
+
+=item const char * gperl_fundamental_package_from_type (GType gtype)
+
+look up the package corresponding to a I<gtype> registered by
+gperl_register_fundamental().
+
+=cut
+const char * 
+gperl_fundamental_package_from_type (GType gtype)
+{
+	const char * res;
+	G_LOCK (packages_by_type);
+	res = (const char *)
+		g_hash_table_lookup (packages_by_type, (gpointer)gtype);
+	G_UNLOCK (packages_by_type);
+	return res;
+}
+
+
 /****************************************************************************
  * enum and flags handling (mostly from the original gtk2_perl code)
  */
@@ -96,7 +167,15 @@ gperl_type_flags_get_values (GType flags_type)
 }
 
 
+=item gboolean gperl_try_convert_enum (GType gtype, SV * sv, gint * val)
 
+return FALSE if I<sv> can't be mapped to a valid member of the registered
+enum type I<gtype>; otherwise, return TRUE write the new value to the
+int pointed to by I<val>.
+
+you'll need this only in esoteric cases.
+
+=cut
 gboolean
 gperl_try_convert_enum (GType type,
 			SV * sv,
@@ -117,6 +196,11 @@ gperl_try_convert_enum (GType type,
 	return FALSE;
 }
 
+=item gint gperl_convert_enum (GType type, SV * val)
+
+croak if I<val> is not part of I<type>, otherwise return corresponding value
+
+=cut
 gint
 gperl_convert_enum (GType type, SV * val)
 {
@@ -149,6 +233,12 @@ gperl_convert_enum (GType type, SV * val)
 	return 0;
 }
 
+=item SV * gperl_convert_back_enum_pass_unknown (GType type, gint val)
+
+return a scalar containing the nickname of the enum value I<val>, or the
+integer value of I<val> if I<val> is not a member of the enum I<type>.
+
+=cut
 SV *
 gperl_convert_back_enum_pass_unknown (GType type,
 				      gint val)
@@ -162,6 +252,12 @@ gperl_convert_back_enum_pass_unknown (GType type,
 	return newSViv (val);
 }
 
+=item SV * gperl_convert_back_enum (GType type, gint val)
+
+return a scalar which is the nickname of the enum value val, or croak if
+val is not a member of the enum.
+
+=cut
 SV *
 gperl_convert_back_enum (GType type,
 			 gint val)
@@ -176,6 +272,11 @@ gperl_convert_back_enum (GType type,
 	       val, g_type_name (type));
 }
 
+=item gboolean gperl_try_convert_flag (GType type, const char * val_p, gint * val)
+
+like gperl_try_convert_enum(), but for GFlags.
+
+=cut
 gboolean
 gperl_try_convert_flag (GType type,
                         const char * val_p,
@@ -194,6 +295,11 @@ gperl_try_convert_flag (GType type,
         return FALSE;
 }
 
+=item gint gperl_convert_flag_one (GType type, const char * val)
+
+croak if I<val> is not part of I<type>, otherwise return corresponding value.
+
+=cut
 gint
 gperl_convert_flag_one (GType type, 
 			const char * val_p)
@@ -223,7 +329,12 @@ gperl_convert_flag_one (GType type,
 	return 0;
 }
 
+=item gint gperl_convert_flags (GType type, SV * val)
 
+collapse a list of strings to an integer with all the correct bits set,
+croak if anything is invalid.
+
+=cut
 gint
 gperl_convert_flags (GType type,
 		     SV * val)
@@ -243,6 +354,11 @@ gperl_convert_flags (GType type,
 	       g_type_name (type), SvPV_nolen (val));
 }
 
+=item SV * gperl_convert_back_flags (GType type, gint val)
+
+convert a bitfield to a list of strings.
+
+=cut
 SV *
 gperl_convert_back_flags (GType type,
 			  gint val)
@@ -257,11 +373,18 @@ gperl_convert_back_flags (GType type,
 	return newRV_noinc ((SV*) flags);
 }
 
+=back
 
-/*
- * set the @ISA variable to tell perl a particular package inherits from
- * another.
- */
+=head2 Inheritance management
+
+=over
+
+=item void gperl_set_isa (const char * child_package, const char * parent_package)
+
+tell perl that I<child_package> inherits I<parent_package>, after whatever else
+is already there.  equivalent to C<< push @{$parent_package}::ISA, $child_package; >>
+
+=cut
 void
 gperl_set_isa (const char * child_package,
                const char * parent_package)
@@ -278,6 +401,12 @@ gperl_set_isa (const char * child_package,
 }
 
 
+=item void gperl_prepend_isa (const char * child_package, const char * parent_package)
+
+tell perl that I<child_package> inherits I<parent_package>, but before whatever
+else is already there.  equivalent to C<< unshift @{$parent_package}::ISA, $child_package; >>
+
+=cut
 void
 gperl_prepend_isa (const char * child_package,
                    const char * parent_package)
@@ -295,55 +424,12 @@ gperl_prepend_isa (const char * child_package,
 }
 
 
-void
-gperl_register_fundamental (GType gtype, const char * package)
-{
-	char * p;
-	G_LOCK (types_by_package);
-	G_LOCK (packages_by_type);
-	if (!types_by_package) {
-		types_by_package = 
-			g_hash_table_new_full (g_str_hash,
-			                       g_str_equal,
-			                       NULL, NULL);
-		packages_by_type =
-			g_hash_table_new_full (g_direct_hash,
-			                       g_direct_equal,
-			                       NULL, 
-			                       (GDestroyNotify)g_free);
-	}
-	p = g_strdup (package);
-	g_hash_table_insert (packages_by_type, (gpointer)gtype, p);
-	g_hash_table_insert (types_by_package, p, (gpointer)gtype);
-	G_UNLOCK (types_by_package);
-	G_UNLOCK (packages_by_type);
-}
+=item GType gperl_type_from_package (const char * package)
 
-GType
-gperl_fundamental_type_from_package (const char * package)
-{
-	GType res;
-	G_LOCK (types_by_package);
-	res = (GType) g_hash_table_lookup (types_by_package, package);
-	G_UNLOCK (types_by_package);
-	return res;
-}
+Look up the GType associated with I<package>, regardless of how it was
+registered.  Returns 0 if no mapping can be found.
 
-const char * 
-gperl_fundamental_package_from_type (GType gtype)
-{
-	const char * res;
-	G_LOCK (packages_by_type);
-	res = (const char *)
-		g_hash_table_lookup (packages_by_type, (gpointer)gtype);
-	G_UNLOCK (packages_by_type);
-	return res;
-}
-
-
-/*
- * get a type mapping, not matter where it may be.
- */
+=cut
 GType
 gperl_type_from_package (const char * package)
 {
@@ -363,6 +449,12 @@ gperl_type_from_package (const char * package)
 	return 0;
 }
 
+=item GType gperl_type_from_package (GType gtype)
+
+Look up the name of the package associated with I<gtype>, regardless of how it
+was registered.  Returns NULL if no mapping can be found.
+
+=cut
 const char * 
 gperl_package_from_type (GType type)
 {
@@ -383,10 +475,28 @@ gperl_package_from_type (GType type)
 }
 
 
-/*
- * now we need a GBoxed wrapper for a generic SV, so we can store SVs
- * in GObjects reliably.
- */
+=back
+
+=head2 Boxed type support for SV
+
+In order to allow GValues to hold perl SVs we need a GBoxed wrapper.
+
+=over
+
+=item GPERL_TYPE_SV
+
+Evaluates to the GType for SVs.  The bindings register a mapping between
+GPERL_TYPE_SV and the package 'Glib::Scalar' with gperl_register_boxed().
+
+=item SV * gperl_sv_copy (SV * sv)
+
+implemented as C<< newSVsv (sv) >>.
+
+=item void gperl_sv_free (SV * sv)
+
+implemented as C<< SvREFCNT_dec (sv) >>.
+
+=cut
 
 void
 gperl_sv_free (SV * sv)
@@ -412,18 +522,39 @@ gperl_sv_get_type (void)
 }
 
 
+=back
 
-/*
- * clean function wrappers for treating gchar* as UTF8 strings, in the
- * same idiom as the rest of the cast macros.  these are wrapped up
- * as functions because comma expressions in macros get kinda tricky.
- */
+=head2 UTF-8 strings with gchar
+
+By convention, gchar* is assumed to point to UTF8 string data,
+and char* points to ascii string data.  Here we define a pair of
+wrappers for the boilerplate of upgrading Perl strings.  They
+are implemented as functions rather than macros, because comma
+expressions in macros are not supported by all compilers.
+
+These functions should be used instead of newSVpv and SvPV_nolen
+in all cases which deal with gchar* types.
+
+=over
+
+=item gchar * SvGChar (SV * sv)
+
+extract a UTF8 string from I<sv>.
+
+=cut
+
 /*const*/ gchar *
 SvGChar (SV * sv)
 {
 	sv_utf8_upgrade (sv);
 	return (/*const*/ gchar*) SvPV_nolen (sv);
 }
+
+=item SV * newSVGChar (const gchar * str)
+
+copy a UTF8 string into a new SV.
+
+=cut
 
 SV *
 newSVGChar (const gchar * str)
@@ -856,6 +987,12 @@ gperl_type_class_init (GObjectClass * class)
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
 }
+
+/* make sure we close the open list to keep from freaking out pod readers... */
+
+=back
+
+=cut
 
 MODULE = Glib::Type	PACKAGE = Glib::Type	PREFIX = g_type_
 
