@@ -386,11 +386,18 @@ gperl_new_object (GObject * object,
                  * then borrow the ref added by g_object_ref back, and
                  * thus will eventually trigger gobject destruction, which
                  * in turn will trigger perl wrapper destruction. */
+
+                /* create the wrapper to return, increases the combined refcount by one. */
+                sv = newSVsv (obj);
+
+                /* and decrease it again. */
+                SvREFCNT_dec (SvRV (obj));
+
+        } else {
+                /* create the wrapper to return, increases the combined refcount by one. */
+                sv = newSVsv (obj);
         }
 
-        /* create the wrapper to return, increases the combined refcount by one. */
-        sv = newSVsv (obj);
-        
 	if (own)
 		gperl_object_take_ownership (object);
 
