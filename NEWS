@@ -1,3 +1,9 @@
+Overview of Changes in Glib 1.032
+=================================
+
+* apidoc improvements, GenPod/ParseXSDoc. ability to add to the list of
+  see_also, and ways to orverride the copyright globals that GenPod uses.
+
 Overview of Changes in Glib 1.031
 =================================
 
