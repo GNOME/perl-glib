@@ -3,7 +3,7 @@
 #
 use strict;
 use Glib ':constants';
-use Test::More tests => 217;
+use Test::More tests => 231;
 
 # first register some types with which to play below.
 
@@ -154,6 +154,14 @@ is ($pspec->get_blurb, '', 'Param blurb');
 ok ($pspec->get_flags == G_PARAM_READWRITE, 'Param flags');
 is ($pspec->get_value_type, 'Glib::Param::Enum', 'Param value type');
 ok (! $pspec->get_owner_type, 'Param owner type');
+push @params, $pspec;
+
+
+$pspec = Glib::ParamSpec->unichar ('unichar', 'Unichar',
+	                           'is that like unixsex?',
+	                           'ö', qw/readable/);
+pspec_common_ok ($pspec, 'Unichar', qw/readable/, 'Glib::UInt');
+is ($pspec->get_default_value, 'ö', 'Unichar default');
 push @params, $pspec;
 
 

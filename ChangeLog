@@ -1,3 +1,7 @@
+2004/10/20 19:32 (+0200) kaffeetisch
+
+	* GParamSpec.xs, e.t: Add and test support for GParamSpecUnichar.
+
 2004/10/17 12:27 (+0200) kaffeetisch
 
 	* doctypes: Add a description for gunichar.

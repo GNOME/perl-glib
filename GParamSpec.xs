@@ -237,6 +237,7 @@ BOOT:
 	                            "Glib::ParamFlags");
 	gperl_register_param_spec (G_TYPE_PARAM_CHAR, "Glib::Param::Char");
 	gperl_register_param_spec (G_TYPE_PARAM_UCHAR, "Glib::Param::UChar");
+	gperl_register_param_spec (G_TYPE_PARAM_UNICHAR, "Glib::Param::Unichar");
 	gperl_register_param_spec (G_TYPE_PARAM_BOOLEAN, "Glib::Param::Boolean");
 	gperl_register_param_spec (G_TYPE_PARAM_INT, "Glib::Param::Int");
 	gperl_register_param_spec (G_TYPE_PARAM_UINT, "Glib::Param::UInt");
@@ -978,6 +979,18 @@ get_default_value (GParamSpec * pspec_string)
 ##  char substitutor
 ##  bool null_fold_if_empty
 ##  bool ensure_non_null
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Unichar
+
+=for see_also Glib::ParamSpec
+=cut
+
+gunichar
+get_default_value (GParamSpec * pspec_unichar)
+    CODE:
+	RETVAL = G_PARAM_SPEC_UNICHAR (pspec_unichar)->default_value;
+    OUTPUT:
+	RETVAL
 
 ##MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::ValueArray
 
