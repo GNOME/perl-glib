@@ -1,3 +1,15 @@
+2003/09/11 21:50 muppetman
+
+	* GSignal.xs, Glib.exports, gperl.h: implement
+	g_signal_chain_from_overridden and a wrapper for GSignalFlags;
+	make signal_emit actually catch return values and give them back
+	to perl; add output-only wrapper for GSignalInvocationHint.
+
+	* GType.xs, t/7.t, t/8.t: make class closures optional for new
+	signals; allow the creation of signals that have return values;
+	allow perl to supply custom accumulators for valued signals;
+	make overriding class closures actually work.
+
 2003/09/11 13:27 muppetman
 
 	* t/7.t: use strict and warnings in this one, too.
