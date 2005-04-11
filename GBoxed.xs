@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -158,6 +158,10 @@ for this conversion to happen is in gperl_value_from_sv() and
 gperl_sv_from_value(), the only reliable and robust way to implement this 
 is a hook into gperl_get_boxed_check() and gperl_new_boxed(); that is
 exactly the purpose of I<wrapper_class>.  See C<GPerlBoxedWrapperClass>.
+
+I<gperl_register_boxed> does not copy the contents of I<wrapper_class> -- it
+assumes that I<wrapper_class> is statically allocated and that it will be valid
+for the whole lifetime of the program.
 
 =cut
 void

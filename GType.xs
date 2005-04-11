@@ -43,7 +43,7 @@ G_LOCK_DEFINE_STATIC (packages_by_type);
 
 /*
  * this is just like gtk_type_class --- it keeps a reference on the classes
- * it returns to they stick around.  this is most important for enums and
+ * it returns so they stick around.  this is most important for enums and
  * flags, which will be created and destroyed every time you look them up
  * unless you pull this trick.  duplicates a pointer when you are using
  * gtk, but you aren't always using gtk and it's better to be safe than sorry.

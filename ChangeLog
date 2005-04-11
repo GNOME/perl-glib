@@ -1,3 +1,12 @@
+2005/04/11	kaffeetisch
+
+	Merge from HEAD:
+
+	* GBoxed.xs: Add documentation about lifetime assumption made by
+	gperl_register_boxed.
+
+	* GType.xs: Fix a typo in a comment.
+
 2005/03/07	kaffeetisch
 
 	* Glib.pm, Makefile.PL, META.yml, NEWS, README: Stable release
