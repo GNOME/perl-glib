@@ -1,5 +1,9 @@
 2005/04/11	kaffeetisch
 
+	* Glib.pm, META.yml, NEWS, README: Stable release 1.081.
+
+2005/04/11	kaffeetisch
+
 	Merge from HEAD:
 
 	* GBoxed.xs: Add documentation about lifetime assumption made by
