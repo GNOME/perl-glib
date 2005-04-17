@@ -1,3 +1,7 @@
+2005/04/17	kaffeetisch
+
+	* Glib.pm, META.yml, NEWS, README: Merge from stable-1-08.
+
 2005/04/04	muppetman
 
 	* GSignal.xs, t/signal_emission_hooks.t, MANIFEST:
