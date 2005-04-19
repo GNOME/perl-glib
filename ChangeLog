@@ -1,3 +1,10 @@
+2005/04/19	rwmcfa1
+
+	* GenPod.pm: fixed long running auto list of enums/flags problems.
+	enums were only getting added when there was info assocaited with them,
+	flags could always make it through. there was also a bug which allowed
+	enums and flags in parent properties to be listed in children.
+
 2005/04/17	kaffeetisch
 
 	* Glib.pm, META.yml, NEWS, README: Merge from stable-1-08.
