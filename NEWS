@@ -1,7 +1,16 @@
+Overview of changes in Glib 1.090
+=================================
+
+* Add API that allows binding developers to specify conversion functions when
+  registering wrappers for custom fundamental types.  [Torsten]
+* Add Glib::Object::signal_add_emission_hook and
+  Glib::Object::signal_remove_emission_hook.  [muppet]
+* Fixed problems with the automatic creation of enum/flags listings.  [Ross]
+
 Overview of changes in Glib 1.081
 =================================
 
-* Documentation updates.
+* Documentation updates.  [Torsten]
 
 Overview of changes in Glib 1.080
 =================================

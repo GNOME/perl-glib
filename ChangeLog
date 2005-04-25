@@ -1,3 +1,8 @@
+2005/04/25	kaffeetisch
+
+	* Glib.pm, META.yml, Makefile.PL, NEWS, README: Unstable release
+	1.090.
+
 2005/04/19	rwmcfa1
 
 	* GenPod.pm: fixed long running auto list of enums/flags problems.

@@ -33,6 +33,7 @@ unless (eval "use ExtUtils::Depends '$build_reqs{'perl-ExtUtils-Depends'}';"
    );
    exit 1; # not reached
 }
+
 # client modules may use Glib::MakeHelper -- he's not installed at this
 # point, so we have to require him directly.
 require 'MakeHelper.pm';
@@ -127,6 +128,17 @@ WriteMakefile(
     DL_FUNCS		=> { Glib => [] },
     $glib ? $glib->get_makefile_vars : (),
 );
+
+print <<__EOW__;
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+   This is an unstable development release of Glib.  The API is not
+   frozen and things are subject to change at any time.  Report any
+   bugs to gtk-perl-list AT gnome DOT org as soon as possible.
+   Please use the 1.08x series for important work.
+
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+__EOW__
 
 package MY;
 
