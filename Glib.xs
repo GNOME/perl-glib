@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -329,6 +329,9 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__MainLoop);
 	GPERL_CALL_BOOT (boot_Glib__ParamSpec);
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
+#if GLIB_CHECK_VERSION (2, 6, 0)
+	GPERL_CALL_BOOT (boot_Glib__KeyFile);
+#endif /* GLIB_CHECK_VERSION (2, 6, 0) */
 	/* make sure that we're running/linked against a version at least as 
 	 * new as we built against, otherwise bad things will happen. */
 	if ((((int)glib_major_version) < GLIB_MAJOR_VERSION)

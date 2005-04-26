@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 by the gtk2-perl team (see the file AUTHORS for the full
+ * Copyright (C) 2004-2005 by the gtk2-perl team (see the file AUTHORS for the full
  * list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -337,6 +337,12 @@ BOOT:
 	gperl_register_error_domain (G_FILE_ERROR,
 	                             GPERL_TYPE_FILE_ERROR,
 	                             "Glib::File::Error");
+#if GLIB_CHECK_VERSION (2, 6, 0)
+	/* gkeyfile.h */
+	gperl_register_error_domain (G_KEY_FILE_ERROR,
+				     GPERL_TYPE_KEY_FILE_ERROR,
+				     "Glib::KeyFile::Error");
+#endif /* GLIB_CHECK_VERSION (2, 6, 0) */
 	/* giochannel.h */
 	gperl_register_error_domain (G_IO_CHANNEL_ERROR,
 	                             GPERL_TYPE_IO_CHANNEL_ERROR,

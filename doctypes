@@ -13,3 +13,5 @@ GMainLoop	Glib::MainLoop
 GParamSpec	Glib::ParamSpec
 GParamFlags	Glib::ParamFlags
 gunichar	character
+GKeyFile	Glib::KeyFile
+GKeyFiileFlags	Glib::KeyFileFlags

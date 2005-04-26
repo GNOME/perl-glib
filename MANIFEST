@@ -6,6 +6,7 @@ GBoxed.xs
 GClosure.xs
 GenPod.pm
 GError.xs
+GKeyFile.xs
 GIOChannel.xs
 Glib.exports
 Glib.pm
@@ -52,6 +53,7 @@ t/c.t
 t/d.t
 t/e.t
 t/f.t
+t/g.t
 t/signal_emission_hooks.t
 t/signal_query.t
 TODO

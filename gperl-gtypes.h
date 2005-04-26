@@ -15,6 +15,11 @@ GType gperl_g_convert_error_get_type (void);
 #define GPERL_TYPE_FILE_ERROR gperl_g_file_error_get_type()
 GType gperl_g_file_error_get_type (void);
 
+#if GLIB_CHECK_VERSION (2, 6, 0)
+#define GPERL_TYPE_KEY_FILE_ERROR gperl_g_key_file_error_get_type()
+GType gperl_g_key_file_error_get_type (void);
+#endif /* GLIB_CHECK_VERSION (2, 6, 0) */
+
 #define GPERL_TYPE_IO_ERROR gperl_g_io_error_get_type()
 GType gperl_g_io_error_get_type (void);
 

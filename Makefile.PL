@@ -57,6 +57,12 @@ our @xs_files = qw(
 	GIOChannel.xs
 	GParamSpec.xs
 );
+
+# Check version before including
+if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.6.0')) {
+	push @xs_files, 'GKeyFile.xs';
+}
+
 our %pm_files = (
      'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
      'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',

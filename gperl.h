@@ -332,6 +332,16 @@ GParamSpec * SvGParamSpec (SV * sv);
 SV * newSVGParamFlags (GParamFlags flags);
 GParamFlags SvGParamFlags (SV * sv);
 
+/*
+ * gkeyfile.h / GKeyFile.xs
+ */
+#if GLIB_CHECK_VERSION (2, 6, 0)
+SV * newSVGKeyFile (GKeyFile * key_file);
+GKeyFile * SvGKeyFile (SV * sv);
+SV * newSVGKeyFileFlags (GKeyFileFlags flags);
+GKeyFileFlags SvGKeyFileFlags (SV * sv);
+#endif /* GLIB_CHECK_VERSION (2, 6, 0) */
+
 const char * gperl_param_spec_package_from_type (GType gtype);
 
 /*

@@ -128,6 +128,34 @@ GType gperl_g_io_channel_error_get_type (void);
 
 
 
+#if GLIB_CHECK_VERSION (2, 6, 0)
+static const GEnumValue _gperl_g_key_file_error_values[] = {
+  { G_KEY_FILE_ERROR_UNKNOWN_ENCODING, "G_KEY_FILE_ERROR_UNKNOWN_ENCODING", "unknwon-encoding" },
+  { G_KEY_FILE_ERROR_PARSE, "G_KEY_FILE_ERROR_PARSE", "parse" },
+  { G_KEY_FILE_ERROR_NOT_FOUND, "G_KEY_FILE_ERROR_NOT_FOUND", "not-found" },
+  { G_KEY_FILE_ERROR_KEY_NOT_FOUND, "G_KEY_FILE_ERROR_KEY_NOT_FOUND", "key-not-found" },
+  { G_KEY_FILE_ERROR_GROUP_NOT_FOUND, "G_KEY_FILE_ERROR_GROUP_NOT_FOUND", "group-not-found" },
+  { G_KEY_FILE_ERROR_INVALID_VALUE, "G_KEY_FILE_ERROR_INVALID_VALUE", "invalid-value" },
+  { 0, NULL, NULL }
+};
+
+GType
+gperl_g_key_file_error_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_enum_register_static ("GKeyFileError", _gperl_g_key_file_error_values);
+
+  return type;
+}
+
+#define GPERL_TYPE_KEY_FILE_ERROR gperl_g_key_file_error_get_type()
+GType gperl_g_key_file_error_get_type (void);
+#endif /* GLIB_CHECK_VERSION (2, 6, 0) */
+
+
+
 static const GEnumValue _gperl_g_markup_error_values[] = {
   { G_MARKUP_ERROR_BAD_UTF8, "G_MARKUP_ERROR_BAD_UTF8", "bad-utf8" },
   { G_MARKUP_ERROR_EMPTY, "G_MARKUP_ERROR_EMPTY", "empty" },
