@@ -1,5 +1,9 @@
 2005/04/27	ebassi
 
+	* doctypes: fix typo for GKeyFileFlags.
+
+2005/04/27	ebassi
+
 	* Glib.xs, GError.xs, doctypes, gperl-gtypes.c, gperl-gtypes.h,
 	gperl.h, Makefile.PL, MANIFEST, typemap, GKeyFile.xs, t/g.t: bind,
 	document and test GKeyFile, a parser for .ini-like files.
