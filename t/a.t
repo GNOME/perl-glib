@@ -20,7 +20,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 	# have to bail out.
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
 } else {
-	plan tests => 8;
+	plan tests => 11;
 }
 
 package Foo;
@@ -51,10 +51,19 @@ eval {
 Glib->critical (__PACKAGE__, 'whee critical');
 Glib->warning (__PACKAGE__, 'whee warning');
 
-Glib::Log->remove_handler ($id);
+Glib->log (__PACKAGE__, qw/ warning /, 'whee log warning');
 
-Glib->warning (__PACKAGE__, 'whee warning');
+Glib::Log->remove_handler (__PACKAGE__, $id);
 };
+
+$id = 
+Glib::Log->set_handler (undef,
+                        [qw/ error critical warning message info debug /],
+			sub {
+				ok(1, "in custom handler $_[1][0]");
+			});
+Glib->log (undef, [qw/ info debug /], 'whee log warning');
+Glib::Log->remove_handler (undef, $id);
 
 # i would expect this to call croak, but it actually just aborts.  :-(
 #eval { Glib->error (__PACKAGE__, 'error'); };
@@ -80,6 +89,9 @@ delete $SIG{__WARN__};
 #};
 #print "$@\n";
 #}
+
+Glib::Log->set_fatal_mask (__PACKAGE__, [qw/ warning message /]);
+Glib::Log->set_always_fatal ([qw/ info debug /]);
 
 __END__
 

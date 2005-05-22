@@ -1,3 +1,12 @@
+2005/05/22	kaffeetisch
+
+	* Glib.xs: Initialize filename and hostname in filename_from_uri.
+
+	* t/filename.t: Add tests for the filename conversion facilities.
+
+	* t/a.t: Correct existing and add new tests for Glib::Log.  Test
+	set_fatal_mask and set_always_fatal.
+
 2005/04/27	ebassi
 
 	* doctypes: fix typo for GKeyFileFlags.
