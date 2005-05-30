@@ -128,6 +128,8 @@ sub func_b {
 	} else {
 		print "ok 7 # func_b again\n";
 	}
+
+	$_[0]->signal_stop_emission_by_name("something_changed");
 }
 
 {
@@ -141,9 +143,13 @@ sub func_b {
    print "ok 6\n";
    $my->something_changed;
    print "ok 8\n";
+
+   $my->signal_handler_block ($id_b);
+   $my->signal_handler_unblock ($id_b);
+   print "".($my->signal_handler_is_connected ($id_b) ? "ok" : "not ok"). " 9\n";
+
    $my->signal_handler_disconnect ($id_b);
    $my->something_changed;
-   print "ok 9\n";
 
    # attempting to marshal the wrong number of params should croak.
    # this is part of the emission process going wrong, not a handler,

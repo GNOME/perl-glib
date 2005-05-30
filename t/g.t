@@ -2,8 +2,9 @@
 # KeyFile stuff.
 #
 use strict;
+use warnings;
 use Glib ':constants';
-use Test::More tests => 20;
+use Test::More tests => 23;
 
 my $str = <<__EOK__
 #top of the file
@@ -29,9 +30,9 @@ __EOK__
 ;
 
 SKIP: {
-	skip "Glib::KeyFile is new in glib 2.6.0", 20
+	skip "Glib::KeyFile is new in glib 2.6.0", 23
 		unless Glib->CHECK_VERSION (2, 6, 0);
-	
+
 	ok (defined Glib::KeyFile->new ());
 
 	my $key_file = Glib::KeyFile->new;
@@ -50,13 +51,13 @@ SKIP: {
 	is (@groups, 3, 'now we have two groups');
 
 	is ($key_file->get_comment, "top of the file\n", 'we reached the top');
-	
+
 	my $start_group = 'mysection';
 	ok ($key_file->has_group($start_group));
 	is ($key_file->get_start_group, $start_group, 'start group');
 
 	ok ($key_file->has_key($key_file->get_start_group, 'stringkey'));
-	
+
 	my $intval = 42;
 	my $stringval = 'hello';
 	my $boolval = TRUE;
@@ -64,9 +65,9 @@ SKIP: {
 	is ($key_file->get_value($start_group, 'intkey'), $intval, 'the answer');
 	is ($key_file->get_integer($start_group, 'intkey'), $intval, 'the answer, reloaded');
 	is ($key_file->get_boolean($start_group, 'boolkey'), $boolval, 'we stay true to ourselves');
-	
+
 	ok ($key_file->has_group('listsection'));
-	
+
 	my @integers = $key_file->get_integer_list('listsection', 'intlist');
 	is (@integers, 7, 'fibonacci would be proud');
 
@@ -81,6 +82,27 @@ SKIP: {
 	is ($key_file->get_comment('locales', 'mystring'), "some string\n");
 	is ($key_file->get_string('locales', 'mystring'), 'Good morning');
 	is ($key_file->get_locale_string('locales', 'mystring', 'it'), 'Buongiorno');
+
+	$key_file->set_locale_string_list('locales', 'mystring', 'en', 'one', 'two', 'three');
+	is_deeply([$key_file->get_locale_string_list('locales', 'mystring', 'en')], ['one', 'two', 'three']);
+
+	$key_file->set_string_list('listsection', 'stringlist', 'one', 'two', 'three');
+	$key_file->set_locale_string('locales', 'mystring', 'en', 'one');
+	$key_file->set_comment('locales', 'mystring', 'comment');
+	$key_file->set_boolean($start_group, 'boolkey', FALSE);
+	$key_file->set_value($start_group, 'boolkey', '0');
+
+	is_deeply([$key_file->get_keys('mysection')], ['intkey', 'stringkey', 'boolkey']);
+
+	$key_file->remove_comment('locales', 'mystring');
+	$key_file->remove_key('locales', 'mystring');
+	$key_file->remove_group('mysection');
+	$key_file->remove_group('listsection');
+	$key_file->remove_group('locales');
+
+	is($key_file->to_data(), "#top of the file\n\n");
+
+	$key_file->set_list_separator(ord(':'));
 }
 
 __END__

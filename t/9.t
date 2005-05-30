@@ -6,7 +6,7 @@
 
 use Config;
 
-print "1..16\n";
+print "1..22\n";
 
 use Glib;
 
@@ -137,6 +137,24 @@ if ($^O eq 'Win32') {
 	    . " 16 # 1 sec alarm handler fires before 2 sec timeout\n";
 }
 
+print Glib::main_depth == 0 ?
+  "ok 17\n" : "not ok 17\n";
+
+print $loop->is_running ?
+  "not ok 18\n" : "ok 18\n";
+
+print Glib::MainContext->new ?
+  "ok 19\n" : "not ok 19\n";
+
+print Glib::MainContext->default ?
+  "ok 20\n" : "not ok 20\n";
+
+my $context = $loop->get_context;
+print $context ?
+  "ok 21\n" : "not ok 21\n";
+
+print $context->pending ?
+  "not ok 22\n" : "ok 22\n";
 
 __END__
 

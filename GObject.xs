@@ -809,6 +809,7 @@ set_threadsafe (class, gboolean threadsafe)
 #if GPERL_THREAD_SAFE
 	RETVAL = perl_gobject_tracking = threadsafe;
 #else
+	PERL_UNUSED_VAR (threadsafe);
 	RETVAL = FALSE;
 #endif 
     OUTPUT:

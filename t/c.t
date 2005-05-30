@@ -11,7 +11,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -140,6 +140,8 @@ ok (eq_array ($obj->get ('some_flags'), ['value-one']), 'flags property');
 $obj->set (some_flags => ['value-one', 'value-two']);
 is ($obj->get ('some_flags'), ['value-one', 'value-two'], 
 	'flags property, after set');
+
+ok ($obj->get ('some_flags') & $obj->get ('some_flags'));
 
 __END__
 

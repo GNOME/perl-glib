@@ -1,3 +1,33 @@
+2005/05/30	kaffeetisch
+
+	* xs/GKeyFile.xs: Fix the g_key_file_get_keys XSUB to actually
+	return anything, and make it omit NULLs.  Fix an incorrect offset
+	in the g_key_file_set_locale_string_list XSUB.  Replace "const
+	gchar const **" with "const gchar * const *" where appropriate.
+
+	* xs/GObject.xs (Glib::Object::set_threadsafe): Mark `threadsafe'
+	as unused in the !GPERL_THREAD_SAFE branch.
+
+	* typemap: Add a GSignalFlags typemap.  The corresponding
+	converters already exist and are exported.
+
+	* t/2.t: Test Glib::Object::freeze_notify and thaw_notify.
+
+	* t/7.t: Test Glib::Object::signal_stop_emission_by_name,
+	signal_handler_block, signal_handler_unblock and
+	signal_handler_is_connected.
+
+	* t/9.t: Test Glib::main_depth, Glib::MainLoop::is_running,
+	Glib::MainLooP::get_context, Glib::MainContext::new,
+	Glib::MainContext::default and Glib::MainContext::pending.
+
+	* t/c.t: Test the union operator of flags.
+
+	* t/g.t: Test Glib::KeyFile::set_locale_string_list,
+	get_locale_string_list, set_string_list, set_locale_string,
+	set_comment, set_boolean, set_value, get_keys, remove_comment,
+	remove_key, remove_group, to_data and set_list_separator.
+
 2005/05/22	kaffeetisch
 
 	* Glib.xs: Initialize filename and hostname in filename_from_uri.

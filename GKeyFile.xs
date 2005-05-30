@@ -287,9 +287,12 @@ g_key_file_get_keys (key_file, group_name)
 	if (err)
 		gperl_croak_gerror (NULL, err);
 	if (len != 0) {
-		EXTEND (SP, len);
-		for (i = len; i < len; i++)
-			PUSHs (sv_2mortal (newSVGChar (keys[i])));
+		/* FIXME: len seems to be set to 4 when there are only three
+		   keys.  Looks like g_key_file_get_keys counts the trailing
+		   NULL, too. */
+		for (i = 0; i < len; i++)
+			if (keys[i])
+				XPUSHs (sv_2mortal (newSVGChar (keys[i])));
 	}
 	g_strfreev (keys); /* otherwise, we leak */
 
@@ -527,12 +530,12 @@ g_key_file_set_locale_string_list (key_file, group_name, key, locale, ...)
     CODE:
 	list_len = (gsize) (items - 3);
 	list = g_new0 (gchar *, list_len);
-	for (i = 3; i < items; i++)
-		list[i - 3] = SvPV_nolen (ST (i));
+	for (i = 4; i < items; i++)
+		list[i - 4] = SvPV_nolen (ST (i));
 	g_key_file_set_locale_string_list (key_file,
 			group_name, key,
 			locale,
-			(const gchar const **) list, list_len);
+			(const gchar * const *) list, list_len);
 	g_free (list);
 
 =for apidoc Glib::KeyFile::get_string_list __function__
@@ -648,7 +651,7 @@ g_key_file_set_string_list (key_file, group_name, key, ...)
 				list[i - 3] = SvPV_nolen (ST (i));
 			g_key_file_set_string_list (key_file,
 					group_name, key,
-					(const gchar const **) list, list_len);
+					(const gchar * const *) list, list_len);
 			g_free (list);
 			break;
 		}
