@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.091
+=================================
+
+* Add GKeyFile bindings.  [Emmanuele]
+* Add tests for previously untested stuff.  [Torsten]
+* Add a GSignalFlags typemap.  [Torsten]
+
 Overview of changes in Glib 1.090
 =================================
 
