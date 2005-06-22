@@ -379,9 +379,9 @@ void
 filename_from_uri (...)
     PROTOTYPE: $
     PREINIT:
-	gchar * filename;
+	gchar * filename = NULL;
 	const char * uri;
-	char * hostname;
+	char * hostname = NULL;
 	GError * error = NULL;
     PPCODE:
 	/* support multiple call syntaxes. */

@@ -111,7 +111,7 @@ gperl_log_handler (const gchar   *log_domain,
 
 	if (!message)
 		message = "(NULL) message";
-	
+
 	switch (log_level) {
 		case G_LOG_LEVEL_CRITICAL: desc = "CRITICAL"; break;
 		case G_LOG_LEVEL_ERROR:    desc = "ERROR";    break;
@@ -119,6 +119,8 @@ gperl_log_handler (const gchar   *log_domain,
 		case G_LOG_LEVEL_MESSAGE:  desc = "Message";  break;
 		default: desc = "LOG";
 	}
+
+	PERL_SET_CONTEXT (user_data);
 
 	full_string = form ("%s%s%s %s**: %s",
 	                    (log_domain ? log_domain : ""),
@@ -157,7 +159,7 @@ gint
 gperl_handle_logs_for (const gchar * log_domain)
 {
 	return g_log_set_handler (log_domain, ALL_LOGS,
-	                          gperl_log_handler, NULL);
+	                          gperl_log_handler, PERL_GET_CONTEXT);
 }
 
 =back

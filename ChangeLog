@@ -1,3 +1,43 @@
+2005/06/23	kaffeetisch
+
+	Merge from HEAD:
+
+	* xs/GLog.xs (gperl_log_handler): Set perl's context to the one
+	gperl_handle_logs_for() was called in.  This is to make sure
+	Perl_form accesses a valid memory pool, which prevents segfaults
+	when the log handler is called from a different thread.
+
+	* GObject.xs (Glib::Object::set_threadsafe): Mark `threadsafe' as
+	unused in the !GPERL_THREAD_SAFE branch.
+
+	* GType.xs: Fix a typo in gperl_package_from_type's POD.
+
+	* GenPod.pm: fixed long running auto list of enums/flags problems.
+	enums were only getting added when there was info assocaited with them,
+	flags could always make it through. there was also a bug which allowed
+	enums and flags in parent properties to be listed in children.
+
+	* Glib.xs: Initialize filename and hostname in filename_from_uri.
+
+	* t/2.t: Test Glib::Object::freeze_notify and thaw_notify.
+
+	* t/7.t: Test Glib::Object::signal_stop_emission_by_name,
+	signal_handler_block, signal_handler_unblock and
+	signal_handler_is_connected.
+
+	* t/9.t: Test Glib::main_depth, Glib::MainLoop::is_running,
+	Glib::MainLooP::get_context, Glib::MainContext::new,
+	Glib::MainContext::default and Glib::MainContext::pending.
+
+	* t/a.t: Correct existing and add new tests for Glib::Log.  Test
+	set_fatal_mask and set_always_fatal.
+
+	* t/c.t: Test the union operator of flags.  Use is() instead of
+	is_deeply() to test flags values since the latter was changed to
+	always use the string version of overloaded objects in recent
+	versions of Test::More, whereas the former seems to work
+	correctly.  Tested with Test::More 0.45 and 0.60.
+
 2005/04/11	kaffeetisch
 
 	* Glib.pm, META.yml, NEWS, README: Stable release 1.081.

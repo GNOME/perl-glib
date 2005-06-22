@@ -583,10 +583,11 @@ sub podify_enums_and_flags
 		foreach my $prop (@props)
 		{
 			next unless ($prop->{type});
+			next unless $prop->{owner_type} eq $package;
 			$name = convert_type ($prop->{type});
 			$types{$name}++;
 		}
-	
+		
 		my @sigs;
 		eval { @sigs = Glib::Type->list_signals ($package); 1; };
 		foreach my $sig (@sigs)
@@ -605,21 +606,24 @@ sub podify_enums_and_flags
 		}
 	}
 
-	my $type;
 	my $ret = '';
 	foreach (sort keys %types)
 	{
-		$type = UNIVERSAL::isa ($_, 'Glib::Flags');
-		if ($type or UNIVERSAL::isa ($_, 'Glib::Enum') or 
-		    exists $info{$_})
+		s/\s.*//;
+
+		my $values_pod = podify_values ($_);
+
+		if ($values_pod || exists $info{$_})
 		{
-			$type = $type ? 'flags' : 'enum';
+			my $type = UNIVERSAL::isa ($_, 'Glib::Flags') ?
+					'flags' : 'enum';
 			$ret .= "=head2 $type $_\n\n";
 			$ret .= join ("\n", @{$info{$_}{pod}}) . "\n\n"
 				if ($info{$_}{pod});
 			$ret .= podify_values ($_) . "\n";
 		}
 	}
+	
 	return $ret;
 }
 

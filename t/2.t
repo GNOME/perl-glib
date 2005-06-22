@@ -13,12 +13,15 @@ use warnings;
 #########################
 
 use Test::More tests => 9;
-BEGIN { use_ok('Glib') };
+BEGIN { use_ok('Glib'); Glib::Object->set_threadsafe (1); };
 
 #########################
 
 my $obj = new Glib::Object "Glib::Object";
 isa_ok ($obj, 'Glib::Object');
+
+$obj->freeze_notify;
+$obj->thaw_notify;
 
 undef $obj;
 ok(1);
