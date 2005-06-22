@@ -1,5 +1,9 @@
 2005/06/23	kaffeetisch
 
+	* Glib.pm, META.yml, NEWS, README: Stable release 1.082.
+
+2005/06/23	kaffeetisch
+
 	Merge from HEAD:
 
 	* xs/GLog.xs (gperl_log_handler): Set perl's context to the one

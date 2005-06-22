@@ -20,7 +20,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 	# have to bail out.
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
 } else {
-	plan tests => 8;
+	plan tests => 11;
 }
 
 package Foo;

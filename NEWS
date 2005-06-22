@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.082
+=================================
+
+* Update and expand the test suite.  [Torsten]
+* Fix a few bugs here and some typos there.  [Torsten]
+* Fix enum listings in the generated documentation.  [Ross]
+* Fix a thread-related crasher in the default log handler.  [Torsten]
+
 Overview of changes in Glib 1.081
 =================================
 
