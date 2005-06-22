@@ -1,3 +1,11 @@
+2005/06/22	kaffeetisch
+
+	* t/c.t: Use is() instead of is_deeply() to test flags values
+	since the latter was changed to always use the string version of
+	overloaded objects in recent versions of Test::More, whereas the
+	former seems to work correctly.  Tested with Test::More 0.45 and
+	0.60.
+
 2005/06/20	kaffeetisch
 
 	* xs/GLog.xs (gperl_log_handler): Set perl's context to the one
