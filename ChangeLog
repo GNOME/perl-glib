@@ -1,3 +1,8 @@
+2005/06/28	kaffeetisch
+
+	* GenPod.pm (podify_ancestors): Use one less space for the
+	indention of ancestors to make them line up correctly.
+
 2005/06/22	kaffeetisch
 
 	* t/c.t: Use is() instead of is_deeply() to test flags values
@@ -13,7 +18,7 @@
 	Perl_form accesses a valid memory pool, which prevents segfaults
 	when the log handler is called from a different thread.
 
-	* xs/GType.xs: Fix a typo in gperl_package_from_type's POD.
+	* GType.xs: Fix a typo in gperl_package_from_type's POD.
 
 2005/06/06	kaffeetisch
 
@@ -22,13 +27,13 @@
 
 2005/05/30	kaffeetisch
 
-	* xs/GKeyFile.xs: Fix the g_key_file_get_keys XSUB to actually
-	return anything, and make it omit NULLs.  Fix an incorrect offset
-	in the g_key_file_set_locale_string_list XSUB.  Replace "const
-	gchar const **" with "const gchar * const *" where appropriate.
+	* GKeyFile.xs: Fix the g_key_file_get_keys XSUB to actually return
+	anything, and make it omit NULLs.  Fix an incorrect offset in the
+	g_key_file_set_locale_string_list XSUB.  Replace "const gchar
+	const **" with "const gchar * const *" where appropriate.
 
-	* xs/GObject.xs (Glib::Object::set_threadsafe): Mark `threadsafe'
-	as unused in the !GPERL_THREAD_SAFE branch.
+	* GObject.xs (Glib::Object::set_threadsafe): Mark `threadsafe' as
+	unused in the !GPERL_THREAD_SAFE branch.
 
 	* typemap: Add a GSignalFlags typemap.  The corresponding
 	converters already exist and are exported.

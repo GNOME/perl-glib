@@ -734,7 +734,7 @@ sub podify_ancestors {
 	my $depth = 0;
 	my $str = '  '.pop(@anc)."\n";
 	foreach (reverse @anc) {
-		$str .= "  " . "      "x$depth . "+----$_\n";
+		$str .= "  " . "     "x$depth . "+----$_\n";
 		$depth++;
 	}
 	$str .= "\n";
