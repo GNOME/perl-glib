@@ -359,7 +359,7 @@ that you must provide.
 
 =head1 AUTHORS
 
-Marc Lehmann E<lt>pcg@goof.comE<gt>, muppet E<lt>scott at asofyet dot orgE<gt>
+Marc Lehmann E<lt>schmorp@schmorp.deE<gt>, muppet E<lt>scott at asofyet dot orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

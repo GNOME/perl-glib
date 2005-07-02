@@ -1,3 +1,10 @@
+2005/07/02 00:32 pcg
+
+	* GMainLoop.xs (add_watch): on native win32, convert the perl fileno
+	to a winsock fileno using win32_get_osfhandle and call
+	g_io_channel_win32_new_socket directly.
+	* Subclass.pm: fix my contact address while we are at it.
+
 2005/06/28	kaffeetisch
 
 	* GenPod.pm (podify_ancestors): Use one less space for the

@@ -507,7 +507,12 @@ g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_D
 	GSource * source;
 	GIOChannel * channel;
     CODE:
-	channel = g_io_channel_unix_new (fd);
+#ifdef USE_SOCKETS_AS_HANDLES
+        /* native win32 doesn't have fd's, so first convert perls fd into a winsock fd */
+        channel = g_io_channel_win32_new_socket ((HANDLE)win32_get_osfhandle (fd));
+#else
+        channel = g_io_channel_unix_new (fd);
+#endif  /* USE_SOCKETS_AS_HANDLES */
 	source = g_io_create_watch (channel, condition);
 	if (priority != G_PRIORITY_DEFAULT)
 		g_source_set_priority (source, priority);
