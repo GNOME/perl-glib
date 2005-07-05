@@ -1,3 +1,7 @@
+2005/07/05	kaffeetisch
+
+	* GUtils.xs, t/1.t: Bind and test g_markup_escape_text.
+
 2005/07/02 00:32 pcg
 
 	* GMainLoop.xs (add_watch): on native win32, convert the perl fileno

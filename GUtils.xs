@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 by the gtk2-perl team (see the file AUTHORS for a 
+ * Copyright (C) 2004-2005 by the gtk2-perl team (see the file AUTHORS for a
  * complete list)
  *
  * This library is free software; you can redistribute it and/or
@@ -414,5 +414,18 @@ CHECK_VERSION (class, guint required_major, guint required_minor, guint required
     CODE:
 	RETVAL = GLIB_CHECK_VERSION (required_major, required_minor,
 				    required_micro);
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::Utils	PACKAGE = Glib::Markup	PREFIX = g_markup_
+
+=for apidoc __function__
+=cut
+# gchar* g_markup_escape_text (const gchar *text, gssize length);
+gchar_own *
+g_markup_escape_text (text)
+	const gchar* text
+    CODE:
+	RETVAL = g_markup_escape_text (text, strlen (text));
     OUTPUT:
 	RETVAL
