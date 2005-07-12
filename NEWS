@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.092
+=================================
+
+* Fix a thread-related crasher in the default log handler.  [Torsten]
+* Fix a test suite issue.  [Torsten]
+* Fix Glib::IO::add_watch on win32.  [Marc Lehmann]
+* Add Glib::Markup::escape_text.  [Torsten]
+
 Overview of changes in Glib 1.091
 =================================
 

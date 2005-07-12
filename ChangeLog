@@ -1,3 +1,7 @@
+2005/07/12	kaffeetisch
+
+	* Glib.pm, META.yml, NEWS, README: Unstable release 1.092.
+
 2005/07/05	kaffeetisch
 
 	* GUtils.xs, t/1.t: Bind and test g_markup_escape_text.
