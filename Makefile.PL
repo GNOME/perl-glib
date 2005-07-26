@@ -68,6 +68,7 @@ our %pm_files = (
      'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
      'ParseXSDoc.pm'   => '$(INST_LIBDIR)/Glib/ParseXSDoc.pm',
      'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
+     'CodeGen.pm'      => '$(INST_LIBDIR)/Glib/CodeGen.pm',
      'MakeHelper.pm'   => '$(INST_LIBDIR)/Glib/MakeHelper.pm',
      'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
 );
@@ -76,6 +77,7 @@ our %pod_files = (
    'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
    'ParseXSDoc.pm'   => '$(INST_MAN3DIR)/Glib::ParseXSDoc.$(MAN3EXT)',
    'GenPod.pm'       => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
+   'CodeGen.pm'      => '$(INST_MAN3DIR)/Glib::CodeGen.$(MAN3EXT)',
    'MakeHelper.pm'   => '$(INST_MAN3DIR)/Glib::MakeHelper.$(MAN3EXT)',
    'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
    '$(INST_LIB)/$(FULLEXT)/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',

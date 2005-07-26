@@ -1,5 +1,6 @@
 AUTHORS
 ChangeLog
+CodeGen.pm
 GBoxed.xs
 GClosure.xs
 GError.xs
