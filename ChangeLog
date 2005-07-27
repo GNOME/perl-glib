@@ -1,3 +1,7 @@
+2005/07/27	muppetman
+
+	* CodeGen.pm: Forgot to delete the leftover gtk junk before committing.
+
 2005/07/27	kaffeetisch
 
 	* Glib.pm, META.yml, NEWS, README: Unstable release 1.093.

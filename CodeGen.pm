@@ -581,29 +581,6 @@ typedef $classname $classname\_noinc_ornull;
 	add_header $header_text;
 }
 
-sub gen_gtkobject_stuff {
-	my ($typemacro, $classname, $root, $package) = @_;
-
-	add_typemap "$classname *", "T_GPERL_GENERIC_WRAPPER";
-	add_typemap "const $classname *", "T_GPERL_GENERIC_WRAPPER";
-	add_typemap "$classname\_ornull *", "T_GPERL_GENERIC_WRAPPER";
-	add_typemap "const $classname\_ornull *", "T_GPERL_GENERIC_WRAPPER";
-	add_register "#ifdef $typemacro
-gperl_register_object ($typemacro, \"$package\");
-#endif /* $typemacro */";
-
-	my $get_wrapper = 'gtk2perl_new_gtkobject (GTK_OBJECT (val))';
-	add_header "#ifdef $typemacro
-  /* $root derivative $classname */
-# define Sv$classname(sv)	(($classname*)gperl_get_object_check (sv, $typemacro))
-# define newSV$classname(val)	($get_wrapper)
-  typedef $classname $classname\_ornull;
-# define Sv$classname\_ornull(sv)	(((sv) && SvOK (sv)) ? Sv$classname(sv) : NULL)
-# define newSV$classname\_ornull(val)	(((val) == NULL) ? &PL_sv_undef : $get_wrapper)
-#endif /* $typemacro */
-";
-}
-
 sub gen_error_domain_stuff {
 	my ($domain, $enum, undef, $package) = @_;
 
