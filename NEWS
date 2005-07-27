@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.093
+=================================
+
+* Take out the Gtk2-specific portions of Gtk2::CodeGen, make it extensible, and
+  call it Glib::CodeGen.  [muppet]
+
 Overview of changes in Glib 1.092
 =================================
 
@@ -21,6 +27,14 @@ Overview of changes in Glib 1.090
 * Add Glib::Object::signal_add_emission_hook and
   Glib::Object::signal_remove_emission_hook.  [muppet]
 * Fixed problems with the automatic creation of enum/flags listings.  [Ross]
+
+Overview of changes in Glib 1.082
+=================================
+
+* Update and expand the test suite.  [Torsten]
+* Fix a few bugs here and some typos there.  [Torsten]
+* Fix enum listings in the generated documentation.  [Ross]
+* Fix a thread-related crasher in the default log handler.  [Torsten]
 
 Overview of changes in Glib 1.081
 =================================
