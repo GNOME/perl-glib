@@ -1,3 +1,9 @@
+2005/09/05	kaffeetisch
+
+	* MANIFEST, META.yml: Remove META.yml.
+
+	* Glib.pm, Makefile.PL, NEWS, README: Stable release 1.100.
+
 2005/07/27	muppetman
 
 	* CodeGen.pm: Forgot to delete the leftover gtk junk before committing.

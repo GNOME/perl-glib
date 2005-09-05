@@ -1,3 +1,19 @@
+Overview of changes in Glib 1.100
+=================================
+
+ Since 1.08x (the previous stable series)
+ ----------------------------------------
+  * Add API that allows binding developers to specify conversion functions when
+    registering wrappers for custom fundamental types.
+  * Add Glib::Object::signal_add_emission_hook,
+    Glib::Object::signal_remove_emission_hook and Glib::Markup::escape_text.
+  * Add Glib::KeyFile and Glib::CodeGen.
+  * Fix a thread-related crasher in the default log handler.
+
+ Since 1.093
+ -----------
+  * Delete some cruft in CodeGen.pm.  [muppet]
+
 Overview of changes in Glib 1.093
 =================================
 
@@ -26,7 +42,7 @@ Overview of changes in Glib 1.090
   registering wrappers for custom fundamental types.  [Torsten]
 * Add Glib::Object::signal_add_emission_hook and
   Glib::Object::signal_remove_emission_hook.  [muppet]
-* Fixed problems with the automatic creation of enum/flags listings.  [Ross]
+* Fix problems with the automatic creation of enum/flags listings.  [Ross]
 
 Overview of changes in Glib 1.082
 =================================

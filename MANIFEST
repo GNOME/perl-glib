@@ -21,7 +21,6 @@ Glib.xs
 LICENSE
 MANIFEST
 MANIFEST.SKIP
-META.yml			Module meta-data in YAML
 MakeHelper.pm
 Makefile.PL
 NEWS

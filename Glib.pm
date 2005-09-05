@@ -61,7 +61,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.093';
+our $VERSION = '1.100';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
