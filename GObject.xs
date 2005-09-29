@@ -43,11 +43,17 @@ Propers go to Marc Lehmann for dreaming most of this up.
 #include "gperl.h"
 
 typedef struct _ClassInfo ClassInfo;
+typedef struct _InterfaceInfo InterfaceInfo;
 typedef struct _SinkFunc  SinkFunc;
 
 struct _ClassInfo {
 	GType   gtype;
 	char  * package;
+};
+
+struct _InterfaceInfo {
+	const char * package;
+	GType        interface;
 };
 
 struct _SinkFunc {
@@ -122,6 +128,8 @@ gperl_register_object (GType gtype,
 {
 	GType parent_type;
 	ClassInfo * class_info;
+	GType *interfaces;
+	guint n_interfaces = 0;
 
 	G_LOCK (types_by_type);
 	G_LOCK (types_by_package);
@@ -204,6 +212,43 @@ gperl_register_object (GType gtype,
 				i = pending_isa;
 			} else {
 				/* go fish */
+				i = g_list_next (i);
+			}
+		}
+	}
+
+	/* also add each interface the object implements to its @ISA.  use a
+	 * similar "pending isa" approach as above. */
+	interfaces = g_type_interfaces (gtype, &n_interfaces);
+	if (interfaces) {
+		static GList * pending_isa = NULL;
+		GList * i;
+		guint j;
+
+		for (j = 0; j < n_interfaces; j++) {
+			InterfaceInfo *info = g_new (InterfaceInfo, 1);
+			info->package = package;
+			info->interface = interfaces[j];
+			pending_isa = g_list_append (pending_isa, info);
+		}
+
+		i = pending_isa;
+		while (i != NULL) {
+			InterfaceInfo *info = i->data;
+			ClassInfo *class_info;
+
+			class_info = (ClassInfo *)
+			         g_hash_table_lookup (
+				 	types_by_type,
+					(gpointer) info->interface);
+
+			if (class_info) {
+				gperl_set_isa (info->package,
+					       class_info->package);
+				pending_isa = g_list_remove (pending_isa, info);
+				g_free (info);
+				i = pending_isa;
+			} else {
 				i = g_list_next (i);
 			}
 		}
@@ -531,6 +576,35 @@ gperl_new_object (GObject * object,
 				parent = g_type_parent (parent);
 				stash = gperl_object_stash_from_type (parent);
 			}
+
+			/* if all we could come up with is GObject, register a
+			 * unique package for the object and add each interface
+			 * we know about to this package's @ISA. */
+			if (parent == G_TYPE_OBJECT) {
+				guint n_interfaces, i = -1;
+				GType *interfaces;
+
+				gchar *package =
+					g_strconcat ("Glib::Object::_Unregistered::",
+						     g_type_name (gtype), NULL);
+				gperl_register_object (gtype, package);
+				stash = gperl_object_stash_from_type (gtype);
+
+				interfaces = g_type_interfaces (gtype, &n_interfaces);
+				while (++i < n_interfaces) {
+					const char *tmp =
+						gperl_object_package_from_type (interfaces[i]);
+					if (tmp) {
+						gperl_set_isa (package, tmp);
+						parent = interfaces[i];
+					}
+				}
+
+				g_free (package);
+				if (interfaces)
+					g_free (interfaces);
+			}
+
 			if (!gperl_object_get_no_warn_unreg_subclass (parent))
 				warn ("GType '%s' is not registered with "
 				      "GPerl; representing this object as "

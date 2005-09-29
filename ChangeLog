@@ -1,3 +1,13 @@
+2005/09/30	kaffeetisch
+
+	* GObject.xs (gperl_register_object): Automatically add each known
+	interface an object implements to the corresponding @ISA.
+	(gperl_new_object): If we encounter an object which has no known
+	type in its ancestry except for G_TYPE_OBJECT, register it with a
+	unique package name and take a look at the interfaces it
+	implements -- if there is one we know, add it to the new package's
+	@ISA.
+
 2005/09/05	kaffeetisch
 
 	* MANIFEST, META.yml: Remove META.yml.
