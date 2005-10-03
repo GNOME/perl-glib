@@ -1,5 +1,9 @@
 2005/10/03	kaffeetisch
 
+	* Glib.pm, NEWS, README: Stable release 1.101.
+
+2005/10/03	kaffeetisch
+
 	* t/c.t: Change the flags test yet again.  Make it explicit this
 	time by using is_deeply() and \@{} so it hopefully works with any
 	version of Test::More.
