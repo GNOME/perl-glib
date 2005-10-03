@@ -136,12 +136,13 @@ is ($obj->get ('some_enum'), 'value-one', 'enum property');
 $obj->set (some_enum => 'value-two');
 is ($obj->get ('some_enum'), 'value-two', 'enum property, after set');
 
-is($obj->get ('some_flags'), ['value-one'], 'flags property');
+is_deeply (\@{ $obj->get ('some_flags') }, ['value-one'], 'flags property');
 $obj->set (some_flags => ['value-one', 'value-two']);
-is ($obj->get ('some_flags'), ['value-one', 'value-two'], 
-	'flags property, after set');
+is_deeply (\@{ $obj->get ('some_flags') }, ['value-one', 'value-two'],
+	   'flags property, after set');
 
-ok ($obj->get ('some_flags') & $obj->get ('some_flags'));
+ok ($obj->get ('some_flags') & $obj->get ('some_flags'),
+    '& is overloaded');
 
 __END__
 

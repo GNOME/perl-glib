@@ -1,3 +1,9 @@
+2005/10/03	kaffeetisch
+
+	* t/c.t: Change the flags test yet again.  Make it explicit this
+	time by using is_deeply() and \@{} so it hopefully works with any
+	version of Test::More.
+
 2005/09/05	kaffeetisch
 
 	* MANIFEST, META.yml: Remove META.yml.
