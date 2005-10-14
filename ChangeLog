@@ -1,3 +1,10 @@
+2005/10/14	muppetman
+
+	* GObject.xs, AUTHORS: Patch from Steven Walter fixes nasty reference
+	counting bug that could leave Perl wrappers pointing at dead C objects
+	in some situations.  Because we have no C containers in glib-object, we
+	can't really add tests for this.
+
 2005/10/05	kaffeetisch
 
 	* Glib.pm, NEWS: Merge from stable-1-10.
