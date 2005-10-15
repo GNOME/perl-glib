@@ -252,6 +252,8 @@ gperl_register_object (GType gtype,
 				i = g_list_next (i);
 			}
 		}
+
+		g_free (interfaces);
 	}
 
 	G_UNLOCK (types_by_type);

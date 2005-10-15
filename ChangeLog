@@ -1,3 +1,8 @@
+2005/10/15	kaffeetisch
+
+	* GObject.xs (gperl_register_object): Free the interfaces list
+	after use.
+
 2005/10/14	muppetman
 
 	* GObject.xs, AUTHORS: Patch from Steven Walter fixes nasty reference
