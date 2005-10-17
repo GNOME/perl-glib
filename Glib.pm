@@ -429,6 +429,46 @@ these messages through Perl's native system, warn() and die().  Extensions
 should register the log domains they wrap for this to happen fluidly.
 [FIXME say more here]
 
+=head1 64 BIT INTEGERS
+
+Since perl's integer data type can only hold 32 bit values on all 32 bit
+machines and even on some 64 bit machines, Glib converts 64 bit integers to and
+from strings if necessary.  These strings can then be used to feed one of the
+various big integer modules.  Make sure you don't let your strings get into
+numerical context before passing them into a Glib function because in this
+case, perl will convert the number to scientific notation which at this point
+is not understood by Glib's converters.
+
+Here is an overview of what big integer modules are available.  First of all,
+there's Math::BigInt.  It has everything you will ever need, but its pure-Perl
+implementation is also rather slow.  There are multiple ways around this,
+though.
+
+=over
+
+=item L<Math::BigInt::FastCalc>
+
+L<Math::BigInt::FastCalc> can help avoid the glacial speed of vanilla
+L<Math::BigInt::Calc>.  Recent versions of L<Math::BigInt> will automatically
+use L<Math::BigInt::FastCalc> in place of L<Math::BigInt::Calc> when available.
+Other options include L<Math::BigInt::GMP> or L<Math::BigInt::Pari>, which
+however have much larger dependencies.
+
+=item L<Math::BigInt::Lite>
+
+Then there's L<Math::BigInt::Lite>, which uses native Perl integer operations
+as long as Perl integers have sufficient range, and upgrades itself to
+L<Math::BigInt> when Perl integers would overflow. This must be used in place
+of L<Math::BigInt>.
+
+=item L<bigint> / L<bignum> / L<bigfloat>
+
+Finally, there's the bigint/bignum/bigfloat pragmata, which automatically load
+the corresponding Math:: modules and which will autobox constants.
+bignum/bigint will automatically use L<Math::BigInt::Lite> if it's available.
+
+=back
+
 =head1 Exports
 
 For the most part, gtk2-perl avoids exporting things.  Nothing is exported by

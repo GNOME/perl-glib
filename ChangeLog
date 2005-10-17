@@ -1,3 +1,19 @@
+2005/10/17	kaffeetisch
+
+	* GParamSpec.xs, GType.xs, GValue.xs, gperl.h, typemap, t/64bit.t:
+	Use custom converters for gint64 and guint64 that transform 64 bit
+	integers to and from strings if perl's IV type isn't big enough.
+
+	* AUTHORS, Glib.pm: Add some documentation about the above;
+	include a write up by A. Pagaltzis about the various big integer
+	modules for Perl.
+
+	* GSignal.xs (newSVGSignalQuery)
+	(gperl_signal_emission_hook): Fix some signedness warnings.
+
+	* GParamSpec.xs (gperl_param_spec_type_from_package): Fix a
+	variable-data-in-struct-construction warning.
+
 2005/10/15	kaffeetisch
 
 	* GObject.xs (gperl_register_object): Free the interfaces list

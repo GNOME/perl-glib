@@ -103,10 +103,10 @@ gperl_value_from_sv (GValue * value,
 			g_value_set_ulong(value, SvIV(sv));
 			break;
 		case G_TYPE_INT64:
-			g_value_set_int64(value, SvIV(sv));
+			g_value_set_int64(value, SvGInt64(sv));
 			break;
 		case G_TYPE_UINT64:
-			g_value_set_uint64(value, SvIV(sv));
+			g_value_set_uint64(value, SvGUInt64(sv));
 			break;
 		case G_TYPE_FLOAT:
 			g_value_set_float(value, (gfloat)SvNV(sv));
@@ -202,12 +202,10 @@ gperl_sv_from_value (const GValue * value)
 			return newSVuv(g_value_get_ulong(value));
 
 		case G_TYPE_INT64:
-			/* in reality, i think this only makes sense on
-			 * a 64-bit machine. */
-			return newSViv((IV)g_value_get_int64(value));
+			return newSVGInt64(g_value_get_int64(value));
 
 		case G_TYPE_UINT64:
-			return newSVuv((UV)g_value_get_uint64(value));
+			return newSVGUInt64(g_value_get_uint64(value));
 
 		case G_TYPE_FLOAT:
 			return newSVnv(g_value_get_float(value));

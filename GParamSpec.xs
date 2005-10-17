@@ -126,7 +126,9 @@ find_func (gpointer key,
 GType
 gperl_param_spec_type_from_package (const char * package)
 {
-	struct FindData fd = { package, 0 };
+	struct FindData fd;
+	fd.package = package;
+	fd.found_type = 0;
 	g_return_val_if_fail (param_package_by_type != NULL, 0);
 #if GLIB_CHECK_VERSION (2, 4, 0)
 	g_hash_table_find (param_package_by_type, find_func, (gpointer) &fd);
@@ -300,7 +302,6 @@ const gchar* g_param_spec_get_blurb (GParamSpec * pspec)
 ##  GParamSpec* g_param_spec_char (const gchar *name, const gchar *nick, const gchar *blurb, gint8 minimum, gint8 maximum, gint8 default_value, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_int (const gchar *name, const gchar *nick, const gchar *blurb, gint minimum, gint maximum, gint default_value, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_long (const gchar *name, const gchar *nick, const gchar *blurb, glong minimum, glong maximum, glong default_value, GParamFlags flags) 
-##  GParamSpec* g_param_spec_int64 (const gchar *name, const gchar *nick, const gchar *blurb, gint64 minimum, gint64 maximum, gint64 default_value, GParamFlags flags) 
 GParamSpec*
 IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	const gchar *name
@@ -315,7 +316,6 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	char  = 1
 	int   = 2
 	long  = 3
-	int64 = 4
     CODE:
 	RETVAL = NULL;
     	switch (ix) {
@@ -335,19 +335,26 @@ IV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 		                            minimum, maximum, default_value,
 		                            flags);
 		break;
-	    case 4:
-		RETVAL = g_param_spec_int64 (name, nick, blurb,
-		                             minimum, maximum, default_value,
-		                             flags);
-		break;
 	}
     OUTPUT:
 	RETVAL
 
+##  GParamSpec* g_param_spec_int64 (const gchar *name, const gchar *nick, const gchar *blurb, gint64 minimum, gint64 maximum, gint64 default_value, GParamFlags flags) 
+GParamSpec*
+g_param_spec_int64 (class, name, nick, blurb, minimum, maximum, default_value, flags)
+	const gchar *name
+	const gchar *nick
+	const gchar *blurb
+	gint64 minimum
+	gint64 maximum
+	gint64 default_value
+	GParamFlags flags
+     C_ARGS:
+ 	name, nick, blurb, minimum, maximum, default_value, flags
+
 ##  GParamSpec* g_param_spec_uchar (const gchar *name, const gchar *nick, const gchar *blurb, guint8 minimum, guint8 maximum, guint8 default_value, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_uint (const gchar *name, const gchar *nick, const gchar *blurb, guint minimum, guint maximum, guint default_value, GParamFlags flags) 
 ##  GParamSpec* g_param_spec_ulong (const gchar *name, const gchar *nick, const gchar *blurb, gulong minimum, gulong maximum, gulong default_value, GParamFlags flags) 
-##  GParamSpec* g_param_spec_uint64 (const gchar *name, const gchar *nick, const gchar *blurb, guint64 minimum, guint64 maximum, guint64 default_value, GParamFlags flags) 
 GParamSpec*
 UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	const gchar *name
@@ -362,7 +369,6 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 	uchar  = 1
 	uint   = 2
 	ulong  = 3
-	uint64 = 4
     CODE:
 	RETVAL = NULL;
     	switch (ix) {
@@ -382,14 +388,22 @@ UV (class, name, nick, blurb, minimum, maximum, default_value, flags)
 		                             minimum, maximum, default_value,
 		                             flags);
 		break;
-	    case 4:
-		RETVAL = g_param_spec_uint64 (name, nick, blurb,
-		                              minimum, maximum, default_value,
-		                              flags);
-		break;
 	}
     OUTPUT:
 	RETVAL
+
+##  GParamSpec* g_param_spec_uint64 (const gchar *name, const gchar *nick, const gchar *blurb, guint64 minimum, guint64 maximum, guint64 default_value, GParamFlags flags) 
+GParamSpec*
+g_param_spec_uint64 (class, name, nick, blurb, minimum, maximum, default_value, flags)
+	const gchar *name
+	const gchar *nick
+	const gchar *blurb
+	guint64 minimum
+	guint64 maximum
+	guint64 default_value
+	GParamFlags flags
+    C_ARGS:
+	name, nick, blurb, minimum, maximum, default_value, flags
 
 ##  GParamSpec* g_param_spec_boolean (const gchar *name, const gchar *nick, const gchar *blurb, gboolean default_value, GParamFlags flags) 
 GParamSpec*
@@ -608,7 +622,7 @@ get_value_type (GParamSpec * pspec)
 	RETVAL
 
 
-MODULE = Glib::ParamSpec PACKAGE = Glib::Param::Char
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Char
 
  ## actually for all signed integer types
 
@@ -618,10 +632,9 @@ MODULE = Glib::ParamSpec PACKAGE = Glib::Param::Char
 =head1 DESCRIPTION
 
 This page documents the extra accessors available for all of the integer type
-paramspecs: Char, Int, Long, and Int64.  Perl really only supports full-size
-integers, so all of these methods return IVs; the distinction of integer size
-is important to the underlying C library and also determines the data value
-range.
+paramspecs: Char, Int, and Long.  Perl really only supports full-size integers,
+so all of these methods return IVs; the distinction of integer size is
+important to the underlying C library and also determines the data value range.
 
 =cut
 
@@ -635,21 +648,16 @@ range.
 =for apidoc Glib::Param::Long::get_minimum __hide__
 =cut
 
-=for apidoc Glib::Param::Int64::get_minimum __hide__
-=cut
-
 IV
 get_minimum (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::Int::get_minimum = 1
 	Glib::Param::Long::get_minimum = 2
-	Glib::Param::Int64::get_minimum = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->minimum; break;
 	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->minimum; break;
 	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->minimum; break;
-	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->minimum; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
@@ -662,21 +670,16 @@ get_minimum (GParamSpec * pspec)
 =for apidoc Glib::Param::Long::get_maximum __hide__
 =cut
 
-=for apidoc Glib::Param::Int64::get_maximum __hide__
-=cut
-
 IV
 get_maximum (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::Int::get_maximum = 1
 	Glib::Param::Long::get_maximum = 2
-	Glib::Param::Int64::get_maximum = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->maximum; break;
 	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->maximum; break;
 	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->maximum; break;
-	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->maximum; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
@@ -689,27 +692,22 @@ get_maximum (GParamSpec * pspec)
 =for apidoc Glib::Param::Long::get_default_value __hide__
 =cut
 
-=for apidoc Glib::Param::Int64::get_default_value __hide__
-=cut
-
 IV
 get_default_value (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::Int::get_default_value = 1
 	Glib::Param::Long::get_default_value = 2
-	Glib::Param::Int64::get_default_value = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->default_value; break;
 	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->default_value; break;
 	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->default_value; break;
-	    case 3: RETVAL = G_PARAM_SPEC_INT64 (pspec)->default_value; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
 	RETVAL
 
-MODULE = Glib::ParamSpec PACKAGE = Glib::Param::UChar
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UChar
 
  ## similarly, all unsigned integer types
 
@@ -719,10 +717,10 @@ MODULE = Glib::ParamSpec PACKAGE = Glib::Param::UChar
 =head1 DESCRIPTION
 
 This page documents the extra accessors available for all of the unsigned
-integer type paramspecs: UChar, UInt, ULong, and UInt64.  Perl really only
-supports full-size integers, so all of these methods return UVs; the
-distinction of integer size is important to the underlying C library and also
-determines the data value range.
+integer type paramspecs: UChar, UInt, and ULong.  Perl really only supports
+full-size integers, so all of these methods return UVs; the distinction of
+integer size is important to the underlying C library and also determines the
+data value range.
 
 =cut
 
@@ -736,21 +734,16 @@ determines the data value range.
 =for apidoc Glib::Param::ULong::get_minimum __hide__
 =cut
 
-=for apidoc Glib::Param::UInt64::get_minimum __hide__
-=cut
-
 UV
 get_minimum (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::UInt::get_minimum = 1
 	Glib::Param::ULong::get_minimum = 2
-	Glib::Param::UInt64::get_minimum = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->minimum; break;
 	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->minimum; break;
 	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->minimum; break;
-	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->minimum; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
@@ -763,21 +756,16 @@ get_minimum (GParamSpec * pspec)
 =for apidoc Glib::Param::ULong::get_maximum __hide__
 =cut
 
-=for apidoc Glib::Param::UInt64::get_maximum __hide__
-=cut
-
 UV
 get_maximum (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::UInt::get_maximum = 1
 	Glib::Param::ULong::get_maximum = 2
-	Glib::Param::UInt64::get_maximum = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->maximum; break;
 	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->maximum; break;
 	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->maximum; break;
-	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->maximum; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
@@ -790,27 +778,90 @@ get_maximum (GParamSpec * pspec)
 =for apidoc Glib::Param::ULong::get_default_value __hide__
 =cut
 
-=for apidoc Glib::Param::UInt64::get_default_value __hide__
-=cut
-
 UV
 get_default_value (GParamSpec * pspec)
     ALIAS:
 	Glib::Param::UInt::get_default_value = 1
 	Glib::Param::ULong::get_default_value = 2
-	Glib::Param::UInt64::get_default_value = 3
     CODE:
 	switch (ix) {
 	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->default_value; break;
 	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->default_value; break;
 	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->default_value; break;
-	    case 3: RETVAL = G_PARAM_SPEC_UINT64 (pspec)->default_value; break;
 	    default: g_assert_not_reached (); RETVAL = 0;
 	}
     OUTPUT:
 	RETVAL
 
-MODULE = Glib::ParamSpec PACKAGE = Glib::Param::Float
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Int64
+
+=for object Glib::Param::Int64
+
+=head1 DESCRIPTION
+
+This page documents the extra accessors available for the signed 64 bit integer
+type paramspecs.  On 32 bit machines and even on some 64 bit machines, perl
+really only supports 32 bit integers, so all of these methods convert the
+values to and from Perl strings if necessary.
+
+=cut
+
+gint64
+get_minimum (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_INT64 (pspec)->minimum;
+    OUTPUT:
+	RETVAL
+
+gint64
+get_maximum (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_INT64 (pspec)->maximum;
+    OUTPUT:
+	RETVAL
+
+gint64
+get_default_value (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_INT64 (pspec)->default_value;
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UInt64
+
+=for object Glib::Param::UInt64
+
+=head1 DESCRIPTION
+
+This page documents the extra accessors available for the unsigned 64 bit
+integer type paramspecs.  On 32 bit machines and even on some 64 bit machines,
+perl really only supports 32 bit integers, so all of these methods convert the
+values to and from Perl strings if necessary.
+
+=cut
+
+guint64
+get_minimum (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_UINT64 (pspec)->minimum;
+    OUTPUT:
+	RETVAL
+
+guint64
+get_maximum (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_UINT64 (pspec)->maximum;
+    OUTPUT:
+	RETVAL
+
+guint64
+get_default_value (GParamSpec * pspec)
+    CODE:
+	RETVAL = G_PARAM_SPEC_UINT64 (pspec)->default_value;
+    OUTPUT:
+	RETVAL
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Float
 
  ## and again for the floating-point types
 

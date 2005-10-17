@@ -158,6 +158,14 @@ void gperl_sv_free (SV * sv);
 SV * newSVGChar (const gchar * str);
 
 
+/*
+ * 64 bit integer converters
+ */
+gint64 SvGInt64 (SV *sv);
+SV * newSVGInt64 (gint64 value);
+guint64 SvGUInt64 (SV *sv);
+SV * newSVGUInt64 (guint64 value);
+
 
 /*
  * GValues

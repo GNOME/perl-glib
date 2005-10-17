@@ -675,6 +675,101 @@ newSVGChar (const gchar * str)
 }
 
 
+=back
+
+=head2 64 bit integers
+
+On 32 bit machines and even on some 64 bit machines, perl's IV/UV data type can
+only hold 32 bit values.  The following functions therefore convert 64 bit
+integers to and from Perl strings if normal IV/UV conversion does not suffice.
+
+=over
+
+=item gint64 SvGInt64 (SV *sv)
+
+Converts the string in I<sv> to a signed 64 bit integer.  If appropriate, uses
+C<SvIV> instead.
+
+=cut
+
+gint64
+SvGInt64 (SV *sv)
+{
+#ifdef USE_64_BIT_ALL
+	return SvIV (sv);
+#else
+	return strtoll (SvPV_nolen (sv), NULL, 10);
+#endif
+}
+
+=item SV * newSVGInt64 (gint64 value)
+
+Creates a PV from the signed 64 bit integer in I<value>.  If appropriate, uses
+C<newSViv> instead.
+
+=cut
+
+SV *
+newSVGInt64 (gint64 value)
+{
+#ifdef USE_64_BIT_ALL
+	return newSViv (value);
+#else
+	char string[25];
+	STRLEN length;
+	SV *sv;
+
+	/* newSVpvf doesn't seem to work correctly. */
+	length = sprintf(string, "%lld", value);
+	sv = newSVpv (string, length);
+
+	return sv;
+#endif
+}
+
+=item guint64 SvGUInt64 (SV *sv)
+
+Converts the string in I<sv> to an unsigned 64 bit integer.  If appropriate,
+uses C<SvUV> instead.
+
+=cut
+
+guint64
+SvGUInt64 (SV *sv)
+{
+#ifdef USE_64_BIT_ALL
+	return SvUV (sv);
+#else
+	return strtoull (SvPV_nolen (sv), NULL, 10);
+#endif
+}
+
+=item SV * newSVGUInt64 (guint64 value)
+
+Creates a PV from the unsigned 64 bit integer in I<value>.  If appropriate,
+uses C<newSVuv> instead.
+
+=cut
+
+SV *
+newSVGUInt64 (guint64 value)
+{
+#ifdef USE_64_BIT_ALL
+	return newSVuv (value);
+#else
+	char string[25];
+	STRLEN length;
+	SV *sv;
+
+	/* newSVpvf doesn't seem to work correctly. */
+	length = sprintf(string, "%llu", value);
+	sv = newSVpv (string, length);
+
+	return sv;
+#endif
+}
+
+
 
 
 /**************************************************************************/
