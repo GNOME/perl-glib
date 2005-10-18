@@ -61,7 +61,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.100';
+our $VERSION = '1.110';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -146,10 +146,10 @@ sub tie_properties
 		# skip to next if it doesn't belong to this package and 
 		# they don't want everything tied
 		next if ($prop->{owner_type} ne $package and not $all);
-		
+
 		$name = $prop->{name};
 		$name =~ s/-/_/g;
-		
+
 		carp "overwriting existing non-tied hash key $name"
 			if (exists ($self->{$name}) 
 				and not tied $self->{$name});

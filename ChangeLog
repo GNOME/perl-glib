@@ -1,3 +1,8 @@
+2005/10/18	kaffeetisch
+
+	* Glib.pm, MANIFEST, MANIFEST.SKIP, Makefile.PL, NEWS, README:
+	Unstable release 1.110.
+
 2005/10/17	kaffeetisch
 
 	* GParamSpec.xs, GType.xs, GValue.xs, gperl.h, typemap, t/64bit.t:
