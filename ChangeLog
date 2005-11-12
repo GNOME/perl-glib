@@ -1,3 +1,7 @@
+2005/11/12	kaffeetisch
+
+	* xsapi.pod.head: Fix a few typos.
+
 2005/10/18	kaffeetisch
 
 	* Glib.pm, MANIFEST, MANIFEST.SKIP, Makefile.PL, NEWS, README:

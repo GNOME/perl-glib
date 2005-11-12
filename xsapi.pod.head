@@ -10,12 +10,12 @@ Glib::xsapi - internal API reference for GPerl.
 =head1 DESCRIPTION
 
 This is the binding developer's API reference for GPerl, automatically
-generated from the xs source files.  This header defines the the public
+generated from the xs source files.  This header defines the public
 interface for use when creating new Perl language bindings for GLib-based C
 libraries.
 
 gperl.h includes for you all the headers needed for writing XSUBs 
-(EXTERN.h, perl.h, and XSUB.h), we well as all of GLib (via glib-object.h).
+(EXTERN.h, perl.h, and XSUB.h), as well as all of GLib (via glib-object.h).
 
 =head1 API
 
