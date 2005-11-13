@@ -42,6 +42,10 @@ Propers go to Marc Lehmann for dreaming most of this up.
 
 #include "gperl.h"
 
+/* a gperl_private.h would be nice. */
+extern SV * _gperl_sv_from_value_internal (const GValue * value,
+                                           gboolean copy_boxed);
+
 typedef struct _ClassInfo ClassInfo;
 typedef struct _InterfaceInfo InterfaceInfo;
 typedef struct _SinkFunc  SinkFunc;
@@ -1106,7 +1110,7 @@ g_object_get (object, ...)
 		char *name = SvPV_nolen (ST (i));
 		init_property_value (object, name, &value);
 		g_object_get_property (object, name, &value);
-		PUSHs (sv_2mortal (gperl_sv_from_value (&value)));
+		PUSHs(sv_2mortal(_gperl_sv_from_value_internal(&value, TRUE)));
 		g_value_unset (&value);
 	}
 

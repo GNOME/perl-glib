@@ -1,3 +1,16 @@
+2005/11/13	muppetman
+
+	* GValue.xs, GObject.xs:  The GObject property interface passes around
+	pointers to boxed objects, but does not transfer ownership of them.
+	Thus, the old code was letting perl hold on to dead pointers.  We
+	basically need to be able to specify whether to copy boxed objects
+	when converting from GValue to SV.  Since gperl_sv_from_value() is
+	public and API frozen, add a new private function,
+	_gperl_sv_from_value_internal(), and call this from both
+	gperl_sv_from_value() and Glib::Object::get().  Fixes
+	http://bugzilla.gnome.org/show_bug.cgi?id=319204 and several other
+	hard-to-diagnose intermittent bugs.
+
 2005/11/12	kaffeetisch
 
 	* xsapi.pod.head: Fix a few typos.

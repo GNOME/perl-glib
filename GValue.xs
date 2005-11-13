@@ -162,15 +162,20 @@ gperl_value_from_sv (GValue * value,
 }
 
 
-=item SV * gperl_sv_from_value (const GValue * value)
-
-coerce whatever is in I<value> into a perl scalar and return it.
-
-Croaks if the code doesn't know how to perform the conversion.
-
-=cut
+/*
+ * =item SV * _gperl_sv_from_value_internal (const GValue * value, gboolean copy_boxed)
+ *
+ * Coerce whatever is in I<value> into a perl scalar and return it.
+ * If I<copy_boxed> is true, boxed values will be copied.  Values of type
+ * GPERL_TYPE_SV are always copied (since that is merely a ref).
+ * 
+ * Croaks if the code doesn't know how to perform the conversion.
+ * 
+ * =cut
+ */
 SV *
-gperl_sv_from_value (const GValue * value)
+_gperl_sv_from_value_internal (const GValue * value,
+                               gboolean copy_boxed)
 {
 	GType type = G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value));
 	switch (type) {
@@ -228,10 +233,15 @@ gperl_sv_from_value (const GValue * value)
 				          : &PL_sv_undef;
 			}
 
-			/* the wrapper does not own the boxed object */
-			return gperl_new_boxed (g_value_get_boxed (value),
-						G_VALUE_TYPE (value),
-						FALSE);
+                        if (copy_boxed)
+                                return gperl_new_boxed_copy
+                                                (g_value_get_boxed (value),
+                                                 G_VALUE_TYPE (value));
+                        else
+                                return gperl_new_boxed
+                                                (g_value_get_boxed (value),
+                                                 G_VALUE_TYPE (value),
+                                                 FALSE);
 
 		case G_TYPE_PARAM:
 			return newSVGParamSpec (g_value_get_param (value));
@@ -260,6 +270,19 @@ gperl_sv_from_value (const GValue * value)
 	}
 
 	return NULL;
+}
+
+=item SV * gperl_sv_from_value (const GValue * value)
+
+Coerce whatever is in I<value> into a perl scalar and return it.
+
+Croaks if the code doesn't know how to perform the conversion.
+
+=cut
+SV *
+gperl_sv_from_value (const GValue * value)
+{
+	return _gperl_sv_from_value_internal (value, FALSE);
 }
 
 =back
