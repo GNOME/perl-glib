@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.111
+=================================
+
+* Copy boxed objects coming from the GObject property interface to avoid
+  holding on to dead pointers.  [muppet]
+
 Overview of changes in Glib 1.110
 =================================
 

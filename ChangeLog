@@ -1,3 +1,7 @@
+2005/11/14	kaffeetisch
+
+	* Glib.pm, NEWS, README: Unstable release 1.111.
+
 2005/11/13	muppetman
 
 	* GValue.xs, GObject.xs:  The GObject property interface passes around
