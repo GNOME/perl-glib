@@ -1,3 +1,8 @@
+2005/11/18	kaffeetisch
+
+	* GType.xs Register the fundamentals for gint64 and guint64 as
+	Glib::Int64 and Glib::UInt64 respectively.
+
 2005/11/14	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.111.

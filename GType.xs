@@ -1872,6 +1872,8 @@ BOOT:
 	gperl_register_fundamental (G_TYPE_UINT, "Glib::UInt");
 	gperl_register_fundamental (G_TYPE_LONG, "Glib::Long");
 	gperl_register_fundamental (G_TYPE_ULONG, "Glib::ULong");
+	gperl_register_fundamental (G_TYPE_INT64, "Glib::Int64");
+	gperl_register_fundamental (G_TYPE_UINT64, "Glib::UInt64");
 	gperl_register_fundamental (G_TYPE_FLOAT, "Glib::Float");
 	gperl_register_fundamental (G_TYPE_DOUBLE, "Glib::Double");
 	gperl_register_fundamental (G_TYPE_BOOLEAN, "Glib::Boolean");
