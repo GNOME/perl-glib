@@ -1,3 +1,14 @@
+2005/11/28	kaffeetisch
+
+	Merge from HEAD:
+
+	* GSignal.xs, GParamSpec.xs: Fix some compiler warnings.
+
+	* MANIFEST.SKIP: Skip G.*\.c$ instead of \.c$ to avoid ignoring
+	gperl-gtypes.c.
+
+	* Glib.pm, xsapi.pod.head: Fix a few typos.
+
 2005/11/13	muppetman
 
 	* GValue.xs, GObject.xs:  The GObject property interface passes around

@@ -108,7 +108,7 @@ newSVGSignalQuery (GSignalQuery * query)
 {
 	HV * hv;
 	AV * av;
-	int j;
+	guint j;
 	const char * pkgname;
 
 	if (!query)
@@ -441,7 +441,7 @@ gperl_signal_emission_hook (GSignalInvocationHint * ihint,
 	GPerlCallback * callback = (GPerlCallback *) data;
 	gboolean retval;
 	AV * av;
-	int i;
+	guint i;
 	GValue return_value = {0, };
 	g_value_init (&return_value, G_TYPE_BOOLEAN);
 	av = newAV();

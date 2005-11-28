@@ -126,7 +126,9 @@ find_func (gpointer key,
 GType
 gperl_param_spec_type_from_package (const char * package)
 {
-	struct FindData fd = { package, 0 };
+	struct FindData fd;
+	fd.package = package;
+	fd.found_type = 0;
 	g_return_val_if_fail (param_package_by_type != NULL, 0);
 #if GLIB_CHECK_VERSION (2, 4, 0)
 	g_hash_table_find (param_package_by_type, find_func, (gpointer) &fd);
