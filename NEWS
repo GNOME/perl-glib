@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.102
+=================================
+
+* Copy boxed objects coming from the GObject property interface to avoid
+  holding on to dead pointers.  [muppet]
+* Fix a serious reference counting bug.  [Steven Walter]
+
 Overview of changes in Glib 1.101
 =================================
 

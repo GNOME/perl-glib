@@ -1,5 +1,9 @@
 2005/11/28	kaffeetisch
 
+	* Glib.pm, NEWS, README: Stable release 1.102.
+
+2005/11/28	kaffeetisch
+
 	Merge from HEAD:
 
 	* GSignal.xs, GParamSpec.xs: Fix some compiler warnings.
