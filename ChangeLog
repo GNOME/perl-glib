@@ -1,3 +1,9 @@
+2005/11/30      ebassi
+
+	* GKeyFile.xs: fix the argument types in order to allow 'undef' values.
+
+	* t/g.t: new tests for the functions allowing undefined values.
+
 2005/11/18	kaffeetisch
 
 	* GType.xs Register the fundamentals for gint64 and guint64 as

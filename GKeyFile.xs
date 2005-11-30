@@ -468,7 +468,7 @@ g_key_file_get_locale_string (key_file, group_name, key, locale=NULL)
 	GKeyFile * key_file
 	const gchar * group_name
 	const gchar * key
-	const gchar * locale
+	const gchar_ornull * locale
     PREINIT:
     	GError *err = NULL;
     CODE:
@@ -689,10 +689,10 @@ will be written above $group_name.  If both $key and $group_name are undef,
 then $comment will be written above the first group in the file.
 =cut
 void
-g_key_file_set_comment (key_file, group_name=NULL, key=NULL, comment)
+g_key_file_set_comment (key_file, group_name, key, comment)
 	GKeyFile * key_file
-	const gchar * group_name
-	const gchar * key
+	const gchar_ornull * group_name
+	const gchar_ornull * key
 	const gchar * comment
     PREINIT:
     	GError *err = NULL;
@@ -709,8 +709,8 @@ are undef, then $comment will be read from above the first group in the file.
 gchar_own *
 g_key_file_get_comment (key_file, group_name=NULL, key=NULL)
 	GKeyFile * key_file
-	const gchar * group_name
-	const gchar * key
+	const gchar_ornull * group_name
+	const gchar_ornull * key
     PREINIT:
     	GError *err = NULL;
     CODE:
@@ -728,8 +728,8 @@ undef, the comment will be removed from the top of the key file.
 void
 g_key_file_remove_comment (key_file, group_name=NULL, key=NULL)
 	GKeyFile * key_file
-	const gchar * group_name
-	const gchar * key
+	const gchar_ornull * group_name
+	const gchar_ornull * key
     PREINIT:
     	GError *err = NULL;
     CODE:
