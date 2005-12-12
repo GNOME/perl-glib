@@ -3,7 +3,7 @@
 blib
 \.bs$
 build
-G*\.c$
+G.+\.c$
 CVS
 \.cvsignore$
 Makefile$

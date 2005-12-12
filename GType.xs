@@ -56,8 +56,9 @@ gperl_type_class (GType type)
 	static GQuark quark_static_class = 0;
 	gpointer class;
 
-	if (!G_TYPE_IS_ENUM (type) && !G_TYPE_IS_FLAGS (type))
+	if (!G_TYPE_IS_ENUM (type) && !G_TYPE_IS_FLAGS (type)) {
 		g_return_val_if_fail (G_TYPE_IS_OBJECT (type), NULL);
+	}
 
 	class = g_type_get_qdata (type, quark_static_class);
 	if (!class) {

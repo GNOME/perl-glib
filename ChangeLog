@@ -1,3 +1,9 @@
+2005/12/12	kaffeetisch
+
+	* GType.xs: Hush a compiler warning.
+
+	* MANIFEST.SKIP: Use the more correct G.+\.c$ instead of G*\.c$.
+
 2005/11/30      ebassi
 
 	* GKeyFile.xs: fix the argument types in order to allow 'undef' values.
