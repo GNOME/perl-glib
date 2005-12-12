@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.112
+=================================
+
+* Allow undef for some arguments in the Glib::KeyFile API.  [Emmanuele]
+* Register the package names Glib::Int64 and Glib::UInt64 for gint64 and
+  guint64 fundamentals.  [Torsten]
+
 Overview of changes in Glib 1.111
 =================================
 
