@@ -223,17 +223,22 @@ gperl_register_object (GType gtype,
 
 	/* also add each interface the object implements to its @ISA.  use a
 	 * similar "pending isa" approach as above. */
-	interfaces = g_type_interfaces (gtype, &n_interfaces);
-	if (interfaces) {
+	{
 		static GList * pending_isa = NULL;
 		GList * i;
-		guint j;
 
-		for (j = 0; j < n_interfaces; j++) {
-			InterfaceInfo *info = g_new (InterfaceInfo, 1);
-			info->package = package;
-			info->interface = interfaces[j];
-			pending_isa = g_list_append (pending_isa, info);
+		interfaces = g_type_interfaces (gtype, &n_interfaces);
+		if (interfaces) {
+			guint j;
+
+			for (j = 0; j < n_interfaces; j++) {
+				InterfaceInfo *info = g_new (InterfaceInfo, 1);
+				info->package = package;
+				info->interface = interfaces[j];
+				pending_isa = g_list_append (pending_isa, info);
+			}
+
+			g_free (interfaces);
 		}
 
 		i = pending_isa;
@@ -256,8 +261,6 @@ gperl_register_object (GType gtype,
 				i = g_list_next (i);
 			}
 		}
-
-		g_free (interfaces);
 	}
 
 	G_UNLOCK (types_by_type);

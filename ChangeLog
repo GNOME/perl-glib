@@ -1,3 +1,11 @@
+2005/12/19	kaffeetisch
+
+	* GObject.xs (gperl_register_object): Move around the loop that
+	puts interface packages into @ISA so it gets run on every call to
+	gperl_register_object.  With the old cold, you ran into problems
+	when a GInterface was registered after the last GObject was
+	registered.
+
 2005/12/12	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.112.
