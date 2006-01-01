@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.113
+=================================
+
+* Improve the automatic interface registration for objects by making it
+  independent of the order of package name registration.  [Torsten]
+
 Overview of changes in Glib 1.112
 =================================
 
@@ -18,6 +24,13 @@ Overview of changes in Glib 1.110
 * Fix a serious reference counting bug.  [Steven Walter]
 * Add custom 64 bit integer handlers that convert to and from strings if
   necessary.  [Torsten]
+
+Overview of changes in Glib 1.102
+=================================
+
+* Copy boxed objects coming from the GObject property interface to avoid
+  holding on to dead pointers.  [muppet]
+* Fix a serious reference counting bug.  [Steven Walter]
 
 Overview of changes in Glib 1.101
 =================================
