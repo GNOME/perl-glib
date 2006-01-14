@@ -1,3 +1,9 @@
+2006/01/13	muppetman
+
+	* GObject.xs: Ignoring the undead flag in _gperl_fetch_wrapper_key()
+	resulted in crashes when manipulating properties of objects with
+	undead wrappers.
+
 2005/12/27	ebassi
 
 	Merge from HEAD:

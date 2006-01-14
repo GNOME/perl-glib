@@ -768,6 +768,11 @@ _gperl_fetch_wrapper_key (GObject * object,
 	SV * svname;
 	HV * wrapper_hash;
 	wrapper_hash = g_object_get_qdata (object, wrapper_quark);
+
+	/* we don't care whether the wrapper is alive or undead.  forcibly
+	 * remove the undead bit, or the pointer will be unusable. */
+	wrapper_hash = REVIVE_UNDEAD (wrapper_hash);
+
 	svname = newSVpv (name, strlen (name));
 	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
 	                FALSE); /* never create on the first try; prefer
