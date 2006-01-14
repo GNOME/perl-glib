@@ -691,9 +691,9 @@ then $comment will be written above the first group in the file.
 void
 g_key_file_set_comment (key_file, group_name, key, comment)
 	GKeyFile * key_file
-	const gchar * group_name
+	const gchar_ornull * group_name
 	const gchar_ornull * key
-	const gchar_ornull * comment
+	const gchar * comment
     PREINIT:
     	GError *err = NULL;
     CODE:

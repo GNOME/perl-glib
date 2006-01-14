@@ -4,6 +4,10 @@
 	resulted in crashes when manipulating properties of objects with
 	undead wrappers.
 
+	* GKeyFile.xs: _ornull was on the wrong parameter in
+	Glib::KeyFile::set_comment, causing test failure.  Synchronized with
+	HEAD.
+
 2005/12/27	ebassi
 
 	Merge from HEAD:
