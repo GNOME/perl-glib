@@ -850,7 +850,7 @@ _gperl_fetch_wrapper_key (GObject * object,
 
 	/* we don't care whether the wrapper is alive or undead.  forcibly
 	 * remove the undead bit, or the pointer will be unusable. */
-	wrapper_hash = INT2PTR (SV*, ((~1) & INT2PTR (IV, wrapper_hash)));
+	wrapper_hash = REVIVE_UNDEAD (wrapper_hash);
 
 	svname = newSVpv (name, strlen (name));
 	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
