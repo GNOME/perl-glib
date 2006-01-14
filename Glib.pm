@@ -56,6 +56,8 @@ our %EXPORT_TAGS = (
 			filename_from_unicode
 			filename_to_uri
 			filename_from_uri
+			filename_display_name
+			filename_display_basename
 			/],
 );
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
