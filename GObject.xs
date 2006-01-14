@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -847,6 +847,11 @@ _gperl_fetch_wrapper_key (GObject * object,
 	SV * svname;
 	HV * wrapper_hash;
 	wrapper_hash = g_object_get_qdata (object, wrapper_quark);
+
+	/* we don't care whether the wrapper is alive or undead.  forcibly
+	 * remove the undead bit, or the pointer will be unusable. */
+	wrapper_hash = INT2PTR (SV*, ((~1) & INT2PTR (IV, wrapper_hash)));
+
 	svname = newSVpv (name, strlen (name));
 	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
 	                FALSE); /* never create on the first try; prefer
