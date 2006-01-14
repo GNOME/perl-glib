@@ -4,6 +4,9 @@
 	resulted in crashes when manipulating properties of objects with
 	undead wrappers.
 
+	* Glib.pm, Glib.xs, t/filename.t: Bind, test, and document
+	g_filename_display_name and g_filename_display_basename.
+
 2006/01/01	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.113.

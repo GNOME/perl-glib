@@ -427,3 +427,23 @@ filename_to_uri (...)
 		gperl_croak_gerror (NULL, error);
     OUTPUT:
 	RETVAL
+
+
+## XXX i'd prefer to have local fallbacks so that we don't need this version hack.
+##     unfortunately, these functions are nontrivial.
+
+#if GLIB_CHECK_VERSION(2, 6, 0)
+
+### note the use of raw const char* here.
+
+# from gconvert.h.  Pod is in Glib.pm.
+=for apidoc __hide__
+=cut
+gchar_own * g_filename_display_name (const char * filename);
+
+# from gconvert.h.  Pod is in Glib.pm.
+=for apidoc __hide__
+=cut
+gchar_own * g_filename_display_basename (const char * filename);
+
+#endif

@@ -361,6 +361,9 @@ Example:
 
    $gtkfilesel->set_filename (filename_to_unicode $ARGV[1]);
 
+This function is croak() if the conversion cannot be made, e.g., because the
+utf-8 is invalid.
+
 =item $filename_in_local_encoding = filename_from_unicode $filename
 
 =item $filename_in_local_encoding = Glib->filename_from_unicode ($filename)
@@ -378,6 +381,25 @@ Other functions for converting URIs are currently missing. Also, it might
 be useful to know that perl currently has no policy at all regarding
 filename issues, if your scalar happens to be in utf-8 internally it will
 use utf-8, if it happens to be stored as bytes, it will use it as-is.
+
+When dealing with filenames that you need to display, there is a much easier
+way, as of Glib 1.120 and glib 2.6.0:
+
+=over 4
+
+=item $uft8_string = filename_display_name ($filename)
+
+=item $uft8_string = filename_display_basename ($filename)
+
+Given a I<$filename> in filename encoding, return the filename, or just
+the file's basename, in utf-8.  Unlike the other functions described above,
+this one is guaranteed to return valid utf-8, but the conversion is not
+necessarily reversible.  These functions are intended to be used for failsafe
+display of filenames, for example in gtk+ labels.
+
+Since gtk+ 2.6, Glib 1.12
+
+=back
 
 
 =head1 EXCEPTIONS
@@ -494,6 +516,8 @@ you can also get all of them with the export tag "all".
   filename_to_unicode
   filename_from_uri
   filename_to_uri
+  filename_display_basename
+  filename_display_name
 
 =back
 
