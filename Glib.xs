@@ -307,7 +307,7 @@ gperl_format_variable_for_output (SV * sv)
 
 =cut
 
-MODULE = Glib		PACKAGE = Glib
+MODULE = Glib		PACKAGE = Glib		PREFIX = g_
 
 BOOT:
 	g_type_init ();
