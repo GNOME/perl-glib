@@ -63,7 +63,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.113';
+our $VERSION = '1.114';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -611,7 +611,7 @@ patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2005 by muppet and the gtk2-perl team
+Copyright 2003-2006 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 

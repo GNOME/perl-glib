@@ -1,5 +1,9 @@
 2006/01/16	kaffeetisch
 
+	* Glib.pm, NEWS, README: Unstable release 1.114.
+
+2006/01/16	kaffeetisch
+
 	* GObject.xs (class_info_finish_loading): Hush a compiler warning.
 
 2006/01/16	kaffeetisch
