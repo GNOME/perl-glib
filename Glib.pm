@@ -174,6 +174,43 @@ sub tie_properties
 	}
 }
 
+package Glib::Object::_LazyLoader;
+
+use strict;
+no strict qw(refs);
+use vars qw($AUTOLOAD);
+push @Carp::CARP_NOT, __PACKAGE__;
+
+# These two overrides won't keep explicit calls to UNIVERSAL::(isa|can)
+# from breaking if called before anything is loaded, but those should
+# be quite rare.
+
+sub isa {
+	# we really shouldn't get in here at all if $_[0] is undefined.
+	_load (ref($_[0]) || $_[0]);
+	$_[0]->SUPER::isa ($_[1]);
+}
+
+sub can {
+	# we really shouldn't get in here at all if $_[0] is undefined.
+	_load (ref($_[0]) || $_[0]);
+	$_[0]->SUPER::can ($_[1]);
+}
+
+sub AUTOLOAD {
+	(my $method = $AUTOLOAD) =~ s/^.*:://;
+	(my $lazy_class = $AUTOLOAD) =~ s/::[^:]*$//;
+	my $object_or_type = shift;
+
+	_load ($lazy_class);
+
+	die "Something is very broken, couldn't lazy load $lazy_class"
+		if $object_or_type->isa (__PACKAGE__);
+
+	# try again
+	return $object_or_type->$method (@_);
+}
+
 package Glib;
 
 1;

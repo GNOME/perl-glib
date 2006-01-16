@@ -1,3 +1,44 @@
+2006/01/15	muppetman
+
+	* Glib.pm, GObject.xs, GType.xs: Change the way GObject type
+	mappings are initialized.
+	
+	Previously, gperl_register_object() would not only map a GType to a
+	perl package name, but would set up the @ISA entry for that type by
+	introspection; if the parent type was not yet registered, the
+	mapping would go into a "pending isa" list, and the code would walk
+	that list on each registration.  This left a nice loophole that was
+	triggered by the addition of GInitiallyUnowned into libgobject -- if
+	a type's parent is unknown to the bindings, that type simply doesn't
+	get its ancestry set up correctly.  This ended up breaking all
+	nontrivial gtk2-perl programs.  Shame on me for thinking up such a
+	fragile scheme.
+
+	Changed the code in various subtle ways.  Added the idea of "lazy
+	loading", inspired by Gtk-Perl.  gperl_register_object() still
+	registers the association of a GType and a package name, but adds to
+	@ISA only "Glib::Object::_LazyLoader".  ISA setup is performed by
+	the internal function class_info_finish_loading(), which replaces
+	the _LazyLoader name in @ISA with the class's parent and implemented
+	interfaces (preserving manually appended and prepended entries).
+	This is triggered one of two ways: either by calling
+	gperl_object_package_from_type(), which happens when you bless an
+	object; or via an AUTOLOAD, isa, or can invocation in _LazyLoader,
+	which happens when you try to invoke methods on the class.  When a
+	class is set up, all of its parents are checked as well, so this
+	happens fairly quickly.  This should be completely transparent to
+	all existing code, as the new _LazyLoader stuff in private, and the
+	external interfaces have not changed.  The one spot that could break
+	is calling UNIVERSAL::(can|isa) on a Glib::Object-derived package
+	name before that class has been set up.
+
+	In addition, instead of giving up on unknown classes, we now create
+	fake names for them in a "safe" namespace, along the lines of
+	Glib::Object::_Unregistered::$c_type_name, and treat them normally.
+	For foreign types, this still effectively means they can be treated
+	as the first known parent, but the value of ref() will be different
+	(but you shouldn't have been relying on that, anyway).
+
 2006/01/13	muppetman
 
 	* GObject.xs: Ignoring the undead flag in _gperl_fetch_wrapper_key()
