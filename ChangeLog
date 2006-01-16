@@ -1,3 +1,8 @@
+2006/01/16	kaffeetisch
+
+	* GLog.xs (gperl_log_handler): Add a comment describing a rare
+	threading-related crash.
+
 2006/01/15	muppetman
 
 	* Glib.pm, GObject.xs, GType.xs: Change the way GObject type

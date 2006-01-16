@@ -100,7 +100,6 @@ gperl_log_handler (const gchar   *log_domain,
                    const gchar   *message,
                    gpointer user_data)
 {
-	char * full_string;
 	char * desc;
 
 	gboolean in_recursion = (log_level & G_LOG_FLAG_RECURSION) != 0;
@@ -122,14 +121,35 @@ gperl_log_handler (const gchar   *log_domain,
 
 	PERL_SET_CONTEXT (user_data);
 
-	full_string = form ("%s%s%s %s**: %s",
-	                    (log_domain ? log_domain : ""),
-	                    (log_domain ? "-" : ""),
-	                    desc,
-	                    (in_recursion ? "(recursed) " : ""),
-	                    message);
-
-	warn (full_string);
+	/* This causes segfaults when called from other threads.  Example
+	 * trace:
+	 *
+	 * ==17895== Invalid read of size 1
+	 * ==17895==    at 0x80AD040: (within /usr/bin/perl)
+	 * ==17895==    by 0x80AD20D: Perl_vmess (in /usr/bin/perl)
+	 * ==17895==    by 0x80ADDE1: Perl_vwarn (in /usr/bin/perl)
+	 * ==17895==    by 0x80AE113: Perl_warn_nocontext (in /usr/bin/perl)
+	 * ==17895==    by 0x1BDB5239: gperl_log_handler (GLog.xs:131)
+	 * ==17895==    by 0x1BE448B4: g_logv (gmessages.c:494)
+	 * ==17895==    by 0x1BE44AD3: g_log (gmessages.c:526)
+	 * ==17895==    by 0x1C01BCC9: ORBit_RootObject_shutdown (orbit-object.c:75)
+	 * ==17895==    by 0x1C01A4A7: CORBA_ORB_destroy (corba-orb.c:1183)
+	 * ==17895==    by 0x1C018DFA: shutdown_orb (corba-orb.c:217)
+	 * ==17895==    by 0x1B9755E6: exit (in /lib/tls/i686/cmov/libc-2.3.5.so)
+	 * ==17895==    by 0x805FDFB: main (in /usr/bin/perl)
+	 *
+	 * It works perfectly fine if you use fprintf(stderr, ...) instead of
+         * warn(...) so I think the crash is related to perl's mess() trying
+         * to access thread-local storage or similar.  I thought the
+         * PERL_SET_CONTEXT above would make this work, but apparently it
+         * doesn't suffice.
+	 */
+	warn ("%s%s%s %s**: %s",
+	      (log_domain ? log_domain : ""),
+	      (log_domain ? "-" : ""),
+	      desc,
+	      (in_recursion ? "(recursed) " : ""),
+	      message);
 
 	/* the standard log handler calls abort() for G_LOG_LEVEL_ERROR
 	 * messages.  this is handy for being able to stop gdb on the
