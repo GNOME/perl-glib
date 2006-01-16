@@ -4,6 +4,11 @@
 
 2006/01/16	kaffeetisch
 
+	* GObject.xs: Apply patch from Rafael Garcia-Suarez that fixes the
+	undead object macros on 64-bit platforms.
+
+2006/01/16	kaffeetisch
+
 	* GObject.xs (class_info_finish_loading): Hush a compiler warning.
 
 2006/01/16	kaffeetisch

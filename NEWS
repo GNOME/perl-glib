@@ -5,6 +5,8 @@ Overview of changes in Glib 1.114
   [muppet]
 * Fix a crash that occured when properties of undead objects were modified.
   [muppet]
+* Fix the undead object macros to work on 64-bit platforms.  [Rafael
+  Garcia-Suarez]
 * Completely redo the way GObject types are mapped to package names.  This
   fixes the problem uncovered by the recent GInitiallyUnowned issue.  See the
   ChangeLog for a detailed description of the changes.  [muppet, Torsten]
