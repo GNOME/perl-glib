@@ -1,5 +1,9 @@
 2006/01/16	kaffeetisch
 
+	* GObject.xs (class_info_finish_loading): Hush a compiler warning.
+
+2006/01/16	kaffeetisch
+
 	* GLog.xs (gperl_log_handler): Add a comment describing a rare
 	threading-related crash.
 

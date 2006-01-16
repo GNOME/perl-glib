@@ -166,7 +166,7 @@ class_info_finish_loading (ClassInfo * class_info)
 			/* omit _LazyLoader, fill with proper info */
 			GType parent_type;
 			GType *interfaces;
-			int n_interfaces;
+			guint n_interfaces;
 			const char * package;
 			int i;
 
