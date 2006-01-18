@@ -400,7 +400,7 @@ Example:
 
    $gtkfilesel->set_filename (filename_to_unicode $ARGV[1]);
 
-This function is croak() if the conversion cannot be made, e.g., because the
+This function will croak() if the conversion cannot be made, e.g., because the
 utf-8 is invalid.
 
 =item $filename_in_local_encoding = filename_from_unicode $filename

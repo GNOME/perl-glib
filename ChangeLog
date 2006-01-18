@@ -1,3 +1,7 @@
+2006/01/18	kaffeetisch
+
+	* Glib.pm: Fix a typo.
+
 2006/01/16	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.114.
@@ -20,7 +24,7 @@
 
 	* Glib.pm, GObject.xs, GType.xs: Change the way GObject type
 	mappings are initialized.
-	
+
 	Previously, gperl_register_object() would not only map a GType to a
 	perl package name, but would set up the @ISA entry for that type by
 	introspection; if the parent type was not yet registered, the
