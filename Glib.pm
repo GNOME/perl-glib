@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 # 
 # This library is free software; you can redistribute it and/or modify it under
@@ -146,10 +146,10 @@ sub tie_properties
 		# skip to next if it doesn't belong to this package and 
 		# they don't want everything tied
 		next if ($prop->{owner_type} ne $package and not $all);
-		
+
 		$name = $prop->{name};
 		$name =~ s/-/_/g;
-		
+
 		carp "overwriting existing non-tied hash key $name"
 			if (exists ($self->{$name}) 
 				and not tied $self->{$name});
@@ -170,6 +170,43 @@ sub tie_properties
                         # if it's not readable and not writable what is it?
 		}
 	}
+}
+
+package Glib::Object::_LazyLoader;
+
+use strict;
+no strict qw(refs);
+use vars qw($AUTOLOAD);
+push @Carp::CARP_NOT, __PACKAGE__;
+
+# These two overrides won't keep explicit calls to UNIVERSAL::(isa|can)
+# from breaking if called before anything is loaded, but those should
+# be quite rare.
+
+sub isa {
+	# we really shouldn't get in here at all if $_[0] is undefined.
+	_load (ref($_[0]) || $_[0]);
+	$_[0]->SUPER::isa ($_[1]);
+}
+
+sub can {
+	# we really shouldn't get in here at all if $_[0] is undefined.
+	_load (ref($_[0]) || $_[0]);
+	$_[0]->SUPER::can ($_[1]);
+}
+
+sub AUTOLOAD {
+	(my $method = $AUTOLOAD) =~ s/^.*:://;
+	(my $lazy_class = $AUTOLOAD) =~ s/::[^:]*$//;
+	my $object_or_type = shift;
+
+	_load ($lazy_class);
+
+	die "Something is very broken, couldn't lazy load $lazy_class"
+		if $object_or_type->isa (__PACKAGE__);
+
+	# try again
+	return $object_or_type->$method (@_);
 }
 
 package Glib;
@@ -484,7 +521,7 @@ GLib-based C libraries to perl.
 
   Yet another document, available separately, ties it all together:
     http://gtk2-perl.sourceforge.net/doc/binding_howto.pod.html
-  
+
 For gtk2-perl itself, see its website at
 
   gtk2-perl - http://gtk2-perl.sourceforge.net/
@@ -508,7 +545,7 @@ patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2005 by muppet and the gtk2-perl team
+Copyright 2003-2006 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 

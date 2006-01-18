@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -52,6 +52,7 @@ typedef struct _SinkFunc  SinkFunc;
 struct _ClassInfo {
 	GType   gtype;
 	char  * package;
+	gboolean initialized;
 };
 
 struct _SinkFunc {
@@ -86,7 +87,7 @@ G_LOCK_DEFINE_STATIC (nowarn_by_type);
 G_LOCK_DEFINE_STATIC (sink_funcs);
 
 
-ClassInfo *
+static ClassInfo *
 class_info_new (GType gtype,
 		const char * package)
 {
@@ -95,17 +96,138 @@ class_info_new (GType gtype,
 	class_info = g_new0 (ClassInfo, 1);
 	class_info->gtype = gtype;
 	class_info->package = g_strdup (package);
+	class_info->initialized = FALSE;
 
 	return class_info;
 }
 
-void
+static void
 class_info_destroy (ClassInfo * class_info)
 {
 	if (class_info) {
 		g_free (class_info->package);
 		g_free (class_info);
 	}
+}
+
+static void
+class_info_finish_loading (ClassInfo * class_info)
+{
+	char * child_isa_full;
+	AV * isa;
+	AV * new_isa;
+	int i, items;
+
+#ifdef NOISY
+	static int depth = 0;
+	char leader[50] = "";
+	depth++;
+	for (i = 0 ; i < depth ; i++)
+		leader[i] = ' ';
+	leader[i] = '\0';
+
+	warn ("%s%s(0x%p) -> %s\n",
+	      leader, __FUNCTION__, class_info, class_info->package);
+#endif
+
+	child_isa_full = g_strconcat (class_info->package, "::ISA", NULL);
+	isa = get_av (child_isa_full, FALSE); /* supposed to exist already */
+	if (!isa)
+		croak ("internal inconsistency -- finishing lazy loading, "
+		       "but %s::ISA does not exist", class_info->package);
+	g_free (child_isa_full);
+
+	/*
+	 * Rather than just blowing away the old @ISA and replacing it with
+	 * one of our own, we need to replace the _LazyLoader marker with
+	 * the proper new info.  This is because some classes may need to
+	 * have interfaces appear in @ISA *before* the parent class, in order
+	 * to resolve name clashes -- think of Gtk2::TreeModel::get versus
+	 * Glib::Object::get, for example.
+	 *
+	 * Thus, this will be a little roundabout.
+	 */
+
+	new_isa = newAV ();
+
+	items = av_len (isa) + 1;
+	for (i = 0 ; i < items ; i++) {
+		SV ** svp = av_fetch (isa, i, FALSE);
+		SV * sv;
+		if (!svp || !(sv = *svp))
+			continue;
+		if (strEQ (SvPV_nolen (sv), "Glib::Object::_LazyLoader")) {
+			/* omit _LazyLoader, fill with proper info */
+			GType parent_type;
+			GType *interfaces;
+			guint n_interfaces;
+			const char * package;
+			int i;
+
+			parent_type = g_type_parent (class_info->gtype);
+			if (!parent_type)
+				/* we just found GObject or GInterface.
+				 * this is legal. */
+				continue;
+
+			if (parent_type == G_TYPE_INTERFACE)
+				/* no interested in setting this up. */
+				continue;
+			/* possibly recurse, loading all the way down to
+			 * GObject if necessary */
+			package = gperl_object_package_from_type (parent_type);
+
+			if (!package) {
+				warn ("WHOA!  parent %s of %s is not an object"
+				      " or interface!",
+				      g_type_name (parent_type),
+				      g_type_name (class_info->gtype));
+				continue;
+			}
+
+			av_push (new_isa, newSVpv (package, 0));
+
+			/* add in any interfaces we can find. */
+			interfaces = g_type_interfaces (class_info->gtype,
+							&n_interfaces);
+			for (i = 0 ; interfaces[i] != 0 ; i++) {
+				package = gperl_object_package_from_type
+						(interfaces[i]);
+				if (package)
+					av_push (new_isa,
+						 newSVpv (package, 0));
+				else
+					warn ("interface type %s(%d) is not"
+					      " registered",
+					      g_type_name (interfaces[i]),
+					      interfaces[i]);
+			}
+			
+		} else {
+			av_push (new_isa, SvREFCNT_inc (sv));
+		}
+	}
+
+	/* copy back to isa */
+	av_clear (isa);
+	items = av_len (new_isa) + 1;
+	for (i = 0 ; i < items ; i++) {
+		SV ** svp = av_fetch (new_isa, i, FALSE);
+		if (svp && *svp)
+			av_push (isa, SvREFCNT_inc (*svp));
+		else
+			warn ("bad pointer inside av\n");
+	}
+
+	av_clear (new_isa);
+	av_undef (new_isa);
+
+	class_info->initialized = TRUE;
+
+#ifdef NOISY
+	warn ("%sdone\n", leader);
+	depth--;
+#endif
 }
 
 
@@ -124,7 +246,6 @@ void
 gperl_register_object (GType gtype,
                        const char * package)
 {
-	GType parent_type;
 	ClassInfo * class_info;
 
 	G_LOCK (types_by_type);
@@ -152,66 +273,8 @@ gperl_register_object (GType gtype,
 	g_hash_table_insert (types_by_package, class_info->package, class_info);
 	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */
 
-	parent_type = g_type_parent (gtype);
-	if (parent_type != 0) {
-		static GList * pending_isa = NULL;
-		GList * i;
-
-		/*
-		 * add this class to the list of pending ISA creations.
-		 *
-		 * "list of pending ISA creations?!?" you ask...
-		 * to minimize the possible errors in setting up the class
-		 * relationships, we only require the caller to provide 
-		 * the GType and name of the corresponding package; we don't
-		 * also require the name of the parent class' package, since
-		 * getting the parent GType is more likely to be error-free.
-		 * (the developer setting up the registrations may have bad
-		 * information, for example.)
-		 *
-		 * the nasty side effect is that the parent GType may not
-		 * yet have been registered at the time the child type is
-		 * registered.  so, we keep a list of classes for which 
-		 * ISA has not yet been set up, and each time we run through
-		 * this function, we'll try to eliminate as many as possible.
-		 *
-		 * since this one is fresh we append it to the list, so that
-		 * we have a chance of registering its parent first.
-		 */
-		pending_isa = g_list_append (pending_isa, class_info);
-
-		/* handle whatever pending requests we can */
-		/* not a for loop, because we're modifying the list as we go */
-		i = pending_isa;
-		while (i != NULL) {
-			ClassInfo * parent_class_info;
-
-			/* NOTE: reusing class_info --- it's not the same as
-			 * it was at the top of the function */
-			class_info = (ClassInfo*)(i->data);
-
-			parent_class_info = (ClassInfo *) 
-			         g_hash_table_lookup (types_by_type,
-			                    (gpointer) g_type_parent
-			                               (class_info->gtype));
-
-			if (parent_class_info) {
-				gperl_set_isa (class_info->package,
-				               parent_class_info->package);
-				pending_isa = g_list_remove (pending_isa, 
-				                             class_info);
-				/* go back to the beginning, in case we
-				 * just registered one that is the base
-				 * of several items earlier in the list.
-				 * besides, it's dangerous to remove items
-				 * while iterating... */
-				i = pending_isa;
-			} else {
-				/* go fish */
-				i = g_list_next (i);
-			}
-		}
-	}
+	/* defer the actual ISA setup to Glib::Object::_LazyLoader */
+	gperl_set_isa (package, "Glib::Object::_LazyLoader");
 
 	G_UNLOCK (types_by_type);
 	G_UNLOCK (types_by_package);
@@ -361,31 +424,54 @@ gperl_object_get_no_warn_unreg_subclass (GType gtype)
 
 =item const char * gperl_object_package_from_type (GType gtype)
 
-get the package corresponding to I<gtype>; returns NULL if I<gtype>
-is not registered.
+Get the package corresponding to I<gtype>.  If I<gtype> is not a GObject
+or GInterface, returns NULL.  If I<gtype> is not registered to a package
+name, a new name of the form C<Glib::Object::_Unregistered::$c_type_name>
+will be created, used to register the class, and then returned.
 
 =cut
 const char *
 gperl_object_package_from_type (GType gtype)
 {
-	if (types_by_type) {
-		ClassInfo * class_info;
+	ClassInfo * class_info;
 
-		G_LOCK (types_by_type);
+	if (!g_type_is_a (gtype, G_TYPE_OBJECT) &&
+	    !g_type_is_a (gtype, G_TYPE_INTERFACE))
+		return NULL;
 
-		class_info = (ClassInfo *) 
-			g_hash_table_lookup (types_by_type, (gpointer) gtype);
-
-		G_UNLOCK (types_by_type);
-
-		if (class_info)
-			return class_info->package;
-                else
-                  	return NULL;
-	} else
+	if (!types_by_type)
 		croak ("internal problem: gperl_object_package_from_type "
 		       "called before any classes were registered");
-	return NULL; /* not reached */
+
+	G_LOCK (types_by_type);
+
+	class_info = (ClassInfo *) 
+		g_hash_table_lookup (types_by_type, (gpointer) gtype);
+
+	G_UNLOCK (types_by_type);
+
+	if (!class_info) {
+		gchar * package;
+
+		package = g_strconcat ("Glib::Object::_Unregistered::",
+				       g_type_name (gtype), NULL);
+		/* XXX find a way to do this without locking twice */
+		gperl_register_object (gtype, package);
+		g_free (package);
+		G_LOCK (types_by_type);
+		class_info = (ClassInfo*)
+			g_hash_table_lookup (types_by_type, (gpointer) gtype);
+		G_UNLOCK (types_by_type);
+	}
+
+	g_assert (class_info);
+
+	if (!class_info->initialized) {
+		/* do a proper @ISA setup for this guy. */
+		class_info_finish_loading (class_info);
+	}
+
+	return class_info->package;
 }
 
 
@@ -441,9 +527,9 @@ gperl_object_type_from_package (const char * package)
  * Manipulate a pointer to indicate that an SV is undead.
  * Relies on SV pointers being word-aligned.
  */
-#define IS_UNDEAD(x) (GPOINTER_TO_UINT(x) & 1)
-#define MAKE_UNDEAD(x) GUINT_TO_POINTER(GPOINTER_TO_UINT(x) | 1)
-#define REVIVE_UNDEAD(x) GUINT_TO_POINTER(GPOINTER_TO_UINT(x) & ~1)
+#define IS_UNDEAD(x) (PTR2UV(x) & 1)
+#define MAKE_UNDEAD(x) INT2PTR(void*, PTR2UV(x) | 1)
+#define REVIVE_UNDEAD(x) INT2PTR(void*, PTR2UV(x) & ~1)
 
 /*
  * this function is called whenever the gobject gets destroyed. this only
@@ -1284,3 +1370,24 @@ tie_properties (GObject * object, gboolean all=FALSE)
 
 #endif
 
+MODULE = Glib::Object	PACKAGE = Glib::Object::_LazyLoader
+
+=for apidoc __hide__
+=cut
+void
+_load (const char * package)
+    PREINIT:
+	ClassInfo * class_info;
+    CODE:
+#ifdef NOISY
+	warn ("_load (%s)\n", package);
+#endif
+	G_LOCK (types_by_package);
+	class_info = (ClassInfo*)
+		g_hash_table_lookup (types_by_package,
+				     package);
+	G_UNLOCK (types_by_package);
+	if (class_info)
+		class_info_finish_loading (class_info);
+	else
+		warn ("asked to lazy-load %s, but that package is not registered", package);
