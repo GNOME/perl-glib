@@ -1,5 +1,10 @@
 2006/01/18	kaffeetisch
 
+	* GObject.xs: Modify the MAKE_UNDEAD and REVIVE_UNDEAD macros so
+	no casts are needed when using them.
+
+2006/01/18	kaffeetisch
+
 	* Glib.pm: Fix a typo.
 
 2006/01/16	kaffeetisch

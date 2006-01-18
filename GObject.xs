@@ -534,8 +534,8 @@ gperl_object_type_from_package (const char * package)
  * Relies on SV pointers being word-aligned.
  */
 #define IS_UNDEAD(x) (PTR2UV(x) & 1)
-#define MAKE_UNDEAD(x) INT2PTR(UV,PTR2UV(x) | 1)
-#define REVIVE_UNDEAD(x) INT2PTR(UV,PTR2UV(x) & ~1)
+#define MAKE_UNDEAD(x) INT2PTR(void*, PTR2UV(x) | 1)
+#define REVIVE_UNDEAD(x) INT2PTR(void*, PTR2UV(x) & ~1)
 
 /*
  * this function is called whenever the gobject gets destroyed. this only
@@ -552,7 +552,7 @@ gobject_destroy_wrapper (SV *obj)
         warn ("gobject_destroy_wrapper (%p)[%d]", obj,
               SvREFCNT ((SV*)REVIVE_UNDEAD(obj)));
 #endif
-        obj = (SV *) REVIVE_UNDEAD(obj);
+        obj = REVIVE_UNDEAD(obj);
         sv_unmagic (obj, PERL_MAGIC_ext);
 
         /* we might want to optimize away the call to DESTROY here for non-perl classes. */
@@ -733,7 +733,7 @@ gperl_new_object (GObject * object,
                 /* if the SV is undead, revive it */
                 if (IS_UNDEAD(obj)) {
                     g_object_ref (object);
-                    obj = (SV *) REVIVE_UNDEAD(obj);
+                    obj = REVIVE_UNDEAD(obj);
                     update_wrapper (object, obj);
                     sv = newRV_noinc (obj);
                     /* printf("reviving undead wrapper for [%p] (%p)\n", object, obj); */
@@ -892,7 +892,7 @@ _gperl_fetch_wrapper_key (GObject * object,
 
 	/* we don't care whether the wrapper is alive or undead.  forcibly
 	 * remove the undead bit, or the pointer will be unusable. */
-	wrapper_hash = (HV *) REVIVE_UNDEAD (wrapper_hash);
+	wrapper_hash = REVIVE_UNDEAD (wrapper_hash);
 
 	svname = newSVpv (name, strlen (name));
 	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
@@ -1007,7 +1007,7 @@ DESTROY (SV *sv)
                 if (object->ref_count > 1) {
                     /* become undead */
                     SV *obj = SvRV(sv);
-                    update_wrapper (object, (SV *) MAKE_UNDEAD(obj));
+                    update_wrapper (object, MAKE_UNDEAD(obj));
                     /* printf("zombies! [%p] (%p)\n", object, obj);*/
                 }
         }
