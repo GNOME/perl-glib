@@ -929,6 +929,16 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
 #if GPERL_THREAD_SAFE
 
+=for apidoc __hide__
+
+Users shouldn't know this exists.
+
+This is part of the machinery to support object tracking in a threaded
+environment.  When perl spawns a new interpreter thread, it invokes
+CLONE on all packages -- NOT on objects.  This is our only hook into
+that process.
+
+=cut
 void
 CLONE (gchar * class)
     CODE:

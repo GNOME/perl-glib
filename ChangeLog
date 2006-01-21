@@ -1,3 +1,8 @@
+2006/01/21	muppetman
+
+	* GObject.xs: Hide CLONE from the docs; it's not something user
+	code should call.
+
 2006/01/18	kaffeetisch
 
 	* GObject.xs: Modify the MAKE_UNDEAD and REVIVE_UNDEAD macros so
