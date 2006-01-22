@@ -1,3 +1,9 @@
+2006/01/22	kaffeetisch
+
+	* AUTHORS, Makefile.PL: Apply a patch from Wim Lewis that makes
+	sure we don't use threading stuff if perl isn't configured to
+	handle threads.
+
 2006/01/21	muppetman
 
 	* GObject.xs: Hide CLONE from the docs; it's not something user
