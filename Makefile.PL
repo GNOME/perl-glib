@@ -87,7 +87,12 @@ our %pod_files = (
 my %glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
 
 # optional thread-safety
-my $nothreads = grep /disable[-_]threadsafe/i, @ARGV;
+my $nothreads;
+if($Config::Config{usethreads}) {
+	$nothreads = grep /disable[-_]threadsafe/i, @ARGV;
+} else {
+	$nothreads = 1;
+}
 my %gthreadcfg;
 if (!$nothreads) {
 	eval {

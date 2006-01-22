@@ -19,6 +19,7 @@ Bjarne Steinsbø  bosteins at broadpark dot no
 Jacek Konieczny  jajcus at bnet dot pl
 Albert Chin      china at thewrittenword dot com
 Steven Walter    stevenrwalter at gmail dot com
+Wim Lewis        wiml at users dot sourceforge dot net
 
 several important bits of gtk2-perl were heavily inspired by pygtk, gtk-perl,
 and a good read-through of the gtk+ source code, so credit goes to those guys
