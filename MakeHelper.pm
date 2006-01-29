@@ -404,7 +404,7 @@ $blib_done
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
 	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
-		-e 'xsdocparse (".join(", ",map {"\"$_\""} @xs_files).")' > \$@
+		-e 'xsdocparse (qw(@xs_files))' > \$@
 
 # passing all of these files through the single podindex file, which is 
 # created at the same time, prevents problems with -j4 where xsdoc2pod would 

@@ -1,3 +1,8 @@
+2006/01/28	muppetman
+
+	* MakeHelper.pm: Slightly reduce the potentially ludicrous line
+	length of the xsdocparse command.
+
 2006/01/22	muppetman
 
 	* GObject.xs: Honor the "don't warn about unregistered subclasses of
