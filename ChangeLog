@@ -1,3 +1,19 @@
+2006/02/05	kaffeetisch
+
+	Merge from HEAD:
+
+	* MakeHelper.pm: Slightly reduce the potentially ludicrous line
+	length of the xsdocparse command.
+
+	* GObject.xs: Honor the "don't warn about unregistered subclasses of
+	this type" flags.  Use those flags to avoid creating _Unregistered
+	names for what are typically private implementation classes.  This
+	leaves the method a little misnamed, but oh well.  Updated the pod
+	accordingly.  Also remove unused code.
+
+	* GObject.xs: Hide CLONE from the docs; it's not something user
+	code should call.
+
 2006/01/22	kaffeetisch
 
 	Merge from HEAD:

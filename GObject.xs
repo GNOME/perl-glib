@@ -369,17 +369,26 @@ gperl_object_take_ownership (GObject * object)
 
 =item void gperl_object_set_no_warn_unreg_subclass (GType gtype, gboolean nowarn)
 
-how's that for a long and supposedly self-documenting function name!
-(sorry...).   basically, it does just as it says -- if I<nowarn> is true, 
-do not spew a warning if a GType derived from I<gtype> is not registered
-with the bindings' type system.  this is important for things like
-GtkStyles (unregistered subclasses come from theme engines) and GdkGCs
-(unregistered subclasses come from various gdk backends) for which it's not
-possible or practical to force the registration of the classes.  in
-general, we want to warn about the unregistered types because it may mean
-that a developer has forgotten something.
+In versions 1.00 through 1.10x of Glib, the bindings required all types
+to be registered ahead of time.  Upon encountering an unknown type, the
+bindings would emit a warning to the effect of "unknown type 'Foo';
+representing as first known parent type 'Bar'".  However, for some
+types, such as GtkStyle or GdkGC, the actual object returned is an
+instance of a child type of a private implementation (e.g., a theme
+engine ("BlueCurveStyle") or gdk backend ("GdkGCX11")); we neither can
+nor should have registered names for these types.  Therefore, it is
+possible to tell the bindings not to warn about these unregistered
+subclasses, and simply represent them as the parent type.
 
-note: this assumes I<gtype> has already been registered with
+With 1.12x, the bindings will automatically register unknown classes
+into the namespace Glib::Object::_Unregistered to avoid possible
+breakage resulting from unknown ancestors of known children.  To
+preserve the old registered-as-unregistered behavior, the value
+installed by this function is used to prevent the _Unregistered mapping
+for such private backend classes.
+
+
+Note: this assumes I<gtype> has already been registered with
 gperl_register_object().
 
 =cut
@@ -449,6 +458,26 @@ gperl_object_package_from_type (GType gtype)
 		g_hash_table_lookup (types_by_type, (gpointer) gtype);
 
 	G_UNLOCK (types_by_type);
+
+	if (!class_info) {
+                /*
+                 * Walk up the ancestry to see if we're the child of a type
+                 * whose children are private.  In the old days, we called
+                 * this "no-warn", to suppress warnings about unregistered
+                 * types (e.g. Styles, GCs, etc).  Now we'll use it to
+                 * map "private" GTypes to known parent classes.
+                 */
+                GType parent = gtype;
+                while (0 != (parent = g_type_parent (parent))) {
+                        if (gperl_object_get_no_warn_unreg_subclass (parent)) {
+                                /* Use this class's ClassInfo instead. */
+                                class_info = (ClassInfo *)
+                                        g_hash_table_lookup (types_by_type,
+                                                             (gpointer) parent);
+                                break;
+                        }
+                }
+        }
 
 	if (!class_info) {
 		gchar * package;
@@ -627,27 +656,10 @@ gperl_new_object (GObject * object,
 
                 HV *stash = gperl_object_stash_from_type (gtype);
 
-		/* there are many possible cases in which we may be asked to
-		 * create a wrapper for objects whose GTypes are not
-		 * registered with us; we need to find the first known class
-		 * and use that.  see the docs for
-		 * gperl_object_set_no_warn_unreg_subclass for more info. */
-                if (!stash) {
-			/* walk the anscestry to the first known GType.
-			 * since GObject is registered to Glib::Object,
-			 * this will always succeed. */
-			GType parent = gtype;
-			while (stash == NULL) {
-				parent = g_type_parent (parent);
-				stash = gperl_object_stash_from_type (parent);
-			}
-			if (!gperl_object_get_no_warn_unreg_subclass (parent))
-				warn ("GType '%s' is not registered with "
-				      "GPerl; representing this object as "
-				      "first known parent type '%s' instead",
-				      g_type_name (gtype),
-				      g_type_name (parent));
-		}
+                /* We should only get NULL for the stash here if gtype is
+                 * neither a GObject nor GInterface.  We filtered out all
+                 * non-GObject types a few lines back. */
+                g_assert (stash != NULL);
 
                 /*
                  * Create the "object", a hash.
@@ -894,6 +906,16 @@ MODULE = Glib::Object	PACKAGE = Glib::Object	PREFIX = g_object_
 
 #if GPERL_THREAD_SAFE
 
+=for apidoc __hide__
+
+Users shouldn't know this exists.
+
+This is part of the machinery to support object tracking in a threaded
+environment.  When perl spawns a new interpreter thread, it invokes
+CLONE on all packages -- NOT on objects.  This is our only hook into
+that process.
+
+=cut
 void
 CLONE (gchar * class)
     CODE:
@@ -1369,6 +1391,7 @@ void
 tie_properties (GObject * object, gboolean all=FALSE)
 
 #endif
+
 
 MODULE = Glib::Object	PACKAGE = Glib::Object::_LazyLoader
 
