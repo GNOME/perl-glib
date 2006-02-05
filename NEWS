@@ -1,3 +1,12 @@
+Overview of changes in Glib 1.104
+=================================
+
+* Don't use threading stuff if perl wasn't build with threading support.
+  [Wim Lewis]
+* Don't create unique package names for types that have an ancestor which has
+  the "don't warn about unregistered subclasses" bit set.  Use this ancestor's
+  package name to represent affected types.  [muppet]
+
 Overview of changes in Glib 1.103
 =================================
 

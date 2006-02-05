@@ -1,5 +1,9 @@
 2006/02/05	kaffeetisch
 
+	* Glib.pm, NEWS, README: Stable release 1.104.
+
+2006/02/05	kaffeetisch
+
 	Merge from HEAD:
 
 	* MakeHelper.pm: Slightly reduce the potentially ludicrous line
