@@ -1,3 +1,11 @@
+2006/02/11	muppetman
+
+	* GObject.xs: SvLEN() is the length of the SV's buffer; SvCUR() is
+	the length of the SV's string.  Use SvCUR() instead of SvLEN()-1 in
+	_gperl_fetch_wrapper_key(), or we get garbage key names with perl
+	5.8.8, resulting in failures in t/f.t related to properties with no
+	getter or setter.
+
 2006/01/30	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.115.

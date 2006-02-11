@@ -872,7 +872,7 @@ _gperl_fetch_wrapper_key (GObject * object,
 	wrapper_hash = REVIVE_UNDEAD (wrapper_hash);
 
 	svname = newSVpv (name, strlen (name));
-	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvLEN (svname)-1,
+	svp = hv_fetch (wrapper_hash, SvPV_nolen (svname), SvCUR (svname),
 	                FALSE); /* never create on the first try; prefer
 	                         * prefer to create the second version. */
 	if (!svp) {
@@ -883,7 +883,7 @@ _gperl_fetch_wrapper_key (GObject * object,
 			if (*c == '-')
 				*c = '_';
 		svp = hv_fetch (wrapper_hash,
-		                SvPV_nolen (svname), SvLEN (svname)-1,
+		                SvPV_nolen (svname), SvCUR (svname),
 		                create);
 	}
 	SvREFCNT_dec (svname);
