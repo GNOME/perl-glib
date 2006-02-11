@@ -6,6 +6,12 @@
 	5.8.8, resulting in failures in t/f.t related to properties with no
 	getter or setter.
 
+	* ParseXSDoc.pm: Data::Dumper uses a lot of memory, and causes the
+	docgen for Gtk2 to use up to 10MB.  Switch the serialization code
+	over to Storable, using store_fd(), instead.  Runs a bit faster, too.
+	Also allow passing by reference to parse_xsub(), to avoid copying
+	potentially large xsub bodies.
+
 2006/01/30	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.115.
