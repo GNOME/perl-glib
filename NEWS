@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.105
+=================================
+
+* Fix a bug that caused custom objects with properties that have no getter or
+  setter to misbehave on perl 5.8.8.  [muppet]
+
 Overview of changes in Glib 1.104
 =================================
 
