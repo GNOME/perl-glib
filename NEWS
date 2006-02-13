@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.116
+=================================
+
+* Fix a bug that caused custom objects with properties that have no getter or
+  setter to misbehave on perl 5.8.8.  [muppet]
+* Optimize Glib::ParseXSDoc to use less memory.  [muppet]
+
 Overview of changes in Glib 1.115
 =================================
 
@@ -46,6 +53,33 @@ Overview of changes in Glib 1.110
 * Fix a serious reference counting bug.  [Steven Walter]
 * Add custom 64 bit integer handlers that convert to and from strings if
   necessary.  [Torsten]
+
+Overview of changes in Glib 1.105
+=================================
+
+* Fix a bug that caused custom objects with properties that have no getter or
+  setter to misbehave on perl 5.8.8.  [muppet]
+
+Overview of changes in Glib 1.104
+=================================
+
+* Don't use threading stuff if perl wasn't build with threading support.
+  [Wim Lewis]
+* Don't create unique package names for types that have an ancestor which has
+  the "don't warn about unregistered subclasses" bit set.  Use this ancestor's
+  package name to represent affected types.  [muppet]
+
+Overview of changes in Glib 1.103
+=================================
+
+* Fix a crash that occured when properties of undead objects were modified.
+  [muppet]
+* Fix the undead object macros to work on 64-bit platforms.  [Rafael
+  Garcia-Suarez]
+* Completely redo the way GObject types are mapped to package names.  This
+  fixes the problem uncovered by the recent GInitiallyUnowned issue.  See the
+  ChangeLog for a detailed description of the changes.  [muppet, Torsten]
+* Allow undef for some arguments in the Glib::KeyFile API.  [Emmanuele]
 
 Overview of changes in Glib 1.102
 =================================

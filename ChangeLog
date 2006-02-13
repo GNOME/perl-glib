@@ -1,5 +1,9 @@
 2006/02/13	kaffeetisch
 
+	* Glib.pm, Makefile.PL, NEWS, README: Unstable release 1.116.
+
+2006/02/13	kaffeetisch
+
 	* MANIFEST, README.api-changes: Remove this outdated file.
 
 2006/02/11	muppetman

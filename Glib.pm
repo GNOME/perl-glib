@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 # 
 # This library is free software; you can redistribute it and/or modify it under
@@ -63,7 +63,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.115';
+our $VERSION = '1.116';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -587,7 +587,7 @@ GLib-based C libraries to perl.
 
   Yet another document, available separately, ties it all together:
     http://gtk2-perl.sourceforge.net/doc/binding_howto.pod.html
-  
+
 For gtk2-perl itself, see its website at
 
   gtk2-perl - http://gtk2-perl.sourceforge.net/
