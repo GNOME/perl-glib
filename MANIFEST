@@ -26,7 +26,6 @@ Makefile.PL
 NEWS
 ParseXSDoc.pm
 README
-README.api-changes
 Subclass.pm
 TODO
 apidoc.pl

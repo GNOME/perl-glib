@@ -1,3 +1,7 @@
+2006/02/13	kaffeetisch
+
+	* MANIFEST, README.api-changes: Remove this outdated file.
+
 2006/02/11	muppetman
 
 	* GObject.xs: SvLEN() is the length of the SV's buffer; SvCUR() is
