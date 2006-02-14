@@ -1362,7 +1362,7 @@ get_default_property_value (GValue * value,
 		croak ("Param spec type %s is not registered with GPerl",
 		       g_type_name (G_PARAM_SPEC_TYPE (pspec)));
 	stash = gv_stashpv (package, TRUE);
-	assert (stash)
+	assert (stash);
 	method = gv_fetchmethod (stash, "get_default_value");
 
 	if (method) {
