@@ -1,3 +1,8 @@
+2006/02/14	kaffeetisch
+
+	* GType.xs: Add a missing semicolon that caused compilation
+	failures on perl 5.8.8.
+
 2006/02/13	kaffeetisch
 
 	* Glib.pm, Makefile.PL, NEWS, README: Unstable release 1.116.
