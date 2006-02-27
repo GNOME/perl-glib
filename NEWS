@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.117
+=================================
+
+* Fix compilation against perl 5.8.8.  [Torsten]
+
 Overview of changes in Glib 1.116
 =================================
 
