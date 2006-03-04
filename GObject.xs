@@ -28,11 +28,22 @@
 
 =head2 GObject
 
-To deal with the intricate interaction of the different reference-counting semantics of Perl objects versus GObjects, the bindings create a combined PerlObject+GObject, with the GObject's pointer in magic attached to the Perl object, and the Perl object's pointer in the GObject's user data.  Thus it's not really a "wrapper", but we refer to it as one, because "combined Perl object + GObject" is a cumbersome and confusing mouthful.
+To deal with the intricate interaction of the different reference-counting
+semantics of Perl objects versus GObjects, the bindings create a combined
+PerlObject+GObject, with the GObject's pointer in magic attached to the Perl
+object, and the Perl object's pointer in the GObject's user data.  Thus it's
+not really a "wrapper", but we refer to it as one, because "combined Perl
+object + GObject" is a cumbersome and confusing mouthful.
 
-GObjects are represented as blessed hash references.  The GObject user data mechanism is not typesafe, and thus is used only for unsigned integer values; the Perl-level hash is available for any type of user data.  The combined nature of the wrapper means that data stored in the hash will stick around as long as the object is alive.
+GObjects are represented as blessed hash references.  The GObject user data
+mechanism is not typesafe, and thus is used only for unsigned integer values;
+the Perl-level hash is available for any type of user data.  The combined
+nature of the wrapper means that data stored in the hash will stick around as
+long as the object is alive.
 
-Since the C pointer is stored in attached magic, the C pointer is not available to the Perl developer via the hash object, so there's no need to worry about breaking it from perl.
+Since the C pointer is stored in attached magic, the C pointer is not available
+to the Perl developer via the hash object, so there's no need to worry about
+breaking it from perl.
 
 Propers go to Marc Lehmann for dreaming most of this up.
 
@@ -41,10 +52,8 @@ Propers go to Marc Lehmann for dreaming most of this up.
 =cut
 
 #include "gperl.h"
-
-/* a gperl_private.h would be nice. */
-extern SV * _gperl_sv_from_value_internal (const GValue * value,
-                                           gboolean copy_boxed);
+#include "gperl-private.h" /* for GPERL_SET_CONTEXT and
+	                    * _gperl_sv_from_value_internal */
 
 typedef struct _ClassInfo ClassInfo;
 typedef struct _SinkFunc  SinkFunc;
@@ -202,7 +211,6 @@ class_info_finish_loading (ClassInfo * class_info)
 					      g_type_name (interfaces[i]),
 					      interfaces[i]);
 			}
-			
 		} else {
 			av_push (new_isa, SvREFCNT_inc (sv));
 		}
@@ -568,6 +576,8 @@ gperl_object_type_from_package (const char * package)
 static void
 gobject_destroy_wrapper (SV *obj)
 {
+	GPERL_SET_CONTEXT;
+
 	if (PL_in_clean_objs)
         	return;
 

@@ -307,6 +307,26 @@ gperl_format_variable_for_output (SV * sv)
 
 =cut
 
+/*
+ * Thread-safety stuff.
+ */
+static PerlInterpreter *gperl_master_interp = NULL;
+G_LOCK_DEFINE_STATIC (gperl_master_interp);
+
+void
+_gperl_set_master_interp (PerlInterpreter *interp)
+{
+	G_LOCK (gperl_master_interp);
+	gperl_master_interp = interp;
+	G_UNLOCK (gperl_master_interp);
+}
+
+PerlInterpreter *
+_gperl_get_master_interp (void)
+{
+	return gperl_master_interp;
+}
+
 MODULE = Glib		PACKAGE = Glib		PREFIX = g_
 
 BOOT:
@@ -316,6 +336,7 @@ BOOT:
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 #endif
+	_gperl_set_master_interp (PERL_GET_INTERP);
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
 	GPERL_CALL_BOOT (boot_Glib__Utils);

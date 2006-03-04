@@ -20,6 +20,7 @@
  */
 
 #include "gperl.h"
+#include "gperl-private.h" /* for GPERL_SET_CONTEXT */
 
 =head2 GLog
 
@@ -55,14 +56,14 @@ g_log_level_flags_get_type (void)
     static const GFlagsValue values[] = {
       { G_LOG_FLAG_RECURSION,  "G_LOG_FLAG_RECURSION", "recursion" },
       { G_LOG_FLAG_FATAL,      "G_LOG_FLAG_FATAL",     "fatal" },
-     
+
       { G_LOG_LEVEL_ERROR,     "G_LOG_LEVEL_ERROR",    "error" },
       { G_LOG_LEVEL_CRITICAL,  "G_LOG_LEVEL_CRITICAL", "critical" },
       { G_LOG_LEVEL_WARNING,   "G_LOG_LEVEL_WARNING",  "warning" },
       { G_LOG_LEVEL_MESSAGE,   "G_LOG_LEVEL_MESSAGE",  "message" },
       { G_LOG_LEVEL_INFO,      "G_LOG_LEVEL_INFO",     "info" },
       { G_LOG_LEVEL_DEBUG,     "G_LOG_LEVEL_DEBUG",    "debug" },
-     
+
       { G_LOG_FATAL_MASK,      "G_LOG_FATAL_MASK",     "fatal-mask" },
 
       { 0, NULL, NULL }
@@ -98,7 +99,7 @@ void
 gperl_log_handler (const gchar   *log_domain,
                    GLogLevelFlags log_level,
                    const gchar   *message,
-                   gpointer user_data)
+                   gpointer       user_data)
 {
 	char * desc;
 
@@ -119,31 +120,7 @@ gperl_log_handler (const gchar   *log_domain,
 		default: desc = "LOG";
 	}
 
-	PERL_SET_CONTEXT (user_data);
-
-	/* This causes segfaults when called from other threads.  Example
-	 * trace:
-	 *
-	 * ==17895== Invalid read of size 1
-	 * ==17895==    at 0x80AD040: (within /usr/bin/perl)
-	 * ==17895==    by 0x80AD20D: Perl_vmess (in /usr/bin/perl)
-	 * ==17895==    by 0x80ADDE1: Perl_vwarn (in /usr/bin/perl)
-	 * ==17895==    by 0x80AE113: Perl_warn_nocontext (in /usr/bin/perl)
-	 * ==17895==    by 0x1BDB5239: gperl_log_handler (GLog.xs:131)
-	 * ==17895==    by 0x1BE448B4: g_logv (gmessages.c:494)
-	 * ==17895==    by 0x1BE44AD3: g_log (gmessages.c:526)
-	 * ==17895==    by 0x1C01BCC9: ORBit_RootObject_shutdown (orbit-object.c:75)
-	 * ==17895==    by 0x1C01A4A7: CORBA_ORB_destroy (corba-orb.c:1183)
-	 * ==17895==    by 0x1C018DFA: shutdown_orb (corba-orb.c:217)
-	 * ==17895==    by 0x1B9755E6: exit (in /lib/tls/i686/cmov/libc-2.3.5.so)
-	 * ==17895==    by 0x805FDFB: main (in /usr/bin/perl)
-	 *
-	 * It works perfectly fine if you use fprintf(stderr, ...) instead of
-         * warn(...) so I think the crash is related to perl's mess() trying
-         * to access thread-local storage or similar.  I thought the
-         * PERL_SET_CONTEXT above would make this work, but apparently it
-         * doesn't suffice.
-	 */
+	GPERL_SET_CONTEXT;
 	warn ("%s%s%s %s**: %s",
 	      (log_domain ? log_domain : ""),
 	      (log_domain ? "-" : ""),
@@ -179,7 +156,7 @@ gint
 gperl_handle_logs_for (const gchar * log_domain)
 {
 	return g_log_set_handler (log_domain, ALL_LOGS,
-	                          gperl_log_handler, PERL_GET_CONTEXT);
+	                          gperl_log_handler, NULL);
 }
 
 =back

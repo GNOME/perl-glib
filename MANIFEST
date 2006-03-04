@@ -34,6 +34,7 @@ devel.pod
 doctypes
 gperl-gtypes.c
 gperl-gtypes.h
+gperl-private.h
 gperl.h
 gperl_marshal.h
 perl-Glib.spec.in

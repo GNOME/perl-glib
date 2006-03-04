@@ -28,10 +28,7 @@
 #include "gperl.h"
 #include "gperl_marshal.h"
 
-/* private helper, defined in GObject.xs, not exported */
-extern SV * _gperl_fetch_wrapper_key (GObject * object,
-                                      const char * name,
-                                      gboolean create);
+#include "gperl-private.h" /* for _gperl_fetch_wrapper_key */
 
 /* for fundamental types */
 static GHashTable * types_by_package = NULL;
