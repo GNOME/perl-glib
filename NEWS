@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.118
+=================================
+
+* Improve the thread safety of Glib by correctly setting up perl's thread-local
+  storage in a few strategic places.  [Torsten]
+
 Overview of changes in Glib 1.117
 =================================
 
