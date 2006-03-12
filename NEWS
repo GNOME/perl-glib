@@ -1,3 +1,19 @@
+Overview of changes in Glib 1.120
+=================================
+
+ Since 1.10x (the previous stable series)
+ ----------------------------------------
+  * Comepletely revamp the way GObject types are mapped to Perl package names.
+    The new algorithm is more robust and correct.
+  * Add custom 64 bit integer handlers.
+  * Add Glib::filename_display_name and Glib::filename_display_basename.
+  * Improve thread safety.
+  * Fix many bugs.
+
+ Since 1.118
+ -----------
+  * Nada.
+
 Overview of changes in Glib 1.118
 =================================
 
