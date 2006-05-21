@@ -211,6 +211,8 @@ class_info_finish_loading (ClassInfo * class_info)
 					      g_type_name (interfaces[i]),
 					      interfaces[i]);
 			}
+			if (interfaces)
+				g_free (interfaces);
 		} else {
 			av_push (new_isa, SvREFCNT_inc (sv));
 		}

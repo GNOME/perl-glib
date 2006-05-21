@@ -1,3 +1,8 @@
+2006/05/21	kaffeetisch
+
+	* GObject.xs (class_info_finish_loading): Free the list returned
+	by g_type_interfaces when we're finished with it.
+
 2006/03/12	kaffeetisch
 
 	* Glib.pm, Makefile.PL, NEWS, README: Stable release 1.120.
