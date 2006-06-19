@@ -976,6 +976,9 @@ underlying C object.
 
 BOOT:
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
+#if GLIB_CHECK_VERSION (2, 10, 0)
+	gperl_register_object (G_TYPE_INITIALLY_UNOWNED, "Glib::InitiallyUnowned");
+#endif
 	wrapper_quark = g_quark_from_static_string ("Perl-wrapper-object");
 
 

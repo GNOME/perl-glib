@@ -1,3 +1,8 @@
+2006/06/19	kaffeetisch
+
+	* GObject.xs: Register GInitiallyUnowned as
+	Glib::InitiallyUnowned.
+
 2006/05/21	kaffeetisch
 
 	* GObject.xs (class_info_finish_loading): Free the list returned
