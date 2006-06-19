@@ -63,13 +63,13 @@ newSVGKeyFile (GKeyFile * key_file)
 	HV * key = newHV ();
 	SV * sv;
 	HV * stash;
-	
+
 	/* tie the key_file to our hash using some magic */
 	sv_magic ((SV*) key, 0, PERL_MAGIC_ext, (const char *) key_file, 0);
 
 	/* wrap it, bless it, ship it. */
 	sv = newRV_noinc ((SV*) key);
-	
+
 	stash = gv_stashpv ("Glib::KeyFile", TRUE);
 	sv_bless (sv, stash);
 
@@ -95,9 +95,9 @@ MODULE = Glib::KeyFile	PACKAGE = Glib::KeyFile	PREFIX = g_key_file_
 =head1 SYNOPSIS
 
   use Glib;
-  
+
   $data .= $_ while (<DATA>);
-  
+
   $f = Glib::KeyFile->new;
   $f->load_from_data($data);
   if ($f->has_group('Main') && $f->has_key('Main', 'someotherkey')) {
@@ -128,7 +128,7 @@ Specification and the Icon Theme Specification.
 
 The syntax of key files is described in detail in the Desktop Entry
 Specification, here is a quick summary: Key files consists of groups of
-key-value pairs, interspersed with comments. 
+key-value pairs, interspersed with comments.
 
 =cut
 
@@ -161,7 +161,6 @@ g_key_file_set_list_separator (key_file, separator)
 =cut
 
 =for apidoc __gerror__
-=signature boolean = $key_file->load_from_file ($file, $flags)
 Parses a key file.
 =cut
 gboolean
@@ -179,7 +178,6 @@ g_key_file_load_from_file (key_file, file, flags)
     	RETVAL
 
 =for apidoc __gerror__
-=signature boolean = $key_file->load_from_data ($data, $flags)
 Parses a string containing a key file structure.
 =cut
 gboolean
@@ -202,7 +200,7 @@ g_key_file_load_from_data (key_file, buf, flags)
 =signature boolean = $key_file->load_from_data_dirs ($file, $flags)
 =signature (boolean, scalar) = $key_file->load_from_data_dirs ($file, $flags)
 
-Parses a key file, searching it inside the data directories.
+Parses a key file, searching for it inside the data directories.
 In scalar context, it returns a boolean value (true on success, false otherwise);
 in array context, it returns a boolean value and the full path of the file.
 =cut
@@ -351,20 +349,20 @@ g_key_file_set_value (key_file, group_name, key, value)
 	const gchar * key
 	const gchar * value
 
-=for apidoc Glib::KeyFile::set_boolean __function__
-=signature $key_file->set_boolean ($group_name, $key, $boolean)
+=for apidoc Glib::KeyFile::set_boolean
+=arg value (gboolean)
 Sets a boolean value to $key inside $group_name.
 If $key is not found, it is created.
 =cut
 
-=for apidoc Glib::KeyFile::set_integer __function__
-=signature $key_file->set_boolean ($group_name, $key, $integer)
+=for apidoc Glib::KeyFile::set_integer
+=arg value (gint)
 Sets an integer value to $key inside $group_name.
 If $key is not found, it is created.
 =cut
 
-=for apidoc Glib::KeyFile::set_string __function__
-=signature $key_file->set_boolean ($group_name, $key, $string)
+=for apidoc Glib::KeyFile::set_string
+=arg value (gchar*)
 Sets a string value to $key inside $group_name.  The string will be escaped if
 it containes special characters.
 If $key is not found, it is created.
@@ -398,22 +396,32 @@ g_key_file_set_boolean (key_file, group_name, key, value)
 			break;
 	}
 
-=for apidoc Glib::KeyFile::get_boolean __function__
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+
+=for apidoc
+Sets a double value to $key inside $group_name.
+If $key is not found, it is created.
+=cut
+void g_key_file_set_double (GKeyFile *key_file, const gchar *group_name, const gchar *key, gdouble value);
+
+#endif
+
+=for apidoc Glib::KeyFile::get_boolean __gerror__
 =signature boolean = $key_file->get_boolean ($group_name, $key)
 Retrieves a boolean value from $key inside $group_name.
 =cut
 
-=for apidoc Glib::KeyFile::get_integer __function__
+=for apidoc Glib::KeyFile::get_integer __gerror__
 =signature integer = $key_file->get_integer ($group_name, $key)
 Retrieves an integer value from $key inside $group_name.
 =cut
 
-=for apidoc Glib::KeyFile::get_string __function__
+=for apidoc Glib::KeyFile::get_string __gerror__
 =signature string = $key_file->get_string ($group_name, $key)
 Retrieves a string value from $key inside $group_name.
 =cut
 
-void
+SV *
 g_key_file_get_boolean (key_file, group_name, key)
 	GKeyFile * key_file
 	const gchar * group_name
@@ -423,7 +431,7 @@ g_key_file_get_boolean (key_file, group_name, key)
 	Glib::KeyFile::get_string  = 2
     PREINIT:
     	GError *err = NULL;
-    PPCODE:
+    CODE:
     	switch (ix) {
 		case 0:
 		{
@@ -433,7 +441,8 @@ g_key_file_get_boolean (key_file, group_name, key)
 					&err);
 			if (err)
 				gperl_croak_gerror (NULL, err);
-			XPUSHs (sv_2mortal (boolSV (retval)));
+			RETVAL = boolSV (retval);
+			break;
 		}
 		case 1:
 		{
@@ -443,7 +452,8 @@ g_key_file_get_boolean (key_file, group_name, key)
 					&err);
 			if (err)
 				gperl_croak_gerror (NULL, err);
-			XPUSHs (sv_2mortal (newSViv (retval)));
+			RETVAL = newSViv (retval);
+			break;
 		}
 		case 2:
 		{
@@ -453,10 +463,38 @@ g_key_file_get_boolean (key_file, group_name, key)
 					&err);
 			if (err)
 				gperl_croak_gerror (NULL, err);
-			XPUSHs (sv_2mortal (newSVGChar (retval)));
+			RETVAL = newSVGChar (retval);
 			g_free (retval); /* leaks otherwise */
+			break;
 		}
+		default:
+			RETVAL = NULL;
+			croak ("FIXME: something went seriously wrong in Glib::KeyFile");
 	}
+    OUTPUT:
+	RETVAL
+
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+
+=for apidoc __gerror__
+Retrieves a double value from $key inside $group_name.
+=cut
+gdouble
+g_key_file_get_double (key_file, group_name, key)
+	GKeyFile * key_file
+	const gchar * group_name
+	const gchar * key
+    PREINIT:
+    	GError *err = NULL;
+    CODE:
+	RETVAL = g_key_file_get_double (key_file,
+			group_name, key, &err);
+	if (err)
+		gperl_croak_gerror (NULL, err);
+    OUTPUT:
+	RETVAL
+
+#endif
 
 =for apidoc __gerror__
 Returns the value associated with $key under $group_name translated in the
@@ -538,17 +576,17 @@ g_key_file_set_locale_string_list (key_file, group_name, key, locale, ...)
 			(const gchar * const *) list, list_len);
 	g_free (list);
 
-=for apidoc Glib::KeyFile::get_string_list __function__
+=for apidoc Glib::KeyFile::get_string_list __gerror__
 =signature list = $key_file->get_string_list ($group_name, $key)
 Retrieves a list of strings from $key inside $group_name.
 =cut
 
-=for apidoc Glib::KeyFile::get_integer_list __function__
+=for apidoc Glib::KeyFile::get_integer_list __gerror__
 =signature list = $key_file->get_integer_list ($group_name, $key)
 Retrieves a list of integers from $key inside $group_name.
 =cut
 
-=for apidoc Glib::KeyFile::get_boolean_list __function__
+=for apidoc Glib::KeyFile::get_boolean_list __gerror__
 =signature list = $key_file->get_boolean_list ($group_name, $key)
 Retrieves a list of booleans from $key inside $group_name.
 =cut
@@ -575,8 +613,9 @@ g_key_file_get_string_list (key_file, group_name, key)
 					&retlen,
 					&err);
 			CROAK_ON_GERROR (err);
+			EXTEND (sp, retlen);
 			for (i = 0; i < retlen; i++)
-				XPUSHs (sv_2mortal (newSVGChar (retlist[i])));
+				PUSHs (sv_2mortal (newSVGChar (retlist[i])));
 			g_strfreev (retlist);
 			break;
 		}
@@ -588,8 +627,9 @@ g_key_file_get_string_list (key_file, group_name, key)
 					&retlen,
 					&err);
 			CROAK_ON_GERROR (err);
+			EXTEND (sp, retlen);
 			for (i = 0; i < retlen; i++)
-				XPUSHs (sv_2mortal (boolSV (retlist[i])));
+				PUSHs (sv_2mortal (boolSV (retlist[i])));
 			g_free (retlist);
 			break;
 		}
@@ -601,32 +641,59 @@ g_key_file_get_string_list (key_file, group_name, key)
 					&retlen,
 					&err);
 			CROAK_ON_GERROR (err);
+			EXTEND (sp, retlen);
 			for (i = 0; i < retlen; i++)
-				XPUSHs (sv_2mortal (newSViv (retlist[i])));
+				PUSHs (sv_2mortal (newSViv (retlist[i])));
 			g_free (retlist);
 		}
-	}			
+	}
 
-=for apidoc Glib::KeyFile::set_string_list __function__
-=signature $key_file->set_string_list ($group_name, $key, ...)
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+
+=for apidoc __gerror__
+=signature list = $key_file->get_double_list ($group_name, $key)
+Retrieves a list of doubles from $key inside $group_name.
+=cut
+void
+g_key_file_get_double_list (key_file, group_name, key)
+	GKeyFile * key_file
+	const gchar * group_name
+	const gchar * key
+    PREINIT:
+    	GError *err = NULL;
+	gsize retlen, i;
+	gdouble *retlist;
+    PPCODE:
+	retlist = g_key_file_get_double_list (key_file,
+			group_name, key,
+			&retlen,
+			&err);
+	if (err)
+		gperl_croak_gerror (NULL, err);
+	EXTEND (sp, retlen);
+	for (i = 0; i < retlen; i++)
+		PUSHs (sv_2mortal (newSVnv (retlist[i])));
+	g_free (retlist);
+
+#endif
+
+=for apidoc Glib::KeyFile::set_string_list
 =for arg ... list of strings
 Sets a list of strings in $key inside $group_name.  The strings will be escaped
 if contain special characters.  If $key cannot be found then it is created.  If
-$group_name cannob be found then it is created.
+$group_name cannot be found then it is created.
 =cut
 
-=for apidoc Glib::KeyFile::set_boolean_list __function__
-=signature $key_file->set_boolean_list ($group_name, $key, ...)
+=for apidoc Glib::KeyFile::set_boolean_list
 =for arg ... list of booleans
-Sets a list of strings in $key inside $group_name.  If $key cannot be found
-then it is created.  If $group_name cannob be found then it is created.
+Sets a list of booleans in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
 =cut
 
-=for apidoc Glib::KeyFile::set_integer_list __function__
-=signature $key_file->set_integer_list ($group_name, $key, ...)
+=for apidoc Glib::KeyFile::set_integer_list
 =for arg ... list of integers
-Sets a list of strings in $key inside $group_name.  If $key cannot be found
-then it is created.  If $group_name cannob be found then it is created.
+Sets a list of doubles in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
 =cut
 
 void
@@ -682,6 +749,34 @@ g_key_file_set_string_list (key_file, group_name, key, ...)
 			break;
 		}
 	}
+
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+
+=for apidoc
+=for arg ... list of doubles
+Sets a list of doubles in $key inside $group_name.  If $key cannot be found
+then it is created.  If $group_name cannot be found then it is created.
+=cut
+void
+g_key_file_set_double_list (key_file, group_name, key, ...)
+	GKeyFile * key_file
+	const gchar * group_name
+	const gchar * key
+    PREINIT:
+	gsize list_len;
+	int i;
+	gdouble *list;
+    CODE:
+	list_len = (gsize) (items - 3);
+	list = g_new0 (gdouble, list_len);
+	for (i = 3; i < items; i++)
+		list[i - 3] = SvNV (ST (i));
+	g_key_file_set_double_list (key_file,
+			group_name, key,
+			list, list_len);
+	g_free (list);
+
+#endif
 
 =for apidoc __gerror__
 Places a comment above $key from $group_name.  If $key is undef then $comment
@@ -765,4 +860,3 @@ g_key_file_remove_group (key_file, group_name)
     	g_key_file_remove_group (key_file, group_name, &err);
 	if (err)
 		gperl_croak_gerror (NULL, err);
-

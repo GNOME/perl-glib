@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 use Glib ':constants';
-use Test::More tests => 26;
+use Test::More tests => 30;
 
 my $str = <<__EOK__
 #top of the file
@@ -13,11 +13,13 @@ my $str = <<__EOK__
 intkey=42
 stringkey=hello
 boolkey=1
+doublekey=3.1415
 
 [listsection]
 intlist=1;1;2;3;5;8;13;
 stringlist=Some;Values;In;A;List;
 boollist=false;true;false
+doublelist=23.42;3.1415
 
 [locales]
 #some string
@@ -97,7 +99,20 @@ SKIP: {
 	$key_file->set_boolean($start_group, 'boolkey', FALSE);
 	$key_file->set_value($start_group, 'boolkey', '0');
 
-	is_deeply([$key_file->get_keys('mysection')], ['intkey', 'stringkey', 'boolkey']);
+	is_deeply([$key_file->get_keys('mysection')], ['intkey', 'stringkey', 'boolkey', 'doublekey']);
+
+	SKIP: {
+		skip "double stuff", 4
+			unless Glib->CHECK_VERSION (2, 11, 0); # FIXME: 2.12
+
+		is($key_file->get_double('mysection', 'doublekey'), 3.1415);
+		$key_file->set_double('mysection', 'doublekey', 23.42);
+		is($key_file->get_double('mysection', 'doublekey'), 23.42);
+
+		is_deeply([$key_file->get_double_list('listsection', 'doublelist')], [23.42, 3.1415]);
+		$key_file->set_double_list('listsection', 'doublelist', 3.1415, 23.42);
+		is_deeply([$key_file->get_double_list('listsection', 'doublelist')], [3.1415, 23.42]);
+	}
 
 	$key_file->remove_comment('locales', 'mystring');
 	$key_file->remove_comment('locales', undef);

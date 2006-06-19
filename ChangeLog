@@ -1,5 +1,11 @@
 2006/06/19	kaffeetisch
 
+	* GKeyFile.xs, t/g.t: Bind and test g_key_file_set_double,
+	g_key_file_get_double, g_key_file_set_double_list, and
+	g_key_file_get_double_list.  Fix a few API doc glitches.
+
+2006/06/19	kaffeetisch
+
 	* GObject.xs: Register GInitiallyUnowned as
 	Glib::InitiallyUnowned.
 
