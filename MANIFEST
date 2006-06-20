@@ -2,6 +2,7 @@ AUTHORS
 ChangeLog
 CodeGen.pm
 GBoxed.xs
+GBookmarkFile.xs
 GClosure.xs
 GError.xs
 GIOChannel.xs
@@ -57,6 +58,7 @@ t/e.t
 t/f.t
 t/filename.t
 t/g.t
+t/h.t
 t/signal_emission_hooks.t
 t/signal_query.t
 typemap

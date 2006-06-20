@@ -15,3 +15,4 @@ GParamFlags	Glib::ParamFlags
 gunichar	character
 GKeyFile	Glib::KeyFile
 GKeyFileFlags	Glib::KeyFileFlags
+GBookmarkFile	Glib::BookmarkFile

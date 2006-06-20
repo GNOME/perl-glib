@@ -1,3 +1,25 @@
+2006-06-20  Emmanuele Bassi  <ebassi@gmail.com>
+
+	A GBookmarkFile.xs
+	A t/h.t
+
+	* GBookmarkFile.xs: Bind GBookmarkFile, a parser for desktop
+	bookmarks, that comes with GLib 2.11/2.12.
+
+	* t/h.t: Test suite for Glib::BookmarkFile.
+
+	* GError.xs:
+	* Glib.xs:
+	* MANIFEST:
+	* Makefile.PL:
+	* doctypes:
+	* gperl-gtypes.[hc]:
+	* gperl.h:
+	* typemap: Build glue for Glib::BookmarkFile.
+
+	* Makefile.PL:
+	* Glib.pm: Update $VERSION to 1.130 and warn the user.
+
 2006/06/19	kaffeetisch
 
 	* GKeyFile.xs, t/g.t: Bind and test g_key_file_set_double,

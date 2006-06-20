@@ -156,6 +156,36 @@ GType gperl_g_key_file_error_get_type (void);
 
 
 
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME - 2.12 */
+static const GEnumValue _gperl_g_bookmark_file_error_values[] = {
+  { G_BOOKMARK_FILE_ERROR_INVALID_URI, "G_BOOKMARK_FILE_ERROR_INVALID_URI", "invalid-uri" },
+  { G_BOOKMARK_FILE_ERROR_INVALID_VALUE, "G_BOOKMARK_FILE_ERROR_INVALID_VALUE", "invalid-value" },
+  { G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED, "G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED", "not-registered" },
+  { G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND, "G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND", "uri-not-found" },
+  { G_BOOKMARK_FILE_ERROR_READ, "G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND", "read" },
+  { G_BOOKMARK_FILE_ERROR_UNKNOWN_ENCODING, "G_BOOKMARK_FILE_ERROR_UNKNOWN_ENCODING", "unknown-encoding" },
+  { G_BOOKMARK_FILE_ERROR_WRITE, "G_BOOKMARK_FILE_ERROR_WRITE", "write" },
+  { G_BOOKMARK_FILE_ERROR_FILE_NOT_FOUND, "G_BOOKMARK_FILE_ERROR_FILE_NOT_FOUND", "not-found" },
+  { 0, NULL, NULL },
+};
+
+GType
+gperl_g_bookmark_file_error_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type)
+    type = g_enum_register_static ("GBookmarkFileError", _gperl_g_bookmark_file_error_values);
+
+  return type;
+}
+
+#define GPERL_TYPE_BOOKMARK_FILE_ERROR gperl_g_bookmark_file_error_get_type()
+GType gperl_g_bookmark_file_error_get_type (void);
+#endif /* GLIB_CHECK_VERSION (2, 12, 0) */
+
+
+
 static const GEnumValue _gperl_g_markup_error_values[] = {
   { G_MARKUP_ERROR_BAD_UTF8, "G_MARKUP_ERROR_BAD_UTF8", "bad-utf8" },
   { G_MARKUP_ERROR_EMPTY, "G_MARKUP_ERROR_EMPTY", "empty" },

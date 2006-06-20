@@ -350,6 +350,14 @@ SV * newSVGKeyFileFlags (GKeyFileFlags flags);
 GKeyFileFlags SvGKeyFileFlags (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 6, 0) */
 
+/*
+ * gbookmarkfile.h / GBookmarkFile.xs
+ */
+#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME - 2.12 */
+SV * newSVGBookmarkFile (GBookmarkFile * bookmark_file);
+GBookmarkFile * SvGBookmarkFile (SV * sv);
+#endif /* GLIB_CHECK_VERSION (2, 12, 0) */
+
 const char * gperl_param_spec_package_from_type (GType gtype);
 
 /*
