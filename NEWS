@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.130
+=================================
+
+  * Add GBookmarkFile bindings. [Emmanuele]
+
 Overview of changes in Glib 1.120
 =================================
 
