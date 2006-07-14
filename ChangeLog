@@ -1,5 +1,9 @@
 2006-07-14	kaffeetisch
 
+	* Glib.pm, README, copyright.pod: Unstable release 1.130.
+
+2006-07-14	kaffeetisch
+
 	* MakeHelper.pm: Turn a few 'use Config's into 'require Config's.
 	Also remove some loud MSVC/nmake bashing. :-)
 

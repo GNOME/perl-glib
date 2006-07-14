@@ -1,16 +1,16 @@
 # Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
-# 
+#
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
 # Software Foundation; either version 2.1 of the License, or (at your option)
 # any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU Library General Public License for
 # more details.
-# 
+#
 # You should have received a copy of the GNU Library General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307  USA.
@@ -145,7 +145,7 @@ sub tie_properties
 	my $name;
 	foreach my $prop (@props)
 	{
-		# skip to next if it doesn't belong to this package and 
+		# skip to next if it doesn't belong to this package and
 		# they don't want everything tied
 		next if ($prop->{owner_type} ne $package and not $all);
 
@@ -153,19 +153,19 @@ sub tie_properties
 		$name =~ s/-/_/g;
 
 		carp "overwriting existing non-tied hash key $name"
-			if (exists ($self->{$name}) 
+			if (exists ($self->{$name})
 				and not tied $self->{$name});
 
 		if ($prop->{flags} >= ["readable", "writable"]) {
-                        tie $self->{$name}, 
+                        tie $self->{$name},
                                 'Glib::Object::Property::ReadWrite',
                                 $self, $name;
                 } elsif ($prop->{flags} >= "readable") {
-                        tie $self->{$name}, 
+                        tie $self->{$name},
                                 'Glib::Object::Property::Readable',
                                 $self, $name;
                 } elsif ($prop->{flags} >= "writable") {
-			tie $self->{$name}, 
+			tie $self->{$name},
 				'Glib::Object::Property::Writable',
 				$self, $name;
                 } else {
@@ -235,7 +235,7 @@ projects.
 
 =head1 DESCRIPTION
 
-This wrapper attempts to provide a perlish interface while remaining 
+This wrapper attempts to provide a perlish interface while remaining
 as true as possible to the underlying C API, so that any reference
 materials you can find on using GLib may still apply to using the
 libraries from perl.  This module also provides facilities for creating
@@ -614,7 +614,7 @@ patches and tests here and there.
 Copyright 2003-2006 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
-it under the terms of the Lesser General Public License (LGPL).  For 
+it under the terms of the Lesser General Public License (LGPL).  For
 more information, see http://www.fsf.org/licenses/lgpl.txt
 
 =cut
