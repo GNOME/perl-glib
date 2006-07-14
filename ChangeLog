@@ -1,3 +1,8 @@
+2006-07-14	kaffeetisch
+
+	* MakeHelper.pm: Turn a few 'use Config's into 'require Config's.
+	Also remove some loud MSVC/nmake bashing. :-)
+
 2006-06-20  Emmanuele Bassi  <ebassi@gmail.com>
 
 	A GBookmarkFile.xs
