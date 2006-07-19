@@ -1,3 +1,9 @@
+2006-07-19  Emmanuele Bassi  <ebassi@gmail.com>
+
+	* GObject.xs: Bind g_object_class_find_property()...
+
+	* t/4.t: ... and test it.
+
 2006-07-14	kaffeetisch
 
 	* Glib.pm, NEWS, README, copyright.pod: Unstable release 1.130.

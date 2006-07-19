@@ -4,7 +4,7 @@
 # checks order of execution of initializers and finalizers, so the code
 # gets a little hairy.
 #
-print "1..12\n";
+print "1..15\n";
 
 use strict;
 use warnings;
@@ -80,16 +80,20 @@ print "ok 10\n";
 # ensure that any properties added to the subclass were only added to
 # the subclass, and not the parent.
 #
+print "".( defined Foo->find_property('some_string') ? "ok 11" : "not ok")."\n";
+print "".(!defined Foo->find_property('number')      ? "ok 12" : "not ok")."\n";
+print "".( defined Bar->find_property('number')      ? "ok 13" : "not ok")."\n";
+
 my @fooprops = Foo->list_properties;
 my @barprops = Bar->list_properties;
 
-print "".(@fooprops == 1 ? "ok 11" : "not ok")." # property count for parent\n";
-print "".(@barprops == 2 ? "ok 12" : "not ok")." # property count for child\n";
+print "".(@fooprops == 1 ? "ok 14" : "not ok")." # property count for parent\n";
+print "".(@barprops == 2 ? "ok 15" : "not ok")." # property count for child\n";
 
 
 __END__
 
-Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under

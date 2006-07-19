@@ -1231,8 +1231,10 @@ queued "notify" signals on I<$object> to be emitted.
 =cut
 void g_object_thaw_notify (GObject * object)
 
-=for apidoc
 
+=for apidoc Glib::Object::list_properties
+=for signature list = $object_or_class_name->list_properties
+=for arg ... (__hide__)
 List all the object properties for I<$object_or_class_name>; returns them as
 a list of hashes, containing these keys:
 
@@ -1240,22 +1242,43 @@ a list of hashes, containing these keys:
 
 =item name
 
+The name of the property
+
 =item type
+
+The type of the property
 
 =item owner_type
 
+The type that owns the property
+
 =item descr
+
+The description of the property
+
+=item flags
+
+The Glib::ParamFlags of the property
 
 =back
 
 =cut
+
+=for apidoc Glib::Object::find_property
+=for signature pspec = $object_or_class_name->find_property ($name)
+=for arg name (string)
+=for arg ... (__hide__)
+Find the definition of object property I<$name> for I<$object_or_class_name>; for
+the returned data see L<Glib::Object::list_properties>.
+=cut
 void
-g_object_list_properties (object_or_class_name)
+g_object_find_property (object_or_class_name, ...)
 	SV * object_or_class_name
+    ALIAS:
+        Glib::Object::list_properties = 1
     PREINIT:
-	GType type;
-	GParamSpec ** props;
-	guint n_props = 0, i;
+	GType type = G_TYPE_INVALID;
+	gchar *name = NULL;
     PPCODE:
 	if (object_or_class_name &&
 	    SvOK (object_or_class_name) &&
@@ -1271,6 +1294,20 @@ g_object_list_properties (object_or_class_name)
 			croak ("package %s is not registered with GPerl",
 			       SvPV_nolen (object_or_class_name));
 	}
+
+	if (ix == 0 && items == 2) {
+		name = SvGChar (ST (1));
+#ifdef NOISY
+		warn ("Glib::Object::find_property ('%s', '%s')\n",
+		      g_type_name (type),
+		      name);
+#endif
+	}
+	else if (ix == 0 && items != 2)
+		croak ("Usage: Glib::Object::find_property (class, name)");
+	else if (ix == 1 && items != 1)
+		croak ("Usage: Glib::Object::list_properties (class)");
+	
 	if (G_TYPE_IS_OBJECT (type))
 	{
 		/* classes registered by perl are kept alive by the bindings.
@@ -1279,27 +1316,75 @@ g_object_list_properties (object_or_class_name)
 		 * package, the class may not exist yet.  thus, we'll have to
 		 * do an honest ref here, rather than a peek. 
 		 */
-		GObjectClass * object_class = g_type_class_ref (type);
-		props = g_object_class_list_properties (object_class, &n_props);
+		GObjectClass *object_class = g_type_class_ref (type);
+		
+		if (ix == 0) {
+			GParamSpec *pspec;
+
+			pspec = g_object_class_find_property (object_class, name);
+			if (pspec)
+				XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+			else
+				XPUSHs (newSVsv (&PL_sv_undef));
+		}
+		else if (ix == 1) {
+			GParamSpec **props;
+			guint n_props, i;
+			
+			props = g_object_class_list_properties (object_class, &n_props);
+#ifdef NOISY
+			warn ("list_properties: %d properties\n", n_props);
+#endif
+			if (n_props) {
+				EXTEND (SP, n_props);
+				
+				for (i = 0; i < n_props; i++)
+					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
+				
+				g_free (props);
+			}
+		}
+		
 		g_type_class_unref (object_class);
 	}
 #if GLIB_CHECK_VERSION(2,4,0)
 	else if (G_TYPE_IS_INTERFACE (type))
 	{
 		gpointer iface = g_type_default_interface_ref (type);
-		props = g_object_interface_list_properties (iface, &n_props);
+		
+		if (ix == 0) {
+			GParamSpec *pspec;
+
+			pspec = g_object_interface_find_property (iface, name);
+			if (pspec)
+				XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
+			else
+				XPUSHs (newSVsv (&PL_sv_undef));
+		}
+		else if (ix == 1) {
+			GParamSpec **props;
+			guint n_props, i;
+
+			props = g_object_interface_list_properties (iface, &n_props);
+#ifdef NOISY
+			warn ("list_properties: %d properties\n", n_props);
+#endif
+			if (n_props) {
+				EXTEND (SP, n_props);
+				
+				for (i = 0; i < n_props; i++)
+					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
+				
+				g_free (props);
+			}
+		}
+		
 		g_type_default_interface_unref (iface);
 	}
 #endif
-	else
+	else {
 		XSRETURN_EMPTY;
-#ifdef NOISY
-	warn ("list_properties: %d properties\n", n_props);
-#endif
-	for (i = 0; i < n_props; i++)
-		XPUSHs (sv_2mortal (newSVGParamSpec (props[i])));
-	g_free(props);
-
+	}
 
 =for apidoc
 
