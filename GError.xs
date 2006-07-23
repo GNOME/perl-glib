@@ -329,7 +329,7 @@ BOOT:
 	 * of these here.  in theory, it's possible to get any of these,
 	 * so we should define them for later use; in practice, we may
 	 * never see a few of them. */
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 	/* gbookmarkfile.h */
 	gperl_register_error_domain (G_BOOKMARK_FILE_ERROR,
 				     GPERL_TYPE_BOOKMARK_FILE_ERROR,

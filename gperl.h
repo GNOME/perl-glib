@@ -353,7 +353,7 @@ GKeyFileFlags SvGKeyFileFlags (SV * sv);
 /*
  * gbookmarkfile.h / GBookmarkFile.xs
  */
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME - 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 SV * newSVGBookmarkFile (GBookmarkFile * bookmark_file);
 GBookmarkFile * SvGBookmarkFile (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */

@@ -9,7 +9,7 @@
 G_BEGIN_DECLS
 
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME - 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 #define GPERL_TYPE_BOOKMARK_FILE_ERROR gperl_g_bookmark_file_error_get_type()
 GType gperl_g_bookmark_file_error_get_type (void);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */

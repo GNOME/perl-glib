@@ -1,3 +1,8 @@
+2006-07-23	kaffeetisch
+
+	* GError.xs, GKeyFile.xs, Glib.xs, gperl-gtypes.h, gperl-gtypes.c,
+	gperl.h: Change version checks to check for 2.12 instead of 2.11.
+
 2006-07-19  Emmanuele Bassi  <ebassi@gmail.com>
 
 	* GObject.xs: Bind g_object_class_find_property()...

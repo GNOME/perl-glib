@@ -156,7 +156,7 @@ GType gperl_g_key_file_error_get_type (void);
 
 
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME - 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 static const GEnumValue _gperl_g_bookmark_file_error_values[] = {
   { G_BOOKMARK_FILE_ERROR_INVALID_URI, "G_BOOKMARK_FILE_ERROR_INVALID_URI", "invalid-uri" },
   { G_BOOKMARK_FILE_ERROR_INVALID_VALUE, "G_BOOKMARK_FILE_ERROR_INVALID_VALUE", "invalid-value" },

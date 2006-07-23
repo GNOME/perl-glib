@@ -396,7 +396,7 @@ g_key_file_set_boolean (key_file, group_name, key, value)
 			break;
 	}
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 
 =for apidoc
 Sets a double value to $key inside $group_name.
@@ -474,7 +474,7 @@ g_key_file_get_boolean (key_file, group_name, key)
     OUTPUT:
 	RETVAL
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 
 =for apidoc __gerror__
 Retrieves a double value from $key inside $group_name.
@@ -648,7 +648,7 @@ g_key_file_get_string_list (key_file, group_name, key)
 		}
 	}
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 
 =for apidoc __gerror__
 =signature list = $key_file->get_double_list ($group_name, $key)
@@ -750,7 +750,7 @@ g_key_file_set_string_list (key_file, group_name, key, ...)
 		}
 	}
 
-#if GLIB_CHECK_VERSION (2, 11, 0) /* FIXME 2.12 */
+#if GLIB_CHECK_VERSION (2, 12, 0)
 
 =for apidoc
 =for arg ... list of doubles
