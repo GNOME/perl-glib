@@ -146,7 +146,7 @@ WriteMakefile(
     $glib ? $glib->get_makefile_vars : (),
 );
 
-#=unstable
+=unstable
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -159,26 +159,26 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 __EOW__
 
-#=cut
+=cut
 
-=frozen
+#=frozen
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
    This is an unstable development release of Glib.  The API is frozen in
-   accordance with the GNOME 2.14 schedule.  Report any bugs to gtk-perl-list
+   accordance with the GNOME 2.16 schedule.  Report any bugs to gtk-perl-list
    AT gnome DOT org as soon as possible.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 __EOW__
 
-=cut
+#=cut
 
 package MY;
 
 # rule to build the documentation
-sub postamble 
+sub postamble
 {
 	require 'MakeHelper.pm';
 	return "
@@ -200,9 +200,9 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 	       )
 	     . Glib::MakeHelper->postamble_rpms (
 			'GLIB' => $build_reqs{'Glib'},
-			'PERL_EXTUTILS_DEPENDS' => 
+			'PERL_EXTUTILS_DEPENDS' =>
 				$build_reqs{'perl-ExtUtils-Depends'},
-			'PERL_EXTUTILS_PKGCONFIG' => 
+			'PERL_EXTUTILS_PKGCONFIG' =>
 				$build_reqs{'perl-ExtUtils-PkgConfig'},
 		);
 }

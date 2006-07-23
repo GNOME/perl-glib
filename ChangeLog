@@ -1,5 +1,9 @@
 2006-07-23	kaffeetisch
 
+	* Glib.pm, Makefile.PL, NEWS, README: Unstable release 1.131.
+
+2006-07-23	kaffeetisch
+
 	* GError.xs, GKeyFile.xs, Glib.xs, gperl-gtypes.h, gperl-gtypes.c,
 	gperl.h: Change version checks to check for 2.12 instead of 2.11.
 

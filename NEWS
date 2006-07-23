@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.131
+=================================
+
+* Add Glib::Object::find_property.  [Emmanuele]
+
 Overview of changes in Glib 1.130
 =================================
 
