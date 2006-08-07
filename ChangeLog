@@ -1,5 +1,9 @@
 2006-08-07	kaffeetisch
 
+	* Glib.pm, NEWS, README: Unstable release 1.132.
+
+2006-08-07	kaffeetisch
+
 	* GKeyFile.xs, Glib.xs: Remove outdated FIXME comments.
 
 	* GMainLoop.xs (async_watcher_install): Add FIXME comment about a
