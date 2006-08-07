@@ -67,7 +67,7 @@ our $VERSION = '1.131';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
-bootstrap Glib $VERSION;
+Glib->bootstrap ($VERSION);
 
 package Glib::Flags;
 

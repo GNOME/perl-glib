@@ -808,7 +808,7 @@ gperl_get_object_check (SV * sv,
 
 Essentially the same as gperl_get_object_check().
 
-FIXME this croaks if the types aren't compatible, but it would be useful if it just return FALSE instead.
+This croaks if the types aren't compatible.
 
 =cut
 

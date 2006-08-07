@@ -1,3 +1,25 @@
+2006-08-07	kaffeetisch
+
+	* GKeyFile.xs, Glib.xs: Remove outdated FIXME comments.
+
+	* GMainLoop.xs (async_watcher_install): Add FIXME comment about a
+	leak.
+
+	* GObject.xs: Remove FIXME comment about gperl_object_check_type's
+	semantics.  We can't do anything about anymore.
+
+	* GSignal.xs (foreach_closure_matched): Fix to use guint instead
+	of int for the return type.
+
+	* Glib.pm: Don't use indirect object syntax.
+
+	* TODO: Update.
+
+	* typemap: Add custom typemaps for guchar* to avoid compiler
+	warnings.
+
+	* t/g.t: Change version checks to refer to stable releases only.
+
 2006-07-23	kaffeetisch
 
 	* Glib.pm, Makefile.PL, NEWS, README: Unstable release 1.131.

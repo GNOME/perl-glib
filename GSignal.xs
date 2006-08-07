@@ -324,7 +324,7 @@ typedef guint (*sig_match_callback) (gpointer           instance,
                                      gpointer           func,
                                      gpointer           data);
 
-static int
+static guint
 foreach_closure_matched (gpointer instance,
                          GSignalMatchType mask,
                          guint signal_id,
@@ -333,7 +333,7 @@ foreach_closure_matched (gpointer instance,
                          SV * data,
                          sig_match_callback callback)
 {
-	int n = 0;
+	guint n = 0;
 	GSList * i;
 
 	if (mask & G_SIGNAL_MATCH_CLOSURE || /* this isn't too likely */

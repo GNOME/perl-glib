@@ -285,9 +285,6 @@ g_key_file_get_keys (key_file, group_name)
 	if (err)
 		gperl_croak_gerror (NULL, err);
 	if (len != 0) {
-		/* FIXME: len seems to be set to 4 when there are only three
-		   keys.  Looks like g_key_file_get_keys counts the trailing
-		   NULL, too. */
 		for (i = 0; i < len; i++)
 			if (keys[i])
 				XPUSHs (sv_2mortal (newSVGChar (keys[i])));
@@ -469,7 +466,7 @@ g_key_file_get_boolean (key_file, group_name, key)
 		}
 		default:
 			RETVAL = NULL;
-			croak ("FIXME: something went seriously wrong in Glib::KeyFile");
+			g_assert_not_reached ();
 	}
     OUTPUT:
 	RETVAL

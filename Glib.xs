@@ -434,7 +434,6 @@ filename_to_uri (...)
 	char * hostname = NULL;
 	GError * error = NULL;
     CODE:
-	/* FIXME FIXME this is broken somehow */
 	if (items == 2) {
 		filename = SvPV_nolen (ST (0));
 		hostname = SvOK (ST (1)) ? SvPV_nolen (ST (1)) : NULL;

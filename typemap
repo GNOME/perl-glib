@@ -48,8 +48,8 @@ char_ornull *	T_CHAR_ORNULL
 char_own *	T_CHAR_OWN
 const char_ornull *	T_CHAR_ORNULL
 guchar		T_UV
-guchar *	T_PV
-const guchar *	T_PV
+guchar *	T_GUCHAR
+const guchar *	T_GUCHAR
 gfloat		T_FLOAT
 gdouble		T_DOUBLE
 gsize		T_UV
@@ -118,6 +118,9 @@ T_GCHAR_LEN
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
         XSauto_length_of_$var = STRLEN_length_of_$var;
+
+T_GUCHAR
+	$var = ($type)SvPV_nolen ($arg);
 
 T_CHAR_ORNULL
 	if ($arg && SvOK ($arg)) {
@@ -196,6 +199,9 @@ T_CHAR_ORNULL
 	} else {
 		SvSetSV ($arg, &PL_sv_undef);
 	}
+
+T_GUCHAR
+	sv_setpv ((SV*)$arg, (char*)$var);
 
 T_CHAR_OWN
 	sv_setpv ((SV*)$arg, $var);

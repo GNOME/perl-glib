@@ -103,7 +103,7 @@ SKIP: {
 
 	SKIP: {
 		skip "double stuff", 4
-			unless Glib->CHECK_VERSION (2, 11, 0); # FIXME: 2.12
+			unless Glib->CHECK_VERSION (2, 12, 0);
 
 		is($key_file->get_double('mysection', 'doublekey'), 3.1415);
 		$key_file->set_double('mysection', 'doublekey', 23.42);

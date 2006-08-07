@@ -130,6 +130,7 @@ async_watcher_install (void)
 		async_watcher_dispatch,
 		NULL
 	};
+	/* FIXME: we never unref the watcher. */
 	GSource * async_watcher =
 		g_source_new (&async_watcher_funcs, sizeof (GSource));
 	g_source_attach (async_watcher, NULL);

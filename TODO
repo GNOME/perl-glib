@@ -13,8 +13,5 @@
   - would require either iterating over the list twice or cleaning up before
     the croak.  the latter is probably the way to go.
   - there is no way to clean up if gperl_sv_from_value() fails.
-- GValue.xs may require the ability to register handlers for new fundamental
-  types, since gperl_sv_from_value and gperl_value_from_sv croak on unknown
-  or unimplemented data types.
-  - gperl_value_from_sv should change to void return since it croaks on error.
-    (can't do this without breaking ABI)
+- gperl_value_from_sv should change to void return since it croaks on error.
+  (can't do this without breaking ABI)
