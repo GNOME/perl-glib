@@ -32,7 +32,7 @@ __EOK__
 ;
 
 SKIP: {
-	skip "Glib::KeyFile is new in glib 2.6.0", 26
+	skip "Glib::KeyFile is new in glib 2.6.0", 30
 		unless Glib->CHECK_VERSION (2, 6, 0);
 
 	ok (defined Glib::KeyFile->new ());

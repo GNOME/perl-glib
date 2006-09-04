@@ -137,8 +137,12 @@ if ($^O eq 'Win32') {
 	    . " 16 # 1 sec alarm handler fires before 2 sec timeout\n";
 }
 
-print Glib::main_depth == 0 ?
-  "ok 17\n" : "not ok 17\n";
+if (Glib->CHECK_VERSION (2, 4, 0)) {
+	print Glib::main_depth == 0 ?
+	  "ok 17\n" : "not ok 17\n";
+} else {
+	print "ok 17 # skip main_depth\n";
+}
 
 print $loop->is_running ?
   "not ok 18\n" : "ok 18\n";

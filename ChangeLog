@@ -1,3 +1,10 @@
+2006-09-04	kaffeetisch
+
+	* t/9.t: Don't test Glib::main_depth on glib <= 2.4.0, where it
+	first appeared.
+
+	* t/g.t: Fix skip count.
+
 2006-08-29	kaffeetisch
 
 	* README: Add a bug reports section.
