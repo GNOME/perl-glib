@@ -1,5 +1,9 @@
 2006-09-04	kaffeetisch
 
+	* Glib.pm, Makefile.PL, NEWS, README: Stable release 1.140.
+
+2006-09-04	kaffeetisch
+
 	* t/9.t: Don't test Glib::main_depth on glib <= 2.4.0, where it
 	first appeared.
 

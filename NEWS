@@ -1,3 +1,16 @@
+Overview of changes in Glib 1.140
+=================================
+
+ Since 1.12x (the previous stable series)
+ ----------------------------------------
+  * Add accessors for double types to Glib::KeyFile.
+  * Add Glib::BookmarkFile
+  * Add Glib::Object::find_property.
+
+ Since 1.132
+ -----------
+  * Fix two test suite issues.
+
 Overview of changes in Glib 1.132
 =================================
 
