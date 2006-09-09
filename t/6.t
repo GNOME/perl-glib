@@ -43,7 +43,7 @@ sub ok {
 	my $ary = \@{"$_[0]\_ok"};
 	my $seq = $ary->[0];
 	shift @$ary;
-	print "".($condition ? "ok" : "not ok")." $seq # $_[0]\n";
+	print "".($condition ? "ok" : "not ok")." $seq - $_[0]\n";
 }
 
 sub readwrite { [qw/readable writable/] }

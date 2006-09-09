@@ -22,11 +22,11 @@ to GSignal stuff.
 my $timeout = undef;
 
 print "ok 2\n";
-Glib::Idle->add (sub {print "ok 4 # idle one-shot\n"; 0});
+Glib::Idle->add (sub {print "ok 4 - idle one-shot\n"; 0});
 Glib::Idle->add (sub {
-		 print "ok 5 # another idle, but this one dies\n";
+		 print "ok 5 - another idle, but this one dies\n";
 		 die "killer";
-		 print "not ok # after die, shouldn't get here!\n";
+		 print "not ok - after die, shouldn't get here!\n";
 		 1 # return true from idle to be called again; we
 		   # should never get here, though
 	});
@@ -39,18 +39,18 @@ my $loop = Glib::MainLoop->new;
 # the die will simply jump to the eval, leaving side effects in place.
 # we have to kill the mainloop ourselves.
 local $SIG{__DIE__} = sub {
-		print "ok 6 # in __DIE__ handler\n";
+		print "ok 6 - in __DIE__ handler\n";
 		$loop->quit;
 	};
 local $SIG{__WARN__} = sub {
 		print ""
 		    . ($_[0] =~ /unhandled exception in callback/
-		       ? "ok 7 # "
-		       : "not ok # got something unexpected in __WARN__"
+		       ? "ok 7"
+		       : "not ok - got something unexpected in __WARN__"
 		      )
 		    . "\n";
 	};
-print "ok 3 # running in eval\n";
+print "ok 3 - running in eval\n";
 $loop->run;
 # remove this timeout to avoid confusing the next test.
 Glib::Source->remove ($timeout);
@@ -59,13 +59,13 @@ Glib::Source->remove ($timeout);
 # again, without dying in an idle this time
 print "ok 8\n";
 Glib::Timeout->add (100, sub { 
-		    print "ok 10 # dying with 'waugh'\n";
+		    print "ok 10 - dying with 'waugh'\n";
 		    die "waugh"
 		    });
 my $loop = Glib::MainLoop->new;
-print "ok 9 # running in eval\n";
+print "ok 9 - running in eval\n";
 Glib->install_exception_handler (sub {
-		print "ok 11 # killing loop from exception handler\n";
+		print "ok 11 - killing loop from exception handler\n";
 		$loop->quit;
 		0});
 $loop->run;
@@ -80,9 +80,9 @@ use Data::Dumper;
 
 if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
     and not Glib->CHECK_VERSION (2,2,4)) {
-	print "not ok 12 # skip bug in glib\n";
-	print "not ok 13 # skip bug in glib\n";
-	print "not ok 14 # skip bug in glib\n";
+	print "not ok 12 - skip bug in glib\n";
+	print "not ok 13 - skip bug in glib\n";
+	print "not ok 14 - skip bug in glib\n";
 
 } else {
 	print "ok 12\n";
@@ -96,13 +96,13 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 			#print "'$_'";
 			#print "eof - ".eof ($_[0])."\n";
 			if (eof $_[0]) {
-				print "ok 14 # eof, dying with 'done\\n'\n";
+				print "ok 14 - eof, dying with 'done\\n'\n";
 				die "done\n";
 			}
 			1;
 		     });
 	$loop = Glib::MainLoop->new;
-	print "ok 13 # running in eval\n";
+	print "ok 13 - running in eval\n";
 	Glib->install_exception_handler (sub {$loop->quit; 0});
 	$loop->run;
 }
@@ -116,12 +116,12 @@ if ($^O eq 'Win32') {
 	# XXX Win32 doesn't do SIGALRM the way unix does; either the alarm
 	# doesn't interrupt the poll, or alarm just doesn't work.
 	my $reason = "async signals don't work on win32 like they do on unix";
-	print "ok 15 # skip $reason\n";
-	print "ok 16 # skip $reason\n";
+	print "ok 15 - skip $reason\n";
+	print "ok 16 - skip $reason\n";
 } else {
 	$loop = Glib::MainLoop->new;
 	$SIG{ALRM} = sub {
-		print "ok 15 # ALRM handler\n";
+		print "ok 15 - ALRM handler\n";
 		$loop->quit;
 	};
 	my $timeout_fired = 0;
@@ -134,14 +134,14 @@ if ($^O eq 'Win32') {
 	$loop->run;
 	print ""
 	    . ($timeout_fired ? "not ok" : "ok")
-	    . " 16 # 1 sec alarm handler fires before 2 sec timeout\n";
+	    . " 16 - 1 sec alarm handler fires before 2 sec timeout\n";
 }
 
 if (Glib->CHECK_VERSION (2, 4, 0)) {
 	print Glib::main_depth == 0 ?
 	  "ok 17\n" : "not ok 17\n";
 } else {
-	print "ok 17 # skip main_depth\n";
+	print "ok 17 - skip main_depth\n";
 }
 
 print $loop->is_running ?

@@ -1,3 +1,10 @@
+2006-09-09	kaffeetisch
+
+	* t/4.t, t/5.t, t/6.t, t/7.t, t/9.t: In hand-rolled test output,
+	use '-' instead of '#' as the comment designator.  In TAP (Test
+	Anything Protocol), the protocol we use, '#' is for directives and
+	'-' is for comments.
+
 2006-09-04	kaffeetisch
 
 	* Glib.pm, Makefile.PL, NEWS, README: Stable release 1.140.

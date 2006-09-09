@@ -87,8 +87,8 @@ print "".( defined Bar->find_property('number')      ? "ok 13" : "not ok")."\n";
 my @fooprops = Foo->list_properties;
 my @barprops = Bar->list_properties;
 
-print "".(@fooprops == 1 ? "ok 14" : "not ok")." # property count for parent\n";
-print "".(@barprops == 2 ? "ok 15" : "not ok")." # property count for child\n";
+print "".(@fooprops == 1 ? "ok 14" : "not ok")." - property count for parent\n";
+print "".(@barprops == 2 ? "ok 15" : "not ok")." - property count for child\n";
 
 
 __END__

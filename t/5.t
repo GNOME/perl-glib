@@ -64,7 +64,7 @@ package main;
       $my = new MyClass some_string => "foo",
                         invalid_param => 1,
 			some_string => "bar";
-      print "not ok # should not get here\n";
+      print "not ok - should not get here\n";
    };
    #print "\$@ = '$@'\n";
    print ($@ !~ /does not support property/ ? "not " : "", "ok 5\n");
@@ -72,7 +72,7 @@ package main;
       $my->set (some_string => "foo",
                 invalid_param => 1,
                 some_string => "bar");
-      print "not ok # should not get here\n";
+      print "not ok - should not get here\n";
    };
    #print "\$@ = '$@'\n";
    print ($@ !~ /does not support property/ ? "not " : "", "ok 6\n");

@@ -53,7 +53,7 @@ use Glib::Object::Subclass
           # more complicated/sophisticated value returner
           list_returner => {
              class_closure => sub {
-                       print "ok 32 # hello from the class closure\n";
+                       print "ok 32 - hello from the class closure\n";
                        -1
              },
              flags         => 'run-last',
@@ -118,15 +118,15 @@ my $b = 0;
 
 sub func_a {
 	print 0==$a++
-	       ? "ok 4 # func_a\n"
-	       : "not ok # func_a called after being removed\n";
+	       ? "ok 4 - func_a\n"
+	       : "not ok - func_a called after being removed\n";
 }
 sub func_b {
 	if (0==$b++) {
-		print "ok 5 # func_b\n";
+		print "ok 5 - func_b\n";
 		$_[0]->signal_handlers_disconnect_by_func (\&func_a);
 	} else {
-		print "ok 7 # func_b again\n";
+		print "ok 7 - func_b again\n";
 	}
 
 	$_[0]->signal_stop_emission_by_name("something_changed");
@@ -134,10 +134,10 @@ sub func_b {
 
 {
    my $my = new MyClass;
-   print "ok 2 # instantiated MyClass\n";
+   print "ok 2 - instantiated MyClass\n";
    $my->signal_connect (something_changed => \&func_a);
    my $id_b = $my->signal_connect (something_changed => \&func_b);
-   print "ok 3 # connected handlers\n";
+   print "ok 3 - connected handlers\n";
 
    $my->something_changed;
    print "ok 6\n";
@@ -156,8 +156,8 @@ sub func_b {
    # so it's a bug in the calling code, and thus we shouldn't eat it.
    eval { $my->test_marshaler (); };
    print $@ =~ m/Incorrect number/
-          ? "ok 10 # signal_emit barfs on bad input\n"
-	  : "not ok 10 # expected to croak but didn't\n";
+          ? "ok 10 - signal_emit barfs on bad input\n"
+	  : "not ok 10 - expected to croak but didn't\n";
 
    $my->test_marshaler (qw/foo bar 15/, $my);
    print "ok 11\n";
@@ -168,8 +168,8 @@ sub func_b {
 		  $_[3] == 15    && # expect an int
 		  $_[4] == $my   && # object passes unmolested
 		  $_[5][1] eq 'two' # user-data is an array ref
-		  ? "ok 13 # marshaled as expected\n"
-		  : "not ok 13 # bad params in callback\n";
+		  ? "ok 13 - marshaled as expected\n"
+		  : "not ok 13 - bad params in callback\n";
 	   return 77.1;
    	}, [qw/one two/, 3.1415]);
    print ($id ? "ok 12\n" : "not ok\n");
@@ -194,16 +194,16 @@ sub func_b {
    my $tag;
    $tag = Glib->install_exception_handler (sub {
 	   	if ($tag) {
-		   	print "ok 16 # caught exception $_[0]\n";
+		   	print "ok 16 - caught exception $_[0]\n";
 		} else {
-			print "not ok # handler didn't uninstall itself\n";
+			print "not ok - handler didn't uninstall itself\n";
 		}
 	   	0  # returning FALSE uninstalls
 	   }, [qw/foo bar/, 0]);
    print ""
        . ($tag
-          ? "ok 15 # installed exception handler with tag $tag"
-	  : "not ok 15 # got no tag back from install_exception_handler?!?")
+          ? "ok 15 - installed exception handler with tag $tag"
+	  : "not ok 15 - got no tag back from install_exception_handler?!?")
        . "\n";
 
    # the exception in the signal handler should not affect the value of
@@ -212,10 +212,10 @@ sub func_b {
    print "# before invocation: \$@ $@\n";
    $my->test_marshaler (qw/foo bar/, 4154, $my);
    print "# after invocation: \$@ $@\n";
-   print "ok 17 # still alive after an exception in a callback\n";
+   print "ok 17 - still alive after an exception in a callback\n";
    print "".($@ eq 'neener neener neener'
-	     ? 'ok 18 # $@ is preserved across signal invocations'
-	     : 'not ok # $@ not preserved correctly across signal invocation'
+	     ? 'ok 18 - $@ is preserved across signal invocations'
+	     : 'not ok - $@ not preserved correctly across signal invocation'
 	       ."\n   # expected 'neener neener neener'\n"
 	       .  "   # got '$@'\n"
 	    )."\n";
@@ -225,11 +225,11 @@ sub func_b {
    {
    local $SIG{__WARN__} = sub {
 	   if ($_[0] =~ m/unhandled/m) {
-	   	print "ok 20 # unhandled exception just warns\n"
+	   	print "ok 20 - unhandled exception just warns\n"
 	   } elsif ($_[0] =~ m/isn't numeric/m) {
-	   	print "ok 19 # string value isn't numeric\n"
+	   	print "ok 19 - string value isn't numeric\n"
 	   } else {
-		print "not ok # got something unexpected in __WARN__: $_[0]\n";
+		print "not ok - got something unexpected in __WARN__: $_[0]\n";
 	   }
 	};
    $my->test_marshaler (qw/foo bar baz/, $my);
@@ -243,7 +243,7 @@ sub func_b {
    print "ok 22\n";
    my $ret = $my->returner;
    # we should have the return value from the last handler
-   print $ret == 42.0 ? "ok 26\n" : "not ok # expected 42.0, got $ret\n";
+   print $ret == 42.0 ? "ok 26\n" : "not ok - expected 42.0, got $ret\n";
 
    # now with our special accumulator
    $my->signal_connect (list_returner => sub { print "ok 28\n"; 10 });
@@ -252,9 +252,9 @@ sub func_b {
    $my->signal_connect (list_returner => sub { print "ok 31\n"; {thing => 25} });
    # class closure should before the "connect_after" ones,
    # and this one will stop everything by returning the magic value.
-   $my->signal_connect_after (list_returner => sub { print "ok 33 # stopper\n"; 42 });
+   $my->signal_connect_after (list_returner => sub { print "ok 33 - stopper\n"; 42 });
    # if this one is called, the accumulator isn't working right
-   $my->signal_connect_after (list_returner => sub { print "not ok # shouldn't get here\n"; 0 });
+   $my->signal_connect_after (list_returner => sub { print "not ok - shouldn't get here\n"; 0 });
    print "ok 27\n";
    print Dumper( $my->list_returner );
 }
