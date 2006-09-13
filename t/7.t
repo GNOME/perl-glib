@@ -19,11 +19,36 @@ my apologies for the extreme density and ugliness of this code.
 
 =cut
 
+use Test::More import => ['diag'];
+
 print "1..34\n";
+
+sub ok($$;$) {
+    my($test, $num, $name) = @_;
+
+    my $out = $test ? "ok" : "not ok";
+    $out .= " $num" if $num;
+    $out .= " - $name" if defined $name;
+
+    print "$out\n";
+
+    return $test;
+}
+
+sub pass($;$) {
+    my($num, $name) = @_;
+    return ok(1, $num, $name);
+}
+
+sub fail(;$) {
+    my($name) = @_;
+    return ok(0, 0, $name);
+}
+
 
 use Glib;
 
-print "ok 1\n";
+pass(1, 'Glib compiled');
 
 package MyClass;
 
@@ -53,7 +78,7 @@ use Glib::Object::Subclass
           # more complicated/sophisticated value returner
           list_returner => {
              class_closure => sub {
-                       print "ok 32 - hello from the class closure\n";
+                       ::pass(32, "hello from the class closure");
                        -1
              },
              flags         => 'run-last',
@@ -101,7 +126,7 @@ sub do_emit {
 }
 
 sub do_returner {
-	print "ok 24\n";
+	::pass(24);
 	-1.5;
 }
 
@@ -117,16 +142,14 @@ my $a = 0;
 my $b = 0;
 
 sub func_a {
-	print 0==$a++
-	       ? "ok 4 - func_a\n"
-	       : "not ok - func_a called after being removed\n";
+        ok(0==$a++, 4, "func_a");
 }
 sub func_b {
 	if (0==$b++) {
-		print "ok 5 - func_b\n";
+		pass(5, "func_b");
 		$_[0]->signal_handlers_disconnect_by_func (\&func_a);
 	} else {
-		print "ok 7 - func_b again\n";
+	        pass(7, "func_b again");
 	}
 
 	$_[0]->signal_stop_emission_by_name("something_changed");
@@ -134,19 +157,19 @@ sub func_b {
 
 {
    my $my = new MyClass;
-   print "ok 2 - instantiated MyClass\n";
+   pass(2, "instantiated MyClass");
    $my->signal_connect (something_changed => \&func_a);
    my $id_b = $my->signal_connect (something_changed => \&func_b);
-   print "ok 3 - connected handlers\n";
+   pass(3, "connected handlers");
 
    $my->something_changed;
-   print "ok 6\n";
+   pass(6);
    $my->something_changed;
-   print "ok 8\n";
+   pass(8);
 
    $my->signal_handler_block ($id_b);
    $my->signal_handler_unblock ($id_b);
-   print "".($my->signal_handler_is_connected ($id_b) ? "ok" : "not ok"). " 9\n";
+   ok($my->signal_handler_is_connected ($id_b), 9);
 
    $my->signal_handler_disconnect ($id_b);
    $my->something_changed;
@@ -155,26 +178,26 @@ sub func_b {
    # this is part of the emission process going wrong, not a handler,
    # so it's a bug in the calling code, and thus we shouldn't eat it.
    eval { $my->test_marshaler (); };
-   print $@ =~ m/Incorrect number/
-          ? "ok 10 - signal_emit barfs on bad input\n"
-	  : "not ok 10 - expected to croak but didn't\n";
+   ok( $@ =~ m/Incorrect number/, 10, "signal_emit barfs on bad input" );
 
    $my->test_marshaler (qw/foo bar 15/, $my);
-   print "ok 11\n";
+   pass(11);
    my $id = $my->signal_connect (test_marshaler => sub {
-	   print $_[0] == $my   &&
-	          $_[1] eq 'foo' &&
-		  $_[2]          && # string bar is true
-		  $_[3] == 15    && # expect an int
-		  $_[4] == $my   && # object passes unmolested
-		  $_[5][1] eq 'two' # user-data is an array ref
-		  ? "ok 13 - marshaled as expected\n"
-		  : "not ok 13 - bad params in callback\n";
+	   ok( $_[0] == $my   &&
+	       $_[1] eq 'foo' &&
+	       $_[2]          && # string bar is true
+	       $_[3] == 15    && # expect an int
+	       $_[4] == $my   && # object passes unmolested
+	       $_[5][1] eq 'two' # user-data is an array ref
+               ,
+	       13,
+               "marshalling"
+           );
 	   return 77.1;
    	}, [qw/one two/, 3.1415]);
-   print ($id ? "ok 12\n" : "not ok\n");
+   ok($id, 12);
    $my->test_marshaler (qw/foo bar/, 15, $my);
-   print "ok 14\n";
+   pass(14);
 
    $my->signal_handler_disconnect ($id);
 
@@ -193,18 +216,10 @@ sub func_b {
 
    my $tag;
    $tag = Glib->install_exception_handler (sub {
-	   	if ($tag) {
-		   	print "ok 16 - caught exception $_[0]\n";
-		} else {
-			print "not ok - handler didn't uninstall itself\n";
-		}
+                ok( $tag, 16, "exception_handler" );
 	   	0  # returning FALSE uninstalls
 	   }, [qw/foo bar/, 0]);
-   print ""
-       . ($tag
-          ? "ok 15 - installed exception handler with tag $tag"
-	  : "not ok 15 - got no tag back from install_exception_handler?!?")
-       . "\n";
+   ok($tag, 15, "installed exception handler");
 
    # the exception in the signal handler should not affect the value of
    # $@ at this code layer.
@@ -212,54 +227,51 @@ sub func_b {
    print "# before invocation: \$@ $@\n";
    $my->test_marshaler (qw/foo bar/, 4154, $my);
    print "# after invocation: \$@ $@\n";
-   print "ok 17 - still alive after an exception in a callback\n";
-   print "".($@ eq 'neener neener neener'
-	     ? 'ok 18 - $@ is preserved across signal invocations'
-	     : 'not ok - $@ not preserved correctly across signal invocation'
-	       ."\n   # expected 'neener neener neener'\n"
-	       .  "   # got '$@'\n"
-	    )."\n";
+   pass(17, "still alive after an exception in a callback");
+   ok($@ eq 'neener neener neener', 18, "$@ is preserved across signals") ||
+        diag "# expected 'neener neener neener'\n",
+	     "   # got '$@'";
    $tag = 0;
 
    # that was a single-shot -- the exception handler shouldn't run again.
    {
    local $SIG{__WARN__} = sub {
 	   if ($_[0] =~ m/unhandled/m) {
-	   	print "ok 20 - unhandled exception just warns\n"
+	   	pass(20, "unhandled exception just warns");
 	   } elsif ($_[0] =~ m/isn't numeric/m) {
-	   	print "ok 19 - string value isn't numeric\n"
+	   	pass(19, "string value isn't numeric");
 	   } else {
-		print "not ok - got something unexpected in __WARN__: $_[0]\n";
+		fail("got something unexpected in __WARN__: $_[0]\n");
 	   }
 	};
    $my->test_marshaler (qw/foo bar baz/, $my);
-   print "ok 21\n";
+   pass(21);
    }
 
    use Data::Dumper;
-   $my->signal_connect (returner => sub { print "ok 23\n"; 0.5 });
+   $my->signal_connect (returner => sub { pass(23); 0.5 });
    # the class closure should be called in between these two
-   $my->signal_connect_after (returner => sub { print "ok 25\n"; 42.0 });
-   print "ok 22\n";
+   $my->signal_connect_after (returner => sub { pass(25); 42.0 });
+   pass(22);
    my $ret = $my->returner;
    # we should have the return value from the last handler
-   print $ret == 42.0 ? "ok 26\n" : "not ok - expected 42.0, got $ret\n";
+   ok( $ret == 42.0, 26 ) || diag("expected 42.0, got $ret");
 
    # now with our special accumulator
-   $my->signal_connect (list_returner => sub { print "ok 28\n"; 10 });
-   $my->signal_connect (list_returner => sub { print "ok 29\n"; '15' });
-   $my->signal_connect (list_returner => sub { print "ok 30\n"; [20] });
-   $my->signal_connect (list_returner => sub { print "ok 31\n"; {thing => 25} });
+   $my->signal_connect (list_returner => sub { pass(28); 10 });
+   $my->signal_connect (list_returner => sub { pass(29); '15' });
+   $my->signal_connect (list_returner => sub { pass(30); [20] });
+   $my->signal_connect (list_returner => sub { pass(31); {thing => 25} });
    # class closure should before the "connect_after" ones,
    # and this one will stop everything by returning the magic value.
-   $my->signal_connect_after (list_returner => sub { print "ok 33 - stopper\n"; 42 });
+   $my->signal_connect_after (list_returner => sub { pass(33, "stopper"); 42 });
    # if this one is called, the accumulator isn't working right
-   $my->signal_connect_after (list_returner => sub { print "not ok - shouldn't get here\n"; 0 });
-   print "ok 27\n";
+   $my->signal_connect_after (list_returner => sub { fail("shouldn't get here"); 0 });
+   pass(27);
    print Dumper( $my->list_returner );
 }
 
-print "ok 34\n";
+pass(34);
 
 
 

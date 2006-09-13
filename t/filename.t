@@ -51,8 +51,6 @@ SKIP: {
 
 	# should not fail even on invalid stuff
 	my $something = "/tmp/test\x{fe}\x{03}invalid";
-	print "name: ".Glib::filename_display_name ($something)."\n";
-	print "basename: ".Glib::filename_display_basename ($something)."\n";
 	ok (Glib::filename_display_name ($something));
 	ok (Glib::filename_display_basename ($something));
 }

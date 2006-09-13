@@ -690,13 +690,19 @@ C<SvIV> instead.
 
 =cut
 
+#if defined (_WIN32) || defined (WIN32)
+# define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
+#else
+# define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
+#endif
+
 gint64
 SvGInt64 (SV *sv)
 {
 #ifdef USE_64_BIT_ALL
 	return SvIV (sv);
 #else
-	return strtoll (SvPV_nolen (sv), NULL, 10);
+	return PORTABLE_STRTOLL (SvPV_nolen (sv), NULL, 10);
 #endif
 }
 
@@ -732,13 +738,19 @@ uses C<SvUV> instead.
 
 =cut
 
+#if defined (_WIN32) || defined (WIN32)
+# define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
+#else
+# define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)
+#endif
+
 guint64
 SvGUInt64 (SV *sv)
 {
 #ifdef USE_64_BIT_ALL
 	return SvUV (sv);
 #else
-	return strtoull (SvPV_nolen (sv), NULL, 10);
+	return PORTABLE_STRTOULL (SvPV_nolen (sv), NULL, 10);
 #endif
 }
 

@@ -444,7 +444,9 @@ SV *
 gperl_new_boxed_copy (gpointer boxed,
                       GType gtype)
 {
-	return gperl_new_boxed (g_boxed_copy (gtype, boxed), gtype, TRUE);
+	return boxed
+		? gperl_new_boxed (g_boxed_copy (gtype, boxed), gtype, TRUE)
+		: &PL_sv_undef;
 }
 
 

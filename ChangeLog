@@ -1,3 +1,19 @@
+2006-09-13	kaffeetisch
+
+	* GBoxed.xs (gperl_new_boxed_copy): Check for NULL before passing
+	the boxed pointer to g_boxed_copy.
+
+	* GType.xs: Add macros, PORTABLE_STRTOLL and PORTABLE_STRTOULL, to
+	centralize the preprocessor madness for 64bit integer support.  On
+	win32, which apparently lacks strtoll or similar, use strtol and
+	strtoul for now to make it at least compile.
+
+	* t/7.t: Apply a patch from Michael G Schwern that introduces
+	helper functions which make this complicated test easier to read.
+
+	* t/filename.t: Remove two debug prints that were causing perl
+	warnings.
+
 2006-09-09	kaffeetisch
 
 	* t/4.t, t/5.t, t/6.t, t/7.t, t/9.t: In hand-rolled test output,
