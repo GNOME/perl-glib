@@ -1,3 +1,8 @@
+2006-10-03	kaffeetisch
+
+	* CodeGen.pm, GenPod.pm, ParseXSDoc.pm: Fix POD errors.  (Mainly
+	=cut's not followed by a blank line.)
+
 2006-09-13	kaffeetisch
 
 	* GBoxed.xs (gperl_new_boxed_copy): Check for NULL before passing
