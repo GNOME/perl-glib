@@ -134,6 +134,7 @@ our $verbose = undef;
 Create a new xsub parser.
 
 =cut
+
 sub new {
 	my $class = shift;
 	return bless {
@@ -153,6 +154,7 @@ Get the current package name.  Falls back to the module name.  Will be undef
 if the parser hasn't reached the first MODULE line.
 
 =cut
+
 sub package {
 		my $self = shift;
 		return ($self->{package} || $self->{module})
@@ -166,6 +168,7 @@ Returns a reference to the member of the main data structure, so modifications
 are permanent and useful.
 
 =cut
+
 sub pkgdata {
 		my $self = shift;
 		my $pkg = $self->{object} || $self->package;
@@ -184,6 +187,7 @@ Parse one xs file.  Stores all the collected data in I<$parser>'s internal
 data structures.
 
 =cut
+
 sub parse_file {
 	my $self = shift;
 	my $filename = shift;
@@ -358,6 +362,7 @@ sub parse_file {
 Match C<=for apidoc> pods to xsubs.
 
 =cut
+
 sub swizzle_pods {
 	my $self = shift;
 	foreach my $package (keys %{$self->{data}}) {
@@ -395,6 +400,7 @@ the line, e.g.:
   =for apidoc __function__            for functions rather than methods
 
 =cut
+
 sub preprocess_pods {
 	my $self = shift;
 	foreach my $package (keys %{$self->{data}}) {
@@ -433,6 +439,7 @@ true after setting the I<$parser>'s I<module>, I<package>, and I<prefix>
 accordingly.
 
 =cut
+
 sub is_module_line {
 	my $self = shift;
 	my $l = shift;
@@ -459,6 +466,7 @@ line to determine that we needed to start a pod, you can pass
 that first line to be included.
 
 =cut
+
 sub slurp_pod_paragraph {
 	my $parser     = shift;
 	my $firstline  = shift;
@@ -507,6 +515,7 @@ reference form is preferred, to avoid duplicating a potentially large list
 of strings.
 
 =cut
+
 sub parse_xsub {
 	my ($self, @thisxsub) = @_;
 

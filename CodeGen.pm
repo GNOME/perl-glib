@@ -156,6 +156,7 @@ Also, since this code scans for ^MODULE, you must comment the MODULE section
 out with leading # marks if you want to hide it from C<write_boot>.
 
 =cut
+
 sub write_boot {
 	my $class = shift;
 	my %opts = (
@@ -254,8 +255,9 @@ meanings:
                    class name should be mapped, e.g.,
                    Gtk2::Gdk::Pixbuf::Error.
 
-=cut
+=back
 
+=cut
 
 # when we parse the maps, type handlers will call several helper functions
 # to add header lines, typemaps, and boot lines.  we store those here.
