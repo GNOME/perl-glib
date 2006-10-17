@@ -19,19 +19,13 @@
  * $Header$
  */
 
+#include "gperl.h"
+
 =head2 Miscellaneous
 
 Various useful utilities defined in Glib.xs.
 
 =over
-
-=cut
-
-
-#include "gperl.h"
-
-#include "ppport.h"
-
 
 =item GPERL_CALL_BOOT(name)
 

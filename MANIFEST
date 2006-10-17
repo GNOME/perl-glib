@@ -39,7 +39,6 @@ gperl-private.h
 gperl.h
 gperl_marshal.h
 perl-Glib.spec.in
-ppport.h
 t/1.t
 t/2.t
 t/3.t

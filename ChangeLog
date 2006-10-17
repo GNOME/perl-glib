@@ -1,3 +1,8 @@
+2006-10-17	kaffeetisch
+
+	* Glib.xs, MANIFEST, ppport.h: Get rid of ppport.h, we don't seem
+	to need it.
+
 2006-10-03	kaffeetisch
 
 	* CodeGen.pm, GenPod.pm, ParseXSDoc.pm: Fix POD errors.  (Mainly
