@@ -32,7 +32,7 @@ newSVGBookmarkFile (GBookmarkFile * bookmark_file)
 
 	/* wrap it, bless it, ship it. */
 	sv = newRV_noinc ((SV *) bookmark);
-	
+
 	stash = gv_stashpv ("Glib::BookmarkFile", TRUE);
 	sv_bless (sv, stash);
 
@@ -68,7 +68,7 @@ MODULE = Glib::BookmarkFile	PACKAGE = Glib::BookmarkFile	PREFIX = g_bookmark_fil
   if ($b->has_item($uri)) {
   	$title = $b->get_title($uri);
 	$desc  = $b->get_description($uri);
-	
+
 	print "Bookmark for `$uri' ($title):\n";
 	print "  $desc\n";
   }
@@ -78,8 +78,7 @@ MODULE = Glib::BookmarkFile	PACKAGE = Glib::BookmarkFile	PREFIX = g_bookmark_fil
   <?xml version="1.0" encoding="UTF-8"?>
   <xbel version="1.0"
         xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks"
-        xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info"
->
+        xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info">
     <bookmark href="file:///tmp/test-file.txt" added="2006-03-22T18:54:00Z" modified="2006-03-22T18:54:00Z" visited="2006-03-22T18:54:00Z">
       <title>Test File</title>
       <desc>Some test file</desc>
@@ -93,7 +92,7 @@ MODULE = Glib::BookmarkFile	PACKAGE = Glib::BookmarkFile	PREFIX = g_bookmark_fil
       </info>
     </bookmark>
   </xbel>
-  
+
 =for position DESCRIPTION
 
 =head1 DESCRIPTION
@@ -220,7 +219,6 @@ gboolean
 g_bookmark_file_has_item (GBookmarkFile *bookmark_file, const gchar *uri)
 
 =for apidoc __gerror__
-=signature boolean = $bookmark_file->remove_item ($uri)
 Removes the bookmark for $uri from the bookmark file.
 =cut
 void

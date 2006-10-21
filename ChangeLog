@@ -1,3 +1,8 @@
+2006-10-21	kaffeetisch
+
+	* GBookmarkFile.xs: Remove a custom "=for signature" directive
+	that incorrectly specified a boolean return value for remove_item.
+
 2006-10-17	kaffeetisch
 
 	* Glib.xs, MANIFEST, ppport.h: Get rid of ppport.h, we don't seem
