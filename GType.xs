@@ -690,7 +690,7 @@ C<SvIV> instead.
 
 =cut
 
-#if defined (_WIN32) || defined (WIN32)
+#ifdef G_OS_WIN32
 # define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
 #else
 # define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
@@ -738,7 +738,7 @@ uses C<SvUV> instead.
 
 =cut
 
-#if defined (_WIN32) || defined (WIN32)
+#ifdef G_OS_WIN32
 # define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
 #else
 # define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)

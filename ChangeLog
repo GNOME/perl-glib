@@ -1,3 +1,7 @@
+2006-11-05	kaffeetisch
+
+	* GType.xs, gperl.h: Use G_OS_WIN32 instead of WIN32 or _WIN32.
+
 2006-10-21	kaffeetisch
 
 	* GBookmarkFile.xs: Remove a custom "=for signature" directive
