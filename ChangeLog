@@ -1,3 +1,12 @@
+2006-11-19	kaffeetisch
+
+	Merge from HEAD:
+
+	* GBookmarkFile.xs: Remove a custom "=for signature" directive
+	that incorrectly specified a boolean return value for remove_item.
+
+	* GType.xs, gperl.h: Use G_OS_WIN32 instead of WIN32 or _WIN32.
+
 2006-10-03	kaffeetisch
 
 	* CodeGen.pm, GenPod.pm, ParseXSDoc.pm: Fix POD errors.  (Mainly
