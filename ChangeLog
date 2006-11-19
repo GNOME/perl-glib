@@ -1,5 +1,9 @@
 2006-11-19	kaffeetisch
 
+	* Glib.pm, NEWS, README: Stable release 1.141.
+
+2006-11-19	kaffeetisch
+
 	Merge from HEAD:
 
 	* GBookmarkFile.xs: Remove a custom "=for signature" directive

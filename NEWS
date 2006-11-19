@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.141
+=================================
+
+* Fix a compilation problem on Win32.  [Torsten]
+* Fix some POD errors.  [Torsten]
+* Fix a few test suite issues.  [Torsten]
+
 Overview of changes in Glib 1.140
 =================================
 
