@@ -690,8 +690,16 @@ C<SvIV> instead.
 
 =cut
 
-#ifdef G_OS_WIN32
-# define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
+#ifdef _MSC_VER
+# include <stdlib.h>
+#endif
+
+#ifdef WIN32
+# ifdef _MSC_VER
+#  define PORTABLE_STRTOLL(str, end, base) _strtoi64 (str, end, base)
+# else
+#  define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
+# endif
 #else
 # define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
 #endif
@@ -738,8 +746,12 @@ uses C<SvUV> instead.
 
 =cut
 
-#ifdef G_OS_WIN32
-# define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
+#ifdef WIN32
+# ifdef _MSC_VER
+#  define PORTABLE_STRTOULL(str, end, base) _strtoui64 (str, end, base)
+# else
+#  define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
+# endif
 #else
 # define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)
 #endif
