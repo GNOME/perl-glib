@@ -1,3 +1,14 @@
+2006-11-23	kaffeetisch
+
+	Merge from HEAD:
+
+	* GType.xs, gperl.h: Revert the G_OS_WIN32 change and just use
+	WIN32 instead.  G_OS_WIN32 doesn't seem to be defined on most
+	win32 boxes.
+
+	* AUTHORS, GType.xs: Use _strtoi64 and and _strtoui64 on win32 if
+	compiling with MSVC; patch from Serguei Trouchelle.
+
 2006-11-19	kaffeetisch
 
 	* Glib.pm, NEWS, README: Stable release 1.141.
