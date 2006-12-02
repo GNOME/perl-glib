@@ -63,7 +63,7 @@ if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.6.0')) {
 	push @xs_files, 'GKeyFile.xs';
 }
 
-if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.11.0')) {
+if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.12.0')) {
 	push @xs_files, 'GBookmarkFile.xs';
 }
 
