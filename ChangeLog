@@ -1,3 +1,10 @@
+2006-12-30	kaffeetisch
+
+	Merge from HEAD:
+
+	* Glib.xs: Call g_threads_init before g_type_init.  Required (and
+	probably enforced in the near future) by recent glib versions.
+
 2006-12-04	kaffeetisch
 
 	* Glib.pm, NEWS, README: Stable release 1.142.
