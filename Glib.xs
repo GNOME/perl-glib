@@ -324,12 +324,12 @@ _gperl_get_master_interp (void)
 MODULE = Glib		PACKAGE = Glib		PREFIX = g_
 
 BOOT:
-	g_type_init ();
 #if defined(G_THREADS_ENABLED) && !defined(GPERL_DISABLE_THREADSAFE)
 	/*warn ("calling g_thread_init (NULL)");*/
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 #endif
+	g_type_init ();
 	_gperl_set_master_interp (PERL_GET_INTERP);
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
