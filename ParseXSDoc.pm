@@ -13,7 +13,7 @@ our @EXPORT = qw(
 	xsdocparse
 );
 
-our $VERSION = '1.002';
+our $VERSION = '1.003';
 
 our $NOISY = $ENV{NOISYDOC};
 
@@ -316,6 +316,9 @@ sub parse_file {
 				push @{ $self->pkgdata->{see_alsos} }, $1;
 				# claim this pod now!
 				$lastpod = undef;
+			} elsif (/^=for\s+deprecated_by\s+([\w:]+)$/) {
+				push @{ $self->pkgdata->{deprecated_bys} }, $1;
+				$lastpod = undef;
 			}
 			push @{ $self->pkgdata->{pods} }, $lastpod
 				if defined $lastpod;
@@ -423,6 +426,7 @@ sub preprocess_pods {
 			if ($firstline) {
 				$_->{function} = ($firstline =~ /__function__/);
 				$_->{hidden} = ($firstline =~ /__hide__/);
+				$_->{deprecated} = ($firstline =~ /__deprecated__/);
 				$_->{gerror} = ($firstline =~ /__gerror__/);
 			}
 		}

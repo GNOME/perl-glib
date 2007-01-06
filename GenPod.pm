@@ -9,7 +9,7 @@
 
 package Glib::GenPod;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use warnings;
@@ -32,6 +32,7 @@ our @EXPORT = qw(
 	podify_interfaces
 	podify_methods
 	podify_enums_and_flags
+	podify_deprecated_by
 );
 
 our $COPYRIGHT = undef;
@@ -104,6 +105,12 @@ This causes xsdoc2pod to call C<podify_values> on I<Package::Name> when
 writing the pod for the current package (as set by an object directive or
 MODULE line).  Any text in this paragraph, to the next C<=cut>, is included
 in that section.
+
+=item =for deprecated_by Package::Name
+
+Used to add a deprecation warning, indicating I<Package::Name> as an
+alternative way to achieve the same functionality.  There may be any number
+these in each package.
 
 =item =for see_also L<some_thing_to_see>
 
@@ -178,6 +185,11 @@ This function or method can generate a Glib::Error exception.
 
 Generate a function-style signature for this xsub.  The default is to
 generate method-style signatures.
+
+=item - __deprecated__
+
+This function or method is deprecated and should not be used in newly written
+code.
 
 =back
 
@@ -296,6 +308,9 @@ sub xsdoc2pod
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_enums');
 		print "$ret\n\n" if ($ret);
+
+		$ret = podify_deprecated_by ($package, @{ $pkgdata->{deprecated_bys} });
+		print "\n=head1 DEPRECATION WARNING\n\n$ret" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'SEE_ALSO');
 		if ($ret)
@@ -531,6 +546,39 @@ sub podify_signals {
 	$str .= "=back\n\n";
     };
     return $str
+}
+
+=item $string = podify_deprecated_by ($packagename, @deprecated_by)
+
+Creates a deprecation warning for $packagename, suggesting using the items
+inside @deprecated_by instead.
+
+=cut
+
+sub podify_deprecated_by
+{
+	my $package       = shift;
+	my @deprecated_by = @_;
+
+	my $str = "$package has been marked as deprecated, and should not be "
+	        . "used in newly written code.\n\n";
+
+	return $str unless scalar @deprecated_by;
+
+	# create the deprecated for list
+	$str .= "You should use "
+	      . join (', ',
+	              map {
+		      	if (/^\s*L</) {
+					$_;
+				}
+				else {
+					"L<$_>";
+				}
+				  } @deprecated_by)
+	      . " instead of $package.\n";
+
+	return $str;
 }
 
 sub podify_enums_and_flags
@@ -1138,6 +1186,9 @@ sub xsub_to_pod {
 
 	$str .= "May croak with a L<Glib::Error> in \$@ on failure.\n\n"
 		if ($xsub->{gerror});
+
+    $str .= "This method is deprecated and should not be used in newly written code.\n\n"
+        if ($xsub->{deprecated});
 
 	$str .= "=back\n\n";
 
