@@ -246,7 +246,6 @@ sub xsdoc2pod
 
 		open POD, ">$pod" or die "can't open $pod for writing: $!\n";
 		select POD;
-		print STDERR "podifying $pod\n";
 
 		$package = $pkgdata->{object} if (exists $pkgdata->{object});
 
@@ -285,6 +284,9 @@ sub xsdoc2pod
 		$ret = podify_pods ($pkgdata->{pods});
 		print "$ret\n\n" if ($ret);
 
+		$ret = podify_deprecated_by ($package, @{ $pkgdata->{deprecated_bys} });
+		print "\n=head1 DEPRECATION WARNING\n\n$ret" if ($ret);
+
 		$ret = podify_methods ($package, $pkgdata->{xsubs});
 		print "\n=head1 METHODS\n\n$ret" if ($ret);
 		
@@ -308,9 +310,6 @@ sub xsdoc2pod
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_enums');
 		print "$ret\n\n" if ($ret);
-
-		$ret = podify_deprecated_by ($package, @{ $pkgdata->{deprecated_bys} });
-		print "\n=head1 DEPRECATION WARNING\n\n$ret" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'SEE_ALSO');
 		if ($ret)
@@ -560,10 +559,10 @@ sub podify_deprecated_by
 	my $package       = shift;
 	my @deprecated_by = @_;
 
+	return undef unless scalar @deprecated_by;
+
 	my $str = "$package has been marked as deprecated, and should not be "
 	        . "used in newly written code.\n\n";
-
-	return $str unless scalar @deprecated_by;
 
 	# create the deprecated for list
 	$str .= "You should use "
