@@ -1,3 +1,17 @@
+Overview of changes in Glib 1.150
+=================================
+
+* Make it possible to mark objects and methods as deprecated with
+  Glib::ParseXSDoc and Glib::GenPod.  [Emmanuele]
+
+Overview of changes in Glib 1.142
+=================================
+
+* Switch back to WIN32 instead of G_OS_WIN32 to avoid compilation problems.
+  [Torsten]
+* Use _strtoi64 and _strtoui64 on Win32 for large integer conversion.
+  [Serguei Trouchelle]
+
 Overview of changes in Glib 1.141
 =================================
 

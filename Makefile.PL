@@ -146,7 +146,7 @@ WriteMakefile(
     $glib ? $glib->get_makefile_vars : (),
 );
 
-=unstable
+#=unstable
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -154,12 +154,12 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
    This is an unstable development release of Glib.  The API is not
    frozen and things are subject to change at any time.  Report any
    bugs to gtk-perl-list AT gnome DOT org as soon as possible.
-   Please use the 1.12x series for important work.
+   Please use the 1.14x series for important work.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 __EOW__
 
-=cut
+#=cut
 
 =frozen
 

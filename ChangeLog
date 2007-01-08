@@ -1,3 +1,8 @@
+2007-01-08	kaffeetisch
+
+	* Glib.pm, Makefile.PL, NEWS, README, copyright.pod: Unstable
+	release 1.150.
+
 2007-01-07	kaffeetisch
 
 	* GenPod.pm: Only mark those objects as deprecated that have a
@@ -9,7 +14,7 @@
 2007-01-06  Emmanuele Bassi  <ebassi@gnome.org>
 
 	* ParseXSDoc.pm:
-	* GenPod.pm: Add a "deprecated_for" key to the apidoc parser;
+	* GenPod.pm: Add a "deprecated_by" key to the apidoc parser;
 	you should use this to mark an object deprecated in favour of
 	another.  Also add a __deprecated__ marker for functions and
 	methods.
