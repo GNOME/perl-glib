@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.143
+=================================
+
+* Call g_threads_init before g_type_init.  [Torsten]
+
 Overview of changes in Glib 1.142
 =================================
 
