@@ -1,3 +1,8 @@
+2007-02-24	kaffeetisch
+
+	* MakeHelper.pm: Use BSD make syntax for the BLIB_DONE stuff on
+	BSD systems, unless the environment variable FORCE_GMAKE is set.
+
 2007-01-08	kaffeetisch
 
 	* Glib.pm, Makefile.PL, NEWS, README, copyright.pod: Unstable
