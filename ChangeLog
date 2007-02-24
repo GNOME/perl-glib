@@ -1,3 +1,10 @@
+2007-02-24	kaffeetisch
+
+	Merge from HEAD:
+
+	* MakeHelper.pm: Use BSD make syntax for the BLIB_DONE stuff on
+	BSD systems, unless the environment variable FORCE_GMAKE is set.
+
 2007-02-11	kaffeetisch
 
 	* Glib.pm, NEWS, README, copyright.pod: Stable release 1.143.

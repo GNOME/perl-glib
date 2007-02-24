@@ -374,8 +374,12 @@ sub postamble_docs_full {
 	# lib file to be created. the following trick is intended to handle
 	# both of those cases without causing the other to happen.
 	my $blib_done;
+
 	# this is very sloppy, because different makes have different
-	# conditional syntaxes.
+	# conditional syntaxes.  we support three brands: nmake, BSD make, and
+	# GNU make.  On Windows, we use nmake.  On BSD we use BSD make unless
+	# the environment variable FORCE_GMAKE is set, in which case we use
+	# gmake.  Everywhere else, we use gmake.
 	require Config;
 	if ($Config::Config{make} eq 'nmake') {
 		$blib_done = "
@@ -384,6 +388,15 @@ BLIB_DONE=\$(INST_DYNAMIC)
 !ELSE
 BLIB_DONE=\$(INST_STATIC)
 !ENDIF
+";
+	} elsif ($^O =~ m{^(freebsd|netbsd|openbsd)$}i && !$ENV{FORCE_GMAKE}) {
+		warn "Defaulting to BSD make; set FORCE_GMAKE if you want GNU make\n";
+		$blib_done = "
+.if \$(LINKTYPE) == dynamic
+BLIB_DONE=\$(INST_DYNAMIC)
+.else
+BLIB_DONE=\$(INST_STATIC)
+.endif
 ";
 	} else {
 		# assuming GNU Make
