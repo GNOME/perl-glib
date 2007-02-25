@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.144
+=================================
+
+* Use BSD make syntax on BSD systems by default.  [Slaven Rezic, Torsten]
+
 Overview of changes in Glib 1.143
 =================================
 
