@@ -3,8 +3,10 @@
 #
 use strict;
 use warnings;
+use Cwd qw(cwd);
+use File::Spec; # for catfile()
 use Glib ':constants';
-use Test::More tests => 30;
+use Test::More tests => 33;
 
 my $str = <<__EOK__
 #top of the file
@@ -32,7 +34,7 @@ __EOK__
 ;
 
 SKIP: {
-	skip "Glib::KeyFile is new in glib 2.6.0", 30
+	skip "Glib::KeyFile is new in glib 2.6.0", 33
 		unless Glib->CHECK_VERSION (2, 6, 0);
 
 	ok (defined Glib::KeyFile->new ());
@@ -125,6 +127,28 @@ SKIP: {
 	is($key_file->to_data(), "");
 
 	$key_file->set_list_separator(ord(':'));
+
+	SKIP: {
+		skip "load_from_dirs", 3
+			unless Glib->CHECK_VERSION (2, 13, 0); # FIXME: 2.14
+
+		my $file = 'tmp.ini';
+		open my $fh, '>', $file or
+			skip "load_from_dirs, can't create temporary file", 3;
+		print $fh $str;
+		close $fh;
+
+		my $key_file = Glib::KeyFile->new;
+		my ($success, $path) =
+			$key_file->load_from_dirs($file,
+						  [ 'keep-comments' ],
+						  cwd(), '/tmp');
+		ok ($success);
+		is ($path, File::Spec->catfile(cwd(), $file));
+		is ($key_file->get_comment(undef, undef), "top of the file\n", 'we reached the top again');
+
+		unlink $file;
+	}
 }
 
 __END__

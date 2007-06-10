@@ -196,6 +196,57 @@ g_key_file_load_from_data (key_file, buf, flags)
     OUTPUT:
     	RETVAL
 
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+
+=for apidoc __gerror__
+=signature boolean = $key_file->load_from_dirs ($file, $flags, @search_dirs)
+=signature (boolean, scalar) = $key_file->load_from_dirs ($file, $flags, @search_dirs)
+
+Parses a key file, searching for it inside the specified directories.
+In scalar context, it returns a boolean value (true on success, false otherwise);
+in array context, it returns a boolean value and the full path of the file.
+=cut
+void
+g_key_file_load_from_dirs (key_file, file, flags, ...)
+	GKeyFile *key_file
+	const gchar *file
+	GKeyFileFlags flags
+    PREINIT:
+	int n_dirs, i;
+	gchar **search_dirs;
+	gchar *full_path = NULL;
+	GError *error = NULL;
+	gboolean retval;
+    PPCODE:
+	n_dirs = items - 3;
+	search_dirs = g_new0 (gchar*, n_dirs + 1);
+	for (i = 0; i < n_dirs; i++) {
+		search_dirs[i] = SvGChar (ST (3 + i));
+	}
+	search_dirs[n_dirs] = NULL;
+
+	retval = g_key_file_load_from_dirs (
+			key_file,
+			file,
+			(const gchar **) search_dirs,
+			&full_path,
+			flags,
+			&error);
+
+	if (error)
+		gperl_croak_gerror (NULL, error);
+
+	PUSHs (sv_2mortal (newSVuv (retval)));
+	if (GIMME_V == G_ARRAY && full_path)
+		XPUSHs (sv_2mortal (newSVGChar (full_path)));
+
+	if (full_path)
+		g_free (full_path);
+
+	g_free (search_dirs);
+
+#endif
+
 =for apidoc __gerror__
 =signature boolean = $key_file->load_from_data_dirs ($file, $flags)
 =signature (boolean, scalar) = $key_file->load_from_data_dirs ($file, $flags)
