@@ -1,3 +1,9 @@
+2007-06-23	kaffeetisch
+
+	* t/g.t: In floating point tests, don't check for equality.
+	Instead, check that numbers don't differ too much from their
+	expected values.
+
 2007-06-10	kaffeetisch
 
 	* GKeyFile.xs, t/g.t: Wrap g_key_file_load_from_dirs.
