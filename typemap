@@ -80,6 +80,8 @@ GPerlFilename_const	T_GPERL_FILENAME
 GPerlFilename_own	T_GPERL_FILENAME_OWN
 GPerlFilename_ornull	T_GPERL_FILENAME_ORNULL
 
+GUserDirectory	T_GPERL_GENERIC_WRAPPER
+
 #####
 INPUT
 

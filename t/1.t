@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -61,6 +61,14 @@ SKIP: {
   ok (defined Glib::get_system_data_dirs ());
   ok (defined Glib::get_system_config_dirs ());
   ok (defined Glib::get_language_names ());
+}
+
+SKIP: {
+  skip 'new 2.14 stuff', 1
+    unless Glib->CHECK_VERSION (2, 13, 0); # FIXME: 2.14
+
+  # qw/desktop documents download music pictures public-share templates videos/
+  ok (defined Glib::get_user_special_dir ('desktop'));
 }
 
 is (Glib::Markup::escape_text ("<gtk2-perl>"), "&lt;gtk2-perl&gt;");

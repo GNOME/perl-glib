@@ -1,5 +1,11 @@
 2007-06-23	kaffeetisch
 
+	* GUtils.xs
+	* gperl.h
+	* typemap
+	* t/1.t: Wrap g_get_user_special_dir and provide converters for
+	the new enum GUserDirectory.
+
 	* t/g.t: In floating point tests, don't check for equality.
 	Instead, check that numbers don't differ too much from their
 	expected values.

@@ -361,6 +361,14 @@ GBookmarkFile * SvGBookmarkFile (SV * sv);
 const char * gperl_param_spec_package_from_type (GType gtype);
 
 /*
+ * gutils.h / GUtils.xs
+ */
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+GUserDirectory SvGUserDirectory (SV *sv);
+SV * newSVGUserDirectory (GUserDirectory dir);
+#endif
+
+/*
  * helpful debugging stuff
  */
 #define GPERL_OBJECT_VITALS(o) \

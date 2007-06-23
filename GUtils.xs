@@ -21,7 +21,50 @@
  */
 #include "gperl.h"
 
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+
+static GType
+gperl_user_directory_get_type (void)
+{
+	static GType etype = 0;
+	if (etype == 0) {
+		static const GEnumValue values[] = {
+			{ G_USER_DIRECTORY_DESKTOP, "G_USER_DIRECTORY_DESKTOP", "desktop" },
+			{ G_USER_DIRECTORY_DOCUMENTS, "G_USER_DIRECTORY_DOCUMENTS", "documents" },
+			{ G_USER_DIRECTORY_DOWNLOAD, "G_USER_DIRECTORY_DOWNLOAD", "download" },
+			{ G_USER_DIRECTORY_MUSIC, "G_USER_DIRECTORY_MUSIC", "music" },
+			{ G_USER_DIRECTORY_PICTURES, "G_USER_DIRECTORY_PICTURES", "pictures" },
+			{ G_USER_DIRECTORY_PUBLIC_SHARE, "G_USER_DIRECTORY_PUBLIC_SHARE", "public-share" },
+			{ G_USER_DIRECTORY_TEMPLATES, "G_USER_DIRECTORY_TEMPLATES", "templates" },
+			{ G_USER_DIRECTORY_VIDEOS, "G_USER_DIRECTORY_VIDEOS", "videos" },
+			{ 0, NULL, NULL }
+		};
+		etype = g_enum_register_static ("GUserDirectory", values);
+	}
+	return etype;
+}
+
+GUserDirectory
+SvGUserDirectory (SV *sv)
+{
+	return gperl_convert_enum (gperl_user_directory_get_type (), sv);
+}
+
+SV *
+newSVGUserDirectory (GUserDirectory dir)
+{
+	return gperl_convert_back_enum (gperl_user_directory_get_type (), dir);
+}
+
+#endif
+
 MODULE = Glib::Utils	PACKAGE = Glib	PREFIX = g_
+
+BOOT:
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+	gperl_register_fundamental (gperl_user_directory_get_type (),
+	                            "Glib::UserDirectory");
+#endif
 
 =for object Glib::Utils Miscellaneous utility functions
 =cut
@@ -160,6 +203,15 @@ g_get_system_data_dirs ()
 
 	for (i = 0; strings[i]; i++)
 		XPUSHs (sv_2mortal (newSVGChar (strings[i])));
+
+#endif
+
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+
+=for apidoc __function__
+Returns the full path of a special directory using its logical id.
+=cut
+const gchar* g_get_user_special_dir (GUserDirectory directory);
 
 #endif
 
