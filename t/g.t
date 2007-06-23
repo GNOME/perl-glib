@@ -105,13 +105,20 @@ SKIP: {
 		skip "double stuff", 4
 			unless Glib->CHECK_VERSION (2, 12, 0);
 
-		is($key_file->get_double('mysection', 'doublekey'), 3.1415);
-		$key_file->set_double('mysection', 'doublekey', 23.42);
-		is($key_file->get_double('mysection', 'doublekey'), 23.42);
+		my $epsilon = 1e-6;
 
-		is_deeply([$key_file->get_double_list('listsection', 'doublelist')], [23.42, 3.1415]);
+		ok($key_file->get_double('mysection', 'doublekey') - 3.1415 < $epsilon);
+		$key_file->set_double('mysection', 'doublekey', 23.42);
+		ok($key_file->get_double('mysection', 'doublekey') - 23.42 < $epsilon);
+
+		my @list = $key_file->get_double_list('listsection', 'doublelist');
+		ok($list[0] - 23.42 < $epsilon &&
+		   $list[1] - 3.1415 < $epsilon);
+
 		$key_file->set_double_list('listsection', 'doublelist', 3.1415, 23.42);
-		is_deeply([$key_file->get_double_list('listsection', 'doublelist')], [3.1415, 23.42]);
+		@list = $key_file->get_double_list('listsection', 'doublelist');
+		ok($list[0] - 3.1415 < $epsilon &&
+		   $list[1] - 23.42 < $epsilon);
 	}
 
 	$key_file->remove_comment('locales', 'mystring');
