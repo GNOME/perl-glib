@@ -1,8 +1,25 @@
+Overview of changes in Glib 1.151
+=================================
+
+* Use BSD make syntax on BSD systems by default.  [Slaven Rezic, Torsten]
+* Wrap g_key_file_load_from_dirs.  [Torsten]
+* Wrap g_get_user_special_dir.  [Torsten]
+
 Overview of changes in Glib 1.150
 =================================
 
 * Make it possible to mark objects and methods as deprecated with
   Glib::ParseXSDoc and Glib::GenPod.  [Emmanuele]
+
+Overview of changes in Glib 1.144
+=================================
+
+* Use BSD make syntax on BSD systems by default.  [Slaven Rezic, Torsten]
+
+Overview of changes in Glib 1.143
+=================================
+
+* Call g_threads_init before g_type_init.  [Torsten]
 
 Overview of changes in Glib 1.142
 =================================
