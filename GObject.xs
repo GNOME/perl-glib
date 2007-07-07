@@ -19,9 +19,9 @@
  * $Header$
  */
 
-/* 
+/*
  * the POD directives in here will be stripped by xsubpp before compilation,
- * and are intended to be extracted by podselect when creating xs api 
+ * and are intended to be extracted by podselect when creating xs api
  * reference documentation.  pod must NOT appear within C comments, because
  * it gets replaced by a comment that says "embedded pod stripped".
  */
@@ -264,7 +264,7 @@ gperl_register_object (GType gtype,
 	if (!types_by_type) {
 		/* we put the same data pointer into each hash table, so we
 		 * must only associate the destructor with one of them.
-		 * also, for the string-keyed hashes, the keys will be 
+		 * also, for the string-keyed hashes, the keys will be
 		 * destroyed by the ClassInfo destructor, so we don't need
 		 * a key_destroy_func. */
 		types_by_type = g_hash_table_new_full (g_direct_hash,
@@ -316,12 +316,12 @@ B<not> be called.  Having a sink func facility down here enables us always to
 do the right thing.
 
 =cut
-/* 
+/*
  * this stuff is directly inspired by pygtk.  i didn't actually copy
  * and paste the code, but it sure looks like i did, down to the names.
  * hey, they were the obvious names!
  *
- * for the record, i think this is a rather dodgy way to do sink funcs 
+ * for the record, i think this is a rather dodgy way to do sink funcs
  * --- it presumes that you'll find the right one first; i prepend new
  * registrees in the hopes that this will work out, but nothing guarantees
  * that this will work.  to do it right, the wrappers need to have
@@ -349,7 +349,7 @@ gperl_register_sink_func (GType gtype,
 /*
  * helper for gperl_new_object; do whatever you have to do to this
  * object to ensure that the calling code now owns the object.  assumes
- * the object has already been ref'd once.  to do this, we look up the 
+ * the object has already been ref'd once.  to do this, we look up the
  * proper sink func; if none has been registered for this type, then
  * just call g_object_unref.
  */
@@ -464,7 +464,7 @@ gperl_object_package_from_type (GType gtype)
 
 	G_LOCK (types_by_type);
 
-	class_info = (ClassInfo *) 
+	class_info = (ClassInfo *)
 		g_hash_table_lookup (types_by_type, (gpointer) gtype);
 
 	G_UNLOCK (types_by_type);
@@ -547,7 +547,7 @@ gperl_object_type_from_package (const char * package)
 
 		G_LOCK (types_by_package);
 
-		class_info = (ClassInfo *) 
+		class_info = (ClassInfo *)
 			g_hash_table_lookup (types_by_package, package);
 
 		G_UNLOCK (types_by_package);
@@ -651,7 +651,7 @@ gperl_new_object (GObject * object,
 	/* take the easy way out if we can */
 	if (!object) {
 #ifdef NOISY
-		warn ("gperl_new_object (NULL) => undef"); 
+		warn ("gperl_new_object (NULL) => undef");
 #endif
 		return &PL_sv_undef;
 	}
@@ -780,7 +780,7 @@ gperl_get_object (SV * sv)
 
 =item GObject * gperl_get_object_check (SV * sv, GType gtype);
 
-croaks if I<sv> is undef or is not blessed into the package corresponding 
+croaks if I<sv> is undef or is not blessed into the package corresponding
 to I<gtype>.  use this for bringing parameters into xsubs from perl.
 Returns the same as gperl_get_object() (provided it doesn't croak first).
 
@@ -824,12 +824,12 @@ gperl_object_check_type (SV * sv,
 
 /* helper for g_object_[gs]et_parameter */
 static void
-init_property_value (GObject * object, 
-		     const char * name, 
+init_property_value (GObject * object,
+		     const char * name,
 		     GValue * value)
 {
 	GParamSpec * pspec;
-	pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), 
+	pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
 	                                      name);
 	if (!pspec) {
 		const char * classname =
@@ -935,7 +935,7 @@ CLONE (gchar * class)
 	{
 		G_LOCK (perl_gobjects);
 /*g_printerr ("we're in clone: %s\n", class);*/
-		g_hash_table_foreach (perl_gobjects, 
+		g_hash_table_foreach (perl_gobjects,
 				      (GHFunc)_inc_ref_and_count, NULL);
 		G_UNLOCK (perl_gobjects);
 	}
@@ -944,7 +944,7 @@ CLONE (gchar * class)
 
 =for apidoc set_threadsafe
 Enables/disables threadsafe gobject tracking. Returns whether or not tracking
-will be successful and thus whether using perl ithreads will be possible. 
+will be successful and thus whether using perl ithreads will be possible.
 =cut
 gboolean
 set_threadsafe (class, gboolean threadsafe)
@@ -954,7 +954,7 @@ set_threadsafe (class, gboolean threadsafe)
 #else
 	PERL_UNUSED_VAR (threadsafe);
 	RETVAL = FALSE;
-#endif 
+#endif
     OUTPUT:
 	RETVAL
 
@@ -975,6 +975,7 @@ underlying C object.
 =cut
 
 BOOT:
+	gperl_register_object (G_TYPE_INTERFACE, "Glib::Interface");
 	gperl_register_object (G_TYPE_OBJECT, "Glib::Object");
 #if GLIB_CHECK_VERSION (2, 10, 0)
 	gperl_register_object (G_TYPE_INITIALLY_UNOWNED, "Glib::InitiallyUnowned");
@@ -990,7 +991,7 @@ DESTROY (SV *sv)
         if (!object) /* Happens on object destruction. */
                 return;
 #ifdef NOISY
-        warn ("DESTROY< (%p)[%d] => %s (%p)[%d]", 
+        warn ("DESTROY< (%p)[%d] => %s (%p)[%d]",
               object, object->ref_count,
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
@@ -1023,7 +1024,7 @@ DESTROY (SV *sv)
 		if (count > 0)
 		{
 /*g_printerr ("decing: %p - %d\n", object, count);*/
-			g_hash_table_replace (perl_gobjects, object, 
+			g_hash_table_replace (perl_gobjects, object,
 					      (gpointer)count);
 		}
 		else
@@ -1038,7 +1039,7 @@ DESTROY (SV *sv)
 #ifdef NOISY
 	warn ("DESTROY> (%p) done\n", object);
 	/*
-        warn ("DESTROY> (%p)[%d] => %s (%p)[%d]", 
+        warn ("DESTROY> (%p)[%d] => %s (%p)[%d]",
               object, object->ref_count,
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
@@ -1112,7 +1113,7 @@ g_object_new (class, ...)
 	}
 #undef FIRST_ARG
 
-	object = g_object_newv (object_type, n_params, params);	
+	object = g_object_newv (object_type, n_params, params);
 
 	/* this wrapper *must* own this object!
 	 * because we've been through initialization, the perl object
@@ -1307,17 +1308,17 @@ g_object_find_property (object_or_class_name, ...)
 		croak ("Usage: Glib::Object::find_property (class, name)");
 	else if (ix == 1 && items != 1)
 		croak ("Usage: Glib::Object::list_properties (class)");
-	
+
 	if (G_TYPE_IS_OBJECT (type))
 	{
 		/* classes registered by perl are kept alive by the bindings.
 		 * those coming straight from C are not.  if we had an actual
 		 * object, the class will be alive, but if we just had a
 		 * package, the class may not exist yet.  thus, we'll have to
-		 * do an honest ref here, rather than a peek. 
+		 * do an honest ref here, rather than a peek.
 		 */
 		GObjectClass *object_class = g_type_class_ref (type);
-		
+
 		if (ix == 0) {
 			GParamSpec *pspec;
 
@@ -1330,28 +1331,28 @@ g_object_find_property (object_or_class_name, ...)
 		else if (ix == 1) {
 			GParamSpec **props;
 			guint n_props, i;
-			
+
 			props = g_object_class_list_properties (object_class, &n_props);
 #ifdef NOISY
 			warn ("list_properties: %d properties\n", n_props);
 #endif
 			if (n_props) {
 				EXTEND (SP, n_props);
-				
+
 				for (i = 0; i < n_props; i++)
 					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
-				
+
 				g_free (props);
 			}
 		}
-		
+
 		g_type_class_unref (object_class);
 	}
 #if GLIB_CHECK_VERSION(2,4,0)
 	else if (G_TYPE_IS_INTERFACE (type))
 	{
 		gpointer iface = g_type_default_interface_ref (type);
-		
+
 		if (ix == 0) {
 			GParamSpec *pspec;
 
@@ -1371,14 +1372,14 @@ g_object_find_property (object_or_class_name, ...)
 #endif
 			if (n_props) {
 				EXTEND (SP, n_props);
-				
+
 				for (i = 0; i < n_props; i++)
 					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
-				
+
 				g_free (props);
 			}
 		}
-		
+
 		g_type_default_interface_unref (iface);
 	}
 #endif
@@ -1432,7 +1433,7 @@ g_object_get_data (object, key)
 
 =for arg pointer (unsigned) a C pointer value as an integer.
 
-=for arg noinc (boolean) if true, do not increase the GObject's reference count when creating the Perl wrapper.  this typically means that when the Perl wrapper will own the object.  in general you don't want to do that, so the default is false. 
+=for arg noinc (boolean) if true, do not increase the GObject's reference count when creating the Perl wrapper.  this typically means that when the Perl wrapper will own the object.  in general you don't want to do that, so the default is false.
 
 Create a Perl Glib::Object reference for the C object pointed to by I<$pointer>.
 You should need this I<very> rarely; it's intended to support foreign objects.
