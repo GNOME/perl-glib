@@ -4,6 +4,9 @@
 	avoid having it appear under Glib::Object::_Unregistered in
 	hierarchies in the generated POD.
 
+	* GMainLoop.xs
+	* t/9.t: Wrap g_main_context_is_owner and g_timeout_add_seconds.
+
 2007-06-24	kaffeetisch
 
 	* Glib.pm, NEWS, README: Unstable release 1.151.

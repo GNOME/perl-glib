@@ -263,6 +263,12 @@ gboolean g_main_context_pending (GMainContext *context);
 ##void g_main_context_remove_poll   (GMainContext *context,
 ##				   GPollFD      *fd);
 
+#if GLIB_CHECK_VERSION (2, 12, 0)
+
+gboolean g_main_context_is_owner (GMainContext *context);
+
+#endif
+
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::MainLoop	PREFIX = g_main_loop_
 
@@ -432,7 +438,25 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
     OUTPUT:
 	RETVAL
 
+#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
 
+guint
+g_timeout_add_seconds (class, guint interval, SV * callback, SV * data=NULL, gint priority=G_PRIORITY_DEFAULT)
+    PREINIT:
+	GClosure * closure;
+	GSource * source;
+    CODE:
+	closure = gperl_closure_new (callback, data, FALSE);
+	source = g_timeout_source_new_seconds (interval);
+	if (priority != G_PRIORITY_DEFAULT)
+		g_source_set_priority (source, priority);
+	g_source_set_closure (source, closure);
+	RETVAL = g_source_attach (source, NULL);
+	g_source_unref (source);
+    OUTPUT:
+	RETVAL
+
+#endif
 
 MODULE = Glib::MainLoop	PACKAGE = Glib::Idle	PREFIX = g_idle_
 

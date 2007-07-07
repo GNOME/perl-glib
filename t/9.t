@@ -6,7 +6,7 @@
 
 use Config;
 
-print "1..22\n";
+print "1..25\n";
 
 use Glib;
 
@@ -159,6 +159,28 @@ print $context ?
 
 print $context->pending ?
   "not ok 22\n" : "ok 22\n";
+
+if (Glib->CHECK_VERSION (2, 12, 0)) {
+  print $context->is_owner ?
+    "not ok 23\n" : "ok 23\n";
+  print Glib::MainContext::is_owner(undef) ?
+    "not ok 24\n" : "ok 24\n";
+} else {
+  print "ok 23 - skip\n";
+  print "ok 24 - skip\n";
+}
+
+if (Glib->CHECK_VERSION (2, 13, 0)) { # FIXME: 2.14
+  my $loop = Glib::MainLoop->new;
+  Glib::Timeout->add_seconds (1, sub {
+    print "ok 25 - in timeout handler\n";
+    $loop->quit;
+    return FALSE;
+  });
+  $loop->run;
+} else {
+  print "ok 25 - skip\n";
+}
 
 __END__
 
