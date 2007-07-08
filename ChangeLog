@@ -1,3 +1,9 @@
+2007-07-08	kaffeetisch
+
+	* Glib.pm
+	* NEWS
+	* README: Unstable release 1.152.
+
 2007-07-07	kaffeetisch
 
 	* GObject.xs: Register G_TYPE_INTERFACES as Glib::Interfaces to

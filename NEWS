@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.152
+=================================
+
+* Wrap g_main_context_is_owner.  [Torsten]
+* Wrap g_timeout_add_seconds.  [Torsten]
+
 Overview of changes in Glib 1.151
 =================================
 
