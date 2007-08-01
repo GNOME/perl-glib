@@ -43,9 +43,11 @@ gchar_own *	T_GCHAR_OWN
 gchar_length *	T_GCHAR_LEN
 const gchar_length *	T_GCHAR_LEN
 gchar_ornull *	T_GCHAR_ORNULL
+gchar_own_ornull *	T_GCHAR_OWN_ORNULL
 const gchar_ornull *	T_GCHAR_ORNULL
 char_ornull *	T_CHAR_ORNULL
 char_own *	T_CHAR_OWN
+char_own_ornull *	T_CHAR_OWN_ORNULL
 const char_ornull *	T_CHAR_ORNULL
 guchar		T_UV
 guchar *	T_GUCHAR
@@ -195,9 +197,26 @@ T_GCHAR_OWN
 	SvUTF8_on ($arg);
         g_free ($var);
 
+T_GCHAR_OWN_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+		SvUTF8_on ($arg);
+	        g_free ($var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
 T_CHAR_ORNULL
 	if ($var) {
 		sv_setpv ((SV*)$arg, $var);
+	} else {
+		SvSetSV ($arg, &PL_sv_undef);
+	}
+
+T_CHAR_OWN_ORNULL
+	if ($var) {
+		sv_setpv ((SV*)$arg, $var);
+		g_free ($var);
 	} else {
 		SvSetSV ($arg, &PL_sv_undef);
 	}
@@ -215,6 +234,7 @@ T_G_TYPE_IO_CONDITION
 T_G_MAIN_CONTEXT
 	sv_setref_pv ($arg, \"Glib::MainContext\", $var);
 	g_main_context_ref ($var);
+
 T_G_MAIN_LOOP
 	sv_setref_pv ($arg, \"Glib::MainLoop\", $var);
 	g_main_loop_ref ($var);

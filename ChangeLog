@@ -1,3 +1,8 @@
+2007-08-01	kaffeetisch
+
+	* gperl.h
+	* typemap: Add char_own_ornull and gchar_own_ornull typemaps.
+
 2007-07-08	kaffeetisch
 
 	* Glib.pm
