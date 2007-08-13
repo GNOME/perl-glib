@@ -1913,8 +1913,8 @@ BOOT:
 
 
 =for apidoc
-=for arg parent_class (package name) type from which to derive
-=for arg new_class (package name) name of new type
+=for arg parent_class (package) type from which to derive
+=for arg new_class (package) name of new type
 =for arg ... arguments for creation
 Register a new type with the GLib type system.
 

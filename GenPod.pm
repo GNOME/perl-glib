@@ -379,6 +379,8 @@ our %basic_types = (
 	subroutine => 'subroutine',
 	integer    => 'integer',
 	string     => 'string',
+	package    => 'package',
+	list       => 'list',
 
 	# other C names which may sneak through
 	bool     => 'boolean', # C++ keyword, but provided by the perl api
@@ -568,13 +570,13 @@ sub podify_deprecated_by
 	$str .= "You should use "
 	      . join (', ',
 	              map {
-		      	if (/^\s*L</) {
-					$_;
-				}
-				else {
-					"L<$_>";
-				}
-				  } @deprecated_by)
+			if (/^\s*L</) {
+				$_;
+			}
+			else {
+				"L<$_>";
+			}
+		      } @deprecated_by)
 	      . " instead of $package.\n";
 
 	return $str;
@@ -1025,6 +1027,9 @@ sub convert_type {
 	              (\s*\*)?				# maybe a star
 	              \s*$/x;				# trailing space
 	my $ctype   = $1 || '!!';
+	if ($ctype eq '!!') {
+		warn "Glib::GenPod: Unable to parse type `$typestr´";
+	}
 
 	# variant type
 	$ctype =~ s/(?:_(ornull|own|copy|own_ornull|noinc))$//;

@@ -506,7 +506,7 @@ BOOT:
 =cut
 
 =for apidoc
-=for arg fd (file descriptor) file number, e.g. fileno($filehandle)
+=for arg fd (integer) file descriptor, e.g. fileno($filehandle)
 =for arg callback (subroutine)
 
 Run I<$callback> when there is an event on I<$fd> that matches I<$condition>.

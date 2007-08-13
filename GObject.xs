@@ -1050,7 +1050,7 @@ DESTROY (SV *sv)
 
 =for signature object = $class->new (...)
 
-=for arg ... of key/value pairs, property values to set on creation
+=for arg ... key/value pairs, property values to set on creation
 
 Instantiate a Glib::Object of type I<$class>.  Any key/value pairs in
 I<...> are used to set properties on the new object; see C<set>.
@@ -1170,7 +1170,7 @@ g_object_get (object, ...)
 
 =for apidoc Glib::Object::set
 =for signature $object->set (key => $value, ...)
-=for arg ... (key/value pairs)
+=for arg ... key/value pairs
 
 Set object properties.
 
