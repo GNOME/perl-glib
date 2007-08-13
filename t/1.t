@@ -42,9 +42,15 @@ ok (defined (Glib::get_tmp_dir), "Glib::get_tmp_dir");
 SKIP: {
   skip "set_application_name is new in glib 2.2.0", 2
     unless Glib->CHECK_VERSION (2,2,0);
-  # this will not hold after Gtk2::init, since gtk_init() calls
-  # gdk_parse_args() which calls g_set_prgname(argv[0]).
-  is (Glib::get_application_name (), undef, 'before any calls to anything');
+
+  SKIP: {
+    skip 'no undef on win32', 1
+      if $^O eq 'MSWin32';
+    # this will not hold after Gtk2::init, since gtk_init() calls
+    # gdk_parse_args() which calls g_set_prgname(argv[0]).
+    is (Glib::get_application_name (), undef, 'before any calls to anything');
+  }
+
   my $appname = 'Flurble Foo 2, Electric Boogaloo';
   Glib::set_application_name ($appname);
   is (Glib::get_application_name (), $appname);

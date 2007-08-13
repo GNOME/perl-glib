@@ -79,7 +79,7 @@ use Data::Dumper;
 # we can't do much but just skip this.
 
 if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
-    and not Glib->CHECK_VERSION (2,2,4)) {
+    && (!Glib->CHECK_VERSION (2,2,4))) {
 	print "not ok 12 - skip bug in glib\n";
 	print "not ok 13 - skip bug in glib\n";
 	print "not ok 14 - skip bug in glib\n";
@@ -112,7 +112,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 # caused asynchronous signals not to be delivered while a main loop is
 # running (because control stays in C).  let's make sure that we can
 # get a 1 second alarm before a 2 second timeout has a chance to fire.
-if ($^O eq 'Win32') {
+if ($^O eq 'MSWin32') {
 	# XXX Win32 doesn't do SIGALRM the way unix does; either the alarm
 	# doesn't interrupt the poll, or alarm just doesn't work.
 	my $reason = "async signals don't work on win32 like they do on unix";
