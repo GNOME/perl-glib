@@ -297,13 +297,22 @@ sub parse_file {
 				$self->{object} = $1;
 				if ($2) {
 					$self->pkgdata->{blurb} = $2;
-					if ($self->pkgdata->{blurb} =~ s/\((.*)\)//)
+					$self->pkgdata->{blurb} =~ s/^\s*-\s*//;
+
+					# If the line has the special form
+					# "=for object Foo (Bar)", we take this
+					# to mean: document the object Bar in
+					# the file Foo.
+					if ($self->pkgdata->{blurb} =~ s/\s*\((.*)\)//)
 					{
 						print STDERR "Documenting object $1 in file "
 									.$self->{object}."\n";
 						$self->pkgdata->{object} = $1;
+						if ('' eq $self->pkgdata->{blurb})
+						{
+							delete $self->pkgdata->{blurb};
+						}
 					}
-					$self->pkgdata->{blurb} =~ s/^\s*-\s*//;
 				}
 			} elsif (/^=for\s+(enum|flags)\s+([\w:]+)/) {
 				push @{ $self->pkgdata->{enums} }, {

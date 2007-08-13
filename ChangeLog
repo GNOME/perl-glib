@@ -11,6 +11,10 @@
 	* ParseXSDoc.pm: Parse preprocessor conditionals in the XS code to
 	add Since: tags to methods' POD.
 
+	* GenPod.pm
+	* ParseXSDoc.pm: Make it possible to document specific packages in
+	different POD files by providing a new =for object variant.
+
 	* t/1.t
 	* t/9.t
 	* t/filename.t: Fix win32 test failures.

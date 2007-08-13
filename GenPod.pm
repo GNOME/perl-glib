@@ -97,6 +97,20 @@ will be placed under the key 'I<Package::Name>' in xsdocparse's data
 structure.  Everything from this line to the next C<=cut> is included as a
 description POD.
 
+=item =for object Package::Name (Other::Package::Name)
+
+Generate POD in I<Package::Name> but for the package I<Other::Package::Name>.
+This is useful if you want POD to appear in a different namespace but still
+want the automatically generated hierarchy, signal and property listing,
+etc. from the original namespace.  For example:
+
+  =for object Gnome2::PanelApplet::main (Gnome2::PanelApplet)
+  =cut
+
+This will create Gnome2/PanelApplet/main.pod containing the automatically
+generated documentation for Gnome2::PanelApplet (hierarchy, signals, etc.) plus
+the method listing from the current XS file.
+
 =item =for enum Package::Name
 
 =item =for flags Package::Name
@@ -825,8 +839,7 @@ I<$packagename>.
 sub podify_methods
 {
 	my $package = shift;
-	return undef unless $data->{$package};
-	my $xsubs = $data->{$package}{xsubs};
+	my $xsubs = shift;
 	return undef unless $xsubs && @$xsubs;
 	# we will be re-using $package from here on out.
 
