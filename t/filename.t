@@ -24,7 +24,7 @@ use Cwd qw(cwd);
 
 my $path = cwd() . "/" . $filename;
 my $host = "localhost";
-my $expected = "file://$host$path";
+my $expected = $^O eq "MSWin32" ? "file:///$path" : "file://$host$path";
 
 is(Glib->filename_to_uri($path, $host), $expected);
 is(Glib::filename_to_uri($path, $host), $expected);
