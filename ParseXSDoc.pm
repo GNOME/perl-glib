@@ -273,6 +273,7 @@ sub parse_file {
 			#print Dumper(\@cond);
 		} elsif (/^\s*#\s*else\s*(\s.*)?$/) {
 			#warn "else $cond[-1]\n";
+			$cond[$#cond] = '!' . $cond[$#cond];
 		} elsif (/^\s*#\s*endif\s*(\s.*)?$/) {
 			#warn "endif $cond[-1]\n";
 			pop @cond;
@@ -345,6 +346,7 @@ sub parse_file {
 				$xsub->{pod} = $lastpod;
 				$lastpod = undef;
 			}
+			$xsub->{preprocessor_conditionals} = [ @cond ];
 			push @{ $self->pkgdata->{xsubs} }, $xsub;
 
 		} else {

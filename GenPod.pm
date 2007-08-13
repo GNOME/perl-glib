@@ -1186,8 +1186,25 @@ sub xsub_to_pod {
 	$str .= "May croak with a L<Glib::Error> in \$@ on failure.\n\n"
 		if ($xsub->{gerror});
 
-    $str .= "This method is deprecated and should not be used in newly written code.\n\n"
-        if ($xsub->{deprecated});
+	$str .= "This method is deprecated and should not be used in newly written code.\n\n"
+		if ($xsub->{deprecated});
+
+
+	# When there are multiple version guards of the same type, we only want
+	# the innermost.
+	my %version_conditions;
+	my %prefix_to_name = (
+		GTK => 'gtk+',
+	);
+	foreach (@{ $xsub->{preprocessor_conditionals} }) {
+		if (m/^\s*(\w+)_CHECK_VERSION\s*\((\d+),\s*(\d+)/) {
+			my $lib_name = $prefix_to_name{$1} || lc $1;
+			$version_conditions{$lib_name} = "$2.$3";
+		}
+	}
+	foreach my $lib_name (keys %version_conditions) {
+		$str .= "Since: $lib_name $version_conditions{$lib_name}\n\n";
+	}
 
 	$str .= "=back\n\n";
 

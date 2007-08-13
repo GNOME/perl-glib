@@ -1,5 +1,9 @@
 2007-08-13	kaffeetisch
 
+	* GenPod.pm
+	* ParseXSDoc.pm: Parse preprocessor conditionals in the XS code to
+	add Since: tags to methods' POD.
+
 	* t/1.t
 	* t/9.t
 	* t/filename.t: Fix win32 test failures.
