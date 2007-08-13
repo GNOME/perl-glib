@@ -1,5 +1,11 @@
 2007-08-13	kaffeetisch
 
+	* Glib.pm
+	* NEWS
+	* README: Unstable release 1.153.
+
+2007-08-13	kaffeetisch
+
 	* GMainLoop.xs
 	* GObject.xs
 	* GType.xs

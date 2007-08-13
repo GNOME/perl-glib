@@ -1,3 +1,13 @@
+Overview of changes in Glib 1.153
+=================================
+
+* Add char_own_ornull and gchar_own_ornull typemaps.  [Torsten]
+* Fix some win32 test failures.  [Torsten]
+* Make it possible to document specific packages in different POD files by
+  providing a new =for object variant.  [Torsten]
+* Parse preprocessor conditionals in the XS code to add Since: tags to methods'
+  POD.  [Torsten]
+
 Overview of changes in Glib 1.152
 =================================
 
