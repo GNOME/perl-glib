@@ -21,7 +21,7 @@
  */
 #include "gperl.h"
 
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 
 static GType
 gperl_user_directory_get_type (void)
@@ -61,7 +61,7 @@ newSVGUserDirectory (GUserDirectory dir)
 MODULE = Glib::Utils	PACKAGE = Glib	PREFIX = g_
 
 BOOT:
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 	gperl_register_fundamental (gperl_user_directory_get_type (),
 	                            "Glib::UserDirectory");
 #endif
@@ -206,7 +206,7 @@ g_get_system_data_dirs ()
 
 #endif
 
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 
 =for apidoc __function__
 Returns the full path of a special directory using its logical id.

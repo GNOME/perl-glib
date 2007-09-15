@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 #
 # KeyFile stuff.
 #
@@ -137,7 +138,7 @@ SKIP: {
 
 	SKIP: {
 		skip "load_from_dirs", 3
-			unless Glib->CHECK_VERSION (2, 13, 0); # FIXME: 2.14
+			unless Glib->CHECK_VERSION (2, 14, 0);
 
 		my $file = 'tmp.ini';
 		open my $fh, '>', $file or

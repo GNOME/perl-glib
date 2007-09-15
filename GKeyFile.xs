@@ -196,7 +196,7 @@ g_key_file_load_from_data (key_file, buf, flags)
     OUTPUT:
     	RETVAL
 
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 
 =for apidoc __gerror__
 =signature boolean = $key_file->load_from_dirs ($file, $flags, @search_dirs)

@@ -1,14 +1,16 @@
-#!env perl -w
+#!/usr/bin/perl
 
 #
 # mainloop stuff.
 #
 
+use strict;
+use warnings;
 use Config;
 
 print "1..25\n";
 
-use Glib;
+use Glib qw/:constants/;
 
 print "ok 1\n";
 
@@ -170,7 +172,7 @@ if (Glib->CHECK_VERSION (2, 12, 0)) {
   print "ok 24 - skip\n";
 }
 
-if (Glib->CHECK_VERSION (2, 13, 0)) { # FIXME: 2.14
+if (Glib->CHECK_VERSION (2, 14, 0)) {
   my $loop = Glib::MainLoop->new;
   Glib::Timeout->add_seconds (1, sub {
     print "ok 25 - in timeout handler\n";

@@ -438,7 +438,7 @@ g_timeout_add (class, interval, callback, data=NULL, priority=G_PRIORITY_DEFAULT
     OUTPUT:
 	RETVAL
 
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 
 guint
 g_timeout_add_seconds (class, guint interval, SV * callback, SV * data=NULL, gint priority=G_PRIORITY_DEFAULT)

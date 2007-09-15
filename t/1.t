@@ -1,9 +1,9 @@
-#
+#!/usr/bin/perl
+
 # $Header$
 #
 # Basic test for Glib fundamentals.  make sure that the smoke does't get out,
 # and test most of the procedural things in Glib's toplevel namespace.
-#
 
 use strict;
 use warnings;
@@ -71,7 +71,7 @@ SKIP: {
 
 SKIP: {
   skip 'new 2.14 stuff', 1
-    unless Glib->CHECK_VERSION (2, 13, 0); # FIXME: 2.14
+    unless Glib->CHECK_VERSION (2, 14, 0);
 
   # qw/desktop documents download music pictures public-share templates videos/
   ok (defined Glib::get_user_special_dir ('desktop'));

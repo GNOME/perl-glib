@@ -365,7 +365,7 @@ const char * gperl_param_spec_package_from_type (GType gtype);
 /*
  * gutils.h / GUtils.xs
  */
-#if GLIB_CHECK_VERSION (2, 13, 0) /* FIXME: 2.14 */
+#if GLIB_CHECK_VERSION (2, 14, 0)
 GUserDirectory SvGUserDirectory (SV *sv);
 SV * newSVGUserDirectory (GUserDirectory dir);
 #endif

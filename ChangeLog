@@ -1,3 +1,14 @@
+2007-09-15	kaffeetisch
+
+	* GKeyFile.xs
+	* GMainLoop.xs
+	* GUtils.xs
+	* gperl.h
+	* t/1.t
+	* t/9.t
+	* t/g.t: Change version checks to refer to glib 2.14 instead of
+	2.13.
+
 2007-08-13	kaffeetisch
 
 	* Glib.pm
