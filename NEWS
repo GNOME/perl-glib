@@ -1,3 +1,18 @@
+Overview of changes in Glib 1.160
+=================================
+
+ Since 1.14x (the previous stable series)
+ ----------------------------------------
+ * Add Glib::get_user_special_dir.
+ * Add Glib::KeyFile::load_from_dirs.
+ * Add Glib::MainContext::is_owner.
+ * Add Glib::Timeout::add_seconds.
+ * Improve the automatic documentation generator.
+
+ Since 1.153
+ -----------
+ * Nothing.
+
 Overview of changes in Glib 1.153
 =================================
 
