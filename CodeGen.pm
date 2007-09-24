@@ -317,7 +317,7 @@ sub parse_maps {
 
 	    close IN;
 
-	    print "Loaded $n type definitions from $file\n";
+	    #print "Loaded $n type definitions from $file\n";
 	}
 
 	# create output
@@ -359,9 +359,9 @@ sub parse_maps {
 	close OUT;
 
 	# mini report to stdout
-	foreach (sort keys %seen) {
-		printf "  %3d %s\n", $seen{$_}, $_;
-	}
+	# foreach (sort keys %seen) {
+	# 	printf "  %3d %s\n", $seen{$_}, $_;
+	# }
 
 	# fin.
 }

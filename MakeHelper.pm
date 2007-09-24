@@ -415,7 +415,8 @@ $blib_done
 
 # documentation stuff
 build/doc.pl :: Makefile @xs_files
-	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
+	\$(NOECHO) \$(ECHO) Parsing XS files...
+	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
 		-e 'xsdocparse (qw(@xs_files))' > \$@
 
 # passing all of these files through the single podindex file, which is 
@@ -424,17 +425,19 @@ build/doc.pl :: Makefile @xs_files
 @gend_pods :: build/podindex \$(POD_DEPENDS)
 
 build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl
-	$^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
+	\$(NOECHO) \$(ECHO) Generating POD...
+	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e '$docgen_code'
 
 \$(INST_LIB)/\$(FULLEXT)/:
 	$^X -MExtUtils::Command -e mkpath \$@
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
-	$^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
+	\$(NOECHO) \$(ECHO) Creating POD index...
+	\$(NOECHO) $^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	$^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	$^X -e 'print \"=back\\n\\n\";' >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	\$(NOECHO) $^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	\$(NOECHO) $^X -e 'print \"=back\\n\\n\";' >> \$(INST_LIB)/\$(FULLEXT)/index.pod
 "
 }
 
@@ -530,6 +533,32 @@ sub const_cccmd {
 	}
 	$inherited;
 }
+
+#
+# And, some black magick to help make learn to shut the hell up.
+#
+
+sub quiet_rule {
+	my $cmds = shift;
+	my @lines = split /\n/, $cmds;
+	foreach (@lines) {
+		if (/NOECHO/) {
+			# already quiet
+		} elsif (/XSUBPP/) {
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ XS \$< ] && /;
+		} elsif (/CCCMD/) {
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ CC \$< ] && /;
+		} elsif (/\bLD\b/) {
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ LD \$@ ] && /;
+		}
+	}
+	return join "\n", @lines;
+}
+
+sub c_o { return quiet_rule (shift->SUPER::c_o (@_)); }
+sub xs_o { return quiet_rule (shift->SUPER::xs_o (@_)); }
+sub xs_c { return quiet_rule (shift->SUPER::xs_c (@_)); }
+sub dynamic_lib { return quiet_rule (shift->SUPER::dynamic_lib (@_)); }
 
 1;
 

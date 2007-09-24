@@ -476,7 +476,7 @@ sub add_types {
 				warn "$f:$.: no description for $c_name\n"
 			}
 		}
-		print "loaded $n extra types from $f\n";
+		print "Loaded $n extra types from $f\n";
 		close IN;
 	}
 }

@@ -1,3 +1,18 @@
+2007-09-24	kaffeetisch
+
+	* CodeGen.pm
+	* GenPod.pm
+	* MakeHelper.pm
+	* Makefile.PL: Prettify build output by summarizing what is done
+	instead of printing executed command lines, and by removing
+	unnecessarily verbose output.  Use `make NOECHO=" "´ if you want
+	to see the command lines.
+
+	* MakeHelper.pm: Implement custom Makefile rule generators in MY
+	that print stuff like [ XS File.xs ] instead of the overly long
+	command lines.  Again, use `make NOECHO=" "´ if you want to see
+	the command lines.
+
 2007-09-16	kaffeetisch
 
 	* Glib.pm

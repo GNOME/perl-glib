@@ -189,7 +189,8 @@ build/doc.pl :: \$(INST_LIB)/Glib/ParseXSDoc.pm
 build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 
 \$(INST_LIB)/\$(FULLEXT)/xsapi.pod :: build/doc.pl apidoc.pl xsapi.pod.head xsapi.pod.foot
-	$^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
+	\$(NOECHO) \$(ECHO) Creating XS API documentation...
+	\$(NOECHO) $^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
 
 "
 	     . Glib::MakeHelper->postamble_clean ()
