@@ -5,6 +5,10 @@
 	Glib::MakeHelper::get_configure_requires_yaml to generate YAML
 	suitable for use with EU::MM's EXTRA_META.
 
+	* Makefile.PL: Use the above to tell EU::MM to generate a correct
+	configure_requires entry.  Also output a no_index entry to tell
+	the CPAN indexer what to ignore.
+
 2007-09-24	kaffeetisch
 
 	* CodeGen.pm
