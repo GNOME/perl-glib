@@ -1,7 +1,9 @@
 2007-10-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
-	* MakeHelper.pm: Add Glib::MakeHelper::get_configure_requires_yaml
-	to generate YAML suitable for use with EU::MM's EXTRA_META.
+	* MakeHelper.pm
+	* t/make_helper.t: Add
+	Glib::MakeHelper::get_configure_requires_yaml to generate YAML
+	suitable for use with EU::MM's EXTRA_META.
 
 2007-09-24	kaffeetisch
 
