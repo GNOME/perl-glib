@@ -138,6 +138,27 @@ sub read_source_list_file {
 	return @list;
 }
 
+=item string = Glib::MakeHelper->get_configure_requires_yaml (%module_to_version)
+
+Generates YAML code that lists every module found in I<%module_to_version>
+under the C<configure_requires> key.  This can be used with
+I<ExtUtils::MakeMaker>'s C<EXTRA_META> parameter to specify which modules are
+needed at I<Makefile.PL> time.
+
+=cut
+
+sub get_configure_requires_yaml {
+  shift; # package name
+  my %prereqs = @_;
+
+  my $yaml = "configure_requires:\n";
+  while (my ($module, $version) = each %prereqs) {
+    $yaml .= "   $module: $version\n";
+  }
+
+  return $yaml;
+}
+
 =item string = Glib::MakeHelper->postamble_clean (@files)
 
 Create and return the text of a realclean rule that cleans up after much 
