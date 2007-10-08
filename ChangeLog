@@ -1,3 +1,8 @@
+2007-10-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GObject.xs (Glib::Object::CLONE): Check that perl_gobjects !=
+	NULL before working with it, to avoid an assertion.
+
 2007-10-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* MakeHelper.pm
