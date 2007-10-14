@@ -1,3 +1,10 @@
+2007-10-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Makefile.PL: Use BEGIN { require 5.008; } instead of use 5.008;
+	so automatic CPAN testers know which perl version we need.  Also
+	get rid of the MY package by prefixing the relevant subs with
+	`MY::´.
+
 2007-10-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GObject.xs (Glib::Object::CLONE): Check that perl_gobjects !=
