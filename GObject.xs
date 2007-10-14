@@ -931,7 +931,9 @@ that process.
 void
 CLONE (gchar * class)
     CODE:
-    	if (perl_gobject_tracking && strcmp (class, "Glib::Object") == 0)
+	/* !perl_gobjects can happen when no object has been created yet. */
+    	if (perl_gobject_tracking && perl_gobjects &&
+	    strcmp (class, "Glib::Object") == 0)
 	{
 		G_LOCK (perl_gobjects);
 /*g_printerr ("we're in clone: %s\n", class);*/

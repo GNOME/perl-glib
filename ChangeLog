@@ -1,3 +1,15 @@
+2007-10-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* Makefile.PL: Use BEGIN { require 5.008; } instead of use 5.008;
+	so automatic CPAN testers know which perl version we need.  Also
+	get rid of the MY package by prefixing the relevant subs with
+	`MY::´.
+
+	* GObject.xs (Glib::Object::CLONE): Check that perl_gobjects !=
+	NULL before working with it, to avoid an assertion.
+
 2007-09-16	kaffeetisch
 
 	* Glib.pm
