@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.161
+=================================
+
+* Fix an assertion in Glib::Object::CLONE.
+* Make Makefile.PL more friendly to CPAN testers.
+
 Overview of changes in Glib 1.160
 =================================
 
