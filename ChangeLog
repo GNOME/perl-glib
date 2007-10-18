@@ -1,8 +1,17 @@
+2007-10-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* AUTHORS
+	* MakeHelper.pm (postamble_docs_full): When constructing the
+	add_types call, make sure to properly quote the paths.  (Patch by
+	Andres König)
+
 2007-10-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
 	* NEWS
-	* README: Stable release 1.160.
+	* README: Stable release 1.161.
 
 2007-10-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
