@@ -1,3 +1,10 @@
+2007-10-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* AUTHORS
+	* MakeHelper.pm (postamble_docs_full): When constructing the
+	add_types call, make sure to properly quote the paths.  (Patch by
+	Andres König)
+
 2007-10-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: Use BEGIN { require 5.008; } instead of use 5.008;

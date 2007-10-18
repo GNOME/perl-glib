@@ -374,9 +374,12 @@ sub postamble_docs_full {
 
 	#warn "".scalar(@doctypes)." doctype files\n";
 	#warn "".scalar(@xs_files)." xs files\n";
-	
-	$add_types = "add_types (".join(", ",map {"\"$_\""} @doctypes)."); "
-		if @doctypes;
+
+	if (@doctypes) {
+		$add_types = 'add_types ('
+		           . join(', ', map {'"' . quotemeta ($_) . '"'} @doctypes)
+		           . '); '
+	}
 
 	my $docgen_code = ''
 	    . $add_types
