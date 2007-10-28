@@ -163,7 +163,7 @@ no_index:
 /,
 );
 
-=unstable
+#=unstable
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -171,12 +171,12 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
    This is an unstable development release of Glib.  The API is not
    frozen and things are subject to change at any time.  Report any
    bugs to gtk-perl-list AT gnome DOT org as soon as possible.
-   Please use the 1.14x series for important work.
+   Please use the 1.16x series for important work.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 __EOW__
 
-=cut
+#=cut
 
 =frozen
 
@@ -226,7 +226,7 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 
 __END__
 
-Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
+Copyright (C) 2003-2007 by the gtk2-perl team (see the file AUTHORS for
 the full list)
 
 This library is free software; you can redistribute it and/or modify it under

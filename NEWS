@@ -1,3 +1,18 @@
+Overview of changes in Glib 1.170
+=================================
+
+* Make our build output prettier.
+* Add Glib::MakeHelper::get_configure_requires_yaml.
+* Use the above to add configure_requires information to META.yml in order to
+  publicize our Makefile.PL-time requirements.
+* Try to fix some portability issues.
+
+Overview of changes in Glib 1.161
+=================================
+
+* Fix an assertion in Glib::Object::CLONE.
+* Make Makefile.PL more friendly to CPAN testers.
+
 Overview of changes in Glib 1.160
 =================================
 
