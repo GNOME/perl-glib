@@ -12,3 +12,4 @@ Makefile\.old$
 \.spec$
 \.sw.$
 \.tar\.gz$
+.releaserc
