@@ -1,3 +1,8 @@
+2007-10-28  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs: Define and use PORTABLE_LL_FORMAT and
+	PORTABLE_ULL_FORMAT.
+
 2007-10-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* AUTHORS

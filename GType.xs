@@ -697,11 +697,14 @@ C<SvIV> instead.
 #ifdef WIN32
 # ifdef _MSC_VER
 #  define PORTABLE_STRTOLL(str, end, base) _strtoi64 (str, end, base)
+#  define PORTABLE_LL_FORMAT "%I64d"
 # else
 #  define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
+#  define PORTABLE_LL_FORMAT "%ld"
 # endif
 #else
 # define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
+# define PORTABLE_LL_FORMAT "%lld"
 #endif
 
 gint64
@@ -731,8 +734,9 @@ newSVGInt64 (gint64 value)
 	STRLEN length;
 	SV *sv;
 
-	/* newSVpvf doesn't seem to work correctly. */
-	length = sprintf(string, "%lld", value);
+	/* newSVpvf doesn't seem to work correctly.
+	sv = newSVpvf (PORTABLE_LL_FORMAT, value); */
+	length = sprintf(string, PORTABLE_LL_FORMAT, value);
 	sv = newSVpv (string, length);
 
 	return sv;
@@ -749,11 +753,14 @@ uses C<SvUV> instead.
 #ifdef WIN32
 # ifdef _MSC_VER
 #  define PORTABLE_STRTOULL(str, end, base) _strtoui64 (str, end, base)
+#  define PORTABLE_ULL_FORMAT "%I64u"
 # else
 #  define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
+#  define PORTABLE_ULL_FORMAT "%lu"
 # endif
 #else
 # define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)
+# define PORTABLE_ULL_FORMAT "%llu"
 #endif
 
 guint64
@@ -783,8 +790,9 @@ newSVGUInt64 (guint64 value)
 	STRLEN length;
 	SV *sv;
 
-	/* newSVpvf doesn't seem to work correctly. */
-	length = sprintf(string, "%llu", value);
+	/* newSVpvf doesn't seem to work correctly.
+	sv = newSVpvf (PORTABLE_ULL_FORMAT, value); */
+	length = sprintf(string, PORTABLE_ULL_FORMAT, value);
 	sv = newSVpv (string, length);
 
 	return sv;
