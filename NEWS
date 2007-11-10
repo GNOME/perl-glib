@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.162
+=================================
+
+* Fix a build failure in the documentation generation phase.  [Andreas König]
+
 Overview of changes in Glib 1.161
 =================================
 
