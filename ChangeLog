@@ -1,3 +1,9 @@
+2007-11-15  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* Glib.exports: Add SvGKeyFile.  (Reported by spicy jack)
+
 2007-11-10  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
