@@ -20,6 +20,7 @@
 
 @exports = qw(
 SvGChar
+SvGKeyFile
 SvGParamFlags
 SvGParamSpec
 SvGSignalFlags
