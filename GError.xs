@@ -243,7 +243,7 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 		const char * domain;
 		GQuark qdomain;
 		svp = hv_fetch (hv, "domain", 6, FALSE);
-		if (!svp || !SvOK (sv))
+		if (!svp || !SvOK (*svp))
 			g_error ("key 'domain' not found in plain hash for GError");
 		domain = SvPV_nolen (*svp);
 		qdomain = g_quark_try_string (domain);

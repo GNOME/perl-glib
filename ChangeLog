@@ -1,3 +1,11 @@
+2007-11-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GError.xs (gperl_gerror_from_sv): Fix the check for undefined
+	domain keys in GError hashes.
+
+	* GType.xs (add_interfaces): Fix the check for undefined interface
+	names.
+
 2007-11-15  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.exports: Add SvGKeyFile.  (Reported by spicy jack)
