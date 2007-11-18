@@ -1422,9 +1422,8 @@ add_interfaces (GType instance_type, AV * interfaces)
 
         for (i = 0; i <= av_len (interfaces); i++) {
 		SV ** svp = av_fetch (interfaces, i, FALSE);
-		if (!svp && !SvOK (*svp))
-			croak ("%s is not a valid interface name",
-			       SvPV_nolen (*svp));
+		if (!svp || !SvOK (*svp))
+			croak ("encountered undefined interface name");
 
 		/* call the interface's setup function on this class. */
 		{
