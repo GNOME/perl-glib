@@ -390,8 +390,7 @@ get_gtype_or_croak (SV * object_or_class_name)
 {
 	GType gtype;
 
-	if (object_or_class_name &&
-	    SvOK (object_or_class_name) &&
+	if (gperl_sv_defined (object_or_class_name) &&
 	    SvROK (object_or_class_name)) {
 		GObject * object = SvGObject (object_or_class_name);
 		if (!object)

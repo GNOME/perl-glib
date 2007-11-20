@@ -230,10 +230,10 @@ gperl_argv_new ()
 	pargv->argv[0] = SvPV_nolen (ARGV0);
 
 	for (i = 0 ; i < len ; i++) {
-		SV ** sv = av_fetch (ARGV, i, 0);
-		if (sv && SvOK (*sv))
+		SV ** svp = av_fetch (ARGV, i, 0);
+		if (svp && gperl_sv_defined (*svp))
 			pargv->shadow[i] = pargv->argv[i+1]
-			                 = g_strdup (SvPV_nolen (*sv));
+			                 = g_strdup (SvPV_nolen (*svp));
 	}
 
 	return pargv;
@@ -283,7 +283,7 @@ gperl_format_variable_for_output (SV * sv)
 {
 	if (sv) {
 		/* disambiguate undef */
-		if (!SvOK (sv))
+		if (!gperl_sv_defined (sv))
 			return SvPV_nolen (sv_2mortal (newSVpv ("undef", 5)));
 		/* don't truncate references... */
 		if (SvROK (sv))
@@ -295,6 +295,46 @@ gperl_format_variable_for_output (SV * sv)
 	}
 
 	return NULL;
+}
+
+=item gboolean gperl_sv_defined (SV *sv)
+
+Checks the SV I<sv> for definedness just like Perl's I<defined()> would do.
+Most importantly, it correctly handles "magical" SVs, unlike bare I<SvOK>.
+It's also NULL-safe.
+
+=cut
+gboolean
+gperl_sv_defined (SV *sv)
+{
+	/* This is adapted from PP(pp_defined) in perl's pp.c */
+
+	if (!sv || !SvANY(sv))
+		return FALSE;
+
+	switch (SvTYPE(sv)) {
+	    case SVt_PVAV:
+		if (AvMAX(sv) >= 0 || SvGMAGICAL(sv)
+		    || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
+			return TRUE;
+		break;
+	    case SVt_PVHV:
+		if (HvARRAY(sv) || SvGMAGICAL(sv)
+		    || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
+			return TRUE;
+		break;
+	    case SVt_PVCV:
+		if (CvROOT(sv) || CvXSUB(sv))
+			return TRUE;
+		break;
+	    default:
+		if (SvGMAGICAL(sv))
+			mg_get(sv);
+		if (SvOK(sv))
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 =back
@@ -430,10 +470,10 @@ filename_to_uri (...)
     CODE:
 	if (items == 2) {
 		filename = SvPV_nolen (ST (0));
-		hostname = SvOK (ST (1)) ? SvPV_nolen (ST (1)) : NULL;
+		hostname = gperl_sv_defined (ST (1)) ? SvPV_nolen (ST (1)) : NULL;
 	} else if (items == 3) {
 		filename = SvPV_nolen (ST (1));
-		hostname = SvOK (ST (2)) ? SvPV_nolen (ST (2)) : NULL;
+		hostname = gperl_sv_defined (ST (2)) ? SvPV_nolen (ST (2)) : NULL;
 	} else {
 		croak ("Usage: Glib::filename_to_uri (filename, hostname)\n"
 		       " -or-  Glib->filename_to_uri (filename, hostname)\n"

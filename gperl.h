@@ -76,6 +76,8 @@ void gperl_argv_free (GPerlArgv *pargv);
 
 char * gperl_format_variable_for_output (SV * sv);
 
+gboolean gperl_sv_defined (SV *sv);
+
 /* internal trickery */
 gpointer gperl_type_class (GType type);
 /*

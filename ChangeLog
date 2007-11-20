@@ -1,3 +1,24 @@
+2007-11-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.exports
+	* Glib.xs
+	* gperl.h: Add gperl_sv_defined, which checks an SV for
+	definedness just like Perl's defined() does.
+
+	* GBoxed.xs
+	* GError.xs
+	* GObject.xs
+	* GSignal.xs
+	* GType.xs
+	* GValue.xs
+	* Glib.xs: Use gperl_sv_defined instead of SvOK to check SVs for
+	definedness.  This keeps Glib from erroneously thinking your
+	scalars are undefined, for example when using tied hashes.
+
+	* MANIFEST
+	* t/tied_definedness.t: Test that values from tied hashes get
+	through the definedness checks.
+
 2007-11-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GError.xs (gperl_gerror_from_sv): Fix the check for undefined
