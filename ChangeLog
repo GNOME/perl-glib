@@ -1,3 +1,10 @@
+2007-12-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* CodeGen.pm
+	* gperl.h
+	* typemap: Replace the last occurences of SvOK with
+	gperl_sv_defined.
+
 2007-11-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.exports
