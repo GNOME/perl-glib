@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.171
+=================================
+
+* Correct the way we check values for definedness: add gperl_sv_defined(), an
+  XS version of perl's defined(), and use it everywhere.  Among other things,
+  this should fix the problems where tied values were reported as undefined.
+* Fix some build issues.
+
 Overview of changes in Glib 1.170
 =================================
 
@@ -6,6 +14,11 @@ Overview of changes in Glib 1.170
 * Use the above to add configure_requires information to META.yml in order to
   publicize our Makefile.PL-time requirements.
 * Try to fix some portability issues.
+
+Overview of changes in Glib 1.162
+=================================
+
+* Fix a build failure in the documentation generation phase.  [Andreas König]
 
 Overview of changes in Glib 1.161
 =================================
