@@ -1,3 +1,9 @@
+2007-12-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* GBookmarkFile.xs: Hush compiler warning.
+
 2007-11-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	Merge from HEAD:
