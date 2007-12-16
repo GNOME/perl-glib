@@ -1,5 +1,7 @@
 2007-12-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GBookmarkFile.xs: Hush compiler warning.
+
 	* CodeGen.pm
 	* gperl.h
 	* typemap: Replace the last occurences of SvOK with

@@ -670,15 +670,19 @@ g_bookmark_file_get_added (bookmark_file, uri)
         GError *err = NULL;
     CODE:
         switch (ix) {
-		case 0:
-		RETVAL = g_bookmark_file_get_added    (bookmark_file, uri, &err); break;
-		case 1:
-		RETVAL = g_bookmark_file_get_modified (bookmark_file, uri, &err); break;
-		case 2:
-		RETVAL = g_bookmark_file_get_visited  (bookmark_file, uri, &err); break;
-		default:
-			g_assert_not_reached ();
-			break;
+	    case 0:
+		RETVAL = g_bookmark_file_get_added    (bookmark_file, uri, &err);
+		break;
+	    case 1:
+		RETVAL = g_bookmark_file_get_modified (bookmark_file, uri, &err);
+		break;
+	    case 2:
+		RETVAL = g_bookmark_file_get_visited  (bookmark_file, uri, &err);
+		break;
+	    default:
+		RETVAL = 0;
+		g_assert_not_reached ();
+		break;
 	}
 	if (err)
 		gperl_croak_gerror (NULL, err);
