@@ -517,7 +517,7 @@ sub gen_boxed_stuff {
 	add_header "#ifdef $typemacro
   /* GBoxed $classname */
   typedef $classname $classname\_ornull;
-# define Sv$classname(sv)	(gperl_get_boxed_check ((sv), $typemacro))
+# define Sv$classname(sv)	(($classname *) gperl_get_boxed_check ((sv), $typemacro))
 # define Sv$classname\_ornull(sv)	(gperl_sv_defined (sv) ? Sv$classname (sv) : NULL)
   typedef $classname $classname\_own;
   typedef $classname $classname\_copy;

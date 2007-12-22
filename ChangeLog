@@ -1,3 +1,9 @@
+2007-12-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* CodeGen.pm (gen_boxed_stuff): Correctly cast the return value of
+	the Sv$classname macros for boxed types so as to avoid handing out
+	void* pointers.
+
 2007-12-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
