@@ -250,7 +250,7 @@ typedef GPerlFilename GPerlFilename_ornull;
 
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
-#define SvGObject(sv)		(gperl_get_object (sv))
+#define SvGObject(sv)		(gperl_get_object_check (sv, G_TYPE_OBJECT))
 #define SvGObject_ornull(sv)	(gperl_sv_defined (sv) ? SvGObject (sv) : NULL)
 
 

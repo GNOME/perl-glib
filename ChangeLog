@@ -1,5 +1,10 @@
 2007-12-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* gperl.h (SvGObject)
+	* t/2.t: Use gperl_get_object_check instead of gperl_get_object so
+	that inproper usage of Glib::Object methods results in an error
+	message and not in a segfault.
+
 	* CodeGen.pm (gen_boxed_stuff): Correctly cast the return value of
 	the Sv$classname macros for boxed types so as to avoid handing out
 	void* pointers.
