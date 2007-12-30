@@ -215,7 +215,9 @@ See C<call_sv> in L<perlcall> for more information.
 =item dGPERL_CALLBACK_MARSHAL_SP
 
 Declare the stack pointer such that it can be properly initialized by
-C<GPERL_CALLBACK_MARSHAL_INIT>.  Do I<not> just use C<dSP>.
+C<GPERL_CALLBACK_MARSHAL_INIT>.  Do I<not> just use C<dSP>.  This should always
+come last in a list of declarations as its expansion might contain statements
+under certain conditions.
 
 =item GPERL_CALLBACK_MARSHAL_INIT(callback)
 

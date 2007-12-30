@@ -1,3 +1,9 @@
+2007-12-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* gperl_marshal.h: Mention in the POD that
+	dGPERL_CALLBACK_MARSHAL_SP should always come last in a list of
+	declarations.
+
 2007-12-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* gperl.h (SvGObject)
