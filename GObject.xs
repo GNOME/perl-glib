@@ -161,9 +161,12 @@ class_info_finish_loading (ClassInfo * class_info)
 
 	items = av_len (isa) + 1;
 	for (i = 0 ; i < items ; i++) {
-		SV ** svp = av_fetch (isa, i, FALSE);
-		SV * sv;
-		if (!svp || !(sv = *svp))
+		/* We're shifting the entries off of the @ISA array here
+		 * because just accessing them and later calling av_clear
+		 * seems to break the caching magic associated with @ISA when
+		 * running under perl 5.10.0. */
+		SV * sv = av_shift (isa);
+		if (!sv)
 			continue;
 		if (strEQ (SvPV_nolen (sv), "Glib::Object::_LazyLoader")) {
 			/* omit _LazyLoader, fill with proper info */
@@ -180,8 +183,9 @@ class_info_finish_loading (ClassInfo * class_info)
 				continue;
 
 			if (parent_type == G_TYPE_INTERFACE)
-				/* no interested in setting this up. */
+				/* not interested in setting this up. */
 				continue;
+
 			/* possibly recurse, loading all the way down to
 			 * GObject if necessary */
 			package = gperl_object_package_from_type (parent_type);
@@ -213,13 +217,16 @@ class_info_finish_loading (ClassInfo * class_info)
 			}
 			if (interfaces)
 				g_free (interfaces);
+
+			/* this scalar is not needed anymore */
+			sv_free (sv);
 		} else {
-			av_push (new_isa, SvREFCNT_inc (sv));
+			/* ownership of sv is transferred to new_isa */
+			av_push (new_isa, sv);
 		}
 	}
 
-	/* copy back to isa */
-	av_clear (isa);
+	/* copy back to the now empty isa */
 	items = av_len (new_isa) + 1;
 	for (i = 0 ; i < items ; i++) {
 		SV ** svp = av_fetch (new_isa, i, FALSE);
