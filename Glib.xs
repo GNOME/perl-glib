@@ -231,7 +231,7 @@ gperl_argv_new ()
 
 	for (i = 0 ; i < len ; i++) {
 		SV ** svp = av_fetch (ARGV, i, 0);
-		if (svp && gperl_sv_defined (*svp))
+		if (svp && gperl_sv_is_defined (*svp))
 			pargv->shadow[i] = pargv->argv[i+1]
 			                 = g_strdup (SvPV_nolen (*svp));
 	}
@@ -283,7 +283,7 @@ gperl_format_variable_for_output (SV * sv)
 {
 	if (sv) {
 		/* disambiguate undef */
-		if (!gperl_sv_defined (sv))
+		if (!gperl_sv_is_defined (sv))
 			return SvPV_nolen (sv_2mortal (newSVpv ("undef", 5)));
 		/* don't truncate references... */
 		if (SvROK (sv))
@@ -297,7 +297,7 @@ gperl_format_variable_for_output (SV * sv)
 	return NULL;
 }
 
-=item gboolean gperl_sv_defined (SV *sv)
+=item gboolean gperl_sv_is_defined (SV *sv)
 
 Checks the SV I<sv> for definedness just like Perl's I<defined()> would do.
 Most importantly, it correctly handles "magical" SVs, unlike bare I<SvOK>.
@@ -305,7 +305,7 @@ It's also NULL-safe.
 
 =cut
 gboolean
-gperl_sv_defined (SV *sv)
+gperl_sv_is_defined (SV *sv)
 {
 	/* This is adapted from PP(pp_defined) in perl's pp.c */
 
@@ -470,10 +470,10 @@ filename_to_uri (...)
     CODE:
 	if (items == 2) {
 		filename = SvPV_nolen (ST (0));
-		hostname = gperl_sv_defined (ST (1)) ? SvPV_nolen (ST (1)) : NULL;
+		hostname = gperl_sv_is_defined (ST (1)) ? SvPV_nolen (ST (1)) : NULL;
 	} else if (items == 3) {
 		filename = SvPV_nolen (ST (1));
-		hostname = gperl_sv_defined (ST (2)) ? SvPV_nolen (ST (2)) : NULL;
+		hostname = gperl_sv_is_defined (ST (2)) ? SvPV_nolen (ST (2)) : NULL;
 	} else {
 		croak ("Usage: Glib::filename_to_uri (filename, hostname)\n"
 		       " -or-  Glib->filename_to_uri (filename, hostname)\n"

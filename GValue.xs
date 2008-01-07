@@ -66,7 +66,7 @@ gperl_value_from_sv (GValue * value,
 {
 	char* tmp;
 	GType type;
-	if (!gperl_sv_defined (sv))
+	if (!gperl_sv_is_defined (sv))
 		return TRUE; /* use the GValue type's default */
 	type = G_TYPE_FUNDAMENTAL (G_VALUE_TYPE (value));
 	/*printf ("TYPE: %d, S: %s\n", type, SvPV_nolen(sv));*/
@@ -125,7 +125,7 @@ gperl_value_from_sv (GValue * value,
 			/* SVs need special treatment! */
 			if (G_VALUE_HOLDS (value, GPERL_TYPE_SV))
 				g_value_set_boxed (value,
-				                   gperl_sv_defined (sv)
+				                   gperl_sv_is_defined (sv)
 				                   ? sv : NULL);
 			else
 				g_value_set_boxed (value, gperl_get_boxed_check (sv, G_VALUE_TYPE(value)));

@@ -772,7 +772,7 @@ gperl_get_object (SV * sv)
 {
 	MAGIC *mg;
 
-	if (!gperl_sv_defined (sv) || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+	if (!gperl_sv_is_defined (sv) || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
 		return NULL;
 	return (GObject *) mg->mg_ptr;
 }
@@ -1283,7 +1283,7 @@ g_object_find_property (object_or_class_name, ...)
 	GType type = G_TYPE_INVALID;
 	gchar *name = NULL;
     PPCODE:
-	if (gperl_sv_defined (object_or_class_name) &&
+	if (gperl_sv_is_defined (object_or_class_name) &&
 	    SvROK (object_or_class_name)) {
 		GObject * object = SvGObject (object_or_class_name);
 		if (!object)

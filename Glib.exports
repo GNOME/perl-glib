@@ -78,7 +78,7 @@ gperl_signal_set_marshaller_for
 gperl_str_eq
 gperl_str_hash
 gperl_sv_copy
-gperl_sv_defined
+gperl_sv_is_defined
 gperl_sv_free
 gperl_sv_from_filename
 gperl_sv_from_gerror

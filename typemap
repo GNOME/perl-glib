@@ -111,7 +111,7 @@ T_GCHAR
 
 T_GCHAR_ORNULL
 	/* same as SvGChar(), but allows undef as NULL */
-	if (gperl_sv_defined ($arg)) {
+	if (gperl_sv_is_defined ($arg)) {
 		sv_utf8_upgrade ($arg);
 		$var = ($type)SvPV_nolen ($arg);
 	} else {
@@ -127,7 +127,7 @@ T_GUCHAR
 	$var = ($type)SvPV_nolen ($arg);
 
 T_CHAR_ORNULL
-	if (gperl_sv_defined ($arg)) {
+	if (gperl_sv_is_defined ($arg)) {
 		$var = ($type)SvPV_nolen ($arg);
 	} else {
 		$var = NULL;
@@ -137,7 +137,7 @@ T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
 
 T_G_MAIN_CONTEXT
-	if (!gperl_sv_defined ($arg) || !SvROK ($arg)) {
+	if (!gperl_sv_is_defined ($arg) || !SvROK ($arg)) {
 		$var = NULL;
 	} else {
 		$var = INT2PTR ($type, SvIV (SvRV ($arg)));
@@ -150,7 +150,7 @@ T_GPERL_FILENAME
 
 T_GPERL_FILENAME_ORNULL
 	$var = ($type)
-		(gperl_sv_defined ($arg)
+		(gperl_sv_is_defined ($arg)
 		 ? gperl_filename_from_sv ($arg)
 		 : NULL)
 

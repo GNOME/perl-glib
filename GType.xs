@@ -1103,7 +1103,7 @@ parse_signal_hash (GType instance_type,
 	PERL_UNUSED_VAR (signal_name);
 
 	svp = hv_fetch (hv, "flags", 5, FALSE);
-	if (svp && gperl_sv_defined (*svp))
+	if (svp && gperl_sv_is_defined (*svp))
 		s->flags = SvGSignalFlags (*svp);
 
 	svp = hv_fetch (hv, "param_types", 11, FALSE);
@@ -1126,7 +1126,7 @@ parse_signal_hash (GType instance_type,
 
 	svp = hv_fetch (hv, "class_closure", 13, FALSE);
 	if (svp && *svp) {
-		if (gperl_sv_defined (*svp))
+		if (gperl_sv_is_defined (*svp))
 			s->class_closure =
 				gperl_closure_new (*svp, NULL, FALSE);
 		/* else the class closure is NULL */
@@ -1135,7 +1135,7 @@ parse_signal_hash (GType instance_type,
 	}
 
 	svp = hv_fetch (hv, "return_type", 11, FALSE);
-	if (svp && gperl_sv_defined (*svp)) {
+	if (svp && gperl_sv_is_defined (*svp)) {
 		s->return_type = gperl_type_from_package (SvPV_nolen (*svp));
 		if (!s->return_type)
 			croak ("unknown or unregistered return type %s",
@@ -1430,7 +1430,7 @@ add_interfaces (GType instance_type, AV * interfaces)
 
         for (i = 0; i <= av_len (interfaces); i++) {
 		SV ** svp = av_fetch (interfaces, i, FALSE);
-		if (!svp || !gperl_sv_defined (*svp))
+		if (!svp || !gperl_sv_is_defined (*svp))
 			croak ("encountered undefined interface name");
 
 		/* call the interface's setup function on this class. */
@@ -2286,16 +2286,16 @@ g_type_register_enum (class, name, ...)
 			AV * av = (AV*)SvRV(sv);
 			/* value_name */
 			av2sv = av_fetch (av, 0, 0);
-			if (av2sv && gperl_sv_defined (*av2sv))
+			if (av2sv && gperl_sv_is_defined (*av2sv))
 				values[i].value_name = SvPV_nolen (*av2sv);
 			else
 				croak ("invalid enum name and value pair, no name provided");
 			/* custom value */
 			av2sv = av_fetch (av, 1, 0);
-			if (av2sv && gperl_sv_defined (*av2sv))
+			if (av2sv && gperl_sv_is_defined (*av2sv))
 				values[i].value = SvIV (*av2sv);
 		}
-		else if (gperl_sv_defined (sv))
+		else if (gperl_sv_is_defined (sv))
 		{
 			/* name syntax */
 			values[i].value_name = SvPV_nolen (sv);
@@ -2372,16 +2372,16 @@ g_type_register_flags (class, name, ...)
 			AV * av = (AV*)SvRV(sv);
 			/* value_name */
 			av2sv = av_fetch (av, 0, 0);
-			if (av2sv && gperl_sv_defined (*av2sv))
+			if (av2sv && gperl_sv_is_defined (*av2sv))
 				values[i].value_name = SvPV_nolen (*av2sv);
 			else
 				croak ("invalid flag name and value pair, no name provided");
 			/* custom value */
 			av2sv = av_fetch (av, 1, 0);
-			if (av2sv && gperl_sv_defined (*av2sv))
+			if (av2sv && gperl_sv_is_defined (*av2sv))
 				values[i].value = SvIV (*av2sv);
 		}
-		else if (gperl_sv_defined (sv))
+		else if (gperl_sv_is_defined (sv))
 		{
 			/* name syntax */
 			values[i].value_name = SvPV_nolen (sv);

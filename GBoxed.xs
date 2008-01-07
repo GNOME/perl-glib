@@ -462,7 +462,7 @@ gperl_get_boxed_check (SV * sv, GType gtype)
 	BoxedInfo * boxed_info;
 	GPerlBoxedUnwrapFunc unwrap;
 
-	if (!gperl_sv_defined (sv))
+	if (!gperl_sv_is_defined (sv))
 		croak ("variable not allowed to be undef where %s is wanted",
 		       g_type_name (gtype));
 
@@ -556,7 +556,7 @@ strv_unwrap (GType        gtype,
 	gchar ** strv = NULL;
 
 	/* pass undef */
-	if (!gperl_sv_defined (sv))
+	if (!gperl_sv_is_defined (sv))
 		return NULL;
 
 	if (SvROK (sv)) {
@@ -674,7 +674,7 @@ DESTROY (sv)
 	char * class;
 	GPerlBoxedDestroyFunc destroy;
     CODE:
-	if (!gperl_sv_defined (sv) || !SvROK (sv) || !SvRV (sv))
+	if (!gperl_sv_is_defined (sv) || !SvROK (sv) || !SvRV (sv))
 		croak ("DESTROY called on a bad value");
 
 	/* we need to find the wrapper class associated with whatever type

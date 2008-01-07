@@ -219,7 +219,7 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 	 * side effect, 0 is also allowed.  we just won't advertise that.
 	 * the logic here is a bit ugly to avoid running the overloaded
 	 * stringification operator via SvTRUE(). */
-	if (!gperl_sv_defined (sv) ||		/* not defined */
+	if (!gperl_sv_is_defined (sv) ||		/* not defined */
 	    (!SvROK (sv) && !SvTRUE (sv)))	/* not a ref, but still false */
 	{
 		*error = NULL;
@@ -244,7 +244,7 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 		const char * domain;
 		GQuark qdomain;
 		svp = hv_fetch (hv, "domain", 6, FALSE);
-		if (!svp || !gperl_sv_defined (*svp))
+		if (!svp || !gperl_sv_is_defined (*svp))
 			g_error ("key 'domain' not found in plain hash for GError");
 		domain = SvPV_nolen (*svp);
 		qdomain = g_quark_try_string (domain);
@@ -263,11 +263,11 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 	 * error code.  prefer the 'value' key, fall back to 'code'.
 	 */
 	svp = hv_fetch (hv, "value", 5, FALSE);
-	if (svp && gperl_sv_defined (*svp))
+	if (svp && gperl_sv_is_defined (*svp))
 		scratch.code = gperl_convert_enum (info->error_enum, *svp);
 	else {
 		svp = hv_fetch (hv, "code", 4, FALSE);
-		if (!svp || !gperl_sv_defined (*svp))
+		if (!svp || !gperl_sv_is_defined (*svp))
 			croak ("error hash contains neither a 'value' nor 'code' key; no error valid error code found");
 		scratch.code = SvIV (*svp);
 	}
@@ -276,7 +276,7 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 	 * the message is the easy part.
 	 */
 	svp = hv_fetch (hv, "message", 7, FALSE);
-	if (!svp || !gperl_sv_defined (*svp))
+	if (!svp || !gperl_sv_is_defined (*svp))
 		croak ("error has contains no error message");
 	scratch.message = SvGChar (*svp);
 

@@ -76,7 +76,7 @@ void gperl_argv_free (GPerlArgv *pargv);
 
 char * gperl_format_variable_for_output (SV * sv);
 
-gboolean gperl_sv_defined (SV *sv);
+gboolean gperl_sv_is_defined (SV *sv);
 
 /* internal trickery */
 gpointer gperl_type_class (GType type);
@@ -251,7 +251,7 @@ typedef GPerlFilename GPerlFilename_ornull;
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
 #define SvGObject(sv)		(gperl_get_object_check (sv, G_TYPE_OBJECT))
-#define SvGObject_ornull(sv)	(gperl_sv_defined (sv) ? SvGObject (sv) : NULL)
+#define SvGObject_ornull(sv)	(gperl_sv_is_defined (sv) ? SvGObject (sv) : NULL)
 
 
 /*
