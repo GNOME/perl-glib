@@ -1,6 +1,13 @@
 Overview of changes in Glib 1.162
 =================================
 
+* In our lazy-loading machinery for packages, change the way we clear @ISA
+  arrays to avoid problems with perl 5.10.0.
+* Fix a few build issues.
+
+Overview of changes in Glib 1.162
+=================================
+
 * Fix a build failure in the documentation generation phase.  [Andreas König]
 
 Overview of changes in Glib 1.161
