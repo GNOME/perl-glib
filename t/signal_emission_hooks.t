@@ -4,7 +4,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 76;
+use Test::More tests => 77;
 use Glib ':constants';
 
 Glib::Type->register_object (
@@ -172,6 +172,10 @@ sub generic_hook_data {
 
     isa_ok ($user_data, 'HASH');
     is ($user_data->{foo}, 'bar', 'user data is valid');
+
+    # verify the invocation hint.
+    my $other_hint = $param_list->[0]->signal_get_invocation_hint();
+    is_deeply ($ihint, $other_hint);
 
     return generic_hook_no_data ($ihint, $param_list);
 }

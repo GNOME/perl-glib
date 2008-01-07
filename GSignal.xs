@@ -628,9 +628,45 @@ g_signal_query (SV * object_or_class_name, const char * name)
 ##					     guint		*signal_id_p,
 ##					     GQuark		*detail_p,
 ##					     gboolean		 force_detail_quark);
+
 ##GSignalInvocationHint* g_signal_get_invocation_hint (gpointer    instance);
-##
-##
+=for apidoc
+=for signature $ihint = $instance->signal_get_invocation_hint
+Get a reference to a hash describing the innermost signal currently active
+on C<$instance>.  Returns undef if no signal emission is active.  This
+invocation hint is the same object passed to signal emission hooks, and
+contains these keys:
+
+=over
+
+=item signal_name
+
+The name of the signal being emitted.
+
+=item detail
+
+The detail passed on for this emission.  For example, a C<notify> signal will
+have the property name as the detail.
+
+=item run_type
+
+The current stage of signal emission, one of "run-first", "run-last", or
+"run-cleanup".
+
+=back
+
+=cut
+SV*
+g_signal_get_invocation_hint (GObject *instance)
+    PREINIT:
+        GSignalInvocationHint *ihint;
+    CODE:
+        ihint = g_signal_get_invocation_hint (instance);
+        RETVAL = ihint ? newSVGSignalInvocationHint (ihint) : &PL_sv_undef;
+    OUTPUT:
+        RETVAL
+
+
 ##/* --- signal emissions --- */
 ##void	g_signal_stop_emission		    (gpointer		  instance,
 ##					     guint		  signal_id,
