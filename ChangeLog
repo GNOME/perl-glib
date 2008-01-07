@@ -1,3 +1,17 @@
+2008-01-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* CodeGen.pm
+	* GBoxed.xs
+	* GError.xs
+	* GObject.xs
+	* GSignal.xs
+	* GType.xs
+	* GValue.xs
+	* Glib.exports
+	* Glib.xs
+	* gperl.h
+	* typemap: Rename gperl_sv_defined to gperl_sv_is_defined.
+
 2008-01-07  muppet  <scott@asofyet.org>
 
 	* GSignal.xs, t/signal_emission_hooks.t:  Bind and test
