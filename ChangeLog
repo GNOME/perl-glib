@@ -12,6 +12,12 @@
 	* gperl.h
 	* typemap: Rename gperl_sv_defined to gperl_sv_is_defined.
 
+	* GBoxed.xs
+	* GError.xs
+	* GType.xs
+	* gperl.h: Add new macros: gperl_sv_is_array_ref,
+	gperl_sv_is_code_ref, and gperl_sv_is_hash_ref.
+
 2008-01-07  muppet  <scott@asofyet.org>
 
 	* GSignal.xs, t/signal_emission_hooks.t:  Bind and test

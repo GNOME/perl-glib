@@ -78,6 +78,13 @@ char * gperl_format_variable_for_output (SV * sv);
 
 gboolean gperl_sv_is_defined (SV *sv);
 
+#define gperl_sv_is_array_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVAV)
+#define gperl_sv_is_code_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVCV)
+#define gperl_sv_is_hash_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
+
 /* internal trickery */
 gpointer gperl_type_class (GType type);
 /*

@@ -564,7 +564,7 @@ strv_unwrap (GType        gtype,
 		int n;
 
 		/* only allow a reference to an array */
-		if (SvTYPE (SvRV (sv)) != SVt_PVAV)
+		if (!gperl_sv_is_array_ref (sv))
 			croak ("expecting a reference to an array of strings for Glib::Strv");
 		av = (AV*) SvRV (sv);
 		n = av_len (av) + 1;

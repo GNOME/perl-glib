@@ -418,7 +418,7 @@ gperl_convert_flags (GType type,
 {
 	if (SvROK (val) && sv_derived_from (val, "Glib::Flags"))
         	return SvIV (SvRV (val));
-	if (SvROK (val) && SvTYPE (SvRV(val)) == SVt_PVAV) {
+	if (gperl_sv_is_array_ref (val)) {
 		AV* vals = (AV*) SvRV(val);
 		gint value = 0;
 		int i;
@@ -1107,8 +1107,7 @@ parse_signal_hash (GType instance_type,
 		s->flags = SvGSignalFlags (*svp);
 
 	svp = hv_fetch (hv, "param_types", 11, FALSE);
-	if (svp && (*svp) && SvROK (*svp)
-	    && SvTYPE (SvRV (*svp)) == SVt_PVAV) {
+	if (svp && gperl_sv_is_array_ref (*svp)) {
 		guint i;
 		AV * av = (AV*) SvRV (*svp);
 		s->n_params = av_len (av) + 1;
@@ -1178,7 +1177,7 @@ add_signals (GType instance_type, HV * signals)
 
 		/* parse the key's value... */
 		value = hv_iterval (signals, he);
-		if (SvROK (value) && SvTYPE (SvRV (value)) == SVt_PVHV) {
+		if (gperl_sv_is_hash_ref (value)) {
 			/*
 			 * value is a hash describing a new signal.
 			 */
@@ -1210,7 +1209,7 @@ add_signals (GType instance_type, HV * signals)
 				       signal_name);
 
 		} else if ((SvPOK (value) && SvLEN (value) > 0) ||
-		           (SvROK (value) && SvTYPE (SvRV (value)) == SVt_PVCV)) {
+		           gperl_sv_is_code_ref (value)) {
 			/*
 			 * a subroutine reference or method name to override
 			 * the class closure for this signal.
@@ -1341,7 +1340,7 @@ add_properties (GType instance_type, AV * properties)
 		GParamSpec * pspec = NULL;
 		if (sv_derived_from (sv, "Glib::ParamSpec"))
 			pspec = SvGParamSpec (sv);
-		else if (SVt_PVHV == SvTYPE (SvRV (sv))) {
+		else if (gperl_sv_is_hash_ref (sv)) {
 			HV * hv = (HV*) SvRV (sv);
 			SV ** svp;
 			SV * setter = NULL;
@@ -2191,17 +2190,17 @@ g_type_register_object (class, parent_package, new_package, ...);
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals")) {
-                        if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVHV)
+                        if (gperl_sv_is_hash_ref (ST (i+1)))
                                 add_signals (new_type, (HV*)SvRV (ST (i+1)));
                         else
                           	croak ("signals must be a hash of signalname => signalspec pairs");
                 } else if (strEQ (key, "properties")) {
-                        if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVAV)
+                        if (gperl_sv_is_array_ref (ST (i+1)))
                                 add_properties (new_type, (AV*)SvRV (ST (i+1)));
                         else
                           	croak ("properties must be an array of GParamSpecs");
                 } else if (strEQ (key, "interfaces")) {
-			if (SvROK (ST (i+1)) && SvTYPE (SvRV (ST (i+1))) == SVt_PVAV)
+			if (gperl_sv_is_array_ref (ST (i+1)))
 				add_interfaces (new_type, (AV*)SvRV (ST (i+1)));
 			else
 				croak ("interfaces must be an array of package names");
@@ -2280,7 +2279,7 @@ g_type_register_enum (class, name, ...)
 		sv = (SV*)ST (i+2);
 		/* default to the i based numbering */
 		values[i].value = i + 1;
-		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		if (gperl_sv_is_array_ref (sv))
 		{
 			/* [ name => value ] syntax */
 			AV * av = (AV*)SvRV(sv);
@@ -2366,7 +2365,7 @@ g_type_register_flags (class, name, ...)
 		sv = (SV*)ST (i+2);
 		/* default to the i based numbering */
 		values[i].value = 1 << i;
-		if (SvROK(sv) && SvTYPE(SvRV(sv))==SVt_PVAV)
+		if (gperl_sv_is_array_ref (sv))
 		{
 			/* [ name => value ] syntax */
 			AV * av = (AV*)SvRV(sv);

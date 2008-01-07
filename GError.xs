@@ -229,7 +229,7 @@ gperl_gerror_from_sv (SV * sv, GError ** error)
 	/*
 	 * now we must parse a hash.
 	 */
-	if (!SvROK (sv) || SvTYPE (SvRV (sv)) != SVt_PVHV)
+	if (!gperl_sv_is_hash_ref (sv))
 		croak ("expecting undef or a hash reference for a GError");
 
 	/*
