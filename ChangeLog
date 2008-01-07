@@ -1,3 +1,13 @@
+2008-01-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* GObject.xs (class_info_finish_loading): When handling a class'
+	@ISA, instead of simple av_fetch calls and a final av_clear, use
+	repeated av_shift calls.  Invoking av_clear on an @ISA array seems
+	to break the caching magic associated with it when running under
+	perl 5.10.0.  This in turn breaks our lazy-loading scheme.
+
 2007-12-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	Merge from HEAD:
