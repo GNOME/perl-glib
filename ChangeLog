@@ -2,6 +2,21 @@
 
 	Merge from HEAD:
 
+	* GType.xs:  Defer the instantiation of a newly-registered
+	object class's class until after we've parsed the list of
+	signals, properties, and interfaces to add to it.  This
+	allows perl-derived GObjects to override GInterfaces that
+	are implemented by parent classes.  Previously, the early
+	instantiation confused GLib and caused the call to
+	g_type_class_add_interface() to complain that the given type
+	already conforms to the interface, because the type system
+	considered the initialization of the class to be complete.
+
+	Note that we do not currently have a way of chaining up to
+	a parent's GInterface implementation, as can be done in C
+	via g_type_interface_peek_parent().  Black magic may be
+	required for that.
+
 	* GObject.xs:  Load GInterface types immediately, instead of
 	leaving them for lazy loading.  Otherwise, it is possible to
 	get into situations in which a GInterface has not triggered

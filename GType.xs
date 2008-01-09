@@ -2166,17 +2166,6 @@ g_type_register_object (class, parent_package, new_package, ...);
 	/* mark this type as "one of ours". */
 	g_type_set_qdata (new_type, gperl_type_reg_quark (), (gpointer) TRUE);
 
-	/* instantiate the class right now.  perl doesn't let classes go
-	 * away once they've been defined, so we'll just leak this ref and
-	 * let the GObjectClass live as long as the program.  in fact,
-	 * because we don't really have class_init handlers like C, we
-	 * really don't want the class to die and be reinstantiated, because
-	 * some of the setup (namely the stuff coming up) will never happen
-	 * again.
-	 * this statement will cause an arbitrary amount of stuff to happen.
-	 */
-	g_type_class_ref (new_type); /* leak */
-
 	/* now look for things we should initialize presently, e.g.
 	 * signals and properties and interfaces and such, things that
 	 * would generally go into a class_init. */
@@ -2199,6 +2188,18 @@ g_type_register_object (class, parent_package, new_package, ...);
 				croak ("interfaces must be an array of package names");
 		}
 	}
+
+	/* instantiate the class right now.  perl doesn't let classes go
+	 * away once they've been defined, so we'll just leak this ref and
+	 * let the GObjectClass live as long as the program.  in fact,
+	 * because we don't really have class_init handlers like C, we
+	 * really don't want the class to die and be reinstantiated, because
+	 * some of the setup (namely all the class setup we just did and
+	 * the override installation coming up) will never happen
+	 * again.
+	 * this statement will cause an arbitrary amount of stuff to happen.
+	 */
+	g_type_class_ref (new_type); /* leak */
 	
 	/* vfuncs cause a bit of a problem, because the normal mechanisms of
 	 * GObject don't give us a predefined way to handle them.  here we
