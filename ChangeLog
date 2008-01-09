@@ -2,6 +2,11 @@
 
 	Merge from HEAD:
 
+	* GObject.xs:  Load GInterface types immediately, instead of
+	leaving them for lazy loading.  Otherwise, it is possible to
+	get into situations in which a GInterface has not triggered
+	its lazy loading by the time it is needed.
+
 	* ParseXSDoc.pm (parse_file): When parsing an #else pre-processor
 	directive, make sure we have actually seen and parsed a
 	corresponding #if before trying to negate its entry.  This can
