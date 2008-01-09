@@ -1,3 +1,13 @@
+2008-01-09  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* ParseXSDoc.pm (parse_file): When parsing an #else pre-processor
+	directive, make sure we have actually seen and parsed a
+	corresponding #if before trying to negate its entry.  This can
+	happen when our parsing heurestics fail.  The result was an
+	exception: "Modification of non-creatable array value attempted."
+
 2008-01-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
