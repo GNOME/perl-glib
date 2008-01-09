@@ -1,3 +1,18 @@
+Overview of changes in Glib 1.172
+=================================
+
+* Make inproper usage of Glib::Object methods result in an error message and
+  not in a segfault.
+* Add Glib::Object::signal_get_invocation_hint.
+* In our lazy-loading machinery for packages, change the way we clear @ISA
+  arrays to avoid problems with perl 5.10.0.
+* Add new helpers to the C API: gperl_sv_is_defined, gperl_sv_is_array_ref,
+  gperl_sv_is_code_ref, and gperl_sv_is_hash_ref.
+* Allow Perl-derived GObjects to override GInterfaces that are implemented by
+  parent classes.
+* Load GInterface types immediately, instead of lazily.  This makes sure
+  GInterfaces are set up by the time they are needed.
+
 Overview of changes in Glib 1.171
 =================================
 
@@ -14,6 +29,21 @@ Overview of changes in Glib 1.170
 * Use the above to add configure_requires information to META.yml in order to
   publicize our Makefile.PL-time requirements.
 * Try to fix some portability issues.
+
+Overview of changes in Glib 1.164
+=================================
+
+* Allow Perl-derived GObjects to override GInterfaces that are implemented by
+  parent classes.
+* Load GInterface types immediately, instead of lazily.  This makes sure
+  GInterfaces are set up by the time they are needed.
+
+Overview of changes in Glib 1.163
+=================================
+
+* In our lazy-loading machinery for packages, change the way we clear @ISA
+  arrays to avoid problems with perl 5.10.0.
+* Fix a few build issues.
 
 Overview of changes in Glib 1.162
 =================================
