@@ -1,4 +1,12 @@
-Overview of changes in Glib 1.162
+Overview of changes in Glib 1.164
+=================================
+
+* Allow Perl-derived GObjects to override GInterfaces that are implemented by
+  parent classes.
+* Load GInterface types immediately, instead of lazily.  This makes sure
+  GInterfaces are set up by the time they are needed.
+
+Overview of changes in Glib 1.163
 =================================
 
 * In our lazy-loading machinery for packages, change the way we clear @ISA
