@@ -273,7 +273,9 @@ sub parse_file {
 			#print Dumper(\@cond);
 		} elsif (/^\s*#\s*else\s*(\s.*)?$/) {
 			#warn "else $cond[-1]\n";
-			$cond[$#cond] = '!' . $cond[$#cond];
+			if (exists $cond[$#cond]) {
+				$cond[$#cond] = '!' . $cond[$#cond];
+			}
 		} elsif (/^\s*#\s*endif\s*(\s.*)?$/) {
 			#warn "endif $cond[-1]\n";
 			pop @cond;
