@@ -4,7 +4,7 @@
 # checks order of execution of initializers and finalizers, so the code
 # gets a little hairy.
 #
-print "1..15\n";
+print "1..17\n";
 
 use strict;
 use warnings;
@@ -36,7 +36,7 @@ sub Foo::GET_PROPERTY {
    6;
 }
 
-register Glib::Type
+Glib::Type->register (
    Glib::Object::, Foo::,
    properties => [
            Glib::ParamSpec->string (
@@ -46,7 +46,7 @@ register Glib::Type
               'default value',
               [qw/readable writable/]
            ),
-   ];
+   ]);
 
 sub Bar::INIT_INSTANCE {
    print "ok 3\n";
@@ -89,6 +89,15 @@ my @barprops = Bar->list_properties;
 
 print "".(@fooprops == 1 ? "ok 14" : "not ok")." - property count for parent\n";
 print "".(@barprops == 2 ? "ok 15" : "not ok")." - property count for child\n";
+
+my @ancestry = Glib::Type->list_ancestors ('Bar');
+my $ancestry_ok = $ancestry[0] eq 'Bar' &&
+                  $ancestry[1] eq 'Foo' &&
+                  $ancestry[2] eq 'Glib::Object';
+print "".($ancestry_ok ? "ok 16" : "not ok")." - ancestry for Bar\n";
+
+my $cname_ok = Glib::Type->package_from_cname ('GObject') eq 'Glib::Object';
+print "".($cname_ok ? "ok 17" : "not ok")." - package_from_cname\n";
 
 
 __END__

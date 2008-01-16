@@ -1,3 +1,8 @@
+2008-01-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/4.t: Test Glib::Type->list_ancestors and
+	Glib::Type->package_from_cname.
+
 2008-01-09  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
