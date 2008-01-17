@@ -82,10 +82,14 @@ use Data::Dumper;
 
 if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
     && (!Glib->CHECK_VERSION (2,2,4))) {
-	print "not ok 12 - skip bug in glib\n";
-	print "not ok 13 - skip bug in glib\n";
-	print "not ok 14 - skip bug in glib\n";
+	print "ok 12 # skip bug in glib\n";
+	print "ok 13 # skip bug in glib\n";
+	print "ok 14 # skip bug in glib\n";
 
+} elsif ($^O eq "MSWin32") {
+	print "ok 12 # skip add_watch on win32\n";
+	print "ok 13 # skip add_watch on win32\n";
+	print "ok 14 # skip add_watch on win32\n";
 } else {
 	print "ok 12\n";
 	open IN, $0 or die "can't open file\n";
@@ -118,8 +122,8 @@ if ($^O eq 'MSWin32') {
 	# XXX Win32 doesn't do SIGALRM the way unix does; either the alarm
 	# doesn't interrupt the poll, or alarm just doesn't work.
 	my $reason = "async signals don't work on win32 like they do on unix";
-	print "ok 15 - skip $reason\n";
-	print "ok 16 - skip $reason\n";
+	print "ok 15 # skip $reason\n";
+	print "ok 16 # skip $reason\n";
 } else {
 	$loop = Glib::MainLoop->new;
 	$SIG{ALRM} = sub {
@@ -143,7 +147,7 @@ if (Glib->CHECK_VERSION (2, 4, 0)) {
 	print Glib::main_depth == 0 ?
 	  "ok 17\n" : "not ok 17\n";
 } else {
-	print "ok 17 - skip main_depth\n";
+	print "ok 17 # skip main_depth\n";
 }
 
 print $loop->is_running ?
@@ -168,8 +172,8 @@ if (Glib->CHECK_VERSION (2, 12, 0)) {
   print Glib::MainContext::is_owner(undef) ?
     "not ok 24\n" : "ok 24\n";
 } else {
-  print "ok 23 - skip\n";
-  print "ok 24 - skip\n";
+  print "ok 23 # skip\n";
+  print "ok 24 # skip\n";
 }
 
 if (Glib->CHECK_VERSION (2, 14, 0)) {
@@ -181,7 +185,7 @@ if (Glib->CHECK_VERSION (2, 14, 0)) {
   });
   $loop->run;
 } else {
-  print "ok 25 - skip\n";
+  print "ok 25 # skip\n";
 }
 
 __END__
