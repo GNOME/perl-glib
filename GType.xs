@@ -2566,7 +2566,12 @@ hasn't been registered with the bindings by C<gperl_register_fundamental()>
 this function will croak.
 
 Returns the values as a list of hashes, one hash for each value, containing
-that value's name and nickname.
+the value, name and nickname, eg. for Glib::SignalFlags
+
+    { value => 8,
+      name  => 'G_SIGNAL_NO_RECURSE',
+      nick  => 'no-recurse'
+    }
 
 =cut
 void
@@ -2581,15 +2586,15 @@ list_values (class, const char * package)
 		croak ("%s is not registered with either GPerl or GLib",
 		       package);
 	/*
-	 * unfortunately, GFlagsValue and GEnumValue different structures
-	 * that happen to have identical definitions, so even though it
-	 * is very inviting to use the same code for them, it's not
-	 * technically a good idea.
+	 * GFlagsValue and GEnumValue are nearly the same, but differ in
+	 * that GFlagsValue is a guint for the value, but GEnumValue is gint
+	 * (and some enums do indeed use negatives, eg. GtkResponseType).
 	 */
 	if (G_TYPE_IS_ENUM (type)) {
 		GEnumValue * v = gperl_type_enum_get_values (type);
 		for ( ; v && v->value_nick && v->value_name ; v++) {
 			HV * hv = newHV ();
+			hv_store (hv, "value",5, newSViv (v->value), 0);
 			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
 			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
 			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
@@ -2598,6 +2603,7 @@ list_values (class, const char * package)
 		GFlagsValue * v = gperl_type_flags_get_values (type);
 		for ( ; v && v->value_nick && v->value_name ; v++) {
 			HV * hv = newHV ();
+			hv_store (hv, "value",5, newSVuv (v->value), 0);
 			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
 			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
 			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
