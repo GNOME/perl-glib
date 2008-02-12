@@ -2,7 +2,7 @@ Overview of changes in Glib 1.173
 =================================
 
 * Make Glib::Type::list_values return the value of each enum/flags entry in
-  addition to the name and nickname.  [Kevin Ryde]
+  addition to the name and nickname.
 
 Overview of changes in Glib 1.172
 =================================
