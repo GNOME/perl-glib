@@ -1,3 +1,9 @@
+2008-02-12  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm
+	* NEWS
+	* README: Unstable release 1.173.
+
 2008-01-17  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs

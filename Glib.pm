@@ -63,7 +63,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.172';
+our $VERSION = '1.173';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -530,7 +530,7 @@ bignum/bigint will automatically use L<Math::BigInt::Lite> if it's available.
 
 =back
 
-=head1 Exports
+=head1 EXPORTS
 
 For the most part, gtk2-perl avoids exporting things.  Nothing is exported by
 default, but some functions and constants in Glib are available by request;
