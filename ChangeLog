@@ -1,3 +1,10 @@
+2008-02-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* MakeHelper.pm: Rework the BLIB_DONE stuff to not rely on
+	Makefile conditionals.  We should now build fine with any `make´
+	again.  Also fix some incorrect and add missing dependencies for
+	various documentation files.
+
 2008-02-12  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
