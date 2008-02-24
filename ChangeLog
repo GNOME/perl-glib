@@ -1,5 +1,11 @@
 2008-02-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Makefile.PL: Tell the compiler to always look for headers in '.'
+	first so that ours are preferred in case of name
+	clahes.  (Suggestion by Daniel Macks in RT #32883)
+
+2008-02-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* Glib.pm
 	* NEWS
 	* README: Unstable release 1.174.
