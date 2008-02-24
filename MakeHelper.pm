@@ -433,7 +433,7 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl \$(POD_DEPENDS)
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	\$(NOECHO) \$(ECHO) Creating POD index...
-	\$(NOECHO) $^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
+	\$(NOECHO) $^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	\$(NOECHO) $^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	\$(NOECHO) $^X -e 'print \"=back\\n\\n\";' >> \$(INST_LIB)/\$(FULLEXT)/index.pod

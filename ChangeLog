@@ -2,7 +2,10 @@
 
 	* Makefile.PL: Tell the compiler to always look for headers in '.'
 	first so that ours are preferred in case of name
-	clahes.  (Suggestion by Daniel Macks in RT #32883)
+	clashes.  (Suggestion by Daniel Macks in RT #32883)
+
+	* MakeHelper.pm: Add a hypen to the NAME section of POD
+	indices.  (Suggested by Quentin Sculo)
 
 2008-02-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
