@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.174
+=================================
+
+* Increase compatibility with different `make´s by not using Makefile
+  conditionals for building our documentation.
+
 Overview of changes in Glib 1.173
 =================================
 

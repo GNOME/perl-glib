@@ -1,4 +1,4 @@
-Glib version 1.173
+Glib version 1.174
 ==================
 
 This module provides perl access to Glib and GLib's GObject libraries.
@@ -85,7 +85,7 @@ Please report bugs to the gnome-perl product in GNOME's Bugzilla:
 COPYRIGHT AND LICENSE
 ---------------------
 
-Copyright (C) 2003-2007 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2008 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under

@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2007 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2008 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -63,7 +63,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
 
-our $VERSION = '1.173';
+our $VERSION = '1.174';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
@@ -611,7 +611,7 @@ patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2007 by muppet and the gtk2-perl team
+Copyright 2003-2008 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For
