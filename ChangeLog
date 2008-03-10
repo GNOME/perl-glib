@@ -4,7 +4,7 @@
 	first so that ours are preferred in case of name
 	clashes.  (Suggestion by Daniel Macks in RT #32883)
 
-	* MakeHelper.pm: Add a hypen to the NAME section of POD
+	* MakeHelper.pm: Add a hyphen to the NAME section of POD
 	indices.  (Suggested by Quentin Sculo)
 
 2008-02-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
