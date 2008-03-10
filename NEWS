@@ -1,3 +1,22 @@
+Overview of changes in Glib 1.180
+=================================
+
+ Since 1.16x (the previous stable series)
+ ----------------------------------------
+  * Add Glib::MakeHelper::get_configure_requires_yaml.
+  * Add Glib::Object::signal_get_invocation_hint.
+  * Make our lazy-loader compatible with perl-5.10.0.
+  * Allow Perl-derived GObjects to override GInterfaces that are implemented by
+    parent classes.
+  * Correct the way we check values for definedness: use the new function
+    gperl_sv_is_defined.  For convenience, also add gperl_sv_is_array_ref,
+    gperl_sv_is_code_ref, and gperl_sv_is_hash_ref.
+
+ Since 1.174
+ -----------
+  * Tell the compiler to always look for our headers in '.' first.
+  * Add a hyphen to the NAME section of generated POD indices.
+
 Overview of changes in Glib 1.174
 =================================
 
