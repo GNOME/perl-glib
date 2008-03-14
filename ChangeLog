@@ -1,3 +1,10 @@
+2008-03-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Makefile.PL: Don't warn about this release being unstable
+	because it isn't.
+
+	* copyright.pod: Update for 2008.
+
 2008-03-10  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
