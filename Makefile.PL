@@ -196,6 +196,9 @@ __EOW__
 sub MY::postamble
 {
 	require 'MakeHelper.pm';
+	# $glib will be undefined if any of our dependencies couldn't be found;
+	# don't do anything in this case.
+	return unless defined $glib;
 	return "
 # these are special for Glib since it's providing the modules,
 # it just has to make sure that they are ready before it can go

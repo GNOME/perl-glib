@@ -1,5 +1,8 @@
 2008-03-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Makefile.PL (MY::postamble): Handle the EU::Depends object $glib
+	being undefined gracefully.
+
 	* Makefile.PL: Don't warn about this release being unstable
 	because it isn't.
 
