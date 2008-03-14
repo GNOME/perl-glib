@@ -138,8 +138,6 @@ require 'Glib.exports';
 my $configure_requires =
   Glib::MakeHelper->get_configure_requires_yaml(%PREREQ_PM);
 
-my $no_index_xs = "- " . join "\n  - ", @xs_files;
-
 WriteMakefile(
     NAME		=> 'Glib',
     VERSION_FROM	=> 'Glib.pm', # finds $VERSION
@@ -154,12 +152,6 @@ WriteMakefile(
 
     EXTRA_META    => qq/
 $configure_requires
-no_index:
-    package:
-    - MY
-    file:
-    - xsapi.pod.foot
-    $no_index_xs
 /,
 );
 
