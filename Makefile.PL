@@ -41,6 +41,8 @@ require 'MakeHelper.pm';
 
 mkdir 'build', 0777;
 
+# If the package can't be found, warn and exit with status 0 to indicate to
+# CPAN testers that their system is not supported.
 my %glibcfg;
 unless (eval { %glibcfg = ExtUtils::PkgConfig->find ("gobject-2.0 >= $build_reqs{Glib}");
 	       1; })
