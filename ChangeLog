@@ -1,3 +1,9 @@
+2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Makefile.PL: Trap exceptions thrown by EU::PkgConfig->find.
+	When one occurs, exit with status 0 to indicate to CPAN testers
+	that their system isn't supported.
+
 2008-03-14  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm

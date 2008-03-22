@@ -41,6 +41,14 @@ require 'MakeHelper.pm';
 
 mkdir 'build', 0777;
 
+my %glibcfg;
+unless (eval { %glibcfg = ExtUtils::PkgConfig->find ("gobject-2.0 >= $build_reqs{Glib}");
+	       1; })
+{
+	warn $@;
+	exit 0;
+}
+
 # this is the order in which we want the api docs from the XS files to
 # appear in Glib::xsapi
 our @xs_files = qw(
@@ -88,8 +96,6 @@ our %pod_files = (
    '$(INST_LIB)/$(FULLEXT)/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
    Glib::MakeHelper->do_pod_files (@xs_files),
 );
-
-my %glibcfg = ExtUtils::PkgConfig->find ('gobject-2.0 >= '.$build_reqs{Glib});
 
 # optional thread-safety
 my $nothreads;
