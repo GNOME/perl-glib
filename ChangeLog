@@ -14,10 +14,13 @@
 	is set.
 	(quiet_rule): Use two lines for the prettified commands so that
 	long commands don't get even longer.
+	(do_pod_files): Prettify information message.
 
 	* t/1.t
 	* t/filename.t
 	* t/g.t: Fix failures on MSWin32.
+
+	* ParseXSDoc.pm (clean_out_empty_pods): Stop being chatty.
 
 2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
