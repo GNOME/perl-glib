@@ -942,26 +942,24 @@ sub podify_see_alsos
 =item $string = get_copyright
 
 Returns a string that will/should be placed on each page.  You can control
-the text of this string by setting the package variable $COPYRIGHT to
-whatever you like.
+the text of this string by calling the class method I<set_copyright>.
 
-If $COPYRIGHT is not set, we will attempt to create one for you, using the
-values of the variables $YEAR, $AUTHOR, and $MAIN_MOD.  $YEAR defaults to
-the current year, $AUTHORS defaults to 'The Gtk2-Perl Team', and $MAIN_MOD
-defaults to empty.  You want $MAIN_MOD to be set to the main module of your
-extension for the SEE ALSO section, and on the assumption that a decent
-license notice can be found in that module's doc, we point the reader there.
+If no text has been set, we will attempt to create one for you, using what
+has been passed to I<set_year>, I<set_authors>, and I<set_main_mod>.  The
+year defaults to the current year, the authors default to
+'The Gtk2-Perl Team', and the main mod is empty by default.  You want the
+main mod to be set to the main module of your extension for the SEE ALSO
+section, and on the assumption that a decent license notice can be found in
+that module's doc, we point the reader there.
 
 So, in general, you will want to specify at least one of these, so that you
 don't credit your work to us under the LGPL.
 
-To set $COPYRIGHT, $AUTHORS, and/or $MAIN_MOD do something similar to the
-following in the first part of your postamble section in Makefile.PL.  All of
-the weird escaping is required because this is going through several levels of
-variable expansion.  All occurences of <br> in $COPYRIGHT are replaced with
-newlines, to make it easier to put in a multi-line string.
+To set them do something similar to the following in the first part of your
+postamble section in Makefile.PL.  All occurences of <br> in the copyright
+are replaced with newlines, to make it easier to put in a multi-line string.
 
-  POD_SET=\\\$\$Glib::GenPod::COPYRIGHT='Copyright 1999 team-foobar<br>LGPL';
+  POD_SET=Glib::GenPod::set_copyright(qq{Copyright 1999 team-foobar<br>LGPL});
 
 Glib::MakeHelper::postamble_docs_full() does this sort of thing for you.
 
@@ -981,6 +979,22 @@ sub get_copyright
 	# a way to make returns	
 	$str =~ s/<br>/\n/g;
 	return $str."\n";
+}
+
+sub set_copyright {
+	$COPYRIGHT = shift;
+}
+
+sub set_year {
+	$YEAR = shift;
+}
+
+sub set_authors {
+	$AUTHORS = shift;
+}
+
+sub set_main_mod {
+	$MAIN_MOD = shift;
 }
 
 sub preprocess_pod

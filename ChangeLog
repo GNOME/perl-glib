@@ -4,6 +4,9 @@
 	g_ascii_strtoll, g_ascii_strtoull, and _atoi64 when available.
 	Only use _strtoi64 and _strtoui64 if _MSC_VER >= 1300.
 
+	* GenPod.pm: Add setters set_copyright, set_year, set_authors, and
+	set_main_mod for the corresponding package variables.
+
 2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: Trap exceptions thrown by EU::PkgConfig->find.
