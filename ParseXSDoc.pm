@@ -831,7 +831,7 @@ sub clean_out_empty_pods
 								       ? ()
 									   : $_->{symname} }
 								 	@{$pod->{xsubs}})));
-		print STDERR "Deleting $_ from doc.pl's \$data\n";
+		#print STDERR "Deleting $_ from doc.pl's \$data\n";
 		delete $data->{$_}; 
 	}
 }
