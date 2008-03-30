@@ -1,5 +1,13 @@
 2008-03-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.pm
+	* Makefile.PL
+	* NEWS
+	* README: Stable release 1.182, requiring ExtUtils::Depends >=
+	0.300.
+
+2008-03-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GType.xs: For the 64 bit integer converters: use
 	g_ascii_strtoll, g_ascii_strtoull, and _atoi64 when available.
 	Only use _strtoi64 and _strtoui64 if _MSC_VER >= 1300.

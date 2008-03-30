@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.182
+=================================
+
+* Fix build and test suite issues, especially on MSWin32 and cygwin.
+
 Overview of changes in Glib 1.181
 =================================
 

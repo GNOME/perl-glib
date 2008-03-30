@@ -12,7 +12,7 @@ use Cwd;
 
 # minimum required version of dependencies we need to build
 our %build_reqs = (
-	'perl-ExtUtils-Depends'   => '0.200',
+	'perl-ExtUtils-Depends'   => '0.300',
 	'perl-ExtUtils-PkgConfig' => '1.00',
 	'Glib'                    => '2.0.0',
 );
@@ -158,9 +158,7 @@ WriteMakefile(
 
     $glib ? $glib->get_makefile_vars : (),
 
-    EXTRA_META    => qq/
-$configure_requires
-/,
+    EXTRA_META		=> $configure_requires,
 );
 
 =unstable
