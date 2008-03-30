@@ -7,6 +7,14 @@
 	* GenPod.pm: Add setters set_copyright, set_year, set_authors, and
 	set_main_mod for the corresponding package variables.
 
+	* MakeHelper.pm (postamble_docs_full): Use more portable ways to
+	quote commands and strings, partly by using the new functions
+	mentioned above.
+	(postamble_rpms): Don't do anything unless $ENV{GPERL_BUILD_RPMS}
+	is set.
+	(quiet_rule): Use two lines for the prettified commands so that
+	long commands don't get even longer.
+
 2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: Trap exceptions thrown by EU::PkgConfig->find.

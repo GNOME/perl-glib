@@ -259,7 +259,7 @@ section of each generated page.  May be omitted.
 
 =item NAME => extension name
 
-The name of the extension, used to set $Glib::GenPod::MAIN_MOD (used in the
+The name of the extension, used to set the main mod for Glib::GenPod (used in the
 generated see-also listings).  May be omitted in favor of the name held
 inside the ExtUtils::Depends object.  If DEPENDS is also specified, NAME wins.
 
@@ -356,8 +356,7 @@ sub postamble_docs_full {
 	if ($copyright) {
 		# this text has to be escaped for both make and the shell.
 		$copyright =~ s/\n/\\n/gm; # collapse to one line.
-		$copyright =~ s/"/\"/gm;   # escape double-quotes
-		$copyright = "\$\$Glib::GenPod::COPYRIGHT=\"$copyright\";";
+		$copyright = "Glib::GenPod::set_copyright(qq{$copyright});";
 	}
 
 	# the module name specified explicitly overrides the one in a
@@ -369,7 +368,7 @@ sub postamble_docs_full {
 		# things in them that need escaping, so let's leave it alone.
 		# that way, if there's a quoting error, the user will figure
 		# it out real quick.
-		$name = "\$\$Glib::GenPod::MAIN_MOD=\"$name\";";
+		$name = "Glib::GenPod::set_main_mod(qq($name));";
 	}
 
 	#warn "".scalar(@doctypes)." doctype files\n";
@@ -377,7 +376,7 @@ sub postamble_docs_full {
 
 	if (@doctypes) {
 		$add_types = 'add_types ('
-		           . join(', ', map {'"' . quotemeta ($_) . '"'} @doctypes)
+		           . join(', ', map {'qq(' . quotemeta ($_) . ')'} @doctypes)
 		           . '); '
 	}
 
@@ -388,7 +387,7 @@ sub postamble_docs_full {
 	    . ' '
 	    . $name
 	    . ' $(POD_SET) '
-	    . 'xsdoc2pod("build/doc.pl", "$(INST_LIB)", "build/podindex");';
+	    . 'xsdoc2pod(q(build/doc.pl), q($(INST_LIB)), q(build/podindex));';
 
 	#warn "docgen_code: $docgen_code\n";
 
@@ -398,7 +397,8 @@ sub postamble_docs_full {
 	# lib file to be created. the following trick is intended to handle
 	# both of those cases without causing the other to happen.
 
-"
+	return <<"__EOM__";
+
 BLIB_DONE=build/blib_done_\$(LINKTYPE)
 
 build/blib_done_dynamic :: \$(INST_DYNAMIC)
@@ -416,7 +416,7 @@ build/blib_done_ :: build/blib_done_dynamic
 build/doc.pl :: Makefile @xs_files
 	\$(NOECHO) \$(ECHO) Parsing XS files...
 	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
-		-e 'xsdocparse (qw(@xs_files))' > \$@
+		-e "xsdocparse (qw(@xs_files))" > \$@
 
 # passing all of these files through the single podindex file, which is 
 # created at the same time, prevents problems with -j4 where xsdoc2pod would 
@@ -426,18 +426,18 @@ build/doc.pl :: Makefile @xs_files
 build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl \$(POD_DEPENDS)
 	\$(NOECHO) \$(ECHO) Generating POD...
 	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
-		-e '$docgen_code'
+		-e "$docgen_code"
 
 \$(INST_LIB)/\$(FULLEXT)/:
 	$^X -MExtUtils::Command -e mkpath \$@
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	\$(NOECHO) \$(ECHO) Creating POD index...
-	\$(NOECHO) $^X -e 'print \"\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n\"' \\
+	\$(NOECHO) $^X -e "print qq(\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n)" \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	\$(NOECHO) $^X -nae 'print \"=item L<\$\$F[1]>\\n\\n\";' < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	\$(NOECHO) $^X -e 'print \"=back\\n\\n\";' >> \$(INST_LIB)/\$(FULLEXT)/index.pod
-"
+	\$(NOECHO) $^X -nae "print qq(=item L<\$\$F[1]>\\n\\n);" < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	\$(NOECHO) $^X -e "print qq(=back\\n\\n);" >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+__EOM__
 }
 
 =item string = Glib::MakeHelper->postamble_rpms (HASH)
@@ -467,7 +467,7 @@ sub postamble_rpms
 {
 	shift; # package name
 
-	return '' if $^O eq 'MSWin32';
+	return '' unless $ENV{GPERL_BUILD_RPMS};
 	
 	my @dirs = qw{$(RPMS_DIR) $(RPMS_DIR)/BUILD $(RPMS_DIR)/RPMS 
 		      $(RPMS_DIR)/SOURCES $(RPMS_DIR)/SPECS $(RPMS_DIR)/SRPMS};
@@ -544,13 +544,13 @@ sub quiet_rule {
 		if (/NOECHO/) {
 			# already quiet
 		} elsif (/XSUBPP/) {
-			s/^\t/\t\$(NOECHO) \$(ECHO) [ XS \$< ] && /;
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ XS \$< ]\n\t\$(NOECHO) /;
 		} elsif (/CCCMD/) {
-			s/^\t/\t\$(NOECHO) \$(ECHO) [ CC \$< ] && /;
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ CC \$< ]\n\t\$(NOECHO) /;
 		} elsif (/\bLD\b/) {
-			s/^\t/\t\$(NOECHO) \$(ECHO) [ LD \$@ ] && /;
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ LD \$@ ]\n\t\$(NOECHO) /;
 		} elsif (/[_\b]AR\b/) {
-			s/^\t/\t\$(NOECHO) \$(ECHO) [ AR \$@ ] && /;
+			s/^\t/\t\$(NOECHO) \$(ECHO) [ AR \$@ ]\n\t\$(NOECHO) /;
 		}
 	}
 	return join "\n", @lines;
