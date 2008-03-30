@@ -30,10 +30,6 @@ is (Glib::MAJOR_VERSION, $version[0], 'MAJOR_VERSION');
 is (Glib::MINOR_VERSION, $version[1], 'MINOR_VERSION');
 is (Glib::MICRO_VERSION, $version[2], 'MICRO_VERSION');
 
-print "user name: ".Glib::get_user_name."\n";
-print "real name: ".Glib::get_real_name."\n";
-print "home dir: ".Glib::get_home_dir."\n";
-print "tmp dir: ".Glib::get_tmp_dir."\n";
 ok (defined (Glib::get_user_name), "Glib::get_user_name");
 ok (defined (Glib::get_real_name), "Glib::get_real_name");
 ok (defined (Glib::get_home_dir), "Glib::get_home_dir");

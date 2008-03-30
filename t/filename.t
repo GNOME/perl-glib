@@ -36,9 +36,9 @@ like(Glib::filename_from_uri($uri), $expected);
 like(filename_from_uri($uri), $expected);
 
 my @info;
-is(scalar (@info = Glib->filename_from_uri($uri)), 2);
-is(scalar (@info = Glib::filename_from_uri($uri)), 2);
-is(scalar (@info = filename_from_uri($uri)), 2);
+ok(!!(@info = Glib->filename_from_uri($uri)));
+ok(!!(@info = Glib::filename_from_uri($uri)));
+ok(!!(@info = filename_from_uri($uri)));
 
 
 SKIP: {

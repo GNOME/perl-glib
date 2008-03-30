@@ -152,7 +152,7 @@ SKIP: {
 						  [ 'keep-comments' ],
 						  cwd(), '/tmp');
 		ok ($success);
-		is ($path, File::Spec->catfile(cwd(), $file));
+		is (File::Spec->canonpath($path), File::Spec->catfile(cwd(), $file));
 		is ($key_file->get_comment(undef, undef), "top of the file\n", 'we reached the top again');
 
 		unlink $file;

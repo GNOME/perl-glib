@@ -15,6 +15,10 @@
 	(quiet_rule): Use two lines for the prettified commands so that
 	long commands don't get even longer.
 
+	* t/1.t
+	* t/filename.t
+	* t/g.t: Fix failures on MSWin32.
+
 2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: Trap exceptions thrown by EU::PkgConfig->find.
