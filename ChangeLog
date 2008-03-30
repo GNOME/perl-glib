@@ -1,3 +1,9 @@
+2008-03-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs: For the 64 bit integer converters: use
+	g_ascii_strtoll, g_ascii_strtoull, and _atoi64 when available.
+	Only use _strtoi64 and _strtoui64 if _MSC_VER >= 1300.
+
 2008-03-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: Trap exceptions thrown by EU::PkgConfig->find.
