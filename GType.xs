@@ -100,7 +100,7 @@ gperl_register_fundamental (GType gtype, const char * package)
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
 
-	if (g_type_is_a (gtype, G_TYPE_FLAGS))
+	if (g_type_is_a (gtype, G_TYPE_FLAGS) && gtype != G_TYPE_FLAGS)
 		gperl_set_isa (package, "Glib::Flags");
 }
 
@@ -1924,6 +1924,8 @@ Glib's reference documentation generator (see L<Glib::GenPod>).
 =cut
 
 BOOT:
+	gperl_register_fundamental (G_TYPE_ENUM, "Glib::Enum");
+	gperl_register_fundamental (G_TYPE_FLAGS, "Glib::Flags");
 	gperl_register_fundamental (G_TYPE_CHAR, "Glib::Char");
 	gperl_register_fundamental (G_TYPE_UCHAR, "Glib::UChar");
 	gperl_register_fundamental (G_TYPE_INT, "Glib::Int");
@@ -1982,18 +1984,10 @@ g_type_register (class, const char * parent_class, new_class, ...)
 	 * tear-up in Glib::ParseXSDoc.  So, here it is as an xsub.
 	 */
 
-	/* check for flags and enum specially, since those aren't registered
-	 * in the fundamentals hash (causes problems if they are) */
-	if (strEQ (parent_class, "Glib::Enum")) {
-		parent_type = G_TYPE_ENUM;
-	} else if (strEQ (parent_class, "Glib::Flags")) {
-		parent_type = G_TYPE_FLAGS;
-	} else {
-		parent_type = gperl_type_from_package (parent_class);
-		if (!parent_type)
-			croak ("package %s is not registered with the GLib type system",
-			       parent_class);
-	}
+	parent_type = gperl_type_from_package (parent_class);
+	if (!parent_type)
+		croak ("package %s is not registered with the GLib type system",
+		       parent_class);
 
 	base_type = G_TYPE_FUNDAMENTAL (parent_type);
 	switch (base_type) {

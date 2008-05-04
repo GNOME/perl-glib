@@ -1,3 +1,4 @@
+# vim: set filetype=perl :
 #
 # $Header$
 #
@@ -11,7 +12,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -24,6 +25,8 @@ eval {
 	1;
 };
 ok (!$@, 'register_enum');
+is_deeply ([Glib::Type->list_ancestors ('TestEnum')],
+	   ['TestEnum', 'Glib::Enum']);
 
 $@ = undef;
 eval {
@@ -33,6 +36,8 @@ eval {
 	1;
 };
 ok (!$@, 'register_flags');
+is_deeply ([Glib::Type->list_ancestors ('TestFlags')],
+	   ['TestFlags', 'Glib::Flags']);
 
 $@ = undef;
 eval {

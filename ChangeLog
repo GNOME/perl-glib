@@ -1,3 +1,9 @@
+2008-04-19  muppet <scott@asofyet.org>
+
+	* xs/GType.xs
+	* t/c.t: Register Glib::Enum and Glib::Flags.  Remove special case
+	logic for these from Glib::Type::register().
+
 2008-03-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
