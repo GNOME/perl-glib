@@ -1,5 +1,9 @@
 2008-05-04  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GBoxed.xs
+	* GType.xs: Use const char* to store the return value of
+	sv_reftype.
+
 	* Subclass.pm: Improve the documentation of GET_PROPERTY and
 	SET_PROPERTY.  (Patch by Kevin Ryde)
 

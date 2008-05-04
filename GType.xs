@@ -2704,7 +2704,7 @@ as_arrayref (SV *a, b, swap)
     CODE:
 {
 	GType gtype;
-	char *package;
+	const char *package;
         gint a_;
 
 	package = sv_reftype (SvRV (a), TRUE);
@@ -2724,7 +2724,7 @@ eq (SV *a, SV *b, int swap)
     CODE:
 {
 	GType gtype;
-	char *package;
+	const char *package;
         gint a_, b_;
 
 	package = sv_reftype (SvRV (a), TRUE);
@@ -2751,7 +2751,7 @@ union (SV *a, SV *b, int swap)
     CODE:
 {
 	GType gtype;
-	char *package;
+	const char *package;
         gint a_, b_;
 
 	package = sv_reftype (SvRV (a), TRUE);

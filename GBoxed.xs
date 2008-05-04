@@ -632,7 +632,7 @@ copy (SV * sv)
 	BoxedInfo * boxed_info;
 	GPerlBoxedWrapperClass * class;
 	gpointer boxed;
-	char * package;
+	const char * package;
     CODE:
 	/* the sticky part is that we have to decipher from the SV what gtype
 	 * we actually have; but the SV may have been blessed into some
@@ -671,7 +671,7 @@ DESTROY (sv)
 	SV * sv
     PREINIT:
 	BoxedInfo * boxed_info;
-	char * class;
+	const char * class;
 	GPerlBoxedDestroyFunc destroy;
     CODE:
 	if (!gperl_sv_is_defined (sv) || !SvROK (sv) || !SvRV (sv))
