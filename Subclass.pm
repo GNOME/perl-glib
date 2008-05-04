@@ -141,31 +141,47 @@ will leave the object untouched.
 
 =item GET_PROPERTY $self, $pspec                          [not a method]
 
-Get a property value, see C<SET_PROPERTY>.
-
-The default implementation looks like this:
-
-   my ($self, $pspec) = @_;
-   return ($self->{$pspec->get_name} || $pspec->get_default_value);
-
 =item SET_PROPERTY $self, $pspec, $newval                 [not a method]
 
 C<GET_PROPERTY> and C<SET_PROPERTY> are called whenever somebody does
 C<< $object->get ($propname) >> or C<< $object->set ($propname => $newval) >>
-(from other languages, too). This is your hook that allows you to
-store/fetch properties in any way you need to (maybe you have to calculate
-something or read a file).
+(from other languages, too).  The default implementations hold property
+values in the object hash, equivalent to
+
+   sub GET_PROPERTY {
+     my ($self, $pspec) = @_;
+     my $pname = $pspec->get_name;
+     return (exists $self->{$pname} ? $self->{$pname}
+             : $pspec->get_default_value);  # until set
+   }
+   sub SET_PROPERTY {
+     my ($self, $pspec, $newval) = @_;
+     $self->{$pspec->get_name} = $newval;
+   }
+
+Because C<< $pspec->get_name >> converts hyphens to underscores, a property
+C<"line-style"> is in the hash as C<line_style>.
+
+These methods let you store/fetch properties in any way you need to.  They
+don't have to be in the hash, you can calculate something, read a file,
+whatever.
+
+Most often you'll write your own C<SET_PROPERTY> so you can take action when
+a property changes, like redraw or resize a widget.  Eg.
+
+   sub SET_PROPERTY {
+     my ($self, $pspec, $newval) = @_;
+     my $pname = $pspec->get_name
+     $self->{$pname} = $newval; # ready for default GET_PROPERTY
+
+     if ($pname eq 'line_style') {
+       $self->queue_draw;  # redraw with new lines
+     }
+   }
 
 C<GET_PROPERTY> is different from a C get_property method in that the
 perl method returns the retrieved value. For symmetry, the C<$newval>
-and C<$pspec> args on C<SET_PROPERTY> are swapped from the C usage. The
-default get and set methods store property data in the object as hash
-values named for the parameter name.
-
-The default C<SET_PROPERTY> looks like this:
-
-   my ($self, $pspec, $newval) = @_;
-   $self->{$pspec->get_name} = $newval;
+and C<$pspec> args on C<SET_PROPERTY> are swapped from the C usage.
 
 =item FINALIZE_INSTANCE $self                             [not a method]
 

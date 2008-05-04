@@ -1,3 +1,8 @@
+2008-05-04  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Subclass.pm: Improve the documentation of GET_PROPERTY and
+	SET_PROPERTY.  (Patch by Kevin Ryde)
+
 2008-04-19  muppet <scott@asofyet.org>
 
 	* xs/GType.xs
