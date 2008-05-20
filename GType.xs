@@ -382,7 +382,7 @@ gperl_convert_flag_one (GType type,
 			const char * val_p)
 {
 	SV *r;
-	GFlagsValue * vals = gperl_type_flags_get_values (type);
+	GFlagsValue * vals;
 	gint ret;
 	if (gperl_try_convert_flag (type, val_p, &ret))
 		return ret;
