@@ -12,7 +12,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -183,6 +183,13 @@ is_deeply (\@{ $obj->get ('some_flags') }, ['value-one', 'value-two'],
 
 ok ($obj->get ('some_flags') & $obj->get ('some_flags'),
     '& is overloaded');
+
+eval {
+  $obj->set (some_flags => []);
+  $obj->set (some_flags => undef);
+};
+ok ($@ eq '', 'empty flags values do not croak');
+ok ($obj->get ('some_flags') == [], 'empty flags values work');
 
 __END__
 

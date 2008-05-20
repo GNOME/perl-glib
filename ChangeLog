@@ -1,5 +1,7 @@
 2008-05-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* t/c.t: Test that empty flags values ([], undef) work.
+
 	* GType.xs (gperl_convert_flag_one): Don't call
 	gperl_type_flags_get_values needlessly.
 
