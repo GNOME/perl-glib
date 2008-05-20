@@ -1,5 +1,9 @@
 2008-05-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GClosure.xs (gperl_callback_invoke): Put a mortal copy of the
+	user data on the stack to avoid prematurely destroying it in
+	certain cases.  Patch by Kevin Ryde.
+
 	* t/c.t: Test that empty flags values ([], undef) work.
 
 	* GType.xs (gperl_convert_flag_one): Don't call
