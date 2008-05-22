@@ -13,8 +13,32 @@ use warnings;
 
 #########################
 
-use Test::More tests => 23;
+use Test::More tests => 32;
 BEGIN { use_ok('Glib') };
+
+#########################
+
+#
+# Flags basics
+#
+
+my $f = Glib::ParamFlags->new (['readable', 'writable']); # with array
+isa_ok ($f, 'Glib::Flags');
+isa_ok ($f, 'Glib::ParamFlags');
+ok ($f == ['readable', 'writable'], "value");
+
+$f = Glib::ParamFlags->new ('readable'); # with plain string
+isa_ok ($f, 'Glib::Flags');
+isa_ok ($f, 'Glib::ParamFlags');
+ok ($f == ['readable'], "value");
+
+my $g = Glib::ParamFlags->new ($f + 'writable'); # from another
+isa_ok ($g, 'Glib::ParamFlags');
+ok ($g >= $f);
+
+$@ = undef;
+eval { my $h = Glib::Flags->new (['readable']); };
+ok ($@, "Will croak on trying to create plain old Glib::Flags");
 
 #########################
 
@@ -169,6 +193,10 @@ sub sig1
 }
 
 package main;
+
+#
+# App-registered flags.
+#
 
 my $obj = Tester->new;
 $obj->sig1 ('value-two', ['value-one', 'value-two']);

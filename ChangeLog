@@ -1,3 +1,10 @@
+2008-05-23  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs
+	* t/c.t: Add Glib::Flags::new, a constructor for flags objects
+	that can be used with the overloaded operators.  Patch by Kevin
+	Ryde and muppet.
+
 2008-05-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs

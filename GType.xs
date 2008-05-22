@@ -2678,6 +2678,35 @@ Now That" section of L<Glib> for more info.
 =cut
 
 =for apidoc
+Create a new flags object with given bits.  This is for use from a
+subclass, it's not possible to create a C<Glib::Flags> object as such.
+For example,
+
+    my $f1 = Glib::ParamFlags->new ('readable');
+    my $f2 = Glib::ParamFlags->new (['readable','writable']);
+
+An object like this can then be used with the overloaded operators.
+=cut
+SV *
+new (const char *class, SV *a)
+    PREINIT:
+	GType gtype;
+    CODE:
+	gtype = gperl_fundamental_type_from_package (class);
+	if (! gtype || ! g_type_is_a (gtype, G_TYPE_FLAGS)) {
+		croak ("package %s is not registered with the GLib type system"
+		       "as a flags type",
+		       class);
+	}
+	if (gtype == G_TYPE_FLAGS) {
+		croak ("cannot create Glib::Flags (only subclasses)");
+	}
+	RETVAL = gperl_convert_back_flags
+			(gtype, gperl_convert_flags (gtype, a));
+    OUTPUT:
+	RETVAL
+
+=for apidoc
 =for arg b (SV*)
 =for arg swap (integer)
 =cut
