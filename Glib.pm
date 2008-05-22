@@ -76,7 +76,8 @@ use overload
    '+'    => \&union,     '|'    => \&union,
    '-'    => \&sub,
    '>='   => \&ge,
-   '=='   => \&eq,        'eq'   => \&eq, # eq for is_deeply in Test::More
+   '=='   => \&eq,        'eq'   => \&eq,
+   '!='   => \&ne,        'ne'   => \&ne,
    '*'    => \&intersect, '&'    => \&intersect,
    '/'    => \&xor,       '^'    => \&xor,
    '@{}'  => \&as_arrayref,

@@ -2719,7 +2719,8 @@ as_arrayref (SV *a, b, swap)
 int
 eq (SV *a, SV *b, int swap)
     ALIAS:
-       ge = 1
+       ne = 1
+       ge = 2
 
     CODE:
 {
@@ -2735,7 +2736,8 @@ eq (SV *a, SV *b, int swap)
 	RETVAL = FALSE;
         switch (ix) {
           case 0: RETVAL = a_ == b_; break;
-          case 1: RETVAL = (a_ & b_) == b_; break;
+          case 1: RETVAL = a_ != b_; break;
+          case 2: RETVAL = (a_ & b_) == b_; break;
         }
 }
     OUTPUT:

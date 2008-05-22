@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # vim: set filetype=perl :
 #
 # $Header$
@@ -12,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 19;
+use Test::More tests => 23;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -190,6 +191,14 @@ eval {
 };
 ok ($@ eq '', 'empty flags values do not croak');
 ok ($obj->get ('some_flags') == [], 'empty flags values work');
+
+$obj->set (some_flags => [qw/value-one value-two/]);
+
+ok ($obj->get ('some_flags') == [qw/value-one value-two/], '== is overloaded');
+ok ($obj->get ('some_flags') != [qw/value-one/], '!= is overloaded');
+
+ok ($obj->get ('some_flags') eq [qw/value-one value-two/], 'eq is overloaded');
+ok ($obj->get ('some_flags') ne [qw/value-one/], 'ne is overloaded');
 
 __END__
 

@@ -1,3 +1,9 @@
+2008-05-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs
+	* Glib.pm
+	* t/c.t: Overload '!=' and 'ne' for flags values for consistency.
+
 2008-05-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GClosure.xs (gperl_callback_invoke): Put a mortal copy of the
