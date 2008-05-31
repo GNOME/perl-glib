@@ -1,3 +1,9 @@
+2008-05-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GSignal.xs: In the xsub for g_signal_add_emission_hook, make
+	sure that the type class exists before we try to fetch information
+	about one of its signals.
+
 2008-05-23  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs
