@@ -255,6 +255,24 @@ void g_set_application_name (const gchar *application_name);
 ## Look for an executable in PATH, following execvp() rules
 #gchar*  g_find_program_in_path  (const gchar *program);
 
+=for apidoc __function__
+Return a string describing the given errno value, like "No such file
+or directory" for ENOENT.  This is translated into the user's
+preferred language and is a utf8 wide-char string (unlike a $!
+string (L<perlvar>) or POSIX::strerror (L<POSIX>) which are locale
+codeset bytes).
+=cut
+## note the returned string can be overwritten by the next call, so must copy
+const gchar *g_strerror (gint err);
+
+=for apidoc __function__
+Return a string describing the given signal number, like "Segmentation
+violation" for SIGSEGV.  This is translated into the user's preferred
+language and is a utf8 wide-char string.
+=cut
+## note the returned string can be overwritten by the next call, so must copy
+const gchar *g_strsignal (gint signum);
+
 ###
 ### Version information
 ###

@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 24;
+use Test::More tests => 26;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -74,6 +74,9 @@ SKIP: {
 }
 
 is (Glib::Markup::escape_text ("<gtk2-perl>"), "&lt;gtk2-perl&gt;");
+
+ok (defined Glib::strerror (2));
+ok (defined Glib::strsignal (11));
 
 __END__
 
