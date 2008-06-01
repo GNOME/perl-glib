@@ -1,5 +1,7 @@
 2008-06-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs: Fix typo in error message output by Glib::Flags::new.
+
 	* GUtils.xs
 	* t/1.t: Provide Glib::strerror and Glib::strsignal.  Patch by
 	Kevin Ryde.

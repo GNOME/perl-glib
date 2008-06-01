@@ -2694,7 +2694,7 @@ new (const char *class, SV *a)
     CODE:
 	gtype = gperl_fundamental_type_from_package (class);
 	if (! gtype || ! g_type_is_a (gtype, G_TYPE_FLAGS)) {
-		croak ("package %s is not registered with the GLib type system"
+		croak ("package %s is not registered with the GLib type system "
 		       "as a flags type",
 		       class);
 	}
