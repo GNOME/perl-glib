@@ -1,3 +1,9 @@
+2008-06-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm
+	* NEWS
+	* README: Stable release 1.183.
+
 2008-05-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	Merge from HEAD:
