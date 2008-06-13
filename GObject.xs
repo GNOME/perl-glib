@@ -824,6 +824,10 @@ gperl_get_object_check (SV * sv,
 		croak ("%s is not of type %s",
 		       gperl_format_variable_for_output (sv),
 		       package);
+	if (!mg_find (SvRV (sv), PERL_MAGIC_ext))
+		croak ("%s is not a proper Glib::Object "
+		       "(it doesn't contain magic)",
+		       gperl_format_variable_for_output (sv));
 
 	return gperl_get_object (sv);
 }
