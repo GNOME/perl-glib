@@ -1,3 +1,10 @@
+2008-06-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* GObject.xs (gperl_get_object_check): Croak on objects that don't
+	carry magic.
+
 2008-06-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
