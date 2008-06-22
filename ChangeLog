@@ -1,3 +1,10 @@
+2008-06-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm
+	* Makefile.PL
+	* NEWS
+	* README: Unstable release 1.190.
+
 2008-06-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GObject.xs (gperl_get_object_check): Croak on objects that don't
