@@ -1,5 +1,7 @@
 2008-07-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	Merge from HEAD:
+
 	* GType.xs: In the overloaded flags operators, don't choke on
 	undef in the swap argument.  This happens when a normal 'x'
 	operator is used for handling 'x='.  Patch by Kevin Ryde.
