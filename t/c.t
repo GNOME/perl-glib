@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 32;
+use Test::More tests => 34;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -39,6 +39,16 @@ ok ($g >= $f);
 $@ = undef;
 eval { my $h = Glib::Flags->new (['readable']); };
 ok ($@, "Will croak on trying to create plain old Glib::Flags");
+
+{
+  my $f = Glib::ParamFlags->new (['readable']);
+  my $g = $f;
+  $g += 'writable';
+  ok ($g == ['readable', 'writable'],
+      "overloaded +=");
+  ok ($f == ['readable'],
+      "overloaded += leaves original unchanged");
+}
 
 #########################
 

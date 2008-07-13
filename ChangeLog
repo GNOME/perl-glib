@@ -1,3 +1,10 @@
+2008-07-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs
+	* t/c.t: In the overloaded flags operators, don't choke on undef
+	in the swap argument.  This happens when a normal 'x' operator is
+	used for handling 'x='.  Patch by Kevin Ryde.
+
 2008-06-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm

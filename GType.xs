@@ -2773,7 +2773,7 @@ eq (SV *a, SV *b, int swap)
         RETVAL
 
 SV *
-union (SV *a, SV *b, int swap)
+union (SV *a, SV *b, SV *swap)
     ALIAS:
         sub = 1
         intersect = 2
@@ -2787,8 +2787,8 @@ union (SV *a, SV *b, int swap)
 
 	package = sv_reftype (SvRV (a), TRUE);
 	gtype = gperl_fundamental_type_from_package (package);
-        a_ = gperl_convert_flags (gtype, swap ? b : a);
-        b_ = gperl_convert_flags (gtype, swap ? a : b);
+        a_ = gperl_convert_flags (gtype, SvTRUE (swap) ? b : a);
+        b_ = gperl_convert_flags (gtype, SvTRUE (swap) ? a : b);
 
         switch (ix) {
           case 0: a_ |= b_; break;
