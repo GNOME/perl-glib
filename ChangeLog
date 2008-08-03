@@ -1,3 +1,10 @@
+2008-08-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GObject.xs (g_object_new): Check that we got a correct number of
+	arguments.
+
+	* t/2.t: Fix a typo uncovered by the above change.
+
 2008-07-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs

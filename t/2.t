@@ -18,7 +18,7 @@ BEGIN { use_ok('Glib'); Glib::Object->set_threadsafe (1); };
 
 #########################
 
-my $obj = new Glib::Object "Glib::Object";
+my $obj = Glib::Object->new;
 isa_ok ($obj, 'Glib::Object');
 
 $obj->freeze_notify;
@@ -34,9 +34,9 @@ ok(1);
 # that the magical hash wrappers work correctly, all in one convoluted
 # test.
 
-$obj = new Glib::Object;
+$obj = Glib::Object->new;
 isa_ok ($obj, 'Glib::Object');
-my $obj2 = new Glib::Object;
+my $obj2 = Glib::Object->new;
 isa_ok ($obj, 'Glib::Object');
 $obj2->{key} = 'val';
 $obj->set_data (obj2 => $obj2->get_pointer);
