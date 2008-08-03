@@ -1108,6 +1108,9 @@ g_object_new (class, ...)
 	if (G_TYPE_IS_ABSTRACT (object_type))
 		croak ("cannot create instance of abstract (non-instantiatable)"
 		       " type `%s'", g_type_name (object_type));
+	if (0 != ((items - 1) % 2))
+		croak ("new method expects name => value pairs "
+		       "(odd number of arguments detected)");
 	if (items > FIRST_ARG) {
 		int i;
 		if (NULL == (oclass = g_type_class_ref (object_type)))
