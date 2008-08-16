@@ -176,7 +176,8 @@ overloaded method, like this:
 
 The arg directive adds or overrides an argument description.  The
 description text is optional, as is the type specification (the part
-in parentheses).  The arg name does I<not> need to include a sigil,
+in parentheses).  If you want to hide an argument, specify C<__hide__>
+as its type.  The arg name does I<not> need to include a sigil,
 as dollar signs will be added.  FIXME what about @ for lists?
 
 =back
@@ -1059,7 +1060,7 @@ sub convert_type {
 	}
 
 	# variant type
-	$ctype =~ s/(?:_(ornull|own|copy|own_ornull|noinc))$//;
+	$ctype =~ s/(?:_(ornull|copy|own_ornull|own|noinc_ornull|noinc))$//;
 	my $variant = $1 || "";
 
 	my $perl_type;
