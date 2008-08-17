@@ -1,3 +1,8 @@
+2008-08-17  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GParamSpec.xs: Add hierarchy POD sections to the various
+	Glib::ParamSpec subclasses.
+
 2008-08-16  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GenPod.pm: Document how to hide arguments with "=for arg".  Cope
