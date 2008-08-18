@@ -147,6 +147,9 @@ newSVGParamSpec (GParamSpec * pspec)
 	HV * stash;
 	const char * package;
 
+	if (!pspec)
+		croak ("internal problem: NULL pspec encountered");
+
 	g_param_spec_ref (pspec);
 	g_param_spec_sink (pspec);
 
