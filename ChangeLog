@@ -1,3 +1,11 @@
+2008-08-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/e.t
+	* GValue.xs (_gperl_sv_from_value_internal): Handle NULL
+	GParamSpecs gracefully by returning undef.
+
+	* GParamSpec.xs (newSVGParamSpec): Croak on NULL GParamSpecs.
+
 2008-08-17  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GParamSpec.xs: Add hierarchy POD sections to the various

@@ -1,9 +1,10 @@
+#!/usr/bin/perl
 #
 # ParamSpec stuff.
 #
 use strict;
 use Glib ':constants';
-use Test::More tests => 231;
+use Test::More tests => 232;
 
 # first register some types with which to play below.
 
@@ -204,3 +205,13 @@ Glib::Type->register (
 foreach (@params) {
 	is ($_->get_owner_type, 'Bar', ref($_)." owner type after adding");
 }
+
+
+
+#
+# verify that NULL param specs are handled gracefully
+#
+
+my $object = Bar->new;
+my $x = $object->get ('param_spec');
+is ($x, undef);
