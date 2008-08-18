@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.191
+=================================
+
+* Make overloaded Glib::Flags operators more robust.
+* Handle unset GParamSpecs gracefully.
+
 Overview of changes in Glib 1.190
 =================================
 
