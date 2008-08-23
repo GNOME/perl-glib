@@ -1,38 +1,61 @@
+#!/usr/bin/perl
 #
 # test Glib::Object derivation in Perl.
 # derive from a C object in perl, and derive from a Perl object in perl.
 # checks order of execution of initializers and finalizers, so the code
 # gets a little hairy.
 #
-print "1..17\n";
-
 use strict;
 use warnings;
 
-use Glib;
+use Glib qw(:constants);
 
-print "ok 1\n";
+# From 7.t.  Do we need a test helper class?
+sub ok($$;$) {
+    my($test, $num, $name) = @_;
+
+    my $out = $test ? "ok" : "not ok";
+    $out .= " $num" if $num;
+    $out .= " - $name" if defined $name;
+
+    print "$out\n";
+
+    return $test;
+}
+
+sub pass($;$) {
+    my($num, $name) = @_;
+    return ok(1, $num, $name);
+}
+
+sub fail(;$) {
+    my($name) = @_;
+    return ok(0, 0, $name);
+}
+
+print "1..17\n";
+pass 1;
 
 my $init_self;
 
 sub Foo::INIT_INSTANCE {
    $init_self = $_[0]*1;
-   print "ok 2\n";
+   pass 2, 'Foo::INIT_INSTANCE';
 }
 
 sub Foo::FINALIZE_INSTANCE {
-   print "ok 9\n";
+   pass 9, 'Foo::FINALIZE_INSTANCE'
 }
 
 my $setprop_self;
 
 sub Foo::SET_PROPERTY {
    $setprop_self = $_[0]*1;
-   print "ok $_[2]\n";
+   pass $_[2], 'Foo::SET_PROPERTY';
 }
 
 sub Foo::GET_PROPERTY {
-   print "ok 6\n";
+   pass 6, 'Foo::GET_PROPERTY';
    6;
 }
 
@@ -49,11 +72,11 @@ Glib::Type->register (
    ]);
 
 sub Bar::INIT_INSTANCE {
-   print "ok 3\n";
+   pass 3, 'Bar::INIT_INSTANCE';
 }
 
 sub Bar::FINALIZE_INSTANCE {
-   print "ok 8\n";
+   pass 8, 'Bar::FINALIZE_INSTANCE';
 }
 
 Glib::Type->register (Foo::, Bar::,
@@ -66,29 +89,28 @@ Glib::Type->register (Foo::, Bar::,
 {
    # instantiate a child.  we should get messages from both initializers.
    my $bar = new Bar;
-   use POSIX;
    # make sure we can set parent properties on the child
    $bar->set(some_string => 4);
-   print $init_self != $setprop_self ? "not " : "", "ok 5\n";
-   print $bar->get("some_string") != 6 ? "not " : "", "ok 7\n";
+   ok $init_self == $setprop_self, 5;
+   ok $bar->get("some_string") == 6, 7;
    # should see messages from both finalizers here.
 }
 
-print "ok 10\n";
+pass 10;
 
 #
 # ensure that any properties added to the subclass were only added to
 # the subclass, and not the parent.
 #
-print "".( defined Foo->find_property('some_string') ? "ok 11" : "not ok")."\n";
-print "".(!defined Foo->find_property('number')      ? "ok 12" : "not ok")."\n";
-print "".( defined Bar->find_property('number')      ? "ok 13" : "not ok")."\n";
+ok  defined Foo->find_property('some_string'), 11;
+ok !defined Foo->find_property('number'),      12;
+ok  defined Bar->find_property('number'),      13;
 
 my @fooprops = Foo->list_properties;
 my @barprops = Bar->list_properties;
 
-print "".(@fooprops == 1 ? "ok 14" : "not ok")." - property count for parent\n";
-print "".(@barprops == 2 ? "ok 15" : "not ok")." - property count for child\n";
+ok @fooprops == 1, 14, 'property count for parent';
+ok @barprops == 2, 15, 'property count for child';
 
 my @ancestry = Glib::Type->list_ancestors ('Bar');
 my $ancestry_ok = $ancestry[0] eq 'Bar' &&

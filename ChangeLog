@@ -1,3 +1,8 @@
+2008-08-23  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/4.t: Prettify a bit by using ok(), pass(), and fail()
+	functions.
+
 2008-08-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
