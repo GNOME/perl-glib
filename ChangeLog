@@ -1,5 +1,8 @@
 2008-08-23  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs (gperl_convert_flag_one, gperl_convert_flags): Improve
+	the wording of the error messages for invalid flags a bit.
+
 	* t/4.t: Prettify a bit by using ok(), pass(), and fail()
 	functions.
 

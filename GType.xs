@@ -399,7 +399,7 @@ gperl_convert_flag_one (GType type,
 		if (++vals && vals->value_nick)
 			sv_catpv (r, ", ");
 	}
-	croak ("FATAL: invalid flags %s value %s, expecting: %s",
+	croak ("FATAL: invalid %s value %s, expecting: %s",
 	       g_type_name (type), val_p, SvPV_nolen (r));
 
 	/* not reached */
@@ -430,7 +430,7 @@ gperl_convert_flags (GType type,
 	if (SvPOK (val))
 		return gperl_convert_flag_one (type, SvPV_nolen (val));
 
-	croak ("FATAL: invalid flags %s value %s, expecting a string scalar or an arrayref of strings",
+	croak ("FATAL: invalid %s value %s, expecting a string scalar or an arrayref of strings",
 	       g_type_name (type), SvPV_nolen (val));
 	return 0; /* not reached */
 }
