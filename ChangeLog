@@ -1,3 +1,10 @@
+2008-08-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* MakeHelper.pm (postamble_docs_full): Fix the POD index
+	generation.  For five months now, broken index pages (like
+	Glib::index) were being created due to shell command quoting
+	issues.
+
 2008-08-23  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs (gperl_convert_flag_one, gperl_convert_flags): Improve
