@@ -1190,16 +1190,21 @@ g_object_get (object, ...)
     PREINIT:
 	GValue value = {0,};
 	int i;
-    PPCODE:
+    CODE:
+	/* Use CODE: instead of PPCODE: so we can handle the stack ourselves in
+	 * order to avoid that xsubs called by g_object_get_property overwrite
+	 * what we put on the stack. */
 	PERL_UNUSED_VAR (ix);
-	EXTEND (SP, items-1);
 	for (i = 1; i < items; i++) {
 		char *name = SvPV_nolen (ST (i));
 		init_property_value (object, name, &value);
 		g_object_get_property (object, name, &value);
-		PUSHs(sv_2mortal(_gperl_sv_from_value_internal(&value, TRUE)));
+		ST (i - 1) =
+			sv_2mortal (
+				_gperl_sv_from_value_internal (&value, TRUE));
 		g_value_unset (&value);
 	}
+	XSRETURN (items - 1);
 
 
 =for apidoc Glib::Object::set
