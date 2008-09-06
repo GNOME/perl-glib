@@ -2,6 +2,13 @@
 
 	Merge from HEAD:
 
+	* GParamSpec.xs:
+	* GValue.xs: Handle NULL GParamSpecs in newSVGParamSpec by
+	returning undef.  Consequently, remove the NULL handling in
+	_gperl_sv_from_value_internal.  This partly reverts the commit
+	from 2008-08-18 and brings newSVGParamSpec in line with the other
+	SV* constructors.
+
 	* GObject.xs
 	* t/5.t: Fix the stack handling in Glib::Object::get to be robust
 	against stack movement due to reallocation.  This can happen if a

@@ -246,11 +246,10 @@ _gperl_sv_from_value_internal (const GValue * value,
 		case G_TYPE_PARAM:
 			/* can have NULL here fetching object properties of
 			 * type G_TYPE_PARAM with no value set yet, or from
-			 * ->get_default_value of such a property */
-			{
-				GParamSpec *ps = g_value_get_param (value);
-				return ps == NULL ? &PL_sv_undef : newSVGParamSpec (ps);
-			}
+			 * ->get_default_value of such a
+			 * property. newSVGParamSpec handles NULL by returning
+			 * undef. */
+			return newSVGParamSpec (g_value_get_param (value));
 
 		case G_TYPE_OBJECT:
 			return gperl_new_object (g_value_get_object (value), FALSE);
