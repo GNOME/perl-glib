@@ -8,8 +8,9 @@
 
 use strict;
 use warnings;
+use Test::More; # for eq_array
 
-print "1..9\n";
+print "1..10\n";
 
 use Glib;
 
@@ -42,10 +43,17 @@ sub INIT_INSTANCE {
 }
 
 sub FINALIZE_INSTANCE {
-   print "ok 8\n";
+   print "ok 9\n";
+}
+
+sub grow_the_stack {
+  1 .. 500;
 }
 
 sub GET_PROPERTY {
+   # grow the stack to trigger reallocation and movement of it in order to test
+   # that Glib::Object->get handles the stack correctly
+   my @list = grow_the_stack();
    77;
 }
 
@@ -79,9 +87,13 @@ package main;
    # set should have bailed out before setting some_string to bar.
    # cannot use get() here, because GET_PROPERTY always returns 77.
    print $my->{some_string} ne 'foo' ? "not " : "", "ok 7\n";
+
+   # verify that fetching multiple properties doesn't corrupt the stack.
+   print eq_array([$my->get("some_string", "some_string")], [77, 77])
+      ? "" : "not ", "ok 8\n";
 }
 
-print "ok 9\n";
+print "ok 10\n";
 
 
 

@@ -1,3 +1,13 @@
+2008-09-06  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* GObject.xs
+	* t/5.t: Fix the stack handling in Glib::Object::get to be robust
+	against stack movement due to reallocation.  This can happen if a
+	subclass' GET_PROPERTY triggers a stack resize.  Patch by Kevin
+	Ryde.
+
 2008-08-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	Merge from HEAD:
