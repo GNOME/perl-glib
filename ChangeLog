@@ -2,6 +2,11 @@
 
 	Merge from HEAD:
 
+	* GClosure.xs (gperl_callback_invoke): Instead of putting a mortal
+	copy of the user data on the stack, increment its ref count and
+	mortalize it.  This ensure that modifications to $_[-1] in the
+	callback actually change the user data.  Patch by Kevin Ryde.
+
 	* MANIFEST
 	* GObject.xs
 	* t/lazy-loader.t: Make sure the lazy loader can handle being

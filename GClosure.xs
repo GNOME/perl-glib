@@ -402,26 +402,25 @@ gperl_callback_invoke (GPerlCallback * callback,
 		}
 	}
 
-        /* This is sv_mortalcopy() in case our GPerlCallback is destroyed
-         * from within the called func.  That can happen for instance with
-         * the uri handler on Gtk2::LinkButton.  If the called handler
-         * disconnects itself, or installs a new handler with different
-         * data, then gtk_link_button_set_uri_hook simply calls the destroy
-         * on the existing handler immediately, making
-         * gperl_callback_destroy do a SvREFCNT_dec on our callback->data.
-         * The symptom then is the pushed userdata arg $_[2] invalidated.
+        /* Usual REFCNT_inc and 2mortal here for putting something on the
+         * stack.  It's possible callback->func will disconnect itself, in
+         * which case gperl_callback_destroy() will REFCNT_dec the data.
+         * That's fine, it leaves the mortal ref on the stack as the only
+         * one remaining, and the next FREETMPS will decrement and destroy
+         * in the usual way.
          *
-         * If you're wondering why this doesn't arise with
-         * g_signal_handler_add_emission_hook funcs, it's because the signal
-         * emission mechanism has some trickery to defer the destroy of the
-         * callback until after it returns (it's held in a GHook and the ref
-         * count there is bumped for the duration of the call).  Presumably
-         * it's a matter of opinion whether deferring the destroy is good or
-         * bad, but sv_mortalcopy here copes with either.
+         * Being a plain push here means callback->func can modify its
+         * $_[-1] to modify the stored userdata.  Slightly scary, but it's a
+         * cute way to get a free bit of per-connection data you can play
+         * with as a state variable or whatnot.  And not making a copy saves
+         * a couple of bytes of memory :-).
          */
-	if (callback->data)
-		XPUSHs (sv_mortalcopy (callback->data));
-
+	{
+		SV *data = callback->data;
+		if (data) {
+			XPUSHs (sv_2mortal (SvREFCNT_inc (data)));
+		}
+	}
 	va_end (var_args);
 
 	PUTBACK;
