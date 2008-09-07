@@ -1,3 +1,17 @@
+2008-09-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	Merge from HEAD:
+
+	* MANIFEST
+	* GObject.xs
+	* t/lazy-loader.t: Make sure the lazy loader can handle being
+	invoked on packages which aren't registered with the Glib type
+	system.  This can happen when a non-registered package is setup to
+	inherit from a registered package, and when then some method is
+	invoked on the non-registered package.  This gets rid of the
+	spurious "asked to lazy-load Foo, but that package is not
+	registered" warnings.
+
 2008-09-06  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	Merge from HEAD:

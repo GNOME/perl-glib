@@ -247,6 +247,50 @@ class_info_finish_loading (ClassInfo * class_info)
 #endif
 }
 
+static ClassInfo *
+find_registered_type_in_ancestry (const char *package)
+{
+	char *isa_name;
+	AV *isa;
+
+	isa_name = g_strconcat (package, "::ISA", NULL);
+	isa = get_av (isa_name, FALSE); /* supposed to exist already */
+	g_free (isa_name);
+
+	if (isa) {
+		int i, n_items = av_len (isa) + 1;
+		for (i = 0; i < n_items; i++) {
+			ClassInfo *class_info;
+			SV **entry;
+
+			entry = av_fetch (isa, i, 0);
+			if (!entry || !gperl_sv_is_defined (*entry))
+				continue;
+
+			G_LOCK (types_by_package);
+			class_info = (ClassInfo*)
+				g_hash_table_lookup (types_by_package,
+						     SvPV_nolen (*entry));
+			G_UNLOCK (types_by_package);
+
+			if (!class_info) {
+				/* If this package is not registered, maybe one
+				 * of its ancestors is?  So try to recurse into
+				 * this package's @ISA. */
+				class_info =
+					find_registered_type_in_ancestry (
+						SvPV_nolen (*entry));
+			}
+
+			if (class_info) {
+				return class_info;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 
 =item void gperl_register_object (GType gtype, const char * package)
 
@@ -1549,7 +1593,30 @@ _load (const char * package)
 		g_hash_table_lookup (types_by_package,
 				     package);
 	G_UNLOCK (types_by_package);
-	if (class_info)
-		class_info_finish_loading (class_info);
-	else
-		warn ("asked to lazy-load %s, but that package is not registered", package);
+
+	/* This can happen when we get called on a package that is not
+	 * registered with the type system but is instead manually set up to
+	 * inherit from a package that is registered with the type system. For
+	 * example:
+	 *
+	 *   Glib::Object::_LazyLoader
+	 *   +----Gtk2::Gdk::Pixmap
+	 *        +----Gtk2::Gdk::Bitmap
+	 *
+	 * When someone tries to call a method on Gtk2::Gdk::Bitmap before
+	 * Gtk2::Gdk::Pixmap has been set up, we get in here and class_info ==
+	 * NULL.
+	 *
+	 * So we walk the package's @ISA and look for a package that is
+	 * registered.  This is supposed to succeed -- how did we get in here
+	 * at all if there is no registered package in the ancestry?
+	 */
+	if (!class_info)
+		class_info = find_registered_type_in_ancestry (package);
+
+	if (!class_info)
+		croak ("asked to lazy-load %s, but that package is not "
+		       "registered and has no registered packages in its "
+		       "ancestry", package);
+
+	class_info_finish_loading (class_info);
