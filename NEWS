@@ -1,3 +1,14 @@
+Overview of changes in Glib 1.193
+=================================
+
+* Make the stack handling in Glib::Object::get more robust.
+* Make the Glib::ParamSpec constructors return undef on failure.
+* Make sure the Glib::Object lazy loader can handle being invoked on packages
+  which aren't registered with the Glib type system.
+* The recent fix for user data handling in callback invocation involved a
+  change of semantics: modifying the user data directly had no effect anymore.
+  Change that back while still fixing the original bug.
+
 Overview of changes in Glib 1.192
 =================================
 
