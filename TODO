@@ -1,11 +1,5 @@
-- documentation generation:
-  - hush things up a bit, we don't need so much status info
-    perhaps there should be an env var to enable these messages, or a
-    "doc lint" tool.
-
 - the ability to create new GSources in Perl could be handy, and wouldn't be
   hard to implement (a hash in place of GSourceFuncs).
-
 - GEnum type for G_PRIORITY_VALUES?
 - can't implement g_idle_remove_by_data because ... well, how would you
   search for the data value?

@@ -1,3 +1,8 @@
+2008-09-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* TODO: Remove the entry about hushing about documentation
+	generation.  That's done.
+
 2008-09-07  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
