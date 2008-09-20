@@ -1,3 +1,18 @@
+Overview of changes in Glib 1.200
+=================================
+
+ Since 1.18x (the previous stable series)
+ ----------------------------------------
+  * Add Glib::Flags::new, a constructor for flags objects.
+  * Add Glib::strerror and Glib::strsignal.
+  * Increase the robustness of stack handling in Glib::Object::get, of
+    Glib::ParamSpec handling in general, of overloaded Glib::Flags operators,
+    and of the Glib::Object lazy-loader.
+
+ Since 1.193
+ -----------
+  * Update the TODO file.
+
 Overview of changes in Glib 1.193
 =================================
 

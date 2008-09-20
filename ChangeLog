@@ -1,5 +1,12 @@
 2008-09-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.pm
+	* Makefile.PL
+	* NEWS
+	* README: Stable release 1.200.
+
+2008-09-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* TODO: Remove the entry about hushing about documentation
 	generation.  That's done.
 
