@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # vim: set filetype=perl :
 #
-# $Header$
+# $Id$
 #
 
 #

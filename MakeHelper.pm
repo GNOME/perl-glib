@@ -1,5 +1,5 @@
 #
-# $Header$
+# $Id$
 #
 
 package Glib::MakeHelper;

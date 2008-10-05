@@ -1,5 +1,5 @@
 #
-# $Header$
+# $Id$
 #
 
 BEGIN { require 5.008; }

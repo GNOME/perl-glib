@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Header$
+# $Id$
 #
 # Really simple smoke tests for Glib::Object wrappers.
 #

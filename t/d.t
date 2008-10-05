@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header$
+# $Id$
 #
 
 #

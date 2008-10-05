@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Header$
+# $Id$
 #
 # Basic test for Glib fundamentals.  make sure that the smoke does't get out,
 # and test most of the procedural things in Glib's toplevel namespace.
