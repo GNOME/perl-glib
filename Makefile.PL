@@ -143,7 +143,7 @@ $glib->save_config ('build/IFiles.pm');
 our @exports;
 require 'Glib.exports';
 
-my $configure_requires =
+my $configure_requires_yaml =
   Glib::MakeHelper->get_configure_requires_yaml(%PREREQ_PM);
 
 WriteMakefile(
@@ -158,7 +158,9 @@ WriteMakefile(
 
     $glib ? $glib->get_makefile_vars : (),
 
-    EXTRA_META		=> $configure_requires,
+    $ExtUtils::MakeMaker::VERSION >= 6.46
+      ? (META_MERGE => { configure_requires => \%PREREQ_PM })
+      : (EXTRA_META => $configure_requires_yaml),
 );
 
 =unstable
