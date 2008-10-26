@@ -4,12 +4,11 @@ blib
 \.bs$
 build
 G.+\.c$
-CVS
-\.cvsignore$
 Makefile$
 Makefile\.old$
 \.o$
 \.spec$
 \.sw.$
 \.tar\.gz$
-.releaserc
+\.releaserc
+\.svn
