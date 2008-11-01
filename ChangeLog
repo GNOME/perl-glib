@@ -1,3 +1,9 @@
+2008-11-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GMainLoop.xs
+	* Glib.pm: Add constants Glib::SOURCE_CONTINUE and SOURCE_REMOVE
+	for use in source-type callbacks.  Patch by Kevin Ryde.
+
 2008-10-19  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: ExtUtils::MakeMaker 6.46 removed support for

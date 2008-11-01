@@ -187,6 +187,16 @@ ensure that perl's safe signal handling and the glib polling event loop
 play nicely together.  It is no longer necessary to install a timeout to
 ensure that async signals get handled in a timely manner.
 
+=head1 CONSTANTS
+
+C<SOURCE_REMOVE> and C<SOURCE_CONTINUE> are designed for use as the
+return values from timeout, idle and I/O watch source functions.  They
+return true to keep running or false to remove themselves.  These
+constants can help you get that the right way around.
+
+    Glib::SOURCE_CONTINUE     # true
+    Glib::SOURCE_REMOVE       # false
+
 =cut
  
  #####################

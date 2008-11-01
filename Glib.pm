@@ -36,6 +36,9 @@ use constant {
 	G_PRIORITY_DEFAULT_IDLE =>  200,
 	G_PRIORITY_LOW	        =>  300,
 	G_PARAM_READWRITE       => [qw/readable writable/],
+
+	SOURCE_CONTINUE         => 1,
+	SOURCE_REMOVE           => !1,
 };
 
 # export nothing by default.
