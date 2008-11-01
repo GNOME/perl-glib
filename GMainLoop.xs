@@ -136,6 +136,15 @@ async_watcher_install (void)
 	g_source_attach (async_watcher, NULL);
 }
 
+#if GLIB_CHECK_VERSION (2, 4, 0)
+
+static void
+gperl_child_watch_callback (GPid pid, gint status, gpointer cb)
+{
+	gperl_callback_invoke ((GPerlCallback*)cb, NULL, (int) pid, status);
+}
+
+#endif /* 2.4 */
 
 MODULE = Glib::MainLoop	PACKAGE = Glib	PREFIX = g_
 
@@ -559,3 +568,49 @@ g_io_add_watch (class, fd, condition, callback, data=NULL, priority=G_PRIORITY_D
     OUTPUT:
 	RETVAL
 
+
+MODULE = Glib::MainLoop	PACKAGE = Glib::Child	PREFIX = g_child_
+
+=for object Glib::MainLoop
+=cut
+
+#if GLIB_CHECK_VERSION (2, 4, 0)
+
+=for apidoc
+=for arg pid (integer) child process ID
+=for arg callback (subroutine)
+
+Add a source to the default main context which will call
+
+    &$callback ($pid, $waitstatus, $data)
+
+when child process $pid terminates.  The return value is a source id
+which can be used with C<< Glib::Source->remove >>.  When the callback
+is made the source is removed automatically.
+
+In a non-threaded program Glib implements this source by installing a
+SIGCHLD handler.  Don't change $SIG{CHLD} in Perl or the callback will
+never run.
+
+=cut
+guint
+g_child_watch_add (class, int pid, SV *callback, SV *data=NULL, gint priority=G_PRIORITY_DEFAULT)
+    PREINIT:
+	GPerlCallback* cb;
+	GType param_types[2];
+    CODE:
+	/* As of Glib 2.16.4 there's no "callback_closure" func in
+	   g_child_watch_funcs, and none added there by
+	   g_source_set_closure (unlike idle, timeout and io above),
+	   so go GPerlCallback style. */
+	param_types[0] = G_TYPE_INT;
+	param_types[1] = G_TYPE_INT;
+	cb = gperl_callback_new (callback, data, 2, param_types, 0);
+	RETVAL = g_child_watch_add_full (priority, (GPid) pid,
+	       	 			 gperl_child_watch_callback,
+					 cb,
+	       	 	(GDestroyNotify) gperl_callback_destroy);
+    OUTPUT:
+	RETVAL
+
+#endif /* 2.4 */

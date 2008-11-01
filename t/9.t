@@ -8,9 +8,30 @@ use strict;
 use warnings;
 use Config;
 
-print "1..25\n";
+print "1..30\n";
 
 use Glib qw/:constants/;
+
+my $have_fork = 0;
+my $fork_excuse;
+{
+  my $pid = fork();
+  if (! defined $pid) {
+    $fork_excuse = "error $!";
+  } elsif ($pid == 0) {
+    # child
+    exit (0);
+  } elsif ($pid < 0) {
+    # parent, perlfork
+    $fork_excuse = "perlfork fakery";
+    waitpid ($pid, 0);
+  } else {
+    # parent, real fork
+    $have_fork = 1;
+    waitpid ($pid, 0);
+  }
+}
+
 
 print "ok 1\n";
 
@@ -187,6 +208,68 @@ if (Glib->CHECK_VERSION (2, 14, 0)) {
 } else {
   print "ok 25 # skip\n";
 }
+
+
+{
+  if (! $have_fork) {
+    print "ok 26 # skip, no fork: $fork_excuse\n";
+    print "ok 27 # skip\n";
+    print "ok 28 # skip\n";
+    print "ok 29 # skip\n";
+    print "ok 30 # skip\n";
+    goto SKIP_CHILD_TESTS;
+  }
+  if (! Glib->CHECK_VERSION (2, 4, 0)) {
+    print "ok 26 # skip: need glib >= 2.4\n";
+    print "ok 27 # skip\n";
+    print "ok 28 # skip\n";
+    print "ok 29 # skip\n";
+    print "ok 30 # skip\n";
+    goto SKIP_CHILD_TESTS;
+  }
+  my $pid = fork();
+  if (! defined $pid) {
+    die "oops, cannot fork: $!";
+  }
+  if ($pid == 0) {
+    # child
+    require POSIX;
+    POSIX::_exit(42); # no END etc cleanups
+  }
+  # parent
+  my $loop = Glib::MainLoop->new;
+  my $userdata = [ 'hello' ];
+  my $id = Glib::Child->watch_add ($pid, sub { die; }, $userdata);
+  require Scalar::Util;
+  Scalar::Util::weaken ($userdata);
+  print '', (defined $userdata ? 'ok' : 'not ok'),
+    " 26 - child userdata kept alive\n";
+  print '', (Glib::Source->remove($id) ? 'ok' : 'not ok'),
+    " 27 - child source removal\n";
+  print '', (! defined $userdata ? 'ok' : 'not ok'),
+    " 28 - child userdata now gone\n";
+
+  # No test of $status here, yet, since it may be a raw number on ms-dos,
+  # instead of a waitpid() style "code*256".  Believe there's no
+  # POSIX::WIFEXITED() etc on dos either to help examining the value.
+  my $timer_id;
+  Glib::Child->watch_add ($pid,
+                          sub {
+                            my ($pid, $status, $userdata) = @_;
+                            print '', ($userdata eq 'hello' ? 'ok' : 'not ok'),
+                              " 29 - child callback userdata value\n";
+                            print "ok 30 - child callback\n";
+                            $loop->quit;
+                          },
+                          'hello');
+  $timer_id = Glib::Timeout->add
+    (30_000, # 30 seconds should be more than enough for child exit
+     sub { die "Oops, child watch callback didn't run\n"; });
+  $loop->run;
+  Glib::Source->remove ($timer_id);
+}
+SKIP_CHILD_TESTS:
+
 
 __END__
 
