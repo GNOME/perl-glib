@@ -1,5 +1,10 @@
 2008-11-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs: Use gperl_register_fundamental_alias to register the
+	"Glib::Uint" backwards-compatibility alias.
+
+2008-11-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GBoxed.xs
 	* GObject.xs
 	* GType.xs
