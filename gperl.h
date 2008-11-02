@@ -114,6 +114,7 @@ struct _GPerlValueWrapperClass {
 };
 
 void gperl_register_fundamental (GType gtype, const char * package);
+void gperl_register_fundamental_alias (GType gtype, const char * package);
 void gperl_register_fundamental_full (GType gtype, const char * package, GPerlValueWrapperClass * wrapper_class);
 
 GType gperl_fundamental_type_from_package (const char * package);
@@ -208,6 +209,7 @@ GPerlBoxedWrapperClass * gperl_default_boxed_wrapper_class (void);
 void gperl_register_boxed (GType gtype,
 			   const char * package,
 			   GPerlBoxedWrapperClass * wrapper_class);
+void gperl_register_boxed_alias (GType gtype, const char * package);
 
 SV * gperl_new_boxed (gpointer boxed, GType gtype, gboolean own);
 SV * gperl_new_boxed_copy (gpointer boxed, GType gtype);
@@ -222,6 +224,7 @@ const char * gperl_boxed_package_from_type (GType type);
  * GObject
  */
 void gperl_register_object (GType gtype, const char * package);
+void gperl_register_object_alias (GType gtype, const char * package);
 
 typedef void (*GPerlObjectSinkFunc) (GObject *);
 void gperl_register_sink_func (GType               gtype,

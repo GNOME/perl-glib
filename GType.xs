@@ -104,6 +104,45 @@ gperl_register_fundamental (GType gtype, const char * package)
 		gperl_set_isa (package, "Glib::Flags");
 }
 
+=item void gperl_register_fundamental_alias (GType gtype, const char * package)
+
+Makes I<package> an alias for I<type>.  This means that the package name
+specified by I<package> will be mapped to I<type> by
+I<gperl_fundamental_type_from_package>, but
+I<gperl_fundamental_package_from_type> won't map I<type> to I<package>.  This
+is useful if you want to change the canonical package name of a type while
+preserving backwards compatibility with code which uses I<package> to specify
+I<type>.
+
+In order for this to make sense, another package name should be registered for
+I<type> with I<gperl_register_fundamental> or
+I<gperl_register_fundamental_full>.
+
+=cut
+
+void
+gperl_register_fundamental_alias (GType gtype,
+				  const char * package)
+{
+	const char * res;
+
+	G_LOCK (packages_by_type);
+	res = (const char *)
+		g_hash_table_lookup (packages_by_type, (gpointer) gtype);
+	G_UNLOCK (packages_by_type);
+
+	if (!res) {
+		croak ("cannot register alias %s for the unregistered type %s",
+		       package, g_type_name (gtype));
+	}
+
+	G_LOCK (types_by_package);
+	g_hash_table_insert (types_by_package,
+			     (char *) package,
+			     (gpointer) gtype);
+	G_UNLOCK (types_by_package);
+}
+
 =item GPerlValueWrapperClass
 
 Specifies the vtable that is to be used to convert fundamental types to and

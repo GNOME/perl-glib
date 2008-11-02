@@ -359,6 +359,44 @@ gperl_register_object (GType gtype,
 		class_info_finish_loading (class_info);
 }
 
+=item void gperl_register_object_alias (GType gtype, const char * package)
+
+Makes I<package> an alias for I<type>.  This means that the package name
+specified by I<package> will be mapped to I<type> by
+I<gperl_object_type_from_package>, but I<gperl_object_package_from_type> won't
+map I<type> to I<package>.  This is useful if you want to change the canonical
+package name of a type while preserving backwards compatibility with code which
+uses I<package> to specify I<type>.
+
+In order for this to make sense, another package name should be registered for
+I<type> with I<gperl_register_object>.
+
+=cut
+
+void
+gperl_register_object_alias (GType gtype,
+			     const char * package)
+{
+	ClassInfo *class_info;
+
+	G_LOCK (types_by_type);
+	class_info = (ClassInfo *)
+		g_hash_table_lookup (types_by_type, (gpointer) gtype);
+	G_UNLOCK (types_by_type);
+
+	if (!class_info) {
+		croak ("cannot register alias %s for the unregistered type %s",
+		       package, g_type_name (gtype));
+	}
+
+	G_LOCK (types_by_package);
+	/* associate package with the same class_info.  class_info is still
+	   owned by types_by_type.  types_by_package doesn't have a
+	   free-function installed, so that's ok. */
+	g_hash_table_insert (types_by_package, (char *) package, class_info);
+	G_UNLOCK (types_by_package);
+}
+
 
 =item void gperl_register_sink_func (GType gtype, GPerlObjectSinkFunc func)
 

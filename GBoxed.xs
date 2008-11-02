@@ -209,6 +209,44 @@ gperl_register_boxed (GType gtype,
 	G_UNLOCK (info_by_package);
 }
 
+=item void gperl_register_boxed_alias (GType gtype, const char * package)
+
+Makes I<package> an alias for I<type>.  This means that the package name
+specified by I<package> will be mapped to I<type> by
+I<gperl_boxed_type_from_package>, but I<gperl_boxed_package_from_type> won't
+map I<type> to I<package>.  This is useful if you want to change the canonical
+package name of a type while preserving backwards compatibility with code which
+uses I<package> to specify I<type>.
+
+In order for this to make sense, another package name should be registered for
+I<type> with I<gperl_register_boxed>.
+
+=cut
+
+void
+gperl_register_boxed_alias (GType gtype,
+			    const char * package)
+{
+	BoxedInfo * boxed_info;
+
+	G_LOCK (info_by_gtype);
+	boxed_info = (BoxedInfo *)
+		g_hash_table_lookup (info_by_gtype, (gpointer) gtype);
+	G_UNLOCK (info_by_gtype);
+
+	if (!boxed_info) {
+		croak ("cannot register alias %s for the unregistered type %s",
+		       package, g_type_name (gtype));
+	}
+
+	G_LOCK (info_by_package);
+	/* associate package with the same boxed_info.  boxed_info is still
+	   owned by info_by_gtype.  info_by_package doesn't have a
+	   free-function installed, so that's ok. */
+	g_hash_table_insert (info_by_package, (char *) package, boxed_info);
+	G_UNLOCK (info_by_package);
+}
+
 =item GType gperl_boxed_type_from_package (const char * package)
 
 Look up the GType associated with package I<package>.  Returns 0 if I<type> is

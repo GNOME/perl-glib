@@ -1,3 +1,16 @@
+2008-11-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GBoxed.xs
+	* GObject.xs
+	* GType.xs
+	* Glib.exports
+	* gperl.h: Provide gperl_register_boxed_alias,
+	gperl_register_fundamental_alias, and gperl_register_object_alias
+	to register aliases for other registered types.  An alias is a
+	package name that will resolve to the specified type, while the
+	type will still resolve to its originally registered package when
+	going the other way.
+
 2008-11-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* t/9.t
