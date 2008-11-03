@@ -6,9 +6,9 @@ build
 G.+\.c$
 Makefile$
 Makefile\.old$
+MAINTAINERS$
 \.o$
 \.spec$
 \.sw.$
 \.tar\.gz$
-\.releaserc
 \.svn

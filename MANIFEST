@@ -57,7 +57,7 @@ t/f.t
 t/filename.t
 t/g.t
 t/h.t
-t/lazy-loader.t
+t/lazy_loader.t
 t/make_helper.t
 t/signal_emission_hooks.t
 t/signal_query.t
