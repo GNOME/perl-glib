@@ -1497,9 +1497,17 @@ add_interfaces (GType instance_type, AV * interfaces)
 		newSVpv (gperl_object_package_from_type (instance_type), 0);
 
         for (i = 0; i <= av_len (interfaces); i++) {
+		GType interface_type;
+
 		SV ** svp = av_fetch (interfaces, i, FALSE);
 		if (!svp || !gperl_sv_is_defined (*svp))
 			croak ("encountered undefined interface name");
+
+		interface_type = gperl_object_type_from_package (SvPV_nolen (*svp));
+		if (!interface_type) {
+			croak ("encountered unregistered interface %s",
+			       SvPV_nolen (*svp));
+		}
 
 		/* call the interface's setup function on this class. */
 		{

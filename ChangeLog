@@ -1,5 +1,11 @@
 2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs (add_interfaces): Fail loudly and with a clear error
+	message when we encounter an unknown interface when registering a
+	new type.
+
+2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* t/lazy-loader.t -> t/lazy_loader.t: Rename this test to blend in
 	with the others which use underscores to separate words.
 
