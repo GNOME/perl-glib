@@ -1,5 +1,12 @@
 2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.pm
+	* Makefile.PL
+	* NEWS
+	* README: Unstable release 1.210.
+
+2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GType.xs (add_interfaces): Fail loudly and with a clear error
 	message when we encounter an unknown interface when registering a
 	new type.
