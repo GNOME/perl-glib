@@ -1,3 +1,9 @@
+2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.exports
+	* gperl.h: Properly export gperl_param_spec_type_from_package and
+	gperl_register_param_spec, they are meant to be public.
+
 2008-11-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs: Use gperl_register_fundamental_alias to register the

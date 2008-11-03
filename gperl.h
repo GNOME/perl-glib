@@ -354,6 +354,10 @@ GParamSpec * SvGParamSpec (SV * sv);
 SV * newSVGParamFlags (GParamFlags flags);
 GParamFlags SvGParamFlags (SV * sv);
 
+void gperl_register_param_spec (GType gtype, const char * package);
+const char * gperl_param_spec_package_from_type (GType gtype);
+GType gperl_param_spec_type_from_package (const char * package);
+
 /*
  * gkeyfile.h / GKeyFile.xs
  */
@@ -371,8 +375,6 @@ GKeyFileFlags SvGKeyFileFlags (SV * sv);
 SV * newSVGBookmarkFile (GBookmarkFile * bookmark_file);
 GBookmarkFile * SvGBookmarkFile (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */
-
-const char * gperl_param_spec_package_from_type (GType gtype);
 
 /*
  * gutils.h / GUtils.xs
