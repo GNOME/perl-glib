@@ -691,7 +691,7 @@ gobject_destroy_wrapper (SV *obj)
         	return;
 
 #ifdef NOISY
-        warn ("gobject_destroy_wrapper (%p)[%d]", obj,
+        warn ("gobject_destroy_wrapper (%p)[%d]\n", obj,
               SvREFCNT ((SV*)REVIVE_UNDEAD(obj)));
 #endif
         obj = REVIVE_UNDEAD(obj);
@@ -758,7 +758,7 @@ gperl_new_object (GObject * object,
 	/* take the easy way out if we can */
 	if (!object) {
 #ifdef NOISY
-		warn ("gperl_new_object (NULL) => undef");
+		warn ("gperl_new_object (NULL) => undef\n");
 #endif
 		return &PL_sv_undef;
 	}
@@ -817,7 +817,7 @@ gperl_new_object (GObject * object,
                  * object */
 
 #ifdef NOISY
-		warn ("gperl_new_object%d %s(%p)[%d] => %s (%p) (NEW)", own,
+		warn ("gperl_new_object%d %s(%p)[%d] => %s (%p) (NEW)\n", own,
 		      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
 		      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
 		      SvRV (sv));
@@ -840,7 +840,7 @@ gperl_new_object (GObject * object,
         }
 
 #ifdef NOISY
-	warn ("gperl_new_object%d %s(%p)[%d] => %s (%p)[%d] (PRE-OWN)", own,
+	warn ("gperl_new_object%d %s(%p)[%d] => %s (%p)[%d] (PRE-OWN)\n", own,
 	      G_OBJECT_TYPE_NAME (object), object, object->ref_count,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
 	      SvRV (sv), SvREFCNT (SvRV (sv)));
@@ -1104,7 +1104,7 @@ DESTROY (SV *sv)
         if (!object) /* Happens on object destruction. */
                 return;
 #ifdef NOISY
-        warn ("DESTROY< (%p)[%d] => %s (%p)[%d]",
+        warn ("DESTROY< (%p)[%d] => %s (%p)[%d]\n",
               object, object->ref_count,
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
