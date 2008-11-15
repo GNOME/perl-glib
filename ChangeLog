@@ -1,3 +1,15 @@
+2008-11-15  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GBoxed.xs (gperl_register_boxed): Use the copy of the passed-in
+	package name for the key of info_by_package to avoid problems when
+	the package name is dynamically allocated.
+
+	* GBoxed.xs (gperl_register_boxed)
+	* GObject.xs (gperl_register_object)
+	* GType.xs (gperl_register_fundamental): Always insert into the
+	lookup tables in the correct order to avoid prematurely freeing
+	the package name.
+
 2008-11-12  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GObject.xs: Add newlines at the end of debugging messages that

@@ -95,8 +95,12 @@ gperl_register_fundamental (GType gtype, const char * package)
 			                       (GDestroyNotify)g_free);
 	}
 	p = g_strdup (package);
-	g_hash_table_insert (packages_by_type, (gpointer) gtype, p);
+	/* We need to insert into types_by_package first because there might
+	 * otherwise be trouble if we overwrite an entry: inserting into
+	 * packages_by_type frees the copied package name.
+	 */
 	g_hash_table_insert (types_by_package, p, (gpointer) gtype);
+	g_hash_table_insert (packages_by_type, (gpointer) gtype, p);
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
 
