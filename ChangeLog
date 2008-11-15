@@ -10,6 +10,11 @@
 	lookup tables in the correct order to avoid prematurely freeing
 	the package name.
 
+2008-11-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs (gperl_type_from_package): Also try
+	gperl_param_spec_type_from_package on the package.
+
 2008-10-19  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Makefile.PL: ExtUtils::MakeMaker 6.46 removed support for

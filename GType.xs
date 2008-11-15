@@ -551,6 +551,10 @@ gperl_type_from_package (const char * package)
 	if (t)
 		return t;
 
+	t = gperl_param_spec_type_from_package (package);
+	if (t)
+		return t;
+
 	return 0;
 }
 
