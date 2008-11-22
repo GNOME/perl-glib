@@ -18,6 +18,7 @@ Glib.xs
 GLog.xs
 GMainLoop.xs
 GObject.xs
+GOption.xs
 GParamSpec.xs
 gperl-gtypes.c
 gperl-gtypes.h
@@ -59,6 +60,7 @@ t/g.t
 t/h.t
 t/lazy_loader.t
 t/make_helper.t
+t/options.t
 t/signal_emission_hooks.t
 t/signal_query.t
 t/tied_definedness.t

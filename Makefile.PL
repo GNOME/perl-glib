@@ -72,6 +72,7 @@ our @xs_files = qw(
 # Check version before including
 if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.6.0')) {
 	push @xs_files, 'GKeyFile.xs';
+	push @xs_files, 'GOption.xs';
 }
 
 if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.12.0')) {

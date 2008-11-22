@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 # 
 # This library is free software; you can redistribute it and/or modify it under
@@ -81,6 +81,11 @@ GPerlFilename		T_GPERL_FILENAME
 GPerlFilename_const	T_GPERL_FILENAME
 GPerlFilename_own	T_GPERL_FILENAME_OWN
 GPerlFilename_ornull	T_GPERL_FILENAME_ORNULL
+
+GOptionContext *	T_GPERL_GENERIC_WRAPPER
+GOptionContext_own *	T_GPERL_GENERIC_WRAPPER
+GOptionGroup *		T_GPERL_GENERIC_WRAPPER
+GOptionGroup_own *	T_GPERL_GENERIC_WRAPPER
 
 GUserDirectory	T_GPERL_GENERIC_WRAPPER
 

@@ -376,6 +376,32 @@ SV * newSVGBookmarkFile (GBookmarkFile * bookmark_file);
 GBookmarkFile * SvGBookmarkFile (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */
 
+#if GLIB_CHECK_VERSION (2, 6, 0)
+
+/*
+ * GOption.xs
+ */
+
+typedef GOptionContext GOptionContext_own;
+
+#define GPERL_TYPE_OPTION_CONTEXT (gperl_option_context_get_type ())
+GType gperl_option_context_get_type (void);
+
+#define SvGOptionContext(sv)		(gperl_get_boxed_check ((sv), GPERL_TYPE_OPTION_CONTEXT))
+#define newSVGOptionContext(val)	(gperl_new_boxed ((gpointer) (val), GPERL_TYPE_OPTION_CONTEXT, FALSE))
+#define newSVGOptionContext_own(val)	(gperl_new_boxed ((gpointer) (val), GPERL_TYPE_OPTION_CONTEXT, TRUE))
+
+typedef GOptionGroup GOptionGroup_own;
+
+#define GPERL_TYPE_OPTION_GROUP (gperl_option_group_get_type ())
+GType gperl_option_group_get_type (void);
+
+#define SvGOptionGroup(sv)		(gperl_get_boxed_check ((sv), GPERL_TYPE_OPTION_GROUP))
+#define newSVGOptionGroup(val)		(gperl_new_boxed ((gpointer) (val), GPERL_TYPE_OPTION_GROUP, FALSE))
+#define newSVGOptionGroup_own(val)	(gperl_new_boxed ((gpointer) (val), GPERL_TYPE_OPTION_GROUP, TRUE))
+
+#endif /* 2.6.0 */
+
 /*
  * gutils.h / GUtils.xs
  */

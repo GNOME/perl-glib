@@ -1,5 +1,16 @@
 2008-11-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.xs
+	* GOption.xs (added)
+	* gperl.h
+	* Makefile.PL
+	* MANIFEST
+	* t/options.t (added)
+	* typemap: Add Glib::OptionContext and Glib::OptionGroup, wrapping
+	glib's command line option parser.
+
+2008-11-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* gperl-private.h: Don't include perl.h.  This header is always
 	included after gperl.h which includes everything already.  And
 	including perl.h alone doesn't work and isn't enough anyway.

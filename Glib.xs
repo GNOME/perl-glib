@@ -386,6 +386,7 @@ BOOT:
 	GPERL_CALL_BOOT (boot_Glib__IO__Channel);
 #if GLIB_CHECK_VERSION (2, 6, 0)
 	GPERL_CALL_BOOT (boot_Glib__KeyFile);
+	GPERL_CALL_BOOT (boot_Glib__Option);
 #endif /* GLIB_CHECK_VERSION (2, 6, 0) */
 #if GLIB_CHECK_VERSION (2, 12, 0)
 	GPERL_CALL_BOOT (boot_Glib__BookmarkFile);
