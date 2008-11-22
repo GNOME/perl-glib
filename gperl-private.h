@@ -14,8 +14,6 @@
 #ifndef _GPERL_PRIVATE_H_
 #define _GPERL_PRIVATE_H_
 
-#include "perl.h"
-
 /*
  * Thread-safety macros and helpers
  */
