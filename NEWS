@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.211
+=================================
+
+* Add Glib::OptionContext and Glib::OptionGroup, wrapping glib's command line
+  option parser.
+* Make the internal package registration functions more robust.
+
 Overview of changes in Glib 1.210
 =================================
 
