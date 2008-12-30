@@ -2776,14 +2776,18 @@ bool (SV *a, b, swap)
         RETVAL
 
 =for apidoc
-=for arg b (SV*)
-=for arg swap (integer)
+=for signature ref = $a->as_arrayref
+=for arg ... (__hide__)
 =cut
 SV *
-as_arrayref (SV *a, b, swap)
+as_arrayref (SV *a, ...)
     PROTOTYPE: $;@
     CODE:
 {
+	/* overload @{} calls here with the usual three args "a,b,swap", but
+	 * "b" and "swap" have no meaning.  Using "..." to ignore them lets
+	 * users call method-style with no args "$f->as_arrayref" too.
+	 */
 	GType gtype;
 	const char *package;
         gint a_;

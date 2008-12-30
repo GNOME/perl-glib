@@ -1,3 +1,9 @@
+2008-12-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs
+	* t/c.t: Allow calling Glib::Flags::as_arrayref directly, as an
+	alternative to the @{} syntax.  Patch by Kevin Ryde.
+
 2008-11-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm

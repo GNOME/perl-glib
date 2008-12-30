@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -216,6 +216,7 @@ $obj->set (some_enum => 'value-two');
 is ($obj->get ('some_enum'), 'value-two', 'enum property, after set');
 
 is_deeply (\@{ $obj->get ('some_flags') }, ['value-one'], 'flags property');
+is_deeply ($obj->get('some_flags')->as_arrayref, ['value-one'], 'flags property');
 $obj->set (some_flags => ['value-one', 'value-two']);
 is_deeply (\@{ $obj->get ('some_flags') }, ['value-one', 'value-two'],
 	   'flags property, after set');
