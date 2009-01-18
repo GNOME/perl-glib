@@ -1,5 +1,10 @@
 2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* t/options.t: Don't use UTF-8 umlauts unconditionally as this
+	causes trouble on non-UTF-8 locales.
+
+2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* MakeHelper.pm: Add
 	Glib::MakeHelper->postamble_precompiled_headers to generate a make
 	target for precompiling headers.

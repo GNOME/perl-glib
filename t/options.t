@@ -140,18 +140,18 @@ my $entries = [
   # Test actual parsing.
   {
     @ARGV = qw(-n
-               -s blä
+               -s bla
                -i 42
                --filename ~/Foo
-               --string-array äää --string-array ööö
+               --string-array aaa --string-array bbb
                --filename-array /usr/bin/bla --filename-array ./harness);
     $context -> parse();
 
     is ($none, FALSE);
-    is ($string, 'blä');
+    is ($string, 'bla');
     is ($int, 42);
     is ($filename, '~/Foo');
-    is_deeply ($string_array, [qw/äää ööö/]);
+    is_deeply ($string_array, [qw/aaa bbb/]);
     is_deeply ($filename_array, [qw(/usr/bin/bla ./harness)]);
   }
 }
