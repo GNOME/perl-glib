@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 240;
+use Test::More tests => 243;
 
 # first register some types with which to play below.
 
@@ -217,7 +217,10 @@ my $object = Bar->new;
 my $x = $object->get ('param_spec');
 is ($x, undef);
 
-# value_validate()
+
+
+#
+# value_validate() and value_cmp()
 #
 { my $p = Glib::ParamSpec->int ('name','nick','blurb',
                                 20, 50, 25, G_PARAM_READWRITE);
@@ -233,4 +236,8 @@ is ($x, undef);
   ($modif, $newval) = $p->value_validate(-70);
   ok ($modif, 'modify -70 to be in range');
   is ($newval, 20, 'clamp -70 down to be in range');
+
+  is ($p->values_cmp(22, 33), -1);
+  is ($p->values_cmp(33, 22), 1);
+  is ($p->values_cmp(22, 22), 0);
 }

@@ -659,6 +659,29 @@ g_param_value_validate (GParamSpec * pspec, SV *value)
 	g_value_unset (&v);
 	XSRETURN(retcount);
 
+=for
+Compares I<value1> with I<value2> according to I<pspec>, and returns -1, 0 or
++1, if value1 is found to be less than, equal to or greater than value2,
+respectively.
+=cut
+int
+g_param_values_cmp (GParamSpec * pspec, SV *value1, SV *value2)
+    PREINIT:
+	GValue v1 = { 0, };
+	GValue v2 = { 0, };
+	GType type;
+    CODE:
+	type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+	g_value_init (&v1, type);
+	g_value_init (&v2, type);
+	gperl_value_from_sv (&v1, value1);
+	gperl_value_from_sv (&v2, value2);
+	RETVAL = g_param_values_cmp (pspec, &v1, &v2);
+	g_value_unset (&v1);
+	g_value_unset (&v2);
+    OUTPUT:
+	RETVAL
+
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Char
 
