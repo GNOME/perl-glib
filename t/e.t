@@ -3,6 +3,7 @@
 # ParamSpec stuff.
 #
 use strict;
+use utf8;
 use Glib ':constants';
 use Test::More tests => 240;
 
@@ -160,9 +161,9 @@ push @params, $pspec;
 
 $pspec = Glib::ParamSpec->unichar ('unichar', 'Unichar',
 	                           'is that like unixsex?',
-	                           'ö', qw/readable/);
+	                           'Ã¶', qw/readable/);
 pspec_common_ok ($pspec, 'Unichar', qw/readable/, 'Glib::UInt');
-is ($pspec->get_default_value, 'ö', 'Unichar default');
+is ($pspec->get_default_value, 'Ã¶', 'Unichar default');
 push @params, $pspec;
 
 

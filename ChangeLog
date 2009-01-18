@@ -1,5 +1,9 @@
 2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* t/e.t: Use UTF-8 instead of ISO-8859-1 to encode umlauts.
+
+2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GParamSpec.xs
 	* t/e.t: Add Glib::ParamSpec->value_validate.  Patch by Kevin
 	Ryde.
