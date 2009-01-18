@@ -1,5 +1,11 @@
 2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GParamSpec.xs
+	* t/e.t: Add Glib::ParamSpec->value_validate.  Patch by Kevin
+	Ryde.
+
+2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* t/options.t: Don't use UTF-8 umlauts unconditionally as this
 	causes trouble on non-UTF-8 locales.
 

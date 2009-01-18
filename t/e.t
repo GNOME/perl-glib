@@ -4,7 +4,7 @@
 #
 use strict;
 use Glib ':constants';
-use Test::More tests => 232;
+use Test::More tests => 240;
 
 # first register some types with which to play below.
 
@@ -215,3 +215,21 @@ foreach (@params) {
 my $object = Bar->new;
 my $x = $object->get ('param_spec');
 is ($x, undef);
+
+# value_validate()
+#
+{ my $p = Glib::ParamSpec->int ('name','nick','blurb',
+                                20, 50, 25, G_PARAM_READWRITE);
+  ok (! scalar ($p->value_validate('30')), "value 30 valid");
+  my @a = $p->value_validate('30');
+  is (@a, 2);
+  ok (! $a[0], "value 30 bool no modify (array context)");
+  is ($a[1], 30, "value 30 value unchanged");
+
+  my ($modif, $newval) = $p->value_validate(70);
+  ok ($modif, 'modify 70 to be in range');
+  is ($newval, 50, 'clamp 70 down to be in range');
+  ($modif, $newval) = $p->value_validate(-70);
+  ok ($modif, 'modify -70 to be in range');
+  is ($newval, 20, 'clamp -70 down to be in range');
+}

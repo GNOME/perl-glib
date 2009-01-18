@@ -625,6 +625,41 @@ get_value_type (GParamSpec * pspec)
 	RETVAL
 
 
+MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_
+
+=for apidoc
+=signature bool = $paramspec->value_validate ($value)
+=signature (bool, newval) = $paramspec->value_validate ($value)
+In scalar context return true if $value must be modified to be valid
+for $paramspec, or false if it's valid already.  In array context
+return also a new value which is $value made valid.
+
+$value must be the right type for $paramspec (with usual stringizing,
+numizing, etc).  C<value_validate> checks the further restrictions
+such as minimum and maximum for a numeric type or allowed characters
+in a string.  The "made valid" return is then for instance clamped to
+the min/max, or offending chars replaced by a substitutor.
+=cut
+void
+g_param_value_validate (GParamSpec * pspec, SV *value)
+    PREINIT:
+	GValue v = { 0, };
+	GType type;
+	int modify, retcount=1;
+    CODE:
+	type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+	g_value_init (&v, type);
+	gperl_value_from_sv (&v, value);
+	modify = g_param_value_validate (pspec, &v);
+	ST(0) = sv_2mortal (boolSV (modify));
+	if (GIMME_V == G_ARRAY) {
+		ST(1) = sv_2mortal (gperl_sv_from_value (&v));
+		retcount = 2;
+	}
+	g_value_unset (&v);
+	XSRETURN(retcount);
+
+
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Char
 
  ## actually for all signed integer types
