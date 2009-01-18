@@ -212,6 +212,7 @@ build/podindex :: \$(INST_LIB)/Glib/GenPod.pm
 	\$(NOECHO) $^X apidoc.pl xsapi.pod.head xsapi.pod.foot build/doc.pl > \$@
 
 "
+	     . Glib::MakeHelper->postamble_precompiled_headers (qw/gperl.h/)
 	     . Glib::MakeHelper->postamble_clean ()
 	     . Glib::MakeHelper->postamble_docs_full (
 			DEPENDS => $glib,

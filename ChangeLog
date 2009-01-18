@@ -4,6 +4,10 @@
 	Glib::MakeHelper->postamble_precompiled_headers to generate a make
 	target for precompiling headers.
 
+	* Makefile.PL: Use the above to create a 'precompiled-headers'
+	target that precompiles gperl.h.  This speeds up the compilation
+	of Glib by 16% on my machine.
+
 2008-12-30  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GType.xs
