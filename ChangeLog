@@ -1,3 +1,8 @@
+2009-01-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm: Add documentation for Glib->filename_to_uri and
+	filename_from_uri.  Patch by Kevin Ryde.
+
 2009-01-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GParamSpec.xs
