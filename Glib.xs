@@ -106,7 +106,8 @@ gperl_filename_from_sv (SV *sv)
 
 	/* look out: len is the length of the input when we call, but
 	 * will be the length of the output when this call finishes. */
-        lname = g_filename_from_utf8 (filename, len, 0, &len, &error);
+        lname = g_filename_from_utf8 ((const gchar *) filename,
+                                      len, 0, &len, &error);
         if (!lname)
         	gperl_croak_gerror (NULL, error);
 

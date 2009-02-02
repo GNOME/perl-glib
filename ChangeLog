@@ -1,3 +1,8 @@
+2009-02-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.xs
+	* GSignal.xs: Hush some compiler warnings.
+
 2009-01-20  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm: Add documentation for Glib->filename_to_uri and

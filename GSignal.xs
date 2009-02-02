@@ -538,7 +538,7 @@ g_signal_emit (instance, name, ...)
 	if (((guint)(items-ARGOFFSET)) != query.n_params) 
 		croak ("Incorrect number of arguments for emission of signal %s in class %s; need %d but got %d",
 		       name, G_OBJECT_TYPE_NAME (instance),
-		       query.n_params, items-ARGOFFSET);
+		       query.n_params, (gint) items-ARGOFFSET);
 
 	/* set up the parameters to g_signal_emitv.   this is an array
 	 * of GValues, where [0] is the emission instance, and the rest 
@@ -988,7 +988,7 @@ g_signal_chain_from_overridden (GObject * instance, ...)
 		       "expected %d, got %d",
 		       g_signal_name (ihint->signal_id),
 		       1 + query.n_params,
-		       items);
+		       (gint) items);
 
 	instance_and_params = g_new0 (GValue, 1 + query.n_params);
 
