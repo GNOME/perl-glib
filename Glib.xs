@@ -100,19 +100,18 @@ gperl_filename_from_sv (SV *sv)
         dTHR;
 
         GError *error = NULL;
-        gchar *lname;
-        STRLEN len;
-        gchar *filename = SvPVutf8 (sv, len);
+        gchar *lname = NULL;
+        gsize output_length = 0;
+        STRLEN input_length = 0;
+        gchar *filename = SvPVutf8 (sv, input_length);
 
-	/* look out: len is the length of the input when we call, but
-	 * will be the length of the output when this call finishes. */
-        lname = g_filename_from_utf8 ((const gchar *) filename,
-                                      len, 0, &len, &error);
+        lname = g_filename_from_utf8 (filename, input_length,
+                                      0, &output_length, &error);
         if (!lname)
         	gperl_croak_gerror (NULL, error);
 
-        filename = gperl_alloc_temp (len + 1);
-        memcpy (filename, lname, len);
+        filename = gperl_alloc_temp (output_length + 1);
+        memcpy (filename, lname, output_length);
         g_free (lname);
 
         return filename;
