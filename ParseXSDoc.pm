@@ -85,9 +85,11 @@ sub xsdocparse {
 
 	# Data::Dumper converts the whole output to a string, and consequently
 	# uses an obscene amount of ram on Gtk2's nearly 200 xs files.  Use
-	# Storable unless the user really really wants to force us to fall
-	# back to Data::Dumper.
-	if ($ENV{FORCE_DATA_DUMPER}) {
+	# Storable unless the user really really wants to force us to fall back
+	# to Data::Dumper.  Storable doesn't seem to work well on win32, so
+	# always use Data::Dumper there.
+	my $use_dd = $ENV{FORCE_DATA_DUMPER} || $^O eq 'MSWin32';
+	if ($use_dd) {
 		$Data::Dumper::Purity = 1;
 		print Data::Dumper->Dump([$parser->{xspods}, $parser->{data}],
 		                       [qw($xspods            $data)]);
