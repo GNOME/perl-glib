@@ -1,3 +1,9 @@
+2009-02-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* ParseXSDoc.pm (xsdocparse): Always use Data::Dumper on MSWin32
+	for serialization.  Storable seems to consistently fail there,
+	stating 'Magic number checking on storable file failed'.
+
 2008-11-15  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GBoxed.xs (gperl_register_boxed): Use the copy of the passed-in
