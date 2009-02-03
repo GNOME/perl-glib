@@ -20,7 +20,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 	# have to bail out.
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
 } else {
-	plan tests => 11;
+	plan tests => 12;
 }
 
 package Foo;
@@ -30,7 +30,7 @@ use Glib::Object::Subclass
 
 package main;
 
-$SIG{__WARN__} = sub { ok(1, "in __WARN__: $_[0]"); };
+$SIG{__WARN__} = sub { chomp (my $msg = $_[0]); ok(1, "in __WARN__: $msg"); };
 #$SIG{__DIE__} = sub { ok(1, 'in __DIE__'); };
 
 Glib->message (undef, 'whee message');
@@ -89,6 +89,19 @@ delete $SIG{__WARN__};
 #};
 #print "$@\n";
 #}
+
+# Check that messages with % chars make it through unaltered and don't cause
+# crashes
+{
+	my $id = Glib::Log->set_handler (
+		__PACKAGE__,
+		qw/debug/,
+		sub { is($_[2], '%s %d %s', 'a message with % chars'); });
+
+	Glib->log (__PACKAGE__, qw/debug/, '%s %d %s');
+
+	Glib::Log->remove_handler (__PACKAGE__, $id);
+}
 
 Glib::Log->set_fatal_mask (__PACKAGE__, [qw/ warning message /]);
 Glib::Log->set_always_fatal ([qw/ info debug /]);

@@ -235,7 +235,7 @@ MODULE = Glib::Log	PACKAGE = Glib	PREFIX = g_
 
 void g_log (class, gchar_ornull * log_domain, SV * log_level, const gchar *message)
     CODE:
-	g_log (log_domain, SvGLogLevelFlags (log_level), message);
+	g_log (log_domain, SvGLogLevelFlags (log_level), "%s", message);
 
 MODULE = Glib::Log	PACKAGE = Glib::Log	PREFIX = g_log_
 
@@ -292,7 +292,7 @@ error (class, gchar_ornull * domain, const gchar * message)
 		case 2: flags = G_LOG_LEVEL_CRITICAL; break;
 		case 3: flags = G_LOG_LEVEL_WARNING; break;
 	}
-	g_log (domain, flags, message);
+	g_log (domain, flags, "%s", message);
 
 ##
 ## these are not needed -- perl's print() and warn() do the job.

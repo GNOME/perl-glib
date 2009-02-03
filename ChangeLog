@@ -1,3 +1,9 @@
+2009-02-03  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/a.t
+	* GLog.xs: Make sure that messages with % chars in them make it
+	through Glib::log() and friends safely.
+
 2009-02-02  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* ParseXSDoc.pm (xsdocparse): Always use Data::Dumper on MSWin32
