@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -186,12 +186,17 @@ gperl_register_boxed (GType gtype,
 						         NULL);
 	}
 	boxed_info = boxed_info_new (gtype, package, wrapper_class);
+
 	/* We need to insert into info_by_package first because there might
 	 * otherwise be trouble if we overwrite an entry: inserting into
 	 * info_by_gtype frees the boxed_info of the overwritten entry, so that
 	 * boxed_info->package is no longer valid at this point.
+	 *
+	 * Note also it's g_hash_table_replace() for info_by_package,
+	 * because the old key string in the old boxed_info will be freed
+	 * when info_by_gtype updates the value there.
 	 */
-	g_hash_table_insert (info_by_package, boxed_info->package, boxed_info);
+	g_hash_table_replace (info_by_package, boxed_info->package, boxed_info);
 	g_hash_table_insert (info_by_gtype, (gpointer) gtype, boxed_info);
 
 	/* GBoxed types are plain structures, so it would be really
