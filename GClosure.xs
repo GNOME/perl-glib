@@ -390,7 +390,7 @@ gperl_callback_invoke (GPerlCallback * callback,
 						   error);
 				g_free (error);
 				/* this won't return */
-				croak (SvPV_nolen (errstr));
+				croak ("%s", SvPV_nolen (errstr));
 			}
 			sv = gperl_sv_from_value (&v);
 			if (!sv) {

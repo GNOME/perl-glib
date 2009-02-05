@@ -1,5 +1,10 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GClosure.xs (gperl_callback_invoke): Use the <"%s", pointer>
+	pattern when passing an error string pointer to croak().
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GType.xs
 	* t/c.t: Make the various Glib::Flags methods more robust with
 	respect to receiving undefined input.  Patch by Kevin Ryde.
