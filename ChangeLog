@@ -1,5 +1,13 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GClosure.xs (gperl_closure_marshal): Synchronize the way signals
+	with no return value are handled with how it's done in
+	gperl_signal_class_closure_marshal.  This means that Perl handlers
+	for these kinds of signals are now always called in void context,
+	as they should be.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* MANIFEST
 	* GType.xs (gperl_signal_class_closure_marshal)
 	* t/signal_marshal.t: Correctly handle signals with no return type
