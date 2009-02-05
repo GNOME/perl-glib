@@ -329,12 +329,17 @@ gperl_register_object (GType gtype,
 							  NULL);
 	}
 	class_info = class_info_new (gtype, package);
+
 	/* We need to insert into types_by_package first because there might
 	 * otherwise be trouble if we overwrite an entry: inserting into
-	 * types_by_gtype frees the class_info of the overwritten entry, so
+	 * types_by_type frees the class_info of the overwritten entry, so
 	 * that class_info->package is no longer valid at this point.
+	 *
+	 * Note also it's g_hash_table_replace() for types_by_package,
+	 * because the old key string in the old class_info will be freed
+	 * when types_by_type updates the value there.
 	 */
-	g_hash_table_insert (types_by_package, class_info->package, class_info);
+	g_hash_table_replace (types_by_package, class_info->package, class_info);
 	g_hash_table_insert (types_by_type,
 	                     (gpointer) class_info->gtype, class_info);
 	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */

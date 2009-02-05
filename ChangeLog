@@ -1,5 +1,14 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GBoxed.xs (gperl_register_boxed)
+	* GObject.xs (gperl_register_object)
+	* GType.xs (gperl_register_fundamental): When inserting into the
+	package → type hash tables, use g_hash_table_replace instead of
+	_insert so that the new string pointer is used as the key.  Patch
+	by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	Merge this old commit from trunk.  Without it, the 2008-11-03
 	change doesn't make sense.
 

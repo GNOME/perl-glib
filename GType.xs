@@ -98,8 +98,12 @@ gperl_register_fundamental (GType gtype, const char * package)
 	/* We need to insert into types_by_package first because there might
 	 * otherwise be trouble if we overwrite an entry: inserting into
 	 * packages_by_type frees the copied package name.
+	 *
+	 * Note also it's g_hash_table_replace() for types_by_package, because
+	 * the old key string will be freed when packages_by_type updates the
+	 * value there.
 	 */
-	g_hash_table_insert (types_by_package, p, (gpointer) gtype);
+	g_hash_table_replace (types_by_package, p, (gpointer) gtype);
 	g_hash_table_insert (packages_by_type, (gpointer) gtype, p);
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
