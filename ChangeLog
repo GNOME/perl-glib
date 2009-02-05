@@ -1,5 +1,11 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs
+	* t/c.t: Make the various Glib::Flags methods more robust with
+	respect to receiving undefined input.  Patch by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GBoxed.xs (gperl_register_boxed)
 	* GObject.xs (gperl_register_object)
 	* GType.xs (gperl_register_fundamental): When inserting into the

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -230,6 +230,21 @@ gperl_fundamental_type_from_package (const char * package)
 	res = (GType) g_hash_table_lookup (types_by_package, package);
 	G_UNLOCK (types_by_package);
 	return res;
+}
+
+/* objref should be a reference to a blessed something; the return is
+   G_TYPE_NONE if it's any other SV.  Is it worth making this public?  Leave
+   it private for now.  */
+static GType
+gperl_fundamental_type_from_obj (SV *objref)
+{
+	SV *obj;
+	const char *package;
+	obj = SvRV(objref);
+	if (obj == NULL)
+		return G_TYPE_NONE;  /* ref is not a reference */
+	package = sv_reftype (obj, TRUE);
+	return gperl_fundamental_type_from_package (package);
 }
 
 =item const char * gperl_fundamental_package_from_type (GType gtype)
@@ -2771,9 +2786,7 @@ bool (SV *a, b, swap)
     PROTOTYPE: $;@
     CODE:
         RETVAL = !!gperl_convert_flags (
-                     gperl_fundamental_type_from_package (
-                       sv_reftype (SvRV (a), TRUE)
-                     ),
+                     gperl_fundamental_type_from_obj (a),
                      a
                    );
     OUTPUT:
@@ -2793,11 +2806,9 @@ as_arrayref (SV *a, ...)
 	 * users call method-style with no args "$f->as_arrayref" too.
 	 */
 	GType gtype;
-	const char *package;
         gint a_;
 
-	package = sv_reftype (SvRV (a), TRUE);
-	gtype = gperl_fundamental_type_from_package (package);
+	gtype = gperl_fundamental_type_from_obj (a);
         a_ = gperl_convert_flags (gtype, a);
 
         RETVAL = flags_as_arrayref (gtype, a_);
@@ -2814,11 +2825,9 @@ eq (SV *a, SV *b, int swap)
     CODE:
 {
 	GType gtype;
-	const char *package;
         gint a_, b_;
 
-	package = sv_reftype (SvRV (a), TRUE);
-	gtype = gperl_fundamental_type_from_package (package);
+	gtype = gperl_fundamental_type_from_obj (a);
         a_ = gperl_convert_flags (gtype, swap ? b : a);
         b_ = gperl_convert_flags (gtype, swap ? a : b);
 
@@ -2842,11 +2851,9 @@ union (SV *a, SV *b, SV *swap)
     CODE:
 {
 	GType gtype;
-	const char *package;
         gint a_, b_;
 
-	package = sv_reftype (SvRV (a), TRUE);
-	gtype = gperl_fundamental_type_from_package (package);
+	gtype = gperl_fundamental_type_from_obj (a);
         a_ = gperl_convert_flags (gtype, SvTRUE (swap) ? b : a);
         b_ = gperl_convert_flags (gtype, SvTRUE (swap) ? a : b);
 

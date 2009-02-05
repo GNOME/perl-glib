@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 35;
+use Test::More tests => 51;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -48,6 +48,14 @@ ok ($@, "Will croak on trying to create plain old Glib::Flags");
       "overloaded +=");
   ok ($f == ['readable'],
       "overloaded += leaves original unchanged");
+}
+
+foreach my $method (qw(bool as_arrayref eq union sub intersect xor all)) {
+  my $func = Glib::Flags->can($method);
+  ok ($func, "Glib::Flags::$method() func found");
+  no warnings;
+  ok (do { eval { $func->(undef, undef, 0) }; 1 },
+      'Glib::Flags::$method() no segfault if passed a non-reference');
 }
 
 #########################
@@ -241,7 +249,7 @@ ok ($obj->get ('some_flags') ne [qw/value-one/], 'ne is overloaded');
 
 __END__
 
-Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under
