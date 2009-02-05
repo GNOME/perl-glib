@@ -142,8 +142,12 @@ sub read_source_list_file {
 
 Generates YAML code that lists every module found in I<%module_to_version>
 under the C<configure_requires> key.  This can be used with
-I<ExtUtils::MakeMaker>'s C<EXTRA_META> parameter to specify which modules are
+L<ExtUtils::MakeMaker>'s C<EXTRA_META> parameter to specify which modules are
 needed at I<Makefile.PL> time.
+
+This function is B<deprecated> since L<ExtUtils::MakeMaker> 6.46 removed
+support for C<EXTRA_META> in favor of the new keys C<META_MERGE> and
+C<META_ADD>.
 
 =cut
 

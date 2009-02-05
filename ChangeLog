@@ -1,5 +1,11 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* MakeHelper.pm: Deprecate
+	Glib::MakeHelper->get_configure_requires_yaml in favor of EU::MM's
+	new META_MERGE and META_ADD features.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* Makefile.PL: Unconditionally use META_MERGE; so you now need
 	ExtUtils::MakeMaker >= 6.46 to roll a Glib tarball with a proper
 	META.yml.  Also, tell the CPAN indexer (via META.yml) to not index
