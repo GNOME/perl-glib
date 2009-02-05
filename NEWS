@@ -1,3 +1,15 @@
+Overview of changes in Glib 1.212
+=================================
+
+* Allow calling Glib::Flags->as_arrayref directly, as an alternative to the @{}
+  syntax.
+* Add Glib::ParamSpec->value_validate and Glib::ParamSpec->value_cmp.
+* Add documentation for Glib->filename_to_uri and filename_from_uri.
+* Always use Data::Dumper instead of Storable on MSWin32 for serialization work
+  during documentation generation.
+* Make sure that messages with % chars in them make it through Glib->log and
+  friends safely.
+
 Overview of changes in Glib 1.211
 =================================
 
