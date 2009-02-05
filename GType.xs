@@ -219,10 +219,13 @@ registered with gperl_register_fundamental_full().
 GPerlValueWrapperClass *
 gperl_fundamental_wrapper_class_from_type (GType gtype)
 {
-	GPerlValueWrapperClass * res;
+	GPerlValueWrapperClass * res = NULL;
 	G_LOCK (wrapper_class_by_type);
-	res = (GPerlValueWrapperClass *)
-		g_hash_table_lookup (wrapper_class_by_type, (gpointer) gtype);
+	if (wrapper_class_by_type) {
+		res = (GPerlValueWrapperClass *)
+			g_hash_table_lookup (wrapper_class_by_type,
+			                     (gpointer) gtype);
+	}
 	G_UNLOCK (wrapper_class_by_type);
 	return res;
 }
@@ -926,6 +929,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
         /* does the function exist? then call it. */
         if (slot && GvCV (*slot)) {
 		SV * save_errsv;
+		gboolean want_return_value;
 		int flags;
 		dSP;
 
@@ -950,13 +954,14 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		/* note: keep this as closely sync'ed as possible with the
 		 * definition of GPERL_CLOSURE_MARSHAL_CALL. */
 		save_errsv = sv_2mortal (newSVsv (ERRSV));
-		flags = G_EVAL | (return_value ? G_SCALAR : G_VOID|G_DISCARD);
+		want_return_value = return_value && G_VALUE_TYPE (return_value);
+		flags = G_EVAL | (want_return_value ? G_SCALAR : G_VOID|G_DISCARD);
 		call_method (SvPV_nolen (method_name), flags);
 		SPAGAIN;
 		if (SvTRUE (ERRSV)) {
 			gperl_run_exception_handlers ();
 
-		} else if (return_value) {
+		} else if (want_return_value) {
 			gperl_value_from_sv (return_value, POPs);
 			PUTBACK;
 		}

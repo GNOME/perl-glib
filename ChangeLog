@@ -1,5 +1,25 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GClosure.xs (gperl_closure_marshal): Synchronize the way signals
+	with no return value are handled with how it's done in
+	gperl_signal_class_closure_marshal.  This means that Perl handlers
+	for these kinds of signals are now always called in void context,
+	as they should be.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* MANIFEST
+	* GType.xs (gperl_signal_class_closure_marshal)
+	* t/signal_marshal.t: Correctly handle signals with no return type
+	when invoking signal class closures.  Patch by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GType.xs (gperl_register_fundamental_full): Handle
+	wrapper_class_by_type being NULL gracefully.  Patch by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GBoxed.xs (gperl_register_boxed)
 	* GObject.xs (gperl_register_object)
 	* GType.xs (gperl_register_fundamental): When inserting into the

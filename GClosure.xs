@@ -69,6 +69,7 @@ gperl_closure_marshal (GClosure * closure,
 		       gpointer invocation_hint,
 		       gpointer marshal_data)
 {
+	gboolean want_return_value;
 	int flags;
 	guint i;
 	dGPERL_CLOSURE_MARSHAL_ARGS;
@@ -99,18 +100,15 @@ gperl_closure_marshal (GClosure * closure,
 
 	PUTBACK;
 
-	flags = return_value ? G_SCALAR : G_DISCARD;
+	want_return_value = return_value && G_VALUE_TYPE (return_value);
+	flags = want_return_value ? G_SCALAR : G_VOID|G_DISCARD;
 
 	SPAGAIN;
 
 	GPERL_CLOSURE_MARSHAL_CALL (flags);
 
-	if (return_value) {
-		/* we need to remove the value to from the stack,
-		 * regardless of whether we do anything with it. */
-		SV * sv = POPs;
-		if (G_VALUE_TYPE (return_value))
-			gperl_value_from_sv (return_value, sv);
+	if (want_return_value) {
+		gperl_value_from_sv (return_value, POPs);
 		PUTBACK; /* vitally important */
 	}
 
