@@ -1,5 +1,10 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs (gperl_register_fundamental_full): Handle
+	wrapper_class_by_type being NULL gracefully.  Patch by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* Glib.xs: In Glib::filename_from_uri and filename_to_uri, use the
 	gchar converters for the hostname.  Patch by Kevin Ryde.
 

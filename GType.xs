@@ -273,10 +273,13 @@ registered with gperl_register_fundamental_full().
 GPerlValueWrapperClass *
 gperl_fundamental_wrapper_class_from_type (GType gtype)
 {
-	GPerlValueWrapperClass * res;
+	GPerlValueWrapperClass * res = NULL;
 	G_LOCK (wrapper_class_by_type);
-	res = (GPerlValueWrapperClass *)
-		g_hash_table_lookup (wrapper_class_by_type, (gpointer) gtype);
+	if (wrapper_class_by_type) {
+		res = (GPerlValueWrapperClass *)
+			g_hash_table_lookup (wrapper_class_by_type,
+			                     (gpointer) gtype);
+	}
 	G_UNLOCK (wrapper_class_by_type);
 	return res;
 }
