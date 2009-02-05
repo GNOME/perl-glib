@@ -1,5 +1,12 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Makefile.PL: Unconditionally use META_MERGE; so you now need
+	ExtUtils::MakeMaker >= 6.46 to roll a Glib tarball with a proper
+	META.yml.  Also, tell the CPAN indexer (via META.yml) to not index
+	xsapi.pod.head and xsapi.pod.foot.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GClosure.xs (gperl_closure_marshal): Synchronize the way signals
 	with no return value are handled with how it's done in
 	gperl_signal_class_closure_marshal.  This means that Perl handlers
