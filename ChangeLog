@@ -1,5 +1,10 @@
 2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.xs: In Glib::filename_from_uri and filename_to_uri, use the
+	gchar converters for the hostname.  Patch by Kevin Ryde.
+
+2009-02-05  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GClosure.xs (gperl_callback_invoke): Use the <"%s", pointer>
 	pattern when passing an error string pointer to croak().
 
