@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 use Glib qw(:functions);
-use Test::More tests => 21;
+use Test::More tests => 24;
 
 my $filename = "test";
 
@@ -20,12 +20,22 @@ is(Glib->filename_from_unicode($filename), $filename);
 is(Glib::filename_from_unicode($filename), $filename);
 is(filename_from_unicode($filename), $filename);
 
+
+#
+# These URI related tests are deliberately permissive so as not to fail on
+# MSWin32.
+#
+
 use Cwd qw(cwd);
 
 my $path = cwd() . "/" . $filename;
 my $host = "localhost";
 my $uri = "file://$host/$filename";
 my $expected = qr/\Q$filename\E/;
+
+like(Glib->filename_to_uri($path, undef), $expected);
+like(Glib::filename_to_uri($path, undef), $expected);
+like(filename_to_uri($path, undef), $expected);
 
 like(Glib->filename_to_uri($path, $host), $expected);
 like(Glib::filename_to_uri($path, $host), $expected);
