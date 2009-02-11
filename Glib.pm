@@ -479,11 +479,11 @@ Extract the filename and hostname from a "file://" schema URI.  In scalar
 context just the filename is returned, in array context both filename and
 hostname are returned.
 
-The filename returned is bytes in the local filesystem encoding.  The
-hostname returned is utf-8.  For example,
+The filename returned is bytes in the local filesystem encoding and with the
+OS path separator character.  The hostname returned is utf-8.  For example,
 
     ($f,$h) = filename_from_uri ('file://foo.com/r%26b/bar.html');
-    # returns '/r&b/bar.html' and 'foo.com'
+    # returns '/r&b/bar.html' and 'foo.com' on Unix
 
 If C<$uri> is not a "file:", or is mal-formed, or the hostname part doesn't
 look like a host name then C<filename_from_uri> croaks with a
@@ -662,7 +662,7 @@ patches and tests here and there.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2008 by muppet and the gtk2-perl team
+Copyright 2003-2009 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For
