@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2005 by the gtk2-perl team (see the file AUTHORS for the full
+ * Copyright (C) 2004-2009 by the gtk2-perl team (see the file AUTHORS for the full
  * list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -436,6 +436,10 @@ maintainer if you get such an exception.
 
 The source line and file closest to the emission of the exception, in the same
 format that you'd get from croak() or die().
+
+If there's non-ascii characters in the filename Perl leaves them as
+raw bytes, so you may have to put the string through
+Glib::filename_display_name for a wide-char form.
 
 =cut
 char * location (SV * error)

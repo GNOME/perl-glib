@@ -1,5 +1,10 @@
 2009-02-11  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GError.xs: Document that Glib::Error->location returns raw
+	bytes.  Patch by Kevin Ryde.
+
+2009-02-11  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* Glib.pm: In the documentation for filename_from_uri, hint at
 	path separator issue.  Patch by Kevin Ryde.
 
