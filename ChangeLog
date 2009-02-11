@@ -1,3 +1,7 @@
+2009-02-11  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GOption.xs (copy_string): Fix C99-ism.  Patch by Kevin Ryde.
+
 2009-02-06  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* t/filename.t: Test Glib->filename_to_uri with hostname == undef.

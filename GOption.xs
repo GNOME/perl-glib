@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2008 by the gtk2-perl team (see the file AUTHORS)
+ * Copyright (c) 2005-2009 by the gtk2-perl team (see the file AUTHORS)
  *
  * Licensed under the LGPL, see LICENSE file for more information.
  *
@@ -265,9 +265,10 @@ handle_arg_data (GOptionEntry *entry, SV *ref, GHashTable *scalar_to_info)
 static gchar *
 copy_string (gchar *src, GPerlArgInfoTable *table)
 {
+	gchar *result;
 	if (!src)
 		return NULL;
-	gchar *result = g_strdup (src);
+	result = g_strdup (src);
 	table->allocated_strings =
 		g_slist_prepend (table->allocated_strings, result);
 	return result;
