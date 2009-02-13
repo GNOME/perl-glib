@@ -1,3 +1,13 @@
+Overview of changes in Glib 1.213
+=================================
+
+* Make the various Glib::Flags methods more robust with respect to receiving
+  undefined input.
+* Correctly handle signals with no return type when invoking signal class
+  closures.
+* Deprecate Glib::MakeHelper->get_configure_requires_yaml in favor of
+  ExtUtils::MakeMaker's new META_MERGE and META_ADD features.
+
 Overview of changes in Glib 1.212
 =================================
 

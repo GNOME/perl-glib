@@ -1,3 +1,9 @@
+2009-02-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm
+	* NEWS
+	* README: Unstable release 1.213.
+
 2009-02-11  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GError.xs: Document that Glib::Error->location returns raw
