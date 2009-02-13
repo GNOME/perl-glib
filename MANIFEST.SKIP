@@ -6,6 +6,7 @@ build
 G.+\.c$
 Makefile$
 Makefile\.old$
+MAINTAINERS$
 \.o$
 \.spec$
 \.sw.$
