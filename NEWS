@@ -1,3 +1,14 @@
+Overview of changes in Glib 1.201
+=================================
+
+* Make the internal package registration functions more robust.
+* Make sure that messages with % chars in them make it through Glib->log and
+  friends safely.
+* Correctly handle signals with no return type when invoking signal class
+  closures.
+* Always use Data::Dumper instead of Storable on MSWin32 for serialization work
+  during documentation generation.
+
 Overview of changes in Glib 1.200
 =================================
 
