@@ -650,6 +650,8 @@ http://lists.gnome.org/.
 
 =head1 AUTHORS
 
+=encoding utf8
+
 muppet, E<lt>scott at asofyet dot orgE<gt>, who borrowed heavily from the work
 of Göran Thyni, E<lt>gthyni at kirra dot netE<gt> and Guillaume Cottenceau
 E<lt>gc at mandrakesoft dot comE<gt> on the first gtk2-perl module, and from
