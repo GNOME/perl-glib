@@ -689,17 +689,17 @@ g_bookmark_file_get_added (bookmark_file, uri)
     OUTPUT:
         RETVAL
 
-=for apidoc Glib::BookmarkFile::set_added __function__
+=for apidoc Glib::BookmarkFile::set_added
 Sets the time the bookmark for $uri was added.
 If no bookmark for $uri is found one is created.
 =cut
 
-=for apidoc Glib::BookmarkFile::set_modified __function__
+=for apidoc Glib::BookmarkFile::set_modified
 Sets the time the bookmark for $uri was last modified.
 If no bookmark for $uri is found one is created.
 =cut
 
-=for apidoc Glib::BookmarkFile::set_visited __function__
+=for apidoc Glib::BookmarkFile::set_visited
 Sets the time the bookmark for $uri was last visited.
 If no bookmark for $uri is found one is created.
 =cut
