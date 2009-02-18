@@ -1,3 +1,8 @@
+2009-02-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm: Use an '=encoding utf8' directive for the AUTHORS POD
+	section so that non-ASCII characters are handled correctly.
+
 2009-02-13  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
