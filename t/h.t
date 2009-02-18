@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 use Glib ':constants';
-use Test::More tests => 27;
+use Test::More tests => 30;
 
 our $str = <<__EOB__
 <?xml version="1.0" encoding="UTF-8"?>
@@ -122,6 +122,15 @@ SKIP: {
 
 	$bookmark_file->remove_item($uris[0]);
 	is ($bookmark_file->get_size, 0, 'check_remove_item');
+
+	$bookmark_file->set_added($uri, $now);
+	is ($bookmark_file->get_added($uri), $now, 'check added accessors');
+
+	$bookmark_file->set_modified($uri, $now);
+	is ($bookmark_file->get_modified($uri), $now, 'check modified accessors');
+
+	$bookmark_file->set_visited($uri, $now);
+	is ($bookmark_file->get_visited($uri), $now, 'check visited accessors');
 }
 
 __END__

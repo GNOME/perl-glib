@@ -3,6 +3,9 @@
 	* GBookmarkFile.xs: Don't document Glib::BookmarkFile::set_added,
 	set_modified, and set_visited as functions; they're methods.
 
+	* t/h.t: Test Glib::BookmarkFile::set_added, set_modified, and
+	set_visited and their associated getters.
+
 2009-02-18  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm: Use an '=encoding utf8' directive for the AUTHORS POD
