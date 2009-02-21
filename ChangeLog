@@ -1,5 +1,10 @@
 2009-02-21  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Makefile.PL: Tell the CPAN indexer to ignore the package 'MY'
+	used by Glib::MakeHelper.
+
+2009-02-21  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GenPod.pm (xsdoc2pod): Instead of relying on one final '=cut',
 	close every opened POD paragraph separately.  This fixes POD
 	errors that occurred when '=for position COPYRIGHT' was used.

@@ -154,9 +154,13 @@ WriteMakefile(
     FUNCLIST		=> \@exports,
     DL_FUNCS		=> { Glib => [] },
 
-    META_MERGE		=> {
+    META_MERGE => {
       configure_requires => \%PREREQ_PM,
-      no_index           => { files => [qw/xsapi.pod.head xsapi.pod.foot/] } },
+      no_index => {
+        files => [qw/xsapi.pod.head xsapi.pod.foot/],
+        package => 'MY',
+      },
+    },
 
     $glib ? $glib->get_makefile_vars : (),
 );
