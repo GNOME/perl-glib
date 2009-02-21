@@ -272,9 +272,12 @@ sub xsdoc2pod
 			blurb => $pkgdata->{blurb},
 		};
 
+		# podify_pods() always returns proper POD with a =cut at the
+		# end.  But all the other =head1 below need a closing =cut.
+
 		print "=head1 NAME\n\n$package";
 		print ' - '.$pkgdata->{blurb} if (exists ($pkgdata->{blurb}));
-		print "\n\n";
+		print "\n\n=cut\n\n";
 
 		#                   pods            , position 
 		$ret = podify_pods ($pkgdata->{pods}, 'SYNOPSIS');
@@ -285,13 +288,13 @@ sub xsdoc2pod
 		
 		my $parents;
 		($ret, $parents) = podify_ancestors ($package);
-		print "=head1 HIERARCHY\n\n$ret" if ($ret);
+		print "=head1 HIERARCHY\n\n$ret\n\n=cut\n\n" if ($ret);
 		
 		$ret = podify_pods ($pkgdata->{pods}, 'post_hierarchy');
 		print "$ret\n\n" if ($ret);
 		
 		$ret = podify_interfaces ($package);
-		print "=head1 INTERFACES\n\n$ret" if ($ret);
+		print "=head1 INTERFACES\n\n$ret\n\n=cut\n\n" if ($ret);
 		
 		$ret = podify_pods ($pkgdata->{pods}, 'post_interfaces');
 		print "$ret\n\n" if ($ret);
@@ -300,28 +303,28 @@ sub xsdoc2pod
 		print "$ret\n\n" if ($ret);
 
 		$ret = podify_deprecated_by ($package, @{ $pkgdata->{deprecated_bys} });
-		print "\n=head1 DEPRECATION WARNING\n\n$ret" if ($ret);
+		print "\n=head1 DEPRECATION WARNING\n\n$ret\n\n=cut\n\n" if ($ret);
 
 		$ret = podify_methods ($package, $pkgdata->{xsubs});
-		print "\n=head1 METHODS\n\n$ret" if ($ret);
+		print "\n=head1 METHODS\n\n$ret\n\n=cut\n\n" if ($ret);
 		
 		$ret = podify_pods ($pkgdata->{pods}, 'post_methods');
 		print "$ret\n\n" if ($ret);
 
 		$ret = podify_properties ($package);	
-		print "\n=head1 PROPERTIES\n\n$ret" if ($ret);
+		print "\n=head1 PROPERTIES\n\n$ret\n\n=cut\n\n" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_properties');
 		print "$ret\n\n" if ($ret);
 
 		$ret = podify_signals ($package);	
-		print "\n=head1 SIGNALS\n\n$ret" if ($ret);
+		print "\n=head1 SIGNALS\n\n$ret\n\n=cut\n\n" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_signals');
 		print "$ret\n\n" if ($ret);
 
 		$ret = podify_enums_and_flags ($pkgdata, $package);	
-		print "\n=head1 ENUMS AND FLAGS\n\n$ret" if ($ret);
+		print "\n=head1 ENUMS AND FLAGS\n\n$ret\n\n=cut\n\n" if ($ret);
 
 		$ret = podify_pods ($pkgdata->{pods}, 'post_enums');
 		print "$ret\n\n" if ($ret);
@@ -342,7 +345,7 @@ sub xsdoc2pod
 			                         $pkgdata->{see_alsos}
 						 ? @{ $pkgdata->{see_alsos} }
 			                         : ());
-			print "\n=head1 SEE ALSO\n\n$ret" if ($ret);
+			print "\n=head1 SEE ALSO\n\n$ret\n\n=cut\n\n" if ($ret);
 		}
 
 		$ret = podify_pods ($pkgdata->{pods}, 'COPYRIGHT');
@@ -355,10 +358,8 @@ sub xsdoc2pod
 		{
 			# use normal copyright system
 			$ret = get_copyright ();
-			print "\n=head1 COPYRIGHT\n\n$ret" if ($ret);
+			print "\n=head1 COPYRIGHT\n\n$ret\n\n=cut\n\n" if ($ret);
 		}
-
-		print "\n=cut\n\n";
 
 		close POD;
 	}
