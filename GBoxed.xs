@@ -46,7 +46,7 @@ and package is the package to which that gtype is registered (the lookup
 has already been done for you at this point).  if own is true, the wrapper
 is responsible for freeing the object; if it is false, some other code 
 owns the object and you must NOT free it.
- 
+
  typedef SV*      (*GPerlBoxedWrapFunc)    (GType        gtype,
                                             const char * package,
                                             gpointer     boxed,

@@ -2513,7 +2513,7 @@ inheritance, whereas Perl's @ISA allows multiple inheritance.
 This returns the package names of the ancestral types in reverse order, with
 the root of the tree at the end of the list.
 
-See also L<list_interfaces ()|list = Glib::Type-E<gt>list_interfaces ($package)>.
+See also L<list_interfaces ()|/"list = Glib::Type-E<gt>B<list_interfaces> ($package)">.
 
 =cut
 void
