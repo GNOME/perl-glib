@@ -240,6 +240,8 @@ gperl_fundamental_type_from_obj (SV *objref)
 {
 	SV *obj;
 	const char *package;
+	if (!gperl_sv_is_defined (objref))
+		return G_TYPE_NONE;  /* ref is not defined */
 	obj = SvRV(objref);
 	if (obj == NULL)
 		return G_TYPE_NONE;  /* ref is not a reference */

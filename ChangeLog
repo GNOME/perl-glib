@@ -1,5 +1,11 @@
 2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GType.xs (gperl_fundamental_type_from_obj): Check the SV for
+	definedness before passing it to SvRV.  This fixes a test failure
+	on MSWin32 in t/c.t.
+
+2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* t/filename.t: Add more tests for Glib::filename_to_uri.  Patch
 	by Kevin Ryde.
 
