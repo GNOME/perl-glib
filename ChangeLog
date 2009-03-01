@@ -1,3 +1,8 @@
+2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/filename.t: Add more tests for Glib::filename_to_uri.  Patch
+	by Kevin Ryde.
+
 2009-02-22  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* GBoxed.xs

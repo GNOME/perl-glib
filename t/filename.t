@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 use Glib qw(:functions);
-use Test::More tests => 24;
+use Test::More tests => 26;
 
 my $filename = "test";
 
@@ -44,12 +44,21 @@ like(filename_to_uri($path, $host), $expected);
 like(Glib->filename_from_uri($uri), $expected);
 like(Glib::filename_from_uri($uri), $expected);
 like(filename_from_uri($uri), $expected);
+like(filename_from_uri("file:///$filename"), $expected);
+{
+  # note in the return "localhost" is downgraded to undef on msdos, so don't
+  # check $ret[1] eq 'localhost'
+  my @ret;
+  @ret = Glib->filename_from_uri($uri);
+  like ($ret[0], $expected);
 
-my @info;
-ok(!!(@info = Glib->filename_from_uri($uri)));
-ok(!!(@info = Glib::filename_from_uri($uri)));
-ok(!!(@info = filename_from_uri($uri)));
+  @ret = filename_from_uri($uri);
+  like ($ret[0], $expected);
 
+  @ret = filename_from_uri("file:///$filename");
+  like ($ret[0], $expected);
+  is ($ret[1], undef);
+}
 
 SKIP: {
 	skip "g_filename_display_name was added glib 2.6.0", 6
