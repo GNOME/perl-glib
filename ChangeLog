@@ -1,5 +1,12 @@
 2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* t/7.t
+	* GSignal.xs (gperl_signal_connect): Don't leak the GClosure
+	object when an invalid signal name is passed in.  Patch by
+	Kevin Ryde.
+
+2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GType.xs (gperl_fundamental_type_from_obj): Check the SV for
 	definedness before passing it to SvRV.  This fixes a test failure
 	on MSWin32 in t/c.t.

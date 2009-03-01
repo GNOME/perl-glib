@@ -21,7 +21,7 @@ my apologies for the extreme density and ugliness of this code.
 
 use Test::More import => ['diag'];
 
-print "1..34\n";
+print "1..36\n";
 
 sub ok($$;$) {
     my($test, $num, $name) = @_;
@@ -269,16 +269,38 @@ sub func_b {
    $my->signal_connect_after (list_returner => sub { fail("shouldn't get here"); 0 });
    pass(27);
    print Dumper( $my->list_returner );
+
+
+   # Check that a signal_connect() of a non-existant signal name doesn't
+   # leak the subr passed to it, ie. doesn't keep it alive forever.
+   #
+   # Note $subr has to use $x or similar in its containing environment to be
+   # a closure.  If not then it's treated as part of the mainline code and
+   # won't be gc'ed immediately -- or something like that.
+   {
+     my $x = 123;
+     my $subr = sub { return $x };
+
+     # handler to suppress the warning message from nosuchsignal
+     my $logid = Glib::Log->set_handler ('GLib-GObject', ['warning'], sub { });
+     my $sigid = $my->signal_connect ('nosuchsignal' => $subr);
+     Glib::Log->remove_handler ('GLib-GObject', $logid);
+
+     ok(! $sigid, 34, "'nosuchsignal' not connected");
+     require Scalar::Util;
+     Scalar::Util::weaken ($subr);
+     ok(! defined $subr, 35, "subr gc'ed after bad signal name");
+   }
 }
 
-pass(34);
+pass(36);
 
 
 
 
 __END__
 
-Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003, 2009 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under

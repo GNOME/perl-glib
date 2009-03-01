@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
- * the full list)
+ * Copyright (C) 2003-2004, 2009 by the gtk2-perl team (see the file AUTHORS
+ * for the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -270,6 +270,7 @@ gperl_signal_connect (SV * instance,
 	GObject * object;
 	GPerlClosure * closure;
 	GClosureMarshal marshaller = NULL;
+	gulong id;
 
 	object = gperl_get_object (instance);
 
@@ -292,16 +293,19 @@ gperl_signal_connect (SV * instance,
 			                      marshaller);
 
 	/* after is true only if we're called as signal_connect_after */
-	closure->id =
-		g_signal_connect_closure (object,
+	id =	g_signal_connect_closure (object,
 		                          detailed_signal,
 		                          (GClosure*) closure, 
 		                          flags & G_CONNECT_AFTER);
 
-	if (closure->id > 0)
+	if (id > 0) {
+		closure->id = id;
 		remember_closure (closure);
-	
-	return ((GPerlClosure*)closure)->id;
+	} else {
+		/* not connected, usually bad detailed_signal name */
+		g_closure_unref ((GClosure*) closure);
+	}
+	return id;
 }
 
 /*
