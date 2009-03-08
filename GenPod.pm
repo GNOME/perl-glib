@@ -1181,8 +1181,6 @@ sub xsub_to_pod {
 		$str .= "$sigprefix $_\n\n";
 	}
 
-	$str .= "=over\n\n";
-
 	#
 	# list all the arg types.
 	#
@@ -1241,8 +1239,6 @@ sub xsub_to_pod {
 	foreach my $lib_name (keys %version_conditions) {
 		$str .= "Since: $lib_name $version_conditions{$lib_name}\n\n";
 	}
-
-	$str .= "=back\n\n";
 
 	$str
 }

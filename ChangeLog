@@ -1,5 +1,10 @@
 2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GenPod.pm (xsub_to_pod): Don't wrap the argument types of xsubs
+	with a superfluous pair of '=over' and '=back'.
+
+2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GenPod.pm (podify_enums_and_flags): Don't generate 'ENUMS AND
 	FLAGS' entries for Glib::Enum and Glib::Flags since they don't
 	have values anyway.
