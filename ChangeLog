@@ -1,3 +1,9 @@
+2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* GenPod.pm (podify_enums_and_flags): Don't generate 'ENUMS AND
+	FLAGS' entries for Glib::Enum and Glib::Flags since they don't
+	have values anyway.
+
 2009-03-01  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* t/7.t

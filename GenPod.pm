@@ -681,6 +681,8 @@ sub podify_enums_and_flags
 	{
 		s/\s.*//;
 
+		next if $_ eq 'Glib::Enum' || $_ eq 'Glib::Flags';
+
 		my $values_pod = podify_values ($_);
 
 		if ($values_pod || exists $info{$_})
