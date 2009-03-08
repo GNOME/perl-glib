@@ -1,5 +1,11 @@
 2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* GClosure.xs (gperl_callback_invoke): Fix a giant leak by
+	properly unsetting all GValues used for the callback arguments.
+	Patch by Kevin Ryde.
+
+2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* GenPod.pm (xsub_to_pod): Don't wrap the argument types of xsubs
 	with a superfluous pair of '=over' and '=back'.
 
