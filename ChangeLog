@@ -1,3 +1,10 @@
+2009-03-17  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* Glib.pm
+	* Makefile.PL
+	* NEWS
+	* README: Stable release 1.220.
+
 2009-03-08  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm

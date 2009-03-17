@@ -1,3 +1,20 @@
+Overview of changes in Glib 1.220
+=================================
+
+ Since 1.20x (the previous stable series)
+ ----------------------------------------
+  * Add constants Glib::SOURCE_CONTINUE and SOURCE_REMOVE for use in
+    source-type callbacks.
+  * Add Glib::Child::watch_add.
+  * Add Glib::OptionContext and Glib::OptionGroup.
+  * Allow calling Glib::Flags->as_arrayref directly, as an alternative to the
+    @{} syntax.
+  * Add Glib::ParamSpec->value_validate and Glib::ParamSpec->value_cmp.
+
+ Since 1.214
+ -----------
+  * Nada.
+
 Overview of changes in Glib 1.214
 =================================
 
