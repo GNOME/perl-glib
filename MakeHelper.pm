@@ -362,7 +362,7 @@ sub postamble_docs_full {
 	if ($copyright) {
 		# this text has to be escaped for both make and the shell.
 		$copyright =~ s/\n/\\n/gm; # collapse to one line.
-		$copyright = "Glib::GenPod::set_copyright(qq{$copyright});";
+		$copyright = "Glib::GenPod::set_copyright(qq/$copyright/);";
 	}
 
 	# the module name specified explicitly overrides the one in a

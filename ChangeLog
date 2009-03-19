@@ -1,3 +1,9 @@
+2009-03-19  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* MakeHelper.pm (postamble_docs_full): Use qq// instead of qq{} to
+	quote the copyright string in order to avoid problems with dmake.
+	Patch by Martin Schlemmer.  (GNOME #573099)
+
 2009-03-17  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.pm
