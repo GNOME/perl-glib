@@ -130,8 +130,8 @@ our $glib = ExtUtils::Depends->new ('Glib');
 # add -I. and -I./build to the include path so we can find our own files.
 # this will be inherited by dependant modules, so they can find their
 # generated files.
-$glib->set_inc (' -I. ' . $glibcfg{cflags} . $gthreadcfg{cflags});
-$glib->set_libs ($glibcfg{libs} . $gthreadcfg{libs});
+$glib->set_inc (' -I. ' . $glibcfg{cflags} . ' ' . $gthreadcfg{cflags});
+$glib->set_libs ($glibcfg{libs} . ' ' . $gthreadcfg{libs});
 my $cwd = cwd();
 $glib->add_typemaps (map {File::Spec->catfile($cwd,$_)} 'typemap');
 $glib->add_pm (%pm_files);
