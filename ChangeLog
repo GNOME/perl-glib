@@ -1,5 +1,12 @@
 2009-03-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* Glib.exports: Add gperl_option_context_get_type and
+	gperl_option_group_get_type to the export list so that dependent
+	modules link correctly on MSWin32.  Patch by Martin
+	Schlemmer.  (GNOME #576372)
+
+2009-03-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* t/h.t: Correct a skip count.  Patch by Stefan B.  (RT #44428)
 
 2009-03-19  Torsten Schoenfeld  <kaffeetisch@gmx.de>
