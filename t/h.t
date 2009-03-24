@@ -29,8 +29,8 @@ __EOB__
 ;
 
 SKIP: {
-	skip "Glib::BookmarkFile is new in glib 2.12.0", 27
-		unless Glib->CHECK_VERSION (2, 11, 0);
+	skip "Glib::BookmarkFile is new in glib 2.12.0", 30
+		unless Glib->CHECK_VERSION (2, 12, 0);
 	
 	ok (defined Glib::BookmarkFile->new (), 'test constructor');
 
