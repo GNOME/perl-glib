@@ -1,5 +1,10 @@
 2009-03-29  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
+	* t/a.t: Include 's390' in the list of platforms for which the
+	problematic g_log test needs to be skipped.
+
+2009-03-29  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
 	* copyright.pod
 	* Glib.pm
 	* NEWS

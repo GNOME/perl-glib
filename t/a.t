@@ -59,7 +59,7 @@ Glib::Log->remove_handler (__PACKAGE__, $id);
 SKIP: {
 	# See <http://bugzilla.gnome.org/show_bug.cgi?id=577137>.
 	skip 'using multiple log levels breaks g_log on some platforms', 2
-		if $Config{archname} =~ /powerpc|amd64/;
+		if $Config{archname} =~ /powerpc|amd64|s390/;
 	my $id = Glib::Log->set_handler (undef,
 		[qw/ error critical warning message info debug /],
 		sub {
