@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.221
+=================================
+
+* Fix a few build and test suite issues.
+
 Overview of changes in Glib 1.220
 =================================
 
