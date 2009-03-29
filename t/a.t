@@ -56,14 +56,18 @@ Glib->log (__PACKAGE__, qw/ warning /, 'whee log warning');
 Glib::Log->remove_handler (__PACKAGE__, $id);
 };
 
-$id = 
-Glib::Log->set_handler (undef,
-                        [qw/ error critical warning message info debug /],
-			sub {
-				ok(1, "in custom handler $_[1][0]");
-			});
-Glib->log (undef, [qw/ info debug /], 'whee log warning');
-Glib::Log->remove_handler (undef, $id);
+SKIP: {
+	# See <http://bugzilla.gnome.org/show_bug.cgi?id=577137>.
+	skip 'using multiple log levels breaks g_log on some platforms', 2
+		if $Config{archname} =~ /powerpc|amd64/;
+	my $id = Glib::Log->set_handler (undef,
+		[qw/ error critical warning message info debug /],
+		sub {
+			ok(1, "in custom handler $_[1][0]");
+		});
+	Glib->log (undef, [qw/ info debug /], 'whee log warning');
+	Glib::Log->remove_handler (undef, $id);
+}
 
 # i would expect this to call croak, but it actually just aborts.  :-(
 #eval { Glib->error (__PACKAGE__, 'error'); };

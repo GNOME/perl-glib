@@ -1,3 +1,9 @@
+2009-03-29  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/a.t: Using multiple log levels breaks g_log on some platforms,
+	so don't do it on those platforms.  Tracked down by Wim Lewis, and
+	reported here: <http://bugzilla.gnome.org/show_bug.cgi?id=577137>.
+
 2009-03-24  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* Glib.exports: Add gperl_option_context_get_type and
