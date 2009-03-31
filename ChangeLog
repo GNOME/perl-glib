@@ -1,3 +1,8 @@
+2009-03-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
+
+	* t/a.t: The g_log bug got fixed upstream, so don't skip its test
+	when glib >= 2.20.1.
+
 2009-03-29  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* t/a.t: Include 's390' in the list of platforms for which the
