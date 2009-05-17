@@ -3,6 +3,8 @@
 blib
 \.bs$
 build
+\.git
+\.gitignore$
 G.+\.c$
 Makefile$
 Makefile\.old$
@@ -11,4 +13,3 @@ MAINTAINERS$
 \.spec$
 \.sw.$
 \.tar\.gz$
-\.svn

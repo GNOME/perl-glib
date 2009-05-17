@@ -1,3 +1,8 @@
+=== ChangeLog discontinued ===
+
+	With the move to git, we stop maintaining a separate ChangeLog and
+	rely on proper commit messages instead.
+
 2009-03-31  Torsten Schoenfeld  <kaffeetisch@gmx.de>
 
 	* t/a.t: The g_log bug got fixed upstream, so don't skip its test
