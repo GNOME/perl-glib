@@ -38,15 +38,11 @@ arrays and the like.
 
 /****************************************************************************
  * GValue handling
- * 
+ *
  * we have code here to handle the fundamental types listed in the API
- * reference, plus the G_TYPE_ENUM and G_TYPE_FLAGS fundamentals.
- * we won't, however, handle any *other* fundamentals created by
- * g_type_fundamental_next().  if we want to handle that, we probably
- * need to move away from a switch statement to an array of function
- * pointers (at least for the non-standard ones) so that the perl bindings
- * for the library that creates these new fundamentals can register 
- * conversion functions for them.
+ * reference, plus the G_TYPE_ENUM and G_TYPE_FLAGS fundamentals.  new
+ * fundamentals created by g_type_fundamental_next() are handled by the
+ * GPerlValueWrapperClass machinery.
  */
 
 =item gboolean gperl_value_from_sv (GValue * value, SV * sv)
