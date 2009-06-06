@@ -365,6 +365,7 @@ gperl_callback_invoke (GPerlCallback * callback,
 	/* put args on the stack */
 	if (callback->n_params > 0) {
 		int i;
+		GValue v = {0, };
 
                 /* Crib note: must g_value_unset() even when asking for
                  * G_VALUE_NOCOPY_CONTENTS.  A GObject is always
@@ -378,7 +379,6 @@ gperl_callback_invoke (GPerlCallback * callback,
                  */
 		for (i = 0 ; i < callback->n_params ; i++) {
 			gchar * error = NULL;
-			GValue v = {0, };
 			SV * sv;
 			g_value_init (&v, callback->param_types[i]);
 			G_VALUE_COLLECT (&v, var_args, G_VALUE_NOCOPY_CONTENTS,
