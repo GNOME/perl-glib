@@ -161,23 +161,23 @@ newSVGParamSpec (GParamSpec * pspec)
 	 * paramspec list returned from Glib::Object::list_properties())
 	 * we store a few select keys in the hash directly.
 	 */
-	hv_store (property, "name",  4,
-	          newSVpv (g_param_spec_get_name (pspec), 0), 0);
+	gperl_hv_take_sv (property, "name",
+	                  newSVpv (g_param_spec_get_name (pspec), 0));
 
 	/* map type names to package names, if possible */
 	pv = gperl_package_from_type (pspec->value_type);
 	if (!pv) pv = g_type_name (pspec->value_type);
-	hv_store (property, "type",  4, newSVpv (pv, 0), 0);
+	gperl_hv_take_sv (property, "type", newSVpv (pv, 0));
 
 	pv = gperl_package_from_type (pspec->owner_type);
 	if (!pv)
 		pv = g_type_name (pspec->owner_type);
 	if (pv)
-		hv_store (property, "owner_type", 10, newSVpv (pv, 0), 0);
+		gperl_hv_take_sv (property, "owner_type", newSVpv (pv, 0));
 
 	pv = g_param_spec_get_blurb (pspec);
-	if (pv) hv_store (property, "descr", 5, newSVpv (pv, 0), 0);
-	hv_store (property, "flags", 5, newSVGParamFlags (pspec->flags), 0) ;
+	if (pv) gperl_hv_take_sv (property, "descr", newSVpv (pv, 0));
+	gperl_hv_take_sv (property, "flags", newSVGParamFlags (pspec->flags));
 
 	/* wrap it, bless it, ship it. */
 	sv = newRV_noinc ((SV*)property);

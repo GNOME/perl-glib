@@ -2696,18 +2696,18 @@ list_values (class, const char * package)
 		GEnumValue * v = gperl_type_enum_get_values (type);
 		for ( ; v && v->value_nick && v->value_name ; v++) {
 			HV * hv = newHV ();
-			hv_store (hv, "value",5, newSViv (v->value), 0);
-			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
-			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
+			gperl_hv_take_sv (hv, "value", newSViv (v->value));
+			gperl_hv_take_sv (hv, "nick", newSVpv (v->value_nick, 0));
+			gperl_hv_take_sv (hv, "name", newSVpv (v->value_name, 0));
 			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
 		}
 	} else if (G_TYPE_IS_FLAGS (type)) {
 		GFlagsValue * v = gperl_type_flags_get_values (type);
 		for ( ; v && v->value_nick && v->value_name ; v++) {
 			HV * hv = newHV ();
-			hv_store (hv, "value",5, newSVuv (v->value), 0);
-			hv_store (hv, "nick", 4, newSVpv (v->value_nick, 0), 0);
-			hv_store (hv, "name", 4, newSVpv (v->value_name, 0), 0);
+			gperl_hv_take_sv (hv, "value", newSVuv (v->value));
+			gperl_hv_take_sv (hv, "nick", newSVpv (v->value_nick, 0));
+			gperl_hv_take_sv (hv, "name", newSVpv (v->value_name, 0));
 			XPUSHs (sv_2mortal (newRV_noinc ((SV*)hv)));
 		}
 	} else {

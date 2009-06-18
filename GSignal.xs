@@ -89,12 +89,12 @@ SV *
 newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
 {
 	HV * hv = newHV ();
-	hv_store (hv, "signal_name", 11,
-	          newSVGChar (g_signal_name (ihint->signal_id)), 0);
-	hv_store (hv, "detail", 6,
-	          newSVGChar (g_quark_to_string (ihint->detail)), 0);
-	hv_store (hv, "run_type", 8,
-	          newSVGSignalFlags (ihint->run_type), 0);
+	gperl_hv_take_sv (hv, "signal_name",
+	                  newSVGChar (g_signal_name (ihint->signal_id)));
+	gperl_hv_take_sv (hv, "detail",
+	                  newSVGChar (g_quark_to_string (ihint->detail)));
+	gperl_hv_take_sv (hv, "run_type",
+	                  newSVGSignalFlags (ihint->run_type));
 	return newRV_noinc ((SV*)hv);
 }
 
@@ -115,20 +115,20 @@ newSVGSignalQuery (GSignalQuery * query)
 		return &PL_sv_undef;
 
 	hv = newHV ();
-	hv_store (hv, "signal_id", 9, newSViv (query->signal_id), 0);
-	hv_store (hv, "signal_name", 11,
-		  newSVpv (query->signal_name, 0), 0);
+	gperl_hv_take_sv (hv, "signal_id", newSViv (query->signal_id));
+	gperl_hv_take_sv (hv, "signal_name",
+	                  newSVpv (query->signal_name, 0));
 	GET_NAME (pkgname, query->itype);
 	if (pkgname)
-		hv_store (hv, "itype", 5, newSVpv (pkgname, 0), 0);
-	hv_store (hv, "signal_flags", 12,
-		  newSVGSignalFlags (query->signal_flags), 0);
+		gperl_hv_take_sv (hv, "itype", newSVpv (pkgname, 0));
+	gperl_hv_take_sv (hv, "signal_flags",
+	                  newSVGSignalFlags (query->signal_flags));
 	if (query->return_type != G_TYPE_NONE) {
 		GType t = query->return_type & ~G_SIGNAL_TYPE_STATIC_SCOPE;
 		GET_NAME (pkgname, t);
 		if (pkgname)
-			hv_store (hv, "return_type", 11,
-				  newSVpv (pkgname, 0), 0);
+			gperl_hv_take_sv (hv, "return_type",
+			                  newSVpv (pkgname, 0));
 	}
 	av = newAV ();
 	for (j = 0; j < query->n_params; j++) {
@@ -136,7 +136,7 @@ newSVGSignalQuery (GSignalQuery * query)
 		GET_NAME (pkgname, t);
 		av_push (av, newSVpv (pkgname, 0));
 	}
-	hv_store (hv, "param_types", 11, newRV_noinc ((SV*)av), 0);
+	gperl_hv_take_sv (hv, "param_types", newRV_noinc ((SV*)av));
 	/* n_params is inferred by the length of the av in param_types */
 
 	return newRV_noinc ((SV*)hv);

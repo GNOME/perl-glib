@@ -173,22 +173,21 @@ gperl_sv_from_gerror (GError * error)
 	info = error_info_from_domain (error->domain);
 
 	hv = newHV ();
-	hv_store (hv, "domain", 6,
-	          newSVGChar (g_quark_to_string (error->domain)), 0);
-	hv_store (hv, "code", 4, newSViv (error->code), 0);
+	gperl_hv_take_sv (hv, "domain",
+	                  newSVGChar (g_quark_to_string (error->domain)));
+	gperl_hv_take_sv (hv, "code", newSViv (error->code));
 	if (info)
-		hv_store (hv, "value", 5,
-		          gperl_convert_back_enum (info->error_enum,
-		                                   error->code),
-		          0);
-	hv_store (hv, "message", 7, newSVGChar (error->message), 0);
+		gperl_hv_take_sv (hv, "value",
+		                  gperl_convert_back_enum (info->error_enum,
+		                                           error->code));
+	gperl_hv_take_sv (hv, "message", newSVGChar (error->message));
 
 	/* WARNING: using evil undocumented voodoo.  mess() is the function
 	 * that die(), warn(), and croak() use to format messages, and it's
 	 * what knows how to find the code location.  don't want to do that
 	 * ourselves, since that's blacker magic, so we'll call this and 
 	 * hope the perl API doesn't change.  */
-	hv_store (hv, "location", 8, newSVsv (mess ("")), 0);
+	gperl_hv_take_sv (hv, "location", newSVsv (mess ("")));
 
 	package = info ? info->package : "Glib::Error";
 
