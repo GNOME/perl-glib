@@ -37,66 +37,11 @@
 #include <glib-object.h>
 
 /*
- * miscellaneous
+ * filenames
  */
-
-/* never use this function directly.  use GPERL_CALL_BOOT. */
-void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
-
-/*
- * call the boot code of a module by symbol rather than by name.
- *
- * in a perl extension which uses several xs files but only one pm, you
- * need to bootstrap the other xs files in order to get their functions
- * exported to perl.  if the file has MODULE = Foo::Bar, the boot symbol
- * would be boot_Foo__Bar.
- */
-#define GPERL_CALL_BOOT(name)	\
-	{						\
-		extern XS(name);			\
-		_gperl_call_XS (aTHX_ name, cv, mark);	\
-	}
-
-gpointer gperl_alloc_temp (int nbytes);
 gchar *gperl_filename_from_sv (SV *sv);
 SV *gperl_sv_from_filename (const gchar *filename);
 
-gboolean gperl_str_eq (const char * a, const char * b);
-guint    gperl_str_hash (gconstpointer key);
-
-typedef struct {
-  int argc;
-  char **argv;
-  char **shadow;
-} GPerlArgv;
-
-GPerlArgv * gperl_argv_new ();
-void gperl_argv_update (GPerlArgv *pargv);
-void gperl_argv_free (GPerlArgv *pargv);
-
-char * gperl_format_variable_for_output (SV * sv);
-
-gboolean gperl_sv_is_defined (SV *sv);
-
-#define gperl_sv_is_array_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVAV)
-#define gperl_sv_is_code_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVCV)
-#define gperl_sv_is_hash_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
-
-/* try to store an SV in an HV.  decrease the SV's reference count if something
- * went wrong.  key must be a string literal. */
-#define gperl_hv_take_sv(hv, key, sv) \
-	G_STMT_START { \
-		SV *tmp = sv; \
-		if (!hv_store (hv, key, sizeof(key) - 1, tmp, 0)) { \
-			sv_free (tmp); \
-		} \
-	} G_STMT_END
-
-/* internal trickery */
-gpointer gperl_type_class (GType type);
 /*
  * enums and flags
  */
@@ -419,6 +364,66 @@ GType gperl_option_group_get_type (void);
 GUserDirectory SvGUserDirectory (SV *sv);
 SV * newSVGUserDirectory (GUserDirectory dir);
 #endif
+
+/*
+ * miscellaneous
+ */
+
+/* never use this function directly.  use GPERL_CALL_BOOT. */
+void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
+
+/*
+ * call the boot code of a module by symbol rather than by name.
+ *
+ * in a perl extension which uses several xs files but only one pm, you
+ * need to bootstrap the other xs files in order to get their functions
+ * exported to perl.  if the file has MODULE = Foo::Bar, the boot symbol
+ * would be boot_Foo__Bar.
+ */
+#define GPERL_CALL_BOOT(name)	\
+	{						\
+		extern XS(name);			\
+		_gperl_call_XS (aTHX_ name, cv, mark);	\
+	}
+
+gpointer gperl_alloc_temp (int nbytes);
+
+gboolean gperl_str_eq (const char * a, const char * b);
+guint    gperl_str_hash (gconstpointer key);
+
+typedef struct {
+  int argc;
+  char **argv;
+  char **shadow;
+} GPerlArgv;
+
+GPerlArgv * gperl_argv_new ();
+void gperl_argv_update (GPerlArgv *pargv);
+void gperl_argv_free (GPerlArgv *pargv);
+
+char * gperl_format_variable_for_output (SV * sv);
+
+gboolean gperl_sv_is_defined (SV *sv);
+
+#define gperl_sv_is_array_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVAV)
+#define gperl_sv_is_code_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVCV)
+#define gperl_sv_is_hash_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
+
+/* try to store an SV in an HV.  decrease the SV's reference count if something
+ * went wrong.  key must be a string literal. */
+#define gperl_hv_take_sv(hv, key, sv) \
+	G_STMT_START { \
+		SV *tmp = sv; \
+		if (!hv_store (hv, key, sizeof(key) - 1, tmp, 0)) { \
+			sv_free (tmp); \
+		} \
+	} G_STMT_END
+
+/* internal trickery */
+gpointer gperl_type_class (GType type);
 
 /*
  * helpful debugging stuff
