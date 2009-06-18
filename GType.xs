@@ -784,7 +784,7 @@ C<SvIV> instead.
 #endif
 
 #ifdef WIN32
-# ifdef _MSC_VER
+# if defined(_MSC_VER) || defined(__MSVCRT__)
 #   define PORTABLE_LL_FORMAT "%I64d"
 # else
 #  define PORTABLE_LL_FORMAT "%ld"
@@ -855,7 +855,7 @@ uses C<SvUV> instead.
 #endif
 
 #ifdef WIN32
-# ifdef _MSC_VER
+# if defined(_MSC_VER) || defined(__MSVCRT__)
 #  define PORTABLE_ULL_FORMAT "%I64u"
 # else
 #  define PORTABLE_ULL_FORMAT "%lu"
