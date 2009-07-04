@@ -362,6 +362,7 @@ sub postamble_docs_full {
 	if ($copyright) {
 		# this text has to be escaped for both make and the shell.
 		$copyright =~ s/\n/\\n/gm; # collapse to one line.
+		$copyright =~ s|/|\\/|g;   # escape slashes for qq//
 		$copyright = "Glib::GenPod::set_copyright(qq/$copyright/);";
 	}
 
