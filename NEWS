@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.222
+=================================
+
+* Properly handle slashes in copyright footers passed to Glib::MakeHelper.
+* Fix a test failure on s390.
+
 Overview of changes in Glib 1.221
 =================================
 
