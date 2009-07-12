@@ -412,15 +412,12 @@ gboolean gperl_sv_is_defined (SV *sv);
 #define gperl_sv_is_hash_ref(sv) \
 	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
 
-/* try to store an SV in an HV.  decrease the SV's reference count if something
- * went wrong.  key must be a string literal. */
-#define gperl_hv_take_sv(hv, key, sv) \
-	G_STMT_START { \
-		SV *tmp = sv; \
-		if (!hv_store (hv, key, sizeof(key) - 1, tmp, 0)) { \
-			sv_free (tmp); \
-		} \
-	} G_STMT_END
+void gperl_hv_take_sv (HV *hv, const char *key, size_t key_length, SV *sv);
+
+/* helper wrapper for static string literals.  concatenating with "" enforces
+ * the restriction. */
+#define gperl_hv_take_sv_s(hv, key, sv) \
+	gperl_hv_take_sv (hv, "" key "", sizeof(key) - 1, sv)
 
 /* internal trickery */
 gpointer gperl_type_class (GType type);

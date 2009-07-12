@@ -89,12 +89,12 @@ SV *
 newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
 {
 	HV * hv = newHV ();
-	gperl_hv_take_sv (hv, "signal_name",
-	                  newSVGChar (g_signal_name (ihint->signal_id)));
-	gperl_hv_take_sv (hv, "detail",
-	                  newSVGChar (g_quark_to_string (ihint->detail)));
-	gperl_hv_take_sv (hv, "run_type",
-	                  newSVGSignalFlags (ihint->run_type));
+	gperl_hv_take_sv_s (hv, "signal_name",
+	                    newSVGChar (g_signal_name (ihint->signal_id)));
+	gperl_hv_take_sv_s (hv, "detail",
+	                    newSVGChar (g_quark_to_string (ihint->detail)));
+	gperl_hv_take_sv_s (hv, "run_type",
+	                    newSVGSignalFlags (ihint->run_type));
 	return newRV_noinc ((SV*)hv);
 }
 
@@ -115,20 +115,20 @@ newSVGSignalQuery (GSignalQuery * query)
 		return &PL_sv_undef;
 
 	hv = newHV ();
-	gperl_hv_take_sv (hv, "signal_id", newSViv (query->signal_id));
-	gperl_hv_take_sv (hv, "signal_name",
-	                  newSVpv (query->signal_name, 0));
+	gperl_hv_take_sv_s (hv, "signal_id", newSViv (query->signal_id));
+	gperl_hv_take_sv_s (hv, "signal_name",
+	                    newSVpv (query->signal_name, 0));
 	GET_NAME (pkgname, query->itype);
 	if (pkgname)
-		gperl_hv_take_sv (hv, "itype", newSVpv (pkgname, 0));
-	gperl_hv_take_sv (hv, "signal_flags",
-	                  newSVGSignalFlags (query->signal_flags));
+		gperl_hv_take_sv_s (hv, "itype", newSVpv (pkgname, 0));
+	gperl_hv_take_sv_s (hv, "signal_flags",
+	                    newSVGSignalFlags (query->signal_flags));
 	if (query->return_type != G_TYPE_NONE) {
 		GType t = query->return_type & ~G_SIGNAL_TYPE_STATIC_SCOPE;
 		GET_NAME (pkgname, t);
 		if (pkgname)
-			gperl_hv_take_sv (hv, "return_type",
-			                  newSVpv (pkgname, 0));
+			gperl_hv_take_sv_s (hv, "return_type",
+			                    newSVpv (pkgname, 0));
 	}
 	av = newAV ();
 	for (j = 0; j < query->n_params; j++) {
@@ -136,7 +136,7 @@ newSVGSignalQuery (GSignalQuery * query)
 		GET_NAME (pkgname, t);
 		av_push (av, newSVpv (pkgname, 0));
 	}
-	gperl_hv_take_sv (hv, "param_types", newRV_noinc ((SV*)av));
+	gperl_hv_take_sv_s (hv, "param_types", newRV_noinc ((SV*)av));
 	/* n_params is inferred by the length of the av in param_types */
 
 	return newRV_noinc ((SV*)hv);

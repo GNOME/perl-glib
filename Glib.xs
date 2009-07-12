@@ -337,6 +337,20 @@ gperl_sv_is_defined (SV *sv)
 	return FALSE;
 }
 
+=item void gperl_hv_take_sv (HV *hv, const char *key, size_t key_length, SV *sv)
+
+Tries to store I<sv> in I<hv>.  Decreases I<sv>'s reference count if something
+goes wrong.
+
+=cut
+void
+gperl_hv_take_sv (HV *hv, const char *key, size_t key_length, SV *sv)
+{
+	if (!hv_store (hv, key, key_length, sv, 0)) {
+		sv_free (sv);
+	}
+}
+
 =back
 
 =cut
