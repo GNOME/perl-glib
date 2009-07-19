@@ -2785,26 +2785,36 @@ new (const char *class, SV *a)
 	RETVAL
 
 =for apidoc
-=for arg b (SV*)
-=for arg swap (integer)
+=for signature bool = $f->bool
+=for arg ... (__hide__)
+Return 1 if any bits are set in $f, or 0 if none are set.  This is the
+overload for $f in boolean context (like C<if>, etc).  You can call it
+as a method to get a true/false directly too.
 =cut
 int
-bool (SV *a, b, swap)
+bool (SV *f, ...)
     PROTOTYPE: $;@
     CODE:
 	RETVAL = !!gperl_convert_flags (
-		     gperl_fundamental_type_from_obj (a),
-		     a
+		     gperl_fundamental_type_from_obj (f),
+		     f
 		   );
     OUTPUT:
 	RETVAL
 
 =for apidoc
-=for signature ref = $a->as_arrayref
+=for signature aref = $f->as_arrayref
 =for arg ... (__hide__)
+Return the bits of $f as a reference to an array of strings, like
+['flagbit1','flagbit2'].  This is the overload function for C<@{}>,
+ie. arrayizing $f.  You can call it directly as a method too.
+
+Note that @$f gives the bits as a list, but as_arrayref gives an arrayref.
+If an arrayref is what you want then the method style
+somefunc()->as_arrayref can be more readable than [@{somefunc()}].
 =cut
 SV *
-as_arrayref (SV *a, ...)
+as_arrayref (SV *f, ...)
     PROTOTYPE: $;@
     CODE:
 {
@@ -2813,12 +2823,12 @@ as_arrayref (SV *a, ...)
 	 * users call method-style with no args "$f->as_arrayref" too.
 	 */
 	GType gtype;
-	gint a_;
+	gint f_;
 
-	gtype = gperl_fundamental_type_from_obj (a);
-	a_ = gperl_convert_flags (gtype, a);
+	gtype = gperl_fundamental_type_from_obj (f);
+	f_ = gperl_convert_flags (gtype, f);
 
-	RETVAL = flags_as_arrayref (gtype, a_);
+	RETVAL = flags_as_arrayref (gtype, f_);
 }
     OUTPUT:
 	RETVAL

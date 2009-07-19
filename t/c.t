@@ -13,7 +13,7 @@ use warnings;
 
 #########################
 
-use Test::More tests => 51;
+use Test::More tests => 57;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -225,6 +225,12 @@ is ($obj->get ('some_enum'), 'value-two', 'enum property, after set');
 
 is_deeply (\@{ $obj->get ('some_flags') }, ['value-one'], 'flags property');
 is_deeply ($obj->get('some_flags')->as_arrayref, ['value-one'], 'flags property');
+
+is (($obj->get('some_flags') ? "true" : "false"), "true",
+    'flags property, boolean context');
+is ($obj->get('some_flags')->bool, 1,
+    'flags property, bool()');
+
 $obj->set (some_flags => ['value-one', 'value-two']);
 is_deeply (\@{ $obj->get ('some_flags') }, ['value-one', 'value-two'],
 	   'flags property, after set');
@@ -238,6 +244,15 @@ eval {
 };
 ok ($@ eq '', 'empty flags values do not croak');
 ok ($obj->get ('some_flags') == [], 'empty flags values work');
+
+is_deeply (\@{ $obj->get ('some_flags') }, [], 'empty flags @{}');
+is_deeply ($obj->get('some_flags')->as_arrayref, [],
+           'empty flags, as_arrayref()');
+
+is (($obj->get('some_flags') ? "true" : "false"), "false",
+    'empty flags, boolean context');
+is ($obj->get('some_flags')->bool, 0,
+    'empty flags, bool()');
 
 $obj->set (some_flags => [qw/value-one value-two/]);
 
