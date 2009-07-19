@@ -1747,7 +1747,7 @@ gperl_type_set_property (GObject * object,
 				(object, g_param_spec_get_name (pspec), TRUE);
 		if (val) {
 			SV * newval = sv_2mortal (gperl_sv_from_value (value));
-			SvSetSV (val, newval);
+			SvSetMagicSV (val, newval);
 		} else {
 			/* XXX couldn't create the key.  what to do? */
 		}
