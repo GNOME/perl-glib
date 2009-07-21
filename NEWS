@@ -1,7 +1,9 @@
 Overview of changes in Glib <next>
 =================================
 
-* Create and register a GType for GConnectFlags
+* Export the constants SOURCE_CONTINUE and SOURCE_REMOVE on request.
+  (RT #48070)
+* Create and register a GType for GConnectFlags.
 
 Overview of changes in Glib 1.252
 =================================
