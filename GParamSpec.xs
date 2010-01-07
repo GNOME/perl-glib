@@ -263,6 +263,9 @@ BOOT:
 #if GLIB_CHECK_VERSION(2,4,0)
 	gperl_register_param_spec (G_TYPE_PARAM_OVERRIDE, "Glib::Param::Override");
 #endif
+#if GLIB_CHECK_VERSION(2,10,0)
+	gperl_register_param_spec (G_TYPE_PARAM_GTYPE, "Glib::Param::GType");
+#endif
 
 =for enum Glib::ParamFlags
 =cut
@@ -568,6 +571,23 @@ scalar (class, name, nick, blurb, flags)
 #### value arrays.
 ###  GParamSpec* g_param_spec_value_array (const gchar *name, const gchar *nick, const gchar *blurb, GParamSpec *element_spec, GParamFlags flags) 
 
+
+#if GLIB_CHECK_VERSION(2, 10, 0)
+
+=for apidoc
+=for arg is_a_type  The name of a class whose subtypes are allowed as values of the property.  Use C<undef> to allow any type.
+=cut
+GParamSpec*
+g_param_spec_gtype (class, name, nick, blurb, is_a_type, flags)
+	const gchar *name
+	const gchar *nick
+	const gchar *blurb
+	const gchar_ornull *is_a_type
+	GParamFlags flags
+    C_ARGS:
+	name, nick, blurb, is_a_type ? gperl_type_from_package (is_a_type) : G_TYPE_NONE, flags
+
+#endif
 
 
 ####
@@ -1198,3 +1218,36 @@ get_default_value (GParamSpec * pspec_unichar)
 ## G_TYPE_PARAM_POINTER, "Glib::Param::Pointer" -- no members
 ## G_TYPE_PARAM_OBJECT, "Glib::Param::Object" -- no members
 ## G_TYPE_PARAM_OVERRIDE, "Glib::Param::Override" -- no public members
+
+
+MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::GType
+
+#if GLIB_CHECK_VERSION(2, 10, 0)
+
+=for section DESCRIPTION
+
+=head1 DESCRIPTION
+
+This object describes a parameter which holds the name of a class known to the
+GLib type system.  The name of the class is considered to be the common
+ancestor for valid values.  To create a param that allows any type name,
+specify C<undef> for the package name.  Beware, however, that although
+we say "any type name", this actually refers to any type registered
+with Glib; normal Perl packages will not work.
+
+=cut
+
+=for apidoc
+If C<undef>, then any class is allowed.
+=cut
+const gchar_ornull *
+is_a_type (GParamSpec * pspec_gtype)
+    CODE:
+	GParamSpecGType * p = G_PARAM_SPEC_GTYPE (pspec_gtype);
+	RETVAL = p->is_a_type == G_TYPE_NONE
+		? NULL
+		: gperl_package_from_type (p->is_a_type);
+    OUTPUT:
+	RETVAL
+
+#endif

@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 243;
+use Test::More tests => 259;
 
 # first register some types with which to play below.
 
@@ -205,6 +205,56 @@ Glib::Type->register (
 
 foreach (@params) {
 	is ($_->get_owner_type, 'Bar', ref($_)." owner type after adding");
+}
+
+
+
+#
+# Since this is conditional on version, we don't want to overcomplicate
+# the testing logic above.
+#
+SKIP: {
+	skip "GParamSpecGType is new in glib 2.10.0", 16
+		unless Glib->CHECK_VERSION (2, 10, 0);
+	@params = ();
+
+	$pspec = Glib::ParamSpec->gtype ('object', 'Object Type',
+					 "Any object type",
+					 Glib::Object::,
+					 G_PARAM_READWRITE);
+	isa_ok ($pspec, 'Glib::Param::GType');
+	isa_ok ($pspec, 'Glib::ParamSpec');
+	is ($pspec->is_a_type, 'Glib::Object');
+	push @params, $pspec;
+
+	$pspec = Glib::ParamSpec->gtype ('type', 'Any type', "Any type",
+					 undef, G_PARAM_READWRITE);
+	isa_ok ($pspec, 'Glib::Param::GType');
+	isa_ok ($pspec, 'Glib::ParamSpec');
+	is ($pspec->is_a_type, undef);
+	push @params, $pspec;
+
+	Glib::Type->register ('Glib::Object' => 'Baz', properties => \@params);
+
+	my $baz = Glib::Object::new ('Baz');
+	isa_ok ($baz, 'Glib::Object');
+	is ($baz->get ('object'), undef);
+	is ($baz->get ('type'), undef);
+
+	$baz = Glib::Object::new ('Baz', object => 'Bar', type => 'Glib::ParamSpec');
+	isa_ok ($baz, 'Glib::Object');
+	is ($baz->get ('object'), 'Bar');
+	is ($baz->get ('type'), 'Glib::ParamSpec');
+
+	$baz->set (type => 'Bar');
+	is ($baz->get ('type'), 'Bar');
+	$baz->set (type => 'Glib::ParamSpec');
+	is ($baz->get ('type'), 'Glib::ParamSpec');
+
+        $baz->set (object => 'Glib::Object');
+	is ($baz->get ('object'), 'Glib::Object');
+        $baz->set (object => 'Glib::InitiallyUnowned');
+	is ($baz->get ('object'), 'Glib::InitiallyUnowned');
 }
 
 

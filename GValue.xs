@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
- * the full list)
+ * Copyright (C) 2003-2009 by the gtk2-perl team (see the file AUTHORS for the
+ * full list)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published by
@@ -114,6 +114,15 @@ gperl_value_from_sv (GValue * value,
 			g_value_set_string(value, SvGChar(sv));
 			break;
 		case G_TYPE_POINTER:
+#if GLIB_CHECK_VERSION(2, 10, 0)
+			/* The fundamental type for G_TYPE_GTYPE is
+			 * G_TYPE_POINTER, so we have to treat this
+			 * specially. */
+			if (G_VALUE_TYPE (value) == G_TYPE_GTYPE) {
+				g_value_set_gtype (value, gperl_type_from_package (SvGChar (sv)));
+				break;
+			}
+#endif
 			g_value_set_pointer (value,
 			                     INT2PTR (gpointer, SvIV (sv)));
 			break;
@@ -222,6 +231,18 @@ _gperl_sv_from_value_internal (const GValue * value,
 			return newSVGChar (g_value_get_string (value));
 
 		case G_TYPE_POINTER:
+#if GLIB_CHECK_VERSION(2, 10, 0)
+			/* The fundamental type for G_TYPE_GTYPE is
+			 * G_TYPE_POINTER, so we have to treat this
+			 * specially. */
+			if (G_VALUE_TYPE (value) == G_TYPE_GTYPE) {
+				GType gtype = g_value_get_gtype (value);
+				return newSVGChar (
+				  gtype == G_TYPE_NONE
+				         ? NULL
+				         : gperl_package_from_type (gtype));
+			}
+#endif
 			return newSViv (PTR2IV (g_value_get_pointer (value)));
 
 		case G_TYPE_BOXED:
