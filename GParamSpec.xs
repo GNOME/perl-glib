@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2004, 2010 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -142,7 +142,7 @@ SV *
 newSVGParamSpec (GParamSpec * pspec)
 {
 	const gchar * pv;
-	HV * property = newHV ();
+	HV * property;
 	SV * sv;
 	HV * stash;
 	const char * package;
@@ -153,6 +153,7 @@ newSVGParamSpec (GParamSpec * pspec)
 	g_param_spec_ref (pspec);
 	g_param_spec_sink (pspec);
 
+	property = newHV ();
 	sv_magic ((SV*)property, 0, PERL_MAGIC_ext, (const char*)pspec, 0);
 
 
