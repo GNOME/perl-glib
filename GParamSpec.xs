@@ -1242,7 +1242,7 @@ with Glib; normal Perl packages will not work.
 If C<undef>, then any class is allowed.
 =cut
 const gchar_ornull *
-is_a_type (GParamSpec * pspec_gtype)
+get_is_a_type (GParamSpec * pspec_gtype)
     CODE:
 	GParamSpecGType * p = G_PARAM_SPEC_GTYPE (pspec_gtype);
 	RETVAL = p->is_a_type == G_TYPE_NONE

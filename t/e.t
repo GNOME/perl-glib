@@ -224,14 +224,14 @@ SKIP: {
 					 G_PARAM_READWRITE);
 	isa_ok ($pspec, 'Glib::Param::GType');
 	isa_ok ($pspec, 'Glib::ParamSpec');
-	is ($pspec->is_a_type, 'Glib::Object');
+	is ($pspec->get_is_a_type, 'Glib::Object');
 	push @params, $pspec;
 
 	$pspec = Glib::ParamSpec->gtype ('type', 'Any type', "Any type",
 					 undef, G_PARAM_READWRITE);
 	isa_ok ($pspec, 'Glib::Param::GType');
 	isa_ok ($pspec, 'Glib::ParamSpec');
-	is ($pspec->is_a_type, undef);
+	is ($pspec->get_is_a_type, undef);
 	push @params, $pspec;
 
 	Glib::Type->register ('Glib::Object' => 'Baz', properties => \@params);
