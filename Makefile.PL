@@ -50,7 +50,7 @@ unless (eval "use ExtUtils::Depends '$build_reqs{'perl-ExtUtils-Depends'}';"
 
 # client modules may use Glib::MakeHelper -- he's not installed at this
 # point, so we have to require him directly.
-require 'MakeHelper.pm';
+require 'lib/Glib/MakeHelper.pm';
 
 mkdir 'build', 0777;
 
@@ -93,22 +93,22 @@ if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.12.0')) {
 }
 
 our %pm_files = (
-     'Glib.pm'         => '$(INST_LIBDIR)/Glib.pm',
-     'Subclass.pm'     => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
-     'ParseXSDoc.pm'   => '$(INST_LIBDIR)/Glib/ParseXSDoc.pm',
-     'GenPod.pm'       => '$(INST_LIBDIR)/Glib/GenPod.pm',
-     'CodeGen.pm'      => '$(INST_LIBDIR)/Glib/CodeGen.pm',
-     'MakeHelper.pm'   => '$(INST_LIBDIR)/Glib/MakeHelper.pm',
-     'devel.pod'       => '$(INST_LIBDIR)/Glib/devel.pod',
+     'lib/Glib.pm'                 => '$(INST_LIBDIR)/Glib.pm',
+     'lib/Glib/Object/Subclass.pm' => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
+     'lib/Glib/ParseXSDoc.pm'      => '$(INST_LIBDIR)/Glib/ParseXSDoc.pm',
+     'lib/Glib/GenPod.pm'          => '$(INST_LIBDIR)/Glib/GenPod.pm',
+     'lib/Glib/CodeGen.pm'         => '$(INST_LIBDIR)/Glib/CodeGen.pm',
+     'lib/Glib/MakeHelper.pm'      => '$(INST_LIBDIR)/Glib/MakeHelper.pm',
+     'devel.pod'                   => '$(INST_LIBDIR)/Glib/devel.pod',
 );
 our %pod_files = (
-   'Glib.pm'         => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
-   'Subclass.pm'     => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
-   'ParseXSDoc.pm'   => '$(INST_MAN3DIR)/Glib::ParseXSDoc.$(MAN3EXT)',
-   'GenPod.pm'       => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
-   'CodeGen.pm'      => '$(INST_MAN3DIR)/Glib::CodeGen.$(MAN3EXT)',
-   'MakeHelper.pm'   => '$(INST_MAN3DIR)/Glib::MakeHelper.$(MAN3EXT)',
-   'devel.pod'       => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
+   'lib/Glib.pm'                 => '$(INST_MAN3DIR)/Glib.$(MAN3EXT)',
+   'lib/Glib/Object/Subclass.pm' => '$(INST_MAN3DIR)/Glib::Object::Subclass.$(MAN3EXT)',
+   'lib/Glib/ParseXSDoc.pm'      => '$(INST_MAN3DIR)/Glib::ParseXSDoc.$(MAN3EXT)',
+   'lib/Glib/GenPod.pm'          => '$(INST_MAN3DIR)/Glib::GenPod.$(MAN3EXT)',
+   'lib/Glib/CodeGen.pm'         => '$(INST_MAN3DIR)/Glib::CodeGen.$(MAN3EXT)',
+   'lib/Glib/MakeHelper.pm'      => '$(INST_MAN3DIR)/Glib::MakeHelper.$(MAN3EXT)',
+   'devel.pod'                        => '$(INST_MAN3DIR)/Glib::devel.$(MAN3EXT)',
    '$(INST_LIB)/$(FULLEXT)/xsapi.pod' => '$(INST_MAN3DIR)/Glib::xsapi.$(MAN3EXT)',
    Glib::MakeHelper->do_pod_files (@xs_files),
 );
@@ -159,8 +159,8 @@ require 'Glib.exports';
 
 WriteMakefile(
     NAME		=> 'Glib',
-    VERSION_FROM	=> 'Glib.pm', # finds $VERSION
-    ABSTRACT_FROM	=> 'Glib.pm', # retrieve abstract from module
+    VERSION_FROM	=> 'lib/Glib.pm', # finds $VERSION
+    ABSTRACT_FROM	=> 'lib/Glib.pm', # retrieve abstract from module
     PREREQ_PM		=> \%PREREQ_PM,
     XSPROTOARG		=> '-noprototypes',
     MAN3PODS		=> $glib ? \%pod_files : {},
@@ -210,7 +210,7 @@ __EOW__
 # rule to build the documentation
 sub MY::postamble
 {
-	require 'MakeHelper.pm';
+	require 'lib/Glib/MakeHelper.pm';
 	# $glib will be undefined if any of our dependencies couldn't be found;
 	# don't do anything in this case.
 	return unless defined $glib;
