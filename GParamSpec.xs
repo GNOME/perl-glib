@@ -489,12 +489,16 @@ g_param_spec_double (class, name, nick, blurb, minimum, maximum, default_value, 
 	RETVAL
 
 ##  GParamSpec* g_param_spec_string (const gchar *name, const gchar *nick, const gchar *blurb, const gchar *default_value, GParamFlags flags) 
+##
+## "default_value" can be NULL.  Not actually described in the docs as
+## of 2.18, but used that way in lots of the builtin classes
+##
 GParamSpec*
 g_param_spec_string (class, name, nick, blurb, default_value, flags)
 	const gchar *name
 	const gchar *nick
 	const gchar *blurb
-	const gchar *default_value
+	const gchar_ornull *default_value
 	GParamFlags flags
     C_ARGS:
 	name, nick, blurb, default_value, flags

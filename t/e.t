@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 259;
+use Test::More tests => 273;
 
 # first register some types with which to play below.
 
@@ -62,6 +62,15 @@ $pspec = Glib::ParamSpec->boolean ('boolean', 'Boolean',
 pspec_common_ok ($pspec, 'Boolean', 'readable');
 ok ($pspec->get_default_value, "Boolean default (expect TRUE)");
 
+push @params, $pspec;
+
+
+$pspec = Glib::ParamSpec->string ('string', 'String',
+				  'Stringing you along with NULL default.',
+				  undef,
+				  'readable');
+pspec_common_ok ($pspec, 'String', 'readable', 'Glib::String');
+is ($pspec->get_default_value, undef, "String default NULL");
 push @params, $pspec;
 
 
