@@ -1,3 +1,20 @@
+Overview of changes in Glib 1.230
+=================================
+
+* Don't copy boxed objects when passing from Perl to C.  This mainly affects
+  Perl subclasses which have signal handlers that involve boxed objects and use
+  signal_chain_from_overridden() to call parent signal handlers.  With this
+  change, the parent's handlers will now operator on the same object that the
+  Perl code sees, and changes consequently propagate properly.
+* Correctly handle variables with "set" magic attached in the default
+  SET_PROPERTY implementation for custom Perl subclasses.
+* Add Glib::Param::GType support.
+* Make Glib::Flags::bool() and as_arrayref() callable as methods.
+* Allow undef for default_value in Glib::ParamSpec->string.
+* Improve the documentation in a few places.
+* Add gperl_hv_take_sv, a wrapper for hv_store, to our C API.
+* Fix some build and test failures.
+
 Overview of changes in Glib 1.221
 =================================
 
