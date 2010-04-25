@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2004 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2004, 2010 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 # 
 # This library is free software; you can redistribute it and/or modify it under
@@ -297,13 +297,17 @@ Accumulators are not really documented very much in the C reference, and
 the perl interface here is slightly different, so here's an inordinate amount
 of detail for this arcane feature:
 
-The accumulator function is called for every handler.  It is given three
-arguments: the signal invocation hint as an anonymous hash (containing the
-signal name, notably); the current accumulated return value; and the value
-returned by the most recent handler.  The accumulator must return two values:
-a boolean value determining whether signal emission should continue (false
-stops the emission), and the new value for the accumulated return value.
-(This is different from the C version, which writes through the return_accu.)
+The accumulator function is called for every handler as
+
+    ($cont, $acc) = &$func ($invocation_hint, $acc, $ret)
+
+$invocation_hint is an anonymous hash (including the signal name); $acc is
+the current accumulated return value; $ret is the value from the most recent
+handler.
+
+The two return values are a boolean C<$cont> for whether signal emission
+should continue (false to stop); and a new C<$acc> accumulated return value.
+(This is different from the C version, which writes through a return_accu.)
 
 =back
 
@@ -379,7 +383,7 @@ Marc Lehmann E<lt>schmorp@schmorp.deE<gt>, muppet E<lt>scott at asofyet dot orgE
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2004 by muppet and the gtk2-perl team
+Copyright 2003-2004, 2010 by muppet and the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 
