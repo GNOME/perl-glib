@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2006 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2006, 2010 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -1095,6 +1095,20 @@ Glib::Object is the corresponding Perl object class.  Glib::Objects are
 represented by blessed hash references, with a magical connection to the
 underlying C object.
 
+=head2 get and set
+
+Some subclasses of C<Glib::Object> override C<get> and C<set> with methods
+more useful to the subclass, for example C<Gtk2::TreeModel> getting and
+setting row contents.
+
+This is usually done when the subclass has no object properties.  Any object
+properties it or a further subclass does have can always be accessed with
+C<get_property> and C<set_property> (together with C<find_property> and
+C<list_properties> to enquire about them).
+
+Generic code for any object subclass can use the names C<get_property> and
+C<set_property> to be sure of getting the object properties as such.
+
 =cut
 
 BOOT:
@@ -1262,14 +1276,14 @@ g_object_new (class, ...)
 =for apidoc Glib::Object::get
 =for arg ... (list) list of property names
 
-Fetch and return the values for the object properties named in I<...>.
+Alias for C<get_property> (see L</get and set> above).
 
 =cut
 
 =for apidoc Glib::Object::get_property
 =for arg ... (__hide__)
 
-Alias for C<get>.
+Fetch and return the values for the object properties named in I<...>.
 
 =cut
 
@@ -1303,7 +1317,7 @@ g_object_get (object, ...)
 =for signature $object->set (key => $value, ...)
 =for arg ... key/value pairs
 
-Set object properties.
+Alias for C<set_property> (see L</get and set> above).
 
 =cut
 
@@ -1311,7 +1325,7 @@ Set object properties.
 =for signature $object->set_property (key => $value, ...)
 =for arg ... (__hide__)
 
-Alias for C<set>.
+Set object properties.
 
 =cut
 
