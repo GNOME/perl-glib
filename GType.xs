@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2009, 2010 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -2168,7 +2168,7 @@ The signal accumulator is a special callback that can be used to collect return
 values of the various callbacks that are called during a signal emission.
 Generally, you can omit this parameter; custom accumulators are used to do
 things like stopping signal propagation by return value or creating a list of
-returns, etc.
+returns, etc.  See L<Glib::Object::Subclass/SIGNALS> for details.
 
 =back
 
