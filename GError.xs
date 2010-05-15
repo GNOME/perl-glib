@@ -187,7 +187,7 @@ gperl_sv_from_gerror (GError * error)
 	 * what knows how to find the code location.  don't want to do that
 	 * ourselves, since that's blacker magic, so we'll call this and 
 	 * hope the perl API doesn't change.  */
-	gperl_hv_take_sv_s (hv, "location", newSVsv (mess ("")));
+	gperl_hv_take_sv_s (hv, "location", newSVsv (mess ("%s", "")));
 
 	package = info ? info->package : "Glib::Error";
 

@@ -579,6 +579,8 @@ strv_wrap (GType        gtype,
 	AV * av;
 	int i;
 	gchar ** strv;
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
 
 	if (!boxed)
 		return &PL_sv_undef;
@@ -602,6 +604,8 @@ strv_unwrap (GType        gtype,
 	     SV         * sv)
 {
 	gchar ** strv = NULL;
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
 
 	/* pass undef */
 	if (!gperl_sv_is_defined (sv))
