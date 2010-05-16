@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 273;
+use Test::More tests => 275;
 
 # first register some types with which to play below.
 
@@ -223,7 +223,7 @@ foreach (@params) {
 # the testing logic above.
 #
 SKIP: {
-	skip "GParamSpecGType is new in glib 2.10.0", 16
+	skip "GParamSpecGType is new in glib 2.10.0", 18
 		unless Glib->CHECK_VERSION (2, 10, 0);
 	@params = ();
 
@@ -234,6 +234,7 @@ SKIP: {
 	isa_ok ($pspec, 'Glib::Param::GType');
 	isa_ok ($pspec, 'Glib::ParamSpec');
 	is ($pspec->get_is_a_type, 'Glib::Object');
+	is ($pspec->get_value_type, 'Glib::GType');
 	push @params, $pspec;
 
 	$pspec = Glib::ParamSpec->gtype ('type', 'Any type', "Any type",
@@ -241,6 +242,7 @@ SKIP: {
 	isa_ok ($pspec, 'Glib::Param::GType');
 	isa_ok ($pspec, 'Glib::ParamSpec');
 	is ($pspec->get_is_a_type, undef);
+	is ($pspec->get_value_type, 'Glib::GType');
 	push @params, $pspec;
 
 	Glib::Type->register ('Glib::Object' => 'Baz', properties => \@params);
