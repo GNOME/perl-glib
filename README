@@ -1,4 +1,4 @@
-Glib version 1.222
+Glib version 1.223
 ==================
 
 This module provides perl access to Glib and GLib's GObject libraries.
