@@ -180,15 +180,14 @@ print Glib::MainContext->new ?
 print Glib::MainContext->default ?
   "ok 20\n" : "not ok 20\n";
 
-my $context = $loop->get_context;
-print $context ?
+print $loop->get_context ?
   "ok 21\n" : "not ok 21\n";
 
-print $context->pending ?
+print Glib::MainContext->new->pending ?
   "not ok 22\n" : "ok 22\n";
 
 if (Glib->CHECK_VERSION (2, 12, 0)) {
-  print $context->is_owner ?
+  print Glib::MainContext->new->is_owner ?
     "not ok 23\n" : "ok 23\n";
   print Glib::MainContext::is_owner(undef) ?
     "not ok 24\n" : "ok 24\n";
