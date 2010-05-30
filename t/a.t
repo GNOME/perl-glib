@@ -1,4 +1,4 @@
-#!env perl -w
+#!/usr/bin/env perl
 
 #
 # message logging.
@@ -15,9 +15,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
     and not Glib->CHECK_VERSION (2,2,4)) {
 	# there is a bug in glib which makes g_log print messages twice
 	# on 64-bit x86 platforms.  yosh has fixed this on the 2.2.x branch
-	# and in 2.4.0 (actually 2.3.2). 
-	# we don't have versioning API in Glib (yet), so we'll just
-	# have to bail out.
+	# and in 2.4.0 (actually 2.3.2).
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
 } else {
 	plan tests => 12;
@@ -34,12 +32,10 @@ $SIG{__WARN__} = sub { chomp (my $msg = $_[0]); ok(1, "in __WARN__: $msg"); };
 #$SIG{__DIE__} = sub { ok(1, 'in __DIE__'); };
 
 Glib->message (undef, 'whee message');
-eval {
 Glib->critical (undef, 'whee critical');
 Glib->warning (undef, 'whee warning');
-};
 
-my $id = 
+my $id =
 Glib::Log->set_handler (__PACKAGE__,
                         [qw/ error critical warning message info debug /],
 			sub {
@@ -47,14 +43,11 @@ Glib::Log->set_handler (__PACKAGE__,
 			});
 
 Glib->message (__PACKAGE__, 'whee message');
-eval {
 Glib->critical (__PACKAGE__, 'whee critical');
 Glib->warning (__PACKAGE__, 'whee warning');
-
 Glib->log (__PACKAGE__, qw/ warning /, 'whee log warning');
 
 Glib::Log->remove_handler (__PACKAGE__, $id);
-};
 
 SKIP: {
 	# See <http://bugzilla.gnome.org/show_bug.cgi?id=577137>.
