@@ -2018,7 +2018,9 @@ BOOT:
 	gperl_register_fundamental (G_TYPE_FLOAT, "Glib::Float");
 	gperl_register_fundamental (G_TYPE_DOUBLE, "Glib::Double");
 	gperl_register_fundamental (G_TYPE_BOOLEAN, "Glib::Boolean");
+#if GLIB_CHECK_VERSION (2, 10, 0)
 	gperl_register_fundamental (G_TYPE_GTYPE, "Glib::GType");
+#endif
 	gperl_register_boxed (GPERL_TYPE_SV, "Glib::Scalar", NULL);
 
 	/* i love nasty ugly hacks for backwards compat... Glib::UInt used
