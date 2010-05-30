@@ -138,7 +138,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 # 1.072 fixes the long-standing "bug" that perl's safe signal handling
 # caused asynchronous signals not to be delivered while a main loop is
 # running (because control stays in C).  let's make sure that we can
-# get a 1 second alarm before a 2 second timeout has a chance to fire.
+# get a 1 second alarm before a 5 second timeout has a chance to fire.
 if ($^O eq 'MSWin32') {
 	# XXX Win32 doesn't do SIGALRM the way unix does; either the alarm
 	# doesn't interrupt the poll, or alarm just doesn't work.
@@ -152,7 +152,7 @@ if ($^O eq 'MSWin32') {
 		$loop->quit;
 	};
 	my $timeout_fired = 0;
-	Glib::Timeout->add (2000, sub {
+	Glib::Timeout->add (5000, sub {
 		$timeout_fired++;
 		$loop->quit;
 		0;
@@ -161,7 +161,7 @@ if ($^O eq 'MSWin32') {
 	$loop->run;
 	print ""
 	    . ($timeout_fired ? "not ok" : "ok")
-	    . " 16 - 1 sec alarm handler fires before 2 sec timeout\n";
+	    . " 16 - 1 sec alarm handler fires before 5 sec timeout\n";
 }
 
 if (Glib->CHECK_VERSION (2, 4, 0)) {
