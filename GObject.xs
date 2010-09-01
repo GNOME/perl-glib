@@ -1487,8 +1487,8 @@ g_object_find_property (object_or_class_name, ...)
 				for (i = 0; i < n_props; i++)
 					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
 
-				g_free (props);
 			}
+			g_free (props); /* must free even when n_props==0 */
 		}
 
 		g_type_class_unref (object_class);
@@ -1521,8 +1521,8 @@ g_object_find_property (object_or_class_name, ...)
 				for (i = 0; i < n_props; i++)
 					PUSHs (sv_2mortal (newSVGParamSpec (props[i])));
 
-				g_free (props);
 			}
+			g_free (props); /* must free even when n_props==0 */
 		}
 
 		g_type_default_interface_unref (iface);
