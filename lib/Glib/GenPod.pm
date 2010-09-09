@@ -26,6 +26,7 @@ our @EXPORT = qw(
 	add_types
 	xsdoc2pod
 	podify_properties
+	podify_child_properties
 	podify_values
 	podify_signals
 	podify_ancestors
@@ -314,6 +315,9 @@ sub xsdoc2pod
 		$ret = podify_properties ($package);	
 		print "\n=head1 PROPERTIES\n\n$ret\n\n=cut\n\n" if ($ret);
 
+		$ret = podify_child_properties ($package);
+		print "\n=head1 CHILD PROPERTIES\n\n$ret\n\n=cut\n\n" if ($ret);
+
 		$ret = podify_pods ($pkgdata->{pods}, 'post_properties');
 		print "$ret\n\n" if ($ret);
 
@@ -495,8 +499,14 @@ are no properties or I<$package> is not a Glib::Object.
 sub podify_properties {
 	my $package = shift;
 	my @properties;
-	eval { @properties = Glib::Object::list_properties($package); 1; };
-	return undef unless (@properties or not $@);
+	eval { @properties = Glib::Object::list_properties($package); 1; }
+	  || return undef;
+	return _podify_pspecs($package, @properties);
+}
+
+sub _podify_pspecs {
+	my ($package, @properties) = @_;
+	return undef unless (@properties);
 
 	# we have a non-zero number of properties, but there may still be
 	# none for this particular class.  keep a count of how many
@@ -516,6 +526,27 @@ sub podify_properties {
 	$str .= "=back\n\n";
 
 	return $nmatch ? $str : undef;
+}
+
+=item $string = podify_child_properties ($packagename)
+
+Pretty-print the child properties owned by the Gtk2::Container derivative
+I<$packagename> and return the text as a string.  Returns undef if there are
+no child properties or I<$package> is not a Gtk2::Container or similar class
+with a C<list_child_properties()> method.
+
+=cut
+
+sub podify_child_properties {
+	my ($package) = shift;
+	# Call list_child_properties() as a method so as to perhaps work on
+	# Goo::Canvas::Item which has a similar child properties scheme of
+	# its own (it's not a Gtk2::Container subclass), though that method
+	# is not wrapped as of Goo::Canvas 0.06.
+	my @properties;
+	eval { @properties = $package->list_child_properties; 1; }
+	  || return undef;
+	return _podify_pspecs($package, @properties);
 }
 
 =item $string = podify_values ($packagename)
@@ -1382,7 +1413,7 @@ mcfarland hacked this module together via irc and email over the next few days.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003-2004 by the gtk2-perl team
+Copyright (C) 2003-2004, 2010 by the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 
