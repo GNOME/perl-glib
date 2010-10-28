@@ -1411,10 +1411,11 @@ The Glib::ParamFlags of the property
 =cut
 
 =for apidoc Glib::Object::find_property
-=for signature pspec = $object_or_class_name->find_property ($name)
+=for signature pspec or undef = $object_or_class_name->find_property ($name)
 =for arg name (string)
 =for arg ... (__hide__)
-Find the definition of object property I<$name> for I<$object_or_class_name>; for
+Find the definition of object property I<$name> for I<$object_or_class_name>.
+Return C<undef> if no such property.  For
 the returned data see L<Glib::Object::list_properties>.
 =cut
 void
