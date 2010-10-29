@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2005, 2010 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 # 
 # This library is free software; you can redistribute it and/or modify it under
@@ -63,6 +63,7 @@ GObject_ornull*	T_GPERL_GENERIC_WRAPPER
 GObject_noinc*	T_GPERL_GENERIC_WRAPPER
 
 GParamSpec*	T_GPERL_GENERIC_WRAPPER
+GParamSpec_ornull*	T_GPERL_GENERIC_WRAPPER
 GParamFlags	T_GPERL_GENERIC_WRAPPER
 
 GSignalFlags	T_GPERL_GENERIC_WRAPPER

@@ -583,6 +583,21 @@ scalar (class, name, nick, blurb, flags)
 ###  GParamSpec* g_param_spec_value_array (const gchar *name, const gchar *nick, const gchar *blurb, GParamSpec *element_spec, GParamFlags flags) 
 
 
+#if GLIB_CHECK_VERSION(2, 4, 0)
+
+GParamSpec*
+g_param_spec_override (class, name, overridden)
+	const gchar *name
+	GParamSpec *overridden
+    C_ARGS:
+	name, overridden
+
+GParamSpec_ornull *
+g_param_spec_get_redirect_target (pspec)
+	GParamSpec *pspec
+
+#endif
+
 #if GLIB_CHECK_VERSION(2, 10, 0)
 
 =for apidoc

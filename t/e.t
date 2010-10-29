@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 275;
+use Test::More tests => 278;
 
 # first register some types with which to play below.
 
@@ -217,6 +217,18 @@ foreach (@params) {
 }
 
 
+SKIP: {
+	skip "GParamSpecOverride is new in glib 2.4.0", 3
+		unless Glib->CHECK_VERSION (2, 4, 0);
+
+	my $pbase = Glib::ParamSpec->boolean ('obool','obool', 'Blurb',
+					      0, G_PARAM_READWRITE);
+	is ($pspec->get_redirect_target, undef);
+
+	$pspec = Glib::ParamSpec->override ('over', $pbase);
+	isa_ok ($pspec, 'Glib::Param::Override');
+	is_deeply ($pspec->get_redirect_target, $pbase);
+}
 
 #
 # Since this is conditional on version, we don't want to overcomplicate

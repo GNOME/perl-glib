@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2010 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -212,11 +212,13 @@ typedef gchar *GPerlFilename;
 typedef const gchar *GPerlFilename_const;
 typedef gchar *GPerlFilename_own;
 typedef GPerlFilename GPerlFilename_ornull;
+typedef GParamSpec GParamSpec_ornull;
 
 #define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
 #define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
 #define SvGObject(sv)		(gperl_get_object_check (sv, G_TYPE_OBJECT))
 #define SvGObject_ornull(sv)	(gperl_sv_is_defined (sv) ? SvGObject (sv) : NULL)
+#define newSVGParamSpec_ornull(sv)	newSVGParamSpec(sv)
 
 
 /*
