@@ -27,6 +27,7 @@ our @EXPORT = qw(
 	xsdoc2pod
 	podify_properties
 	podify_child_properties
+	podify_style_properties
 	podify_values
 	podify_signals
 	podify_ancestors
@@ -318,6 +319,9 @@ sub xsdoc2pod
 		$ret = podify_child_properties ($package);
 		print "\n=head1 CHILD PROPERTIES\n\n$ret\n\n=cut\n\n" if ($ret);
 
+		$ret = podify_style_properties ($package);
+		print "\n=head1 STYLE PROPERTIES\n\n$ret\n\n=cut\n\n" if ($ret);
+
 		$ret = podify_pods ($pkgdata->{pods}, 'post_properties');
 		print "$ret\n\n" if ($ret);
 
@@ -543,10 +547,30 @@ sub podify_child_properties {
 	# Goo::Canvas::Item which has a similar child properties scheme of
 	# its own (it's not a Gtk2::Container subclass), though that method
 	# is not wrapped as of Goo::Canvas 0.06.
+	if ($package->can('list_child_properties')) {
+	  return _podify_pspecs($package, $package->list_child_properties);
+	} else {
+	  return undef;
+	}
+}
+
+=item $string = podify_style_properties ($packagename)
+
+Pretty-print the style properties owned by the Gtk2::Widget derivative
+I<$packagename> and return the text as a string.  Returns undef if there are
+no style properties or I<$package> is not a Gtk2::Widget or similar class
+with a C<list_style_properties()> method.
+
+=cut
+
+sub podify_style_properties {
+	my ($package) = shift;
 	my @properties;
-	eval { @properties = $package->list_child_properties; 1; }
-	  || return undef;
-	return _podify_pspecs($package, @properties);
+	if ($package->can('list_style_properties')) {
+	  return _podify_pspecs($package, $package->list_style_properties);
+	} else {
+	  return undef;
+	}
 }
 
 =item $string = podify_values ($packagename)
