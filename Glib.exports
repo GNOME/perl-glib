@@ -53,6 +53,7 @@ gperl_get_boxed_check
 gperl_get_object
 gperl_get_object_check
 gperl_handle_logs_for
+gperl_hv_take_sv
 gperl_install_exception_handler
 gperl_new_boxed
 gperl_new_boxed_copy
