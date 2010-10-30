@@ -556,6 +556,12 @@ param_spec (class, name, nick, blurb, package, flags)
 =for apidoc
 ParamSpec to be used for any generic perl scalar, including references to
 complex objects.
+
+Currently C<Gtk2::Builder> cannot set object properties of this type
+(there's no hooks for property value parsing, as of Gtk 2.20), so
+prefer the builtin types if buildable support for an object matters.
+A C<boxed> of C<Glib::Strv> can give an array of strings.  A signal
+handler callback can do most of what a coderef might.
 =cut
 GParamSpec*
 scalar (class, name, nick, blurb, flags)
