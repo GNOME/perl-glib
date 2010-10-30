@@ -767,28 +767,18 @@ C<SvIV> instead.
 
 #if GLIB_CHECK_VERSION (2, 12, 0)
 # define PORTABLE_STRTOLL(str, end, base) g_ascii_strtoll (str, end, base)
-#else
-# ifdef WIN32
-#  ifdef _MSC_VER
-#   if (_MSC_VER >= 1300)
-#    define PORTABLE_STRTOLL(str, end, base) _strtoi64 (str, end, base)
-#   else
-#    define PORTABLE_STRTOLL(str, end, base) _atoi64 (str)
-#   endif
-#  else
-#   define PORTABLE_STRTOLL(str, end, base) strtol (str, end, base)
-#  endif
+#elif defined(_MSC_VER)
+# if _MSC_VER >= 1300
+#  define PORTABLE_STRTOLL(str, end, base) _strtoi64 (str, end, base)
 # else
-#  define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
+#  define PORTABLE_STRTOLL(str, end, base) _atoi64 (str)
 # endif
+#else
+# define PORTABLE_STRTOLL(str, end, base) strtoll (str, end, base)
 #endif
 
-#ifdef WIN32
-# if defined(_MSC_VER) || defined(__MSVCRT__)
-#   define PORTABLE_LL_FORMAT "%I64d"
-# else
-#  define PORTABLE_LL_FORMAT "%ld"
-# endif
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+# define PORTABLE_LL_FORMAT "%I64d"
 #else
 # define PORTABLE_LL_FORMAT "%lld"
 #endif
@@ -838,28 +828,14 @@ uses C<SvUV> instead.
 
 #if GLIB_CHECK_VERSION (2, 2, 0)
 # define PORTABLE_STRTOULL(str, end, base) g_ascii_strtoull (str, end, base)
+#elif defined(_MSC_VER) && _MSC_VER >= 1300
+# define PORTABLE_STRTOULL(str, end, base) _strtoui64 (str, end, base)
 #else
-# ifdef WIN32
-#  ifdef _MSC_VER
-#   if (_MSC_VER >= 1300)
-#    define PORTABLE_STRTOULL(str, end, base) _strtoui64 (str, end, base)
-#   else
-#    define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
-#   endif
-#  else
-#   define PORTABLE_STRTOULL(str, end, base) strtoul (str, end, base)
-#  endif
-# else
-#  define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)
-# endif
+# define PORTABLE_STRTOULL(str, end, base) strtoull (str, end, base)
 #endif
 
-#ifdef WIN32
-# if defined(_MSC_VER) || defined(__MSVCRT__)
-#  define PORTABLE_ULL_FORMAT "%I64u"
-# else
-#  define PORTABLE_ULL_FORMAT "%lu"
-# endif
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+# define PORTABLE_ULL_FORMAT "%I64u"
 #else
 # define PORTABLE_ULL_FORMAT "%llu"
 #endif
