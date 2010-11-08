@@ -1549,7 +1549,7 @@ gperl_type_get_property (GObject * object,
 	SV **slot;
 	SV * getter;
 
-	prop_handler_lookup (G_OBJECT_TYPE (object), property_id, NULL, &getter);
+	prop_handler_lookup (pspec->owner_type, property_id, NULL, &getter);
 	if (getter) {
 		dSP;
 		ENTER;
@@ -1617,7 +1617,7 @@ gperl_type_set_property (GObject * object,
 	SV ** slot;
 	SV  * setter;
 
-	prop_handler_lookup (G_OBJECT_TYPE (object), property_id, &setter, NULL);
+	prop_handler_lookup (pspec->owner_type, property_id, &setter, NULL);
 	if (setter) {
 		dSP;
 		ENTER;
@@ -2128,7 +2128,10 @@ are both optional in the hash form.  For example:
       ]
    );
 
-You can mix the two declaration styles as you like.
+You can mix the two declaration styles as you like.  If you have
+individual C<get_foo> / C<set_foo> methods with the operative code for
+a property then the C<get>/C<set> form is a handy way to go straight
+to that.
 
 =item interfaces => ARRAYREF
 

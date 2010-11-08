@@ -2,6 +2,7 @@ Overview of changes in the next unstable release of Glib
 ========================================================
 
 * Fix fetching default values for unichar properties of custom subclasses.
+* Fix subclassing with {pspec, get, set}-style properties.
 
 Overview of changes in Glib 1.230
 =================================

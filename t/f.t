@@ -13,7 +13,7 @@ replacements unnecessary.  Any ideas how to obsolete its new() replacement?
 
 =cut
 
-use Test::More tests => 42;
+use Test::More tests => 54;
 use Glib ':constants';
 use Data::Dumper;
 use strict;
@@ -167,3 +167,131 @@ $bar->set (map { $names[$_], $default_values[$_] } 0..$#names);
 is (scalar keys %$bar, 5, 'new Foo has keys after setting');
 is_deeply ([ map {$bar->{$_}} @names ], [ @default_values ],
            'and they have values');
+
+
+
+
+{
+  # Prior to 1.240 a subclass of a class with a pspec/get/set did not reach
+  # the specified get/set funcs.
+
+  my @getter_args;
+  my @setter_args;
+  {
+    package BaseGetSet;
+    use Glib::Object::Subclass
+      'Glib::Object',
+      properties => [
+		     {
+		      pspec => Glib::ParamSpec->string ('my-prop',
+							'My-Prop',
+							'Blurb one',
+							'default one',
+							['readable','writable']),
+		      get => sub {
+			@getter_args = @_;
+		      },
+		      set => sub {
+			@setter_args = @_;
+		      },
+		     },
+		    ];
+  }
+  {
+    package SubGetSet;
+    use Glib::Object::Subclass 'BaseGetSet';
+  }
+  my $obj = SubGetSet->new;
+
+  @getter_args = ();
+  @setter_args = ();
+  $obj->get ('my-prop');
+  is_deeply (\@getter_args, [$obj], 'my-prop reaches BaseGetSet');
+  is_deeply (\@setter_args, [],     'my-prop reaches BaseGetSet');
+
+  @getter_args = ();
+  @setter_args = ();
+  $obj->set (my_prop => 'zzz');
+  is_deeply (\@getter_args, [],           'my-prop reaches BaseGetSet');
+  is_deeply (\@setter_args, [$obj,'zzz'], 'my-prop reaches BaseGetSet');
+}
+
+
+{
+  # Prior to 1.240 a class with a pspec/get/set which is subclassed with
+  # another separate pspec/get/set property called to the subclass get/set
+  # funcs, not the superclass ones.
+
+  my @baseone_getter_args;
+  my @baseone_setter_args;
+  {
+    package BaseOne;
+    use Glib::Object::Subclass
+      'Glib::Object',
+      properties => [
+		     {
+		      pspec => Glib::ParamSpec->string ('prop-one',
+							'Prop-One',
+							'Blurb one',
+							'default one',
+							['readable','writable']),
+		      get => sub {
+			@baseone_getter_args = @_;
+		      },
+		      set => sub {
+			# Test::More::diag('baseone setter');
+			@baseone_setter_args = @_;
+		      },
+		     },
+		    ];
+  }
+  my @subtwo_getter_args;
+  my @subtwo_setter_args;
+  {
+    package SubTwo;
+    use Glib::Object::Subclass
+      'BaseOne',
+      properties => [
+		     {
+		      pspec => Glib::ParamSpec->string ('prop-two',
+							'Prop-Two',
+							'Blurb two',
+							'default two',
+							['readable','writable']),
+		      get => sub {
+			@subtwo_getter_args = @_;
+		      },
+		      set => sub {
+			# Test::More::diag('subtwo setter');
+			@subtwo_setter_args = @_;
+		      },
+		     },
+		    ];
+  }
+  my $obj = SubTwo->new;
+
+  @baseone_getter_args = ();
+  @subtwo_getter_args = ();
+  $obj->get ('prop-two');
+  is_deeply (\@baseone_getter_args, [],     'prop-two goes to subtwo');
+  is_deeply (\@subtwo_getter_args,  [$obj], 'prop-two goes to subtwo');
+
+  @baseone_getter_args = ();
+  @subtwo_getter_args = ();
+  $obj->get ('prop-one');
+  is_deeply (\@baseone_getter_args, [$obj], 'prop-one goes to baseone');
+  is_deeply (\@subtwo_getter_args,  [],     'prop-one goes to baseone');
+
+
+  @baseone_setter_args = ();
+  @subtwo_setter_args = ();
+  $obj->set (prop_two => 'xyz');
+  is_deeply (\@baseone_setter_args, [],           'prop-two goes to subtwo');
+  is_deeply (\@subtwo_setter_args,  [$obj,'xyz'], 'prop-two goes to subtwo');
+
+  @baseone_setter_args = ();
+  @subtwo_setter_args = ();
+  $obj->set (prop_one => 'abc');
+  is_deeply (\@baseone_setter_args, [$obj,'abc'], 'prop-one goes to baseone');
+  is_deeply (\@subtwo_setter_args,  [],           'prop-one goes to baseone');
+}
