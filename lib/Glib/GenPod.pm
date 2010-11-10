@@ -437,6 +437,7 @@ our %basic_types = (
 	UV       => 'unsigned',
 	IV       => 'integer',
 	CV       => 'subroutine',
+	AV       => 'arrayref',
 
 	gchar_length => 'string',
 
