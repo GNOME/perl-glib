@@ -674,6 +674,94 @@ get_value_type (GParamSpec * pspec)
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_
 
 =for apidoc
+(This is the C level C<g_param_value_set_default> function.)
+
+Note that on a C<Glib::Param::Unichar> the return is a single-char
+string.  This is the same as the constructor
+C<< Glib::ParamSpec->unichar >>, but it's not the same as
+C<Glib::Object> C<< get_property >> / C<< set_property >>, so an
+C<ord()> conversion is needed if passing the default value to a
+unichar C<set_property>.
+=cut
+SV *
+get_default_value (GParamSpec * pspec)
+    PREINIT:
+	GValue v = { 0, };
+	GType type;
+    CODE:
+	/* crib note: G_PARAM_SPEC_VALUE_TYPE() is suitable for
+	   GParamSpecOverride and gives the target's value type */
+	type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+	g_value_init (&v, type);
+	g_param_value_set_default (pspec, &v);
+
+	if (type == G_TYPE_BOOLEAN) {
+	  /* For historical compatibility with what Perl-Gtk2 has done in
+             the past, return boolSV() style '' or 1 for a G_TYPE_BOOLEAN,
+             the same as gboolean typemap output, not the newSViv() style 0
+             or 1 which the generic gperl_sv_from_value() would give on
+             G_TYPE_BOOLEAN.
+
+             The two falses, '' vs 0, are of course the same in any boolean
+             context or arithmetic, but maybe someone has done a string
+             compare or something, so keep ''.
+
+             This applies to Glib::Param::Boolean and in the interests of
+             consistency also to a Glib::Param::Override targetting a
+             boolean, and also to any hypothetical other ParamSpec which had
+             value type G_TYPE_BOOLEAN, either a sub-type of
+             GParamSpecBoolean or just a completely separate one with
+             G_TYPE_BOOLEAN.  */
+
+	  RETVAL = boolSV (g_value_get_boolean (&v));
+
+        } else if (type == G_TYPE_UINT) {
+	  /* For historical compatibility with what Perl-Gtk2 has done in
+	     the past, return a single-char string for GParamSpecUnichar.
+	     The GValue for a GParamSpecUnichar is only a G_TYPE_UINT and
+	     gperl_sv_from_value() would give an integer.
+
+	     This applies to Glib::Param::Unichar and in the interests of
+	     consistency is applied also to a Glib::Param::Override
+	     targetting a unichar, and also to any sub-type of
+	     GParamUnichar.
+
+	     As noted in the POD above this is a bit unfortunate, since it
+	     means $obj->set_property() can't be simply called with
+	     $obj->find_property->get_default_value().  Watch this space for
+	     some sort of variation on get_default_value() which can go
+	     straight to set_property(), or to values_cmp() against a
+	     get_property(), etc. */
+
+	  GParamSpec *ptarget;
+#if GLIB_CHECK_VERSION(2, 4, 0)
+	  ptarget = g_param_spec_get_redirect_target(pspec);
+	  if (! ptarget) { ptarget = pspec; }
+#else
+	  ptarget = pspec;
+#endif
+	  if (g_type_is_a (G_PARAM_SPEC_TYPE(ptarget), G_TYPE_PARAM_UNICHAR)) {
+	    {
+	      gchar temp[6];
+	      gint length = g_unichar_to_utf8 (g_value_get_uint(&v), temp);
+	      RETVAL = newSVpv (temp, length);
+	      SvUTF8_on (RETVAL);
+	    }
+	  } else {
+	    /* a plain uint, not a unichar */
+	    goto plain_gvalue;
+	  }
+
+	} else {
+	plain_gvalue:
+	  RETVAL = gperl_sv_from_value (&v);
+	}
+	g_value_unset (&v);
+    OUTPUT:
+	RETVAL
+
+
+=for apidoc
 =signature bool = $paramspec->value_validate ($value)
 =signature (bool, newval) = $paramspec->value_validate ($value)
 In scalar context return true if $value must be modified to be valid

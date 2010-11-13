@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 278;
+use Test::More tests => 305;
 
 # first register some types with which to play below.
 
@@ -61,8 +61,14 @@ $pspec = Glib::ParamSpec->boolean ('boolean', 'Boolean',
 	                           TRUE, 'readable');
 pspec_common_ok ($pspec, 'Boolean', 'readable');
 ok ($pspec->get_default_value, "Boolean default (expect TRUE)");
-
 push @params, $pspec;
+{
+  $pspec = Glib::ParamSpec->boolean ('boolean-default-false',
+				     'Boolean-default-false',
+				     'Blurb',
+				     FALSE, 'readable');
+  is ($pspec->get_default_value, '');  # boolSV style empty '' return
+}
 
 
 $pspec = Glib::ParamSpec->string ('string', 'String',
@@ -174,6 +180,21 @@ $pspec = Glib::ParamSpec->unichar ('unichar', 'Unichar',
 pspec_common_ok ($pspec, 'Unichar', qw/readable/, 'Glib::UInt');
 is ($pspec->get_default_value, 'ö', 'Unichar default');
 push @params, $pspec;
+{
+  $pspec = Glib::ParamSpec->unichar ('unichar-nul', 'Unichar-Nul',
+				     'Blurb',
+				     "\0", # default
+				     qw/readable/);
+  is ($pspec->get_default_value, "\0",
+      'ParamSpec unichar - default zero byte');
+
+  $pspec = Glib::ParamSpec->unichar ('unichar-nul', 'Unichar-Nul',
+				     'Blurb',
+				     "0", # default
+				     qw/readable/);
+  is ($pspec->get_default_value, "0",
+      'ParamSpec unichar - default zero digit');
+}
 
 
 #
@@ -218,7 +239,7 @@ foreach (@params) {
 
 
 SKIP: {
-	skip "GParamSpecOverride is new in glib 2.4.0", 3
+	skip "GParamSpecOverride is new in glib 2.4.0", 27
 		unless Glib->CHECK_VERSION (2, 4, 0);
 
 	my $pbase = Glib::ParamSpec->boolean ('obool','obool', 'Blurb',
@@ -228,6 +249,64 @@ SKIP: {
 	$pspec = Glib::ParamSpec->override ('over', $pbase);
 	isa_ok ($pspec, 'Glib::Param::Override');
 	is_deeply ($pspec->get_redirect_target, $pbase);
+	{
+	  my $pbase = Glib::ParamSpec->boolean ('obool',
+						'Obool',
+						'pbase blurb',
+						0, G_PARAM_READWRITE);
+	  is ($pbase->get_default_value, '');
+	  is ($pbase->get_redirect_target, undef);
+
+	  # p1 targetting pbase
+	  my $p1 = Glib::ParamSpec->override ('over', $pbase);
+	  isa_ok ($p1, 'Glib::Param::Override');
+	  # is_deeply() because paramspec is GBoxed, so no identical objects
+	  is_deeply ($p1->get_redirect_target, $pbase);
+
+	  is ($p1->get_blurb, 'pbase blurb');
+	  is ($p1->get_nick,  'Obool');
+	  is ($p1->get_default_value, '');
+
+	  # p2 targetting p1
+	  my $p2 = Glib::ParamSpec->override ('over-over', $p1);
+	  isa_ok ($p2, 'Glib::Param::Override');
+	  # is_deeply() because paramspec is GBoxed, so no identical objects
+	  is_deeply ($p2->get_redirect_target, $pbase);
+
+	  is ($p2->get_blurb, 'pbase blurb');
+	  is ($p2->get_nick,  'Obool');
+	  is ($p2->get_default_value, '');
+	}
+
+	{
+	  my $pbase = Glib::ParamSpec->unichar ('ounichar',
+						'Ounichar',
+						'pbase blurb',
+						'z',
+						G_PARAM_READWRITE);
+	  is ($pbase->get_default_value, 'z');
+	  is ($pbase->get_redirect_target, undef);
+
+	  # p1 targetting pbase
+	  my $p1 = Glib::ParamSpec->override ('over', $pbase);
+	  isa_ok ($p1, 'Glib::Param::Override');
+	  # is_deeply() because paramspec is GBoxed, so no identical objects
+	  is_deeply ($p1->get_redirect_target, $pbase);
+
+	  is ($p1->get_blurb, 'pbase blurb');
+	  is ($p1->get_nick,  'Ounichar');
+	  is ($p1->get_default_value, 'z');
+
+	  # p2 targetting p1
+	  my $p2 = Glib::ParamSpec->override ('over-over', $p1);
+	  isa_ok ($p2, 'Glib::Param::Override');
+	  # is_deeply() because paramspec is GBoxed, so no identical objects
+	  is_deeply ($p2->get_redirect_target, $pbase);
+
+	  is ($p2->get_blurb, 'pbase blurb');
+	  is ($p2->get_nick,  'Ounichar');
+	  is ($p2->get_default_value, 'z');
+	}
 }
 
 #
@@ -261,7 +340,7 @@ SKIP: {
 
 	my $baz = Glib::Object::new ('Baz');
 	isa_ok ($baz, 'Glib::Object');
-	is ($baz->get ('object'), undef);
+	is ($baz->get ('object'), 'Glib::Object');
 	is ($baz->get ('type'), undef);
 
 	$baz = Glib::Object::new ('Baz', object => 'Bar', type => 'Glib::ParamSpec');
