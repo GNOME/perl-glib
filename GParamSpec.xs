@@ -891,28 +891,6 @@ get_maximum (GParamSpec * pspec)
     OUTPUT:
 	RETVAL
 
-
-=for apidoc Glib::Param::Char::get_default_value __hide__
-=cut
-
-=for apidoc Glib::Param::Long::get_default_value __hide__
-=cut
-
-IV
-get_default_value (GParamSpec * pspec)
-    ALIAS:
-	Glib::Param::Int::get_default_value = 1
-	Glib::Param::Long::get_default_value = 2
-    CODE:
-	switch (ix) {
-	    case 0: RETVAL = G_PARAM_SPEC_CHAR (pspec)->default_value; break;
-	    case 1: RETVAL = G_PARAM_SPEC_INT (pspec)->default_value; break;
-	    case 2: RETVAL = G_PARAM_SPEC_LONG (pspec)->default_value; break;
-	    default: g_assert_not_reached (); RETVAL = 0;
-	}
-    OUTPUT:
-	RETVAL
-
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UChar
 
  ## similarly, all unsigned integer types
@@ -988,28 +966,6 @@ get_maximum (GParamSpec * pspec)
     OUTPUT:
 	RETVAL
 
-
-=for apidoc Glib::Param::UChar::get_default_value __hide__
-=cut
-
-=for apidoc Glib::Param::ULong::get_default_value __hide__
-=cut
-
-UV
-get_default_value (GParamSpec * pspec)
-    ALIAS:
-	Glib::Param::UInt::get_default_value = 1
-	Glib::Param::ULong::get_default_value = 2
-    CODE:
-	switch (ix) {
-	    case 0: RETVAL = G_PARAM_SPEC_UCHAR (pspec)->default_value; break;
-	    case 1: RETVAL = G_PARAM_SPEC_UINT (pspec)->default_value; break;
-	    case 2: RETVAL = G_PARAM_SPEC_ULONG (pspec)->default_value; break;
-	    default: g_assert_not_reached (); RETVAL = 0;
-	}
-    OUTPUT:
-	RETVAL
-
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Int64
 
 =for object Glib::Param::Int64
@@ -1042,13 +998,6 @@ get_maximum (GParamSpec * pspec)
     OUTPUT:
 	RETVAL
 
-gint64
-get_default_value (GParamSpec * pspec)
-    CODE:
-	RETVAL = G_PARAM_SPEC_INT64 (pspec)->default_value;
-    OUTPUT:
-	RETVAL
-
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UInt64
 
 =for object Glib::Param::UInt64
@@ -1078,13 +1027,6 @@ guint64
 get_maximum (GParamSpec * pspec)
     CODE:
 	RETVAL = G_PARAM_SPEC_UINT64 (pspec)->maximum;
-    OUTPUT:
-	RETVAL
-
-guint64
-get_default_value (GParamSpec * pspec)
-    CODE:
-	RETVAL = G_PARAM_SPEC_UINT64 (pspec)->default_value;
     OUTPUT:
 	RETVAL
 
@@ -1149,24 +1091,6 @@ get_maximum (GParamSpec * pspec)
     OUTPUT:
 	RETVAL
 
-
-=for apidoc Glib::Param::Float::get_default_value __hide__
-=cut
-
-double
-get_default_value (GParamSpec * pspec)
-    ALIAS:
-	Glib::Param::Double::get_default_value = 1
-    CODE:
-	switch (ix) {
-	    case 0: RETVAL = G_PARAM_SPEC_FLOAT (pspec)->default_value; break;
-	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->default_value; break;
-	    default: g_assert_not_reached (); RETVAL = 0.0;
-	}
-    OUTPUT:
-	RETVAL
-
-
 =for apidoc Glib::Param::Float::get_epsilon __hide__
 =cut
 
@@ -1180,27 +1104,6 @@ get_epsilon (GParamSpec * pspec)
 	    case 1: RETVAL = G_PARAM_SPEC_DOUBLE (pspec)->epsilon; break;
 	    default: g_assert_not_reached (); RETVAL = 0.0;
 	}
-    OUTPUT:
-	RETVAL
-
-MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Boolean
-
-=for position post_hierarchy
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Boolean
-
-=cut
-
-=for see_also Glib::ParamSpec
-=cut
-
-gboolean
-get_default_value (GParamSpec * pspec_boolean)
-    CODE:
-	RETVAL = G_PARAM_SPEC_BOOLEAN (pspec_boolean)->default_value;
     OUTPUT:
 	RETVAL
 
@@ -1227,17 +1130,6 @@ get_enum_class (GParamSpec * pspec_enum)
     OUTPUT:
 	RETVAL
 
-SV *
-get_default_value (GParamSpec * pspec_enum)
-    PREINIT:
-	GParamSpecEnum * penum;
-    CODE:
-	penum = G_PARAM_SPEC_ENUM (pspec_enum);
-	RETVAL = gperl_convert_back_enum (G_ENUM_CLASS_TYPE (penum->enum_class),
-	                                  penum->default_value);
-    OUTPUT:
-	RETVAL
-
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Flags
 
 =for position post_hierarchy
@@ -1260,79 +1152,6 @@ get_flags_class (GParamSpec * pspec_flags)
 				(G_PARAM_SPEC_FLAGS (pspec_flags)->flags_class));
     OUTPUT:
 	RETVAL
-
-SV *
-get_default_value (GParamSpec * pspec_flags)
-    PREINIT:
-	GParamSpecFlags * pflags;
-    CODE:
-	pflags = G_PARAM_SPEC_FLAGS (pspec_flags);
-	RETVAL = gperl_convert_back_flags
-				(G_FLAGS_CLASS_TYPE (pflags->flags_class),
-				 pflags->default_value);
-    OUTPUT:
-	RETVAL
-
-MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::String
-
-=for position post_hierarchy
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::String
-
-=cut
-
-=for see_also Glib::ParamSpec
-=cut
-
-gchar *
-get_default_value (GParamSpec * pspec_string)
-    CODE:
-	RETVAL = G_PARAM_SPEC_STRING (pspec_string)->default_value;
-    OUTPUT:
-	RETVAL
-
-## the others are fairly uninteresting.
-##  string cset_first
-##  string cset_nth
-##  char substitutor
-##  bool null_fold_if_empty
-##  bool ensure_non_null
-
-MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Unichar
-
-=for position post_hierarchy
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Unichar
-
-=cut
-
-=for see_also Glib::ParamSpec
-=cut
-
-gunichar
-get_default_value (GParamSpec * pspec_unichar)
-    CODE:
-	RETVAL = G_PARAM_SPEC_UNICHAR (pspec_unichar)->default_value;
-    OUTPUT:
-	RETVAL
-
-##MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::ValueArray
-
-##element_spec
-##fixed_n_elements
-
-## G_TYPE_PARAM_PARAM, "Glib::Param::Param" -- no members
-## G_TYPE_PARAM_BOXED, "Glib::Param::Boxed" -- no members
-## G_TYPE_PARAM_POINTER, "Glib::Param::Pointer" -- no members
-## G_TYPE_PARAM_OBJECT, "Glib::Param::Object" -- no members
-## G_TYPE_PARAM_OVERRIDE, "Glib::Param::Override" -- no public members
-
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::GType
 
@@ -1365,3 +1184,14 @@ get_is_a_type (GParamSpec * pspec_gtype)
 	RETVAL
 
 #endif
+
+# These don't have their MODULE section since they have no or no interesting
+# members:
+## Glib::Param::Boolean
+## Glib::Param::String
+## Glib::Param::Unichar
+## Glib::Param::Param
+## Glib::Param::Boxed
+## Glib::Param::Pointer
+## Glib::Param::Object
+## Glib::Param::Override

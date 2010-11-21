@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 305;
+use Test::More tests => 311;
 
 # first register some types with which to play below.
 
@@ -149,6 +149,7 @@ $pspec = Glib::ParamSpec->boxed ('boxed', 'Boxed',
 	                         # we only know one boxed type at this point.
 	                         'Glib::Scalar', G_PARAM_READWRITE);
 pspec_common_ok ($pspec, 'Boxed', G_PARAM_READWRITE, 'Glib::Scalar');
+is ($pspec->get_default_value, undef, 'Boxed default');
 push @params, $pspec;
 
 
@@ -156,6 +157,7 @@ $pspec = Glib::ParamSpec->object ('object', 'Object',
 	                          'I object, Your Honor, that\'s pure conjecture!',
 	                          'Skeezle', G_PARAM_READWRITE);
 pspec_common_ok ($pspec, 'Object', G_PARAM_READWRITE, 'Skeezle');
+is ($pspec->get_default_value, undef, 'Object default');
 push @params, $pspec;
 
 
@@ -171,6 +173,7 @@ is ($pspec->get_blurb, '', 'Param blurb');
 ok ($pspec->get_flags == G_PARAM_READWRITE, 'Param flags');
 is ($pspec->get_value_type, 'Glib::Param::Enum', 'Param value type');
 ok (! $pspec->get_owner_type, 'Param owner type');
+is ($pspec->get_default_value, undef, 'Param default');
 push @params, $pspec;
 
 
@@ -204,6 +207,7 @@ $pspec = Glib::ParamSpec->IV ('iv', 'IV',
 	                      'This is the same as Int',
 	                      -20, 10, -5, G_PARAM_READWRITE);
 isa_ok ($pspec, 'Glib::Param::Long', 'IV is actually Long');
+is ($pspec->get_default_value, -5, 'IV default');
 push @params, $pspec;
 
 
@@ -211,6 +215,7 @@ $pspec = Glib::ParamSpec->UV ('uv', 'UV',
 	                      'This is the same as UInt',
 	                      10, 20, 15, G_PARAM_READWRITE);
 isa_ok ($pspec, 'Glib::Param::ULong', 'UV is actually ULong');
+is ($pspec->get_default_value, 15, 'UV default');
 push @params, $pspec;
 
 
@@ -219,6 +224,7 @@ $pspec = Glib::ParamSpec->scalar ('scalar', 'Scalar',
 	                          G_PARAM_READWRITE);
 isa_ok ($pspec, 'Glib::Param::Boxed', 'Scalar is actually Boxed');
 is ($pspec->get_value_type, 'Glib::Scalar', 'boxed holding scalar');
+is ($pspec->get_default_value, undef, 'Scalar default');
 push @params, $pspec;
 
 
