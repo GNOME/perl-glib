@@ -824,23 +824,22 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Char
 
 =for object Glib::Param::Int - Paramspecs for integer types
 
+=for position post_hierarchy
+
+  Glib::ParamSpec
+  +----Glib::Param::Char
+
+  Glib::ParamSpec
+  +----Glib::Param::Long
+
+=cut
+
 =head1 DESCRIPTION
 
 This page documents the extra accessors available for all of the integer type
 paramspecs: Char, Int, and Long.  Perl really only supports full-size integers,
 so all of these methods return IVs; the distinction of integer size is
 important to the underlying C library and also determines the data value range.
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Char
-
-  Glib::ParamSpec
-  +----Glib::Param::Int
-
-  Glib::ParamSpec
-  +----Glib::Param::Long
 
 =cut
 
@@ -898,6 +897,16 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UChar
 
 =for object Glib::Param::UInt
 
+=for position post_hierarchy
+
+  Glib::ParamSpec
+  +----Glib::Param::UChar
+
+  Glib::ParamSpec
+  +----Glib::Param::ULong
+
+=cut
+
 =head1 DESCRIPTION
 
 This page documents the extra accessors available for all of the unsigned
@@ -905,17 +914,6 @@ integer type paramspecs: UChar, UInt, and ULong.  Perl really only supports
 full-size integers, so all of these methods return UVs; the distinction of
 integer size is important to the underlying C library and also determines the
 data value range.
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::UChar
-
-  Glib::ParamSpec
-  +----Glib::Param::UInt
-
-  Glib::ParamSpec
-  +----Glib::Param::ULong
 
 =cut
 
@@ -977,11 +975,6 @@ type paramspecs.  On 32 bit machines and even on some 64 bit machines, perl
 really only supports 32 bit integers, so all of these methods convert the
 values to and from Perl strings if necessary.
 
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Int64
-
 =cut
 
 gint64
@@ -1009,11 +1002,6 @@ integer type paramspecs.  On 32 bit machines and even on some 64 bit machines,
 perl really only supports 32 bit integers, so all of these methods convert the
 values to and from Perl strings if necessary.
 
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::UInt64
-
 =cut
 
 guint64
@@ -1036,6 +1024,13 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Float
 
 =for object Glib::Param::Double
 
+=for position post_hierarchy
+
+  Glib::ParamSpec
+  +----Glib::Param::Float
+
+=cut
+
 =head1 DESCRIPTION
 
 This page documents the extra accessors available for both of the
@@ -1043,14 +1038,6 @@ floating-point type paramspecs: Float and Double.  Perl really only supports
 doubles, so all of these methods return NVs (that is, the C type "double"); the
 distinction of size is important to the underlying C library and also
 determines the data value range.
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Float
-
-  Glib::ParamSpec
-  +----Glib::Param::Double
 
 =cut
 
@@ -1109,15 +1096,6 @@ get_epsilon (GParamSpec * pspec)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Enum
 
-=for position post_hierarchy
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Enum
-
-=cut
-
 =for see_also Glib::ParamSpec
 =cut
 
@@ -1131,15 +1109,6 @@ get_enum_class (GParamSpec * pspec_enum)
 	RETVAL
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Flags
-
-=for position post_hierarchy
-
-=head1 HIERARCHY
-
-  Glib::ParamSpec
-  +----Glib::Param::Flags
-
-=cut
 
 =for see_also Glib::ParamSpec
 =cut
