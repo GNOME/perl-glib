@@ -1539,67 +1539,6 @@ add_interfaces (GType instance_type, AV * interfaces)
 }
 
 
-/* set value to the default value of the given pspec, if the pspec supports
- * default values.
- */
-static void
-get_default_property_value (GValue * value,
-                            GParamSpec * pspec)
-{
-	/* 
-	 * not all pspec types support a default value, and user code can
-	 * add pspec types; thus, glib does not provide a unified way to
-	 * get a default value for a param.  also, the default value member
-	 * may be at different offsets in the various param spec structs,
-	 * so to do this in pure C we'd have to create a whole slew of
-	 * helper functions to set the default values and put them in a
-	 * hash table (or an if-else tree -- since the type codes are dynamic,
-	 * we can't use them in a switch).  however, that would leave us with
-	 * code bloat and a maintenance problem, since we'd have to add code
-	 * for each new param type, and we'd never handle custom params.
-	 *
-	 * instead, let's use the existing infrastructure in the bindings,
-	 * and let perl's oo system do the hard work for us.  this will catch
-	 * any custom params as well (provided their default_value accessors
-	 * have been bound), at a slight cost in performance.
-	 */
-	const char * package;
-	GV * method = NULL;
-	HV * stash;
-	package = gperl_param_spec_package_from_type (G_PARAM_SPEC_TYPE (pspec));
-	if (!package)
-		croak ("Param spec type %s is not registered with GPerl",
-		       g_type_name (G_PARAM_SPEC_TYPE (pspec)));
-	stash = gv_stashpv (package, TRUE);
-	assert (stash);
-	method = gv_fetchmethod (stash, "get_default_value");
-
-	if (method) {
-		SV * sv;
-
-		dSP;
-		ENTER;
-		SAVETMPS;
-		PUSHMARK (SP);
-		PUSHs (sv_2mortal (newSVGParamSpec (pspec)));
-		PUTBACK;
-
-		call_sv ((SV *)GvCV (method), G_SCALAR);
-		SPAGAIN;
-
-		sv = POPs;
-		gperl_value_from_sv (value, sv);
-
-		PUTBACK;
-		FREETMPS;
-		LEAVE;
-
-	} else {
-		/* no method, so no way to fetch a default value.
-		 * do nothing. */
-	}
-}
-
 static void
 gperl_type_get_property (GObject * object,
 		 guint property_id,
@@ -1663,7 +1602,7 @@ gperl_type_get_property (GObject * object,
 		else {
 			/* no value in the wrapper hash.  get the pspec's
 			 * default, if it has one. */
-			get_default_property_value (value, pspec);
+			g_param_value_set_default (pspec, value);
 		}
 	}
 }

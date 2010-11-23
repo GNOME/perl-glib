@@ -5,7 +5,7 @@
 use strict;
 use utf8;
 use Glib ':constants';
-use Test::More tests => 311;
+use Test::More tests => 312;
 
 # first register some types with which to play below.
 
@@ -241,6 +241,21 @@ Glib::Type->register (
 
 foreach (@params) {
 	is ($_->get_owner_type, 'Bar', ref($_)." owner type after adding");
+}
+
+{
+  my $object = Bar->new;
+
+  # exercise default GET_PROPERTY fetching pspec default value
+  foreach my $pspec (@params) {
+    if ($pspec->get_flags & 'readable') {
+      my $pname = $pspec->get_name;
+      $object->get($pname);
+    }
+  }
+
+  is ($object->get_property('unichar'), ord('ö'),
+      'get_property() unichar default value (unicode code point number)');
 }
 
 
