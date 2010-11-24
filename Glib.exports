@@ -24,7 +24,10 @@ SvGKeyFile
 SvGParamFlags
 SvGParamSpec
 SvGSignalFlags
+_gperl_attach_mg
 _gperl_call_XS
+_gperl_find_mg
+_gperl_remove_mg
 gperl_alloc_temp
 gperl_argv_free
 gperl_argv_new

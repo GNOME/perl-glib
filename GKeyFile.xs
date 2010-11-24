@@ -65,7 +65,7 @@ newSVGKeyFile (GKeyFile * key_file)
 	HV * stash;
 
 	/* tie the key_file to our hash using some magic */
-	sv_magic ((SV*) key, 0, PERL_MAGIC_ext, (const char *) key_file, 0);
+	_gperl_attach_mg ((SV*) key, key_file);
 
 	/* wrap it, bless it, ship it. */
 	sv = newRV_noinc ((SV*) key);
@@ -80,7 +80,7 @@ GKeyFile *
 SvGKeyFile (SV * sv)
 {
 	MAGIC * mg;
-	if (! sv || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+	if (!sv || !SvROK (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
 	return (GKeyFile *) mg->mg_ptr;
 }

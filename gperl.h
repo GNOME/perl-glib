@@ -198,6 +198,10 @@ GObject * gperl_get_object_check (SV * sv, GType gtype);
 
 SV * gperl_object_check_type (SV * sv, GType gtype);
 
+void _gperl_attach_mg (SV * sv, void * ptr);
+MAGIC * _gperl_find_mg (SV * sv);
+void _gperl_remove_mg (SV * sv);
+
 /* typedefs and macros for use with the typemap */
 typedef gchar gchar_length;
 typedef gchar gchar_own;

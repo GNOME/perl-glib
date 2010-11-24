@@ -154,7 +154,7 @@ newSVGParamSpec (GParamSpec * pspec)
 	g_param_spec_sink (pspec);
 
 	property = newHV ();
-	sv_magic ((SV*)property, 0, PERL_MAGIC_ext, (const char*)pspec, 0);
+	_gperl_attach_mg ((SV*)property, pspec);
 
 
 	/* for hysterical raisins (backward compatibility with the old
@@ -202,7 +202,7 @@ GParamSpec *
 SvGParamSpec (SV * sv)
 {
 	MAGIC * mg;
-	if (!sv || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+	if (!sv || !SvROK (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
 	return (GParamSpec*) mg->mg_ptr;
 }

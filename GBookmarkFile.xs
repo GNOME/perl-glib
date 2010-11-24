@@ -28,7 +28,7 @@ newSVGBookmarkFile (GBookmarkFile * bookmark_file)
 	HV * stash;
 
 	/* tie the key_file to our hash using some magic */
-	sv_magic ((SV *) bookmark, 0, PERL_MAGIC_ext, (const char *) bookmark_file, 0);
+	_gperl_attach_mg ((SV *) bookmark, bookmark_file);
 
 	/* wrap it, bless it, ship it. */
 	sv = newRV_noinc ((SV *) bookmark);
@@ -43,7 +43,7 @@ GBookmarkFile *
 SvGBookmarkFile (SV * sv)
 {
 	MAGIC * mg;
-	if (!sv || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+	if (!sv || !SvROK (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
 	return (GBookmarkFile *) mg->mg_ptr;
 }

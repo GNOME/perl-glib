@@ -96,6 +96,76 @@ G_LOCK_DEFINE_STATIC (nowarn_by_type);
 G_LOCK_DEFINE_STATIC (sink_funcs);
 
 
+static MGVTBL gperl_mg_vtbl;
+
+/*
+ * Attach a C<ptr> to the given C<sv>. It can be retrieved later using
+ * C<_gperl_find_mg> and removed again using C<_gperl_remove_mg>.
+ */
+
+void
+_gperl_attach_mg (SV * sv, void * ptr)
+{
+	sv_magicext (sv, NULL, PERL_MAGIC_ext, &gperl_mg_vtbl,
+		     (const char *)ptr, 0);
+}
+
+/*
+ * Retrieve the magic used to attach a pointer to the given C<sv> using
+ * C<_gperl_attach_mg>. The C<mg_ptr> member of the returned struct will contain
+ * the actual pointer attached to the scalar.
+ */
+
+MAGIC *
+_gperl_find_mg (SV * sv)
+{
+	MAGIC *mg;
+
+	if (SvTYPE (sv) < SVt_PVMG)
+		return NULL;
+
+	for (mg = SvMAGIC (sv); mg; mg = mg->mg_moremagic) {
+		if (mg->mg_type == PERL_MAGIC_ext
+		    && mg->mg_virtual == &gperl_mg_vtbl) {
+			assert (mg->mg_ptr);
+			return mg;
+		}
+	}
+
+	return NULL;
+}
+
+/*
+ * Remove the association between a pointer attached to C<sv> using
+ * C<_gperl_attach_mg> and the C<sv>.
+ */
+
+void
+_gperl_remove_mg (SV * sv)
+{
+	MAGIC *mg, *prevmagic = NULL, *moremagic = NULL;
+
+	if (SvTYPE (sv) < SVt_PVMG || !SvMAGIC (sv))
+		return;
+
+	for (mg = SvMAGIC (sv); mg; prevmagic = mg, mg = moremagic) {
+		moremagic = mg->mg_moremagic;
+
+		if (mg->mg_type == PERL_MAGIC_ext
+		    && mg->mg_virtual == &gperl_mg_vtbl)
+			break;
+	}
+
+	if (prevmagic) {
+		prevmagic->mg_moremagic = moremagic;
+	} else {
+		SvMAGIC_set (sv, moremagic);
+	}
+
+	mg->mg_moremagic = NULL;
+	Safefree (mg);
+}
+
 static ClassInfo *
 class_info_new (GType gtype,
 		const char * package)
@@ -705,7 +775,7 @@ gobject_destroy_wrapper (SV *obj)
               SvREFCNT ((SV*)REVIVE_UNDEAD(obj)));
 #endif
         obj = REVIVE_UNDEAD(obj);
-        sv_unmagic (obj, PERL_MAGIC_ext);
+        _gperl_remove_mg (obj);
 
         /* we might want to optimize away the call to DESTROY here for non-perl classes. */
         SvREFCNT_dec (obj);
@@ -801,7 +871,7 @@ gperl_new_object (GObject * object,
                 /* this increases the combined object's refcount. */
                 obj = (SV *)newHV ();
                 /* attach magic */
-                sv_magic (obj, 0, PERL_MAGIC_ext, (const char *)object, 0);
+                _gperl_attach_mg (obj, object);
 
                 /* The SV has a ref to the C object.  If we are to own this
                  * object, then any other references will be taken care of
@@ -874,6 +944,7 @@ gperl_new_object (GObject * object,
 }
 
 
+
 =item GObject * gperl_get_object (SV * sv)
 
 retrieve the GObject pointer from a Perl object.  Returns NULL if I<sv> is not
@@ -889,8 +960,10 @@ gperl_get_object (SV * sv)
 {
 	MAGIC *mg;
 
-	if (!gperl_sv_is_defined (sv) || !SvROK (sv) || !(mg = mg_find (SvRV (sv), PERL_MAGIC_ext)))
+	if (!gperl_sv_is_defined (sv) || !SvROK (sv)
+	    || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
+
 	return (GObject *) mg->mg_ptr;
 }
 
@@ -916,9 +989,9 @@ gperl_get_object_check (SV * sv,
 		croak ("%s is not of type %s",
 		       gperl_format_variable_for_output (sv),
 		       package);
-	if (!mg_find (SvRV (sv), PERL_MAGIC_ext))
+	if (!_gperl_find_mg (SvRV (sv)))
 		croak ("%s is not a proper Glib::Object "
-		       "(it doesn't contain magic)",
+		       "(it doesn't contain the right magic)",
 		       gperl_format_variable_for_output (sv));
 
 	return gperl_get_object (sv);
@@ -1139,7 +1212,7 @@ DESTROY (SV *sv)
 	if (PL_in_clean_objs) {
                 /* be careful during global destruction. basically,
                  * don't bother, since refcounting is no longer meaningful. */
-                sv_unmagic (SvRV (sv), PERL_MAGIC_ext);
+                _gperl_remove_mg (SvRV (sv));
 
                 g_object_steal_qdata (object, wrapper_quark);
         } else {
