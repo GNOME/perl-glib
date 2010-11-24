@@ -179,6 +179,14 @@ a property changes, like redraw or resize a widget.  Eg.
      }
    }
 
+Care must be taken with boxed non-reference-counted types such as
+C<Gtk2::Gdk::Color>.  In C<SET_PROPERTY> the C<$newval> is generally good
+only for the duration of the call.  Use C<copy> or similar if keeping it
+longer (see L<Glib::Boxed>).  In C<GET_PROPERTY> the returned memory must
+last long enough to reach the caller, which generally means returning a
+field, not a newly created object (which is destroyed with the scalar
+holding it).
+
 C<GET_PROPERTY> is different from a C get_property method in that the
 perl method returns the retrieved value. For symmetry, the C<$newval>
 and C<$pspec> args on C<SET_PROPERTY> are swapped from the C usage.
