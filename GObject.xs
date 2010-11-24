@@ -980,6 +980,7 @@ GObject *
 gperl_get_object_check (SV * sv,
 			GType gtype)
 {
+	MAGIC *mg;
 	const char * package;
 	package = gperl_object_package_from_type (gtype);
 	if (!package)
@@ -989,12 +990,12 @@ gperl_get_object_check (SV * sv,
 		croak ("%s is not of type %s",
 		       gperl_format_variable_for_output (sv),
 		       package);
-	if (!_gperl_find_mg (SvRV (sv)))
+	if (!(mg = _gperl_find_mg (SvRV (sv))))
 		croak ("%s is not a proper Glib::Object "
 		       "(it doesn't contain the right magic)",
 		       gperl_format_variable_for_output (sv));
 
-	return gperl_get_object (sv);
+	return (GObject *) mg->mg_ptr;
 }
 
 
