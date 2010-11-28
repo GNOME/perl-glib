@@ -20,6 +20,7 @@
  */
 
 #include "gperl.h"
+#include "gperl-private.h" /* for _gperl_sv_from_value_internal() */
 
 /*
  * this isn't already done for us.  :-(
@@ -787,8 +788,28 @@ g_param_value_validate (GParamSpec * pspec, SV *value)
 	modify = g_param_value_validate (pspec, &v);
 	ST(0) = sv_2mortal (boolSV (modify));
 	if (GIMME_V == G_ARRAY) {
-		ST(1) = sv_2mortal (gperl_sv_from_value (&v));
-		retcount = 2;
+	    /* If unmodified then can leave ST(1) "value" alone.
+
+	       If modified then expect that g_param_value_validate() will
+	       have made a new block of memory owned by the GValue and which
+	       will be freed at the g_value_unset().  For that reason ask
+	       _gperl_sv_from_value_internal() to "copy_boxed" to grab
+	       before it's freed.
+
+	       If g_param_value_validate() says modified but doesn't
+	       in fact modify but just leaves the GValue pointing into
+	       the input ST(1) "value" then we might prefer not to
+	       copy (but instead leave ST(1) as the return).  Believe
+	       that shouldn't happen, ie. a value_validate vfunc
+	       shouldn't modify the input but rather if modifying
+	       something then it will put in new memory.  Or
+	       alternately if it doesn't modify anything then it
+	       shouldn't say modified.  (The Glib ref manual circa
+	       2.27 doesn't have much guidance on this.)  */
+
+	    retcount = 2;
+	    if (modify)
+		ST(1) = sv_2mortal (_gperl_sv_from_value_internal(&v,TRUE));
 	}
 	g_value_unset (&v);
 	XSRETURN(retcount);
