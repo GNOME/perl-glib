@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -85,6 +85,17 @@ SvGLogLevelFlags (SV * sv)
 	return gperl_convert_flags (g_log_level_flags_get_type (), sv);
 }
 
+/* for GLogFunc style, to be invoked by gperl_log_func() below */
+static GPerlCallback *
+gperl_log_callback_new (SV *log_func, SV *user_data)
+{
+	GType param_types[3];
+	param_types[0] = G_TYPE_STRING;
+	param_types[1] = g_log_level_flags_get_type ();
+	param_types[2] = G_TYPE_STRING;
+	return gperl_callback_new (log_func, user_data,
+				   3, param_types, G_TYPE_NONE);
+}
 static void
 gperl_log_func (const gchar   *log_domain,
                 GLogLevelFlags log_level,
@@ -94,6 +105,13 @@ gperl_log_func (const gchar   *log_domain,
 	gperl_callback_invoke ((GPerlCallback *) user_data, NULL,
 	                       log_domain, log_level, message);
 }
+
+#if GLIB_CHECK_VERSION (2, 6, 0)
+/* the GPerlCallback currently installed through
+   g_log_set_default_handler(), or NULL if no such */
+static GPerlCallback *gperl_log_default_handler_callback = NULL;
+G_LOCK_DEFINE_STATIC (gperl_log_default_handler_callback);
+#endif
 
 void
 gperl_log_handler (const gchar   *log_domain,
@@ -191,19 +209,19 @@ BOOT:
 
 =arg log_func (subroutine) handler function
 
+$log_func will be called as
+
+    &$log_func ($log_domain, $log_levels, $message, $user_data);
+
+where $log_domain is the name requested and $log_levels is a
+Glib::LogLevelFlags of level and flags being reported.
 =cut
 guint
 g_log_set_handler (class, gchar_ornull * log_domain, SV * log_levels, SV * log_func, SV * user_data=NULL)
     PREINIT:
 	GPerlCallback * callback;
-	GType param_types[3];
     CODE:
-	param_types[0] = G_TYPE_STRING;
-	param_types[1] = g_log_level_flags_get_type ();
-	param_types[2] = G_TYPE_STRING;
-
-	callback = gperl_callback_new (log_func, user_data,
-	                               3, param_types, G_TYPE_NONE);
+	callback = gperl_log_callback_new (log_func, user_data);
 	RETVAL = g_log_set_handler (log_domain,
 				    SvGLogLevelFlags (log_levels),
 				    gperl_log_func, callback);
@@ -223,7 +241,99 @@ g_log_remove_handler (class, gchar_ornull *log_domain, guint handler_id);
     C_ARGS:
 	log_domain, handler_id
 
-##void g_log_default_handler (const gchar *log_domain, GLogLevelFlags log_level, const gchar *message, gpointer unused_data);
+=for apidoc __function__
+=for signature Glib::Log::default_handler ($log_domain, $log_level, $message, ...)
+=for arg ... possible "userdata" argument ignored
+The arguments are the same as taken by the function for set_handler or
+set_default_handler.
+=cut
+void g_log_default_handler (const gchar *log_domain, SV *log_level, const gchar *message, ...);
+    CODE:
+	g_log_default_handler (log_domain, SvGLogLevelFlags(log_level),
+			       message, NULL);
+
+#if GLIB_CHECK_VERSION (2, 6, 0)
+
+##GLogFunc g_log_set_default_handler (GLogFunc log_func, gpointer user_data);
+=for apidoc
+=for signature prev_log_func = Glib->set_default_handler ($log_func, $user_data)
+=arg log_func (subroutine) handler function or undef
+Install log_func as the default log handler.  log_func is called for
+anything which doesn't otherwise have a handler (either
+Glib::Log->set_handler, or the L<Glib::xsapi|Glib::xsapi>
+gperl_handle_logs_for),
+
+    &$log_func ($log_domain, $log_levels, $message, $user_data)
+
+where $log_domain is a string, and $log_levels is a
+Glib::LogLevelFlags of level and flags being reported.
+
+If log_func is \&Glib::Log::default_handler or undef then Glib's
+default handler is set.
+
+The return value from C<set_default_handler> is the previous handler.
+This is \&Glib::Log::default_handler for Glib's default, otherwise a
+Perl function previously installed.  If the handler is some other
+non-Perl function then currently the return is undef, but perhaps that
+will change to some wrapped thing, except that without associated
+userdata there's very little which could be done with it (it couldn't
+be reinstalled later without its userdata).
+=cut
+SV *
+g_log_set_default_handler (class, SV * log_func, SV * user_data=NULL)
+    PREINIT:
+	GLogFunc new_func = &g_log_default_handler;
+	GLogFunc old_func;
+	GPerlCallback *new_callback = NULL;
+	GPerlCallback *old_callback;
+    CODE:
+	if (gperl_sv_is_defined (log_func)) {
+		/* check for log_func == \&Glib::Log::default_handler and
+		 * turn that into g_log_default_handler() directly, rather
+		 * than making a callback into perl and out again.  This is
+		 * mainly an optimization, but if something weird has
+		 * happened then the direct C function will be much more
+		 * likely to work.
+		 */
+		HV *st;
+		GV *gv;
+		CV *cv = sv_2cv(log_func, &st, &gv, 0);
+		if (cv && CvXSUB(cv) == XS_Glib__Log_default_handler) {
+			/* new_func already initialized to
+			 * g_log_default_handler above
+                         */
+		} else {
+			new_func = gperl_log_func;
+			new_callback = gperl_log_callback_new
+				(log_func, user_data);
+		}
+	}
+
+	G_LOCK (gperl_log_default_handler_callback);
+
+	old_func = g_log_set_default_handler (new_func, new_callback);
+	old_callback = gperl_log_default_handler_callback;
+	gperl_log_default_handler_callback = new_callback;
+
+	G_UNLOCK (gperl_log_default_handler_callback);
+
+	RETVAL = &PL_sv_undef;
+	if (old_func == g_log_default_handler) {
+		CV *cv = get_cv ("Glib::Log::default_handler", 0);
+		assert (cv);
+		RETVAL = newRV_inc ((SV*) cv);
+		SvREFCNT_inc_simple_void_NN (RETVAL);
+	} else if (old_func == gperl_log_func) {
+		RETVAL = old_callback->func;
+		SvREFCNT_inc_simple_void_NN (RETVAL);
+	}
+	if (old_callback) {
+		gperl_callback_destroy (old_callback);
+	}
+    OUTPUT:
+	RETVAL
+
+#endif
 
 # this is a little ugly, because i didn't want to export a typemap for
 # GLogLevelFlags.

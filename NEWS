@@ -1,6 +1,7 @@
 Overview of changes in the next unstable release of Glib
 ========================================================
 
+* Add Glib::Log->set_default_handler() and Glib::Log::default_handler().
 * Add Glib::ParamSpec->override() and get_redirect_target().
 * Add Glib::Param->get_default_value().
 * Support the fundamental type Glib::GType.

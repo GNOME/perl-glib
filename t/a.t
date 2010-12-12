@@ -18,7 +18,7 @@ if ($Config{archname} =~ m/^(x86_64|mipsel|mips|alpha)/
 	# and in 2.4.0 (actually 2.3.2).
 	plan skip_all => "g_log doubles messages by accident on 64-bit platforms";
 } else {
-	plan tests => 12;
+	plan tests => 30;
 }
 
 package Foo;
@@ -66,6 +66,69 @@ SKIP: {
 # i would expect this to call croak, but it actually just aborts.  :-(
 #eval { Glib->error (__PACKAGE__, 'error'); };
 
+Glib::Log::default_handler ('Test-Domain', ['info'], 'ignore this message');
+Glib::Log::default_handler ('Test-Domain', ['info'],
+                            'another message to ignore', 'userdata');
+
+SKIP: {
+  skip "new 2.6 stuff", 10
+    unless Glib->CHECK_VERSION (2,6,0);
+  Glib->log ('An-Unknown-Domain', ['info'], 'this is a test message');
+
+  is (Glib::Log->set_default_handler(undef),
+      \&Glib::Log::default_handler,
+      'default log handler: install undef, prev default');
+  Glib->log ('An-Unknown-Domain', ['info'], 'this is a test message');
+
+  is (Glib::Log->set_default_handler(\&Glib::Log::default_handler),
+      \&Glib::Log::default_handler,
+      'default log handler: install default, prev default');
+  Glib->log ('An-Unknown-Domain', ['info'], 'this is another test message');
+
+  # anon subs like $sub1 and $sub2 must refer to something like $x in the
+  # environment or they're not gc-ed immediately
+  my $x = 123;
+  my $sub1 = sub {
+    my @args = @_;
+    is (scalar @args, 3, 'sub1 arg count');
+    is ($args[0], 'An-Unknown-Domain', 'sub1 domain');
+    isa_ok ($args[1], 'Glib::LogLevelFlags', 'sub1 flags type');
+    ok ($args[1] == ['info'], 'sub1 flags value');
+    is ($args[2], 'a message', 'sub1 message');
+    return $x
+  };
+  is (Glib::Log->set_default_handler($sub1),
+      \&Glib::Log::default_handler,
+      'default log handler: install sub1, prev default');
+  Glib->log ('An-Unknown-Domain', ['info'], 'a message');
+
+  my $sub2 = sub {
+    my @args = @_;
+    is (scalar @args, 4, 'sub2 arg count');
+    is ($args[0], 'Another-Unknown-Domain', 'sub2 domain');
+    isa_ok ($args[1], 'Glib::LogLevelFlags', 'sub2 flags type');
+    ok ($args[1] == ['warning'], 'sub2 flags value');
+    is ($args[2], 'a message', 'sub2 message');
+    is ($args[3], 'some userdata', 'sub2 userdata');
+    return $x
+  };
+  is (Glib::Log->set_default_handler($sub2,'some userdata'), $sub1,
+      'default log handler: install sub2, prev sub1');
+  require Scalar::Util;
+  Scalar::Util::weaken ($sub1);
+  is ($sub1, undef,
+      'sub1 garbage collected by weakening');
+  Glib->log ('Another-Unknown-Domain', ['warning'], 'a message');
+
+  is (Glib::Log->set_default_handler(undef), $sub2,
+      'default log handler: install undef, prev sub2');
+  Glib->log ('Another-Unknown-Domain', ['info'], 'this is a test message');
+
+  is (Glib::Log->set_default_handler(undef),
+      \&Glib::Log::default_handler,
+      'default log handler: install undef, prev default');
+  Glib->log ('Another-Unknown-Domain', ['info'], 'this is yet another a test message');
+}
 
 
 # when you try to connect to a non-existant signal, you get a CRITICAL
@@ -106,7 +169,7 @@ Glib::Log->set_always_fatal ([qw/ info debug /]);
 
 __END__
 
-Copyright (C) 2003 by the gtk2-perl team (see the file AUTHORS for the
+Copyright (C) 2003, 2009 by the gtk2-perl team (see the file AUTHORS for the
 full list)
 
 This library is free software; you can redistribute it and/or modify it under
