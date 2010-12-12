@@ -128,6 +128,11 @@ SKIP: {
       \&Glib::Log::default_handler,
       'default log handler: install undef, prev default');
   Glib->log ('Another-Unknown-Domain', ['info'], 'this is yet another a test message');
+
+  # test that a custom log handler can safely call the default log handler
+  Glib::Log->set_default_handler(sub { Glib::Log::default_handler (@_); });
+  Glib->log ('Another-Unknown-Domain', ['info'], 'custom to default test');
+  Glib::Log->set_default_handler(undef);
 }
 
 
