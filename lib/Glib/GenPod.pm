@@ -395,6 +395,7 @@ our %basic_types = (
 	'Glib::Int'     => 'integer',
 	'Glib::Uint'    => 'unsigned',
 	'Glib::Double'  => 'double',
+	'Glib::Float'   => 'float',
 	'Glib::Boolean' => 'boolean',
 
 	# sometimes we can get names that are already mapped...
