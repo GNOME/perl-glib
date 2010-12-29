@@ -440,6 +440,7 @@ our %basic_types = (
 	AV       => 'arrayref',
 
 	gchar_length => 'string',
+	gchar_utf8_length => 'string',
 
 	FILE => 'file handle',
 	time_t => 'unix timestamp',

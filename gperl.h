@@ -203,7 +203,8 @@ MAGIC * _gperl_find_mg (SV * sv);
 void _gperl_remove_mg (SV * sv);
 
 /* typedefs and macros for use with the typemap */
-typedef gchar gchar_length;
+typedef gchar gchar_length; /* length in bytes */
+typedef gchar gchar_utf8_length; /* length in characters */
 typedef gchar gchar_own;
 typedef gchar gchar_ornull;
 typedef gchar gchar_own_ornull;

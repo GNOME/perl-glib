@@ -42,6 +42,8 @@ const gchar *	T_GCHAR
 gchar_own *	T_GCHAR_OWN
 gchar_length *	T_GCHAR_LEN
 const gchar_length *	T_GCHAR_LEN
+gchar_utf8_length *	T_GCHAR_UTF8_LEN
+const gchar_utf8_length *	T_GCHAR_UTF8_LEN
 gchar_ornull *	T_GCHAR_ORNULL
 gchar_own_ornull *	T_GCHAR_OWN_ORNULL
 const gchar_ornull *	T_GCHAR_ORNULL
@@ -128,6 +130,11 @@ T_GCHAR_LEN
 	sv_utf8_upgrade ($arg);
 	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
         XSauto_length_of_$var = STRLEN_length_of_$var;
+
+T_GCHAR_UTF8_LEN
+	sv_utf8_upgrade ($arg);
+	$var = ($type)SvPV ($arg, STRLEN_length_of_$var);
+        XSauto_length_of_$var = g_utf8_strlen ($var, STRLEN_length_of_$var);
 
 T_GUCHAR
 	$var = ($type)SvPV_nolen ($arg);
