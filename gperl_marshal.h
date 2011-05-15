@@ -70,7 +70,7 @@ A typical marshaller skeleton will look like this:
 =item dGPERL_CLOSURE_MARSHAL_ARGS
 
 Declare several stack variables that the various GPERL_CLOSURE_MARSHAL macros
-will need.  Does C<dSP> for you.  This must go near the top of your C
+will need.  Declares C<SV ** sp> for you.  This must go near the top of your C
 function, before any code statements.
 
 =cut
@@ -80,7 +80,7 @@ function, before any code statements.
 	int count;		\
 	SV * data;		\
 	SV * instance;		\
-	dSP;
+	SV ** sp;
 
 /*
 =item GPERL_CLOSURE_MARSHAL_INIT (closure, marshal_data)
@@ -106,6 +106,7 @@ statement also initalizes C<pc> (the perl closure object) on the stack.
 
 # define GPERL_CLOSURE_MARSHAL_INIT(closure, marshal_data)	\
 	PERL_UNUSED_VAR (marshal_data);				\
+	SPAGAIN;						\
 	pc = (GPerlClosure *) closure;
 
 #endif

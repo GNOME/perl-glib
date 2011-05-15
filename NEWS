@@ -1,3 +1,14 @@
+Overview of changes in Glib <next>
+=================================
+
+* Make signal marshalling more thread-safe.  When a signal handler is invoked
+  from a foreign thread without asoociated Perl interpreter, hand the
+  marshalling over to the main loop which in turn later wakes up the main
+  thread and lets it handle the request.  Since this approach is experimental,
+  there is debug print for now whenever it is used:
+    *** GPerl asked to invoke callback from a foreign thread;
+        handing it over to the main loop
+
 Overview of changes in Glib 1.250
 =================================
 

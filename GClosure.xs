@@ -61,6 +61,13 @@ gperl_closure_invalidate (gpointer data,
 	}
 }
 
+static void _closure_hand_to_main (GClosure * closure,
+                                   GValue * return_value,
+                                   guint n_param_values,
+                                   const GValue * param_values,
+                                   gpointer invocation_hint,
+                                   gpointer marshal_data);
+
 static void
 gperl_closure_marshal (GClosure * closure,
 		       GValue * return_value,
@@ -73,6 +80,23 @@ gperl_closure_marshal (GClosure * closure,
 	int flags;
 	guint i;
 	dGPERL_CLOSURE_MARSHAL_ARGS;
+
+	/* If the current thread doesn't have a Perl context associated with
+	 * it, then we have no choice but to hand over everything to the main
+	 * thread and let it handle marshalling.
+	 *
+	 * We cannot simply use the main thread's Perl context here because the
+	 * Perl interpreter is not thread-safe.  For the same reason, we cannot
+	 * use perl_clone to create a new Perl interpreter from the main one.
+	 */
+	if (!PERL_GET_CONTEXT) {
+		g_printerr ("*** GPerl asked to invoke callback from a foreign thread; "
+		            "handing it over to the main loop\n");
+		_closure_hand_to_main (closure, return_value,
+		                       n_param_values, param_values,
+		                       invocation_hint, marshal_data);
+		return;
+	}
 
 	GPERL_CLOSURE_MARSHAL_INIT (closure, marshal_data);
 
@@ -120,6 +144,62 @@ gperl_closure_marshal (GClosure * closure,
 	LEAVE;
 }
 
+typedef struct {
+	GClosure * closure;
+	GValue * return_value;
+	guint n_param_values;
+	const GValue * param_values;
+	gpointer invocation_hint;
+	gpointer marshal_data;
+	GCond * done_cond;
+	GMutex * done_mutex;
+} MarshallerArgs;
+
+static gboolean
+_closure_remarshal (gpointer data)
+{
+	MarshallerArgs *args = data;
+	g_mutex_lock (args->done_mutex);
+		gperl_closure_marshal (args->closure,
+		                       args->return_value,
+		                       args->n_param_values,
+		                       args->param_values,
+		                       args->invocation_hint,
+		                       args->marshal_data);
+		g_cond_signal (args->done_cond);
+	g_mutex_unlock (args->done_mutex);
+	return FALSE;
+}
+
+static void
+_closure_hand_to_main (GClosure * closure,
+                       GValue * return_value,
+                       guint n_param_values,
+                       const GValue * param_values,
+                       gpointer invocation_hint,
+                       gpointer marshal_data)
+{
+	MarshallerArgs args;
+	args.closure = closure;
+	args.return_value = return_value;
+	args.n_param_values = n_param_values;
+	args.param_values = param_values;
+	args.invocation_hint = invocation_hint;
+	args.marshal_data = marshal_data;
+
+	/* We need to wait for the other thread to finish marshalling to avoid
+	 * gperl_closure_marshal returning prematurely. */
+	args.done_cond = g_cond_new ();
+	args.done_mutex = g_mutex_new ();
+	g_mutex_lock (args.done_mutex);
+		/* FIXME: Should we use a higher priority? */
+		g_idle_add (_closure_remarshal, &args);
+		g_cond_wait (args.done_cond, args.done_mutex);
+	g_mutex_unlock (args.done_mutex);
+
+	g_cond_free (args.done_cond);
+	g_mutex_free (args.done_mutex);
+}
 
 =item GClosure * gperl_closure_new (SV * callback, SV * data, gboolean swap)
 
