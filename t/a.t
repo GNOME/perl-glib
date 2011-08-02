@@ -71,7 +71,7 @@ Glib::Log::default_handler ('Test-Domain', ['info'],
                             'another message to ignore', 'userdata');
 
 SKIP: {
-  skip "new 2.6 stuff", 10
+  skip "new 2.6 stuff", 18
     unless Glib->CHECK_VERSION (2,6,0);
   Glib->log ('An-Unknown-Domain', ['info'], 'this is a test message');
 

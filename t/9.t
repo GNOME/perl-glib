@@ -165,7 +165,7 @@ if ($^O eq 'MSWin32') {
 }
 
 if (Glib->CHECK_VERSION (2, 4, 0)) {
-	print Glib::main_depth == 0 ?
+	print Glib::main_depth() == 0 ?
 	  "ok 17\n" : "not ok 17\n";
 } else {
 	print "ok 17 # skip main_depth\n";
