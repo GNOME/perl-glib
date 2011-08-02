@@ -1,7 +1,8 @@
-Overview of changes in the next stable release of Glib
-======================================================
+Overview of changes in Glib 1.224
+=================================
 
 * Glib::ParamSpec->value_validate(): copy boxed objects if necessary.
+* Fix a test failure.
 
 Overview of changes in Glib 1.223
 =================================
