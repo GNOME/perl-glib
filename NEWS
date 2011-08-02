@@ -1,13 +1,18 @@
-Overview of changes in the next unstable release of Glib
-========================================================
+Overview of changes in Glib 1.231
+=================================
 
 * Add Glib::Log->set_default_handler() and Glib::Log::default_handler().
 * Add Glib::ParamSpec->override() and get_redirect_target().
 * Add Glib::Param->get_default_value().
+* Make Glib::ParamSpec->value_validate() copy boxed objects if necessary.
 * Support the fundamental type Glib::GType.
 * Correctly store and look up custom signal marshallers.
 * Fix fetching default values for unichar properties of custom subclasses.
 * Fix subclassing with {pspec, get, set}-style properties.
+* Allow the Glib::Object "magic" to coexist with other extensions' "magic".
+* Make Glib::GenPod create docs for child and style properties.
+* Improve the documentation in a few places.
+* Fix a few build and test failures.
 
 Overview of changes in Glib 1.230
 =================================
@@ -25,6 +30,12 @@ Overview of changes in Glib 1.230
 * Improve the documentation in a few places.
 * Add gperl_hv_take_sv, a wrapper for hv_store, to our C API.
 * Fix some build and test failures.
+
+Overview of changes in Glib 1.224
+=================================
+
+* Glib::ParamSpec->value_validate(): copy boxed objects if necessary.
+* Fix a test failure.
 
 Overview of changes in Glib 1.223
 =================================
