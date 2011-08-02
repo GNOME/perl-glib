@@ -412,12 +412,14 @@ char * gperl_format_variable_for_output (SV * sv);
 
 gboolean gperl_sv_is_defined (SV *sv);
 
+#define gperl_sv_is_ref(sv) \
+	(gperl_sv_is_defined (sv) && SvROK (sv))
 #define gperl_sv_is_array_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVAV)
+	(gperl_sv_is_ref (sv) && SvTYPE (SvRV(sv)) == SVt_PVAV)
 #define gperl_sv_is_code_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVCV)
+	(gperl_sv_is_ref (sv) && SvTYPE (SvRV(sv)) == SVt_PVCV)
 #define gperl_sv_is_hash_ref(sv) \
-	(gperl_sv_is_defined (sv) && SvROK (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
+	(gperl_sv_is_ref (sv) && SvTYPE (SvRV(sv)) == SVt_PVHV)
 
 void gperl_hv_take_sv (HV *hv, const char *key, size_t key_length, SV *sv);
 

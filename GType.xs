@@ -483,7 +483,7 @@ gint
 gperl_convert_flags (GType type,
 		     SV * val)
 {
-	if (SvROK (val) && sv_derived_from (val, "Glib::Flags"))
+	if (gperl_sv_is_ref (val) && sv_derived_from (val, "Glib::Flags"))
 		return SvIV (SvRV (val));
 	if (gperl_sv_is_array_ref (val)) {
 		AV* vals = (AV*) SvRV(val);

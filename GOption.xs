@@ -223,7 +223,7 @@ gperl_arg_info_table_destroy (GPerlArgInfoTable *table)
 static void
 handle_arg_data (GOptionEntry *entry, SV *ref, GHashTable *scalar_to_info)
 {
-	if (!SvROK (ref))
+	if (!gperl_sv_is_ref (ref))
 		croak ("encountered non-reference variable for the arg_value "
 		       "field");
 

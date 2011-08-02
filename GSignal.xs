@@ -436,8 +436,7 @@ get_gtype_or_croak (SV * object_or_class_name)
 {
 	GType gtype;
 
-	if (gperl_sv_is_defined (object_or_class_name) &&
-	    SvROK (object_or_class_name)) {
+	if (gperl_sv_is_ref (object_or_class_name)) {
 		GObject * object = SvGObject (object_or_class_name);
 		if (!object)
 			croak ("bad object in signal_query");

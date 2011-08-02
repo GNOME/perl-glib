@@ -66,6 +66,7 @@ t/signal_emission_hooks.t
 t/signal_marshal.t
 t/signal_query.t
 t/tied_definedness.t
+t/tied_flags.t
 t/tied_set_property.t
 TODO
 typemap

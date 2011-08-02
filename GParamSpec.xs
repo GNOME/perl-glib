@@ -203,7 +203,7 @@ GParamSpec *
 SvGParamSpec (SV * sv)
 {
 	MAGIC * mg;
-	if (!sv || !SvROK (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
+	if (!gperl_sv_is_ref (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
 	return (GParamSpec*) mg->mg_ptr;
 }

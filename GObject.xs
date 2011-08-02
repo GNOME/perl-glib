@@ -960,8 +960,7 @@ gperl_get_object (SV * sv)
 {
 	MAGIC *mg;
 
-	if (!gperl_sv_is_defined (sv) || !SvROK (sv)
-	    || !(mg = _gperl_find_mg (SvRV (sv))))
+	if (!gperl_sv_is_ref (sv) || !(mg = _gperl_find_mg (SvRV (sv))))
 		return NULL;
 
 	return (GObject *) mg->mg_ptr;
@@ -986,7 +985,7 @@ gperl_get_object_check (SV * sv,
 	if (!package)
 		croak ("INTERNAL: GType %s (%d) is not registered with GPerl!",
 		       g_type_name (gtype), gtype);
-	if (!sv || !SvROK (sv) || !sv_derived_from (sv, package))
+	if (!gperl_sv_is_ref (sv) || !sv_derived_from (sv, package))
 		croak ("%s is not of type %s",
 		       gperl_format_variable_for_output (sv),
 		       package);
@@ -1501,8 +1500,7 @@ g_object_find_property (object_or_class_name, ...)
 	GType type = G_TYPE_INVALID;
 	gchar *name = NULL;
     PPCODE:
-	if (gperl_sv_is_defined (object_or_class_name) &&
-	    SvROK (object_or_class_name)) {
+	if (gperl_sv_is_ref (object_or_class_name)) {
 		GObject * object = SvGObject (object_or_class_name);
 		if (!object)
 			croak ("wha?  NULL object in list_properties");

@@ -150,7 +150,7 @@ T_G_TYPE_IO_CONDITION
 	$var = gperl_convert_flags (G_TYPE_IO_CONDITION, $arg);
 
 T_G_MAIN_CONTEXT
-	if (!gperl_sv_is_defined ($arg) || !SvROK ($arg)) {
+	if (!gperl_sv_is_ref ($arg)) {
 		$var = NULL;
 	} else {
 		$var = INT2PTR ($type, SvIV (SvRV ($arg)));
