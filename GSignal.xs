@@ -657,10 +657,12 @@ g_signal_query (SV * object_or_class_name, const char * name)
 			croak ("couldn't ref type %s", g_type_name (itype));
 	}
 	signal_id = g_signal_lookup (name, itype);
-	if (0 == signal_id)
-		XSRETURN_UNDEF;
-	g_signal_query (signal_id, &query);
-	RETVAL = newSVGSignalQuery (&query);
+	if (0 == signal_id) {
+		RETVAL = &PL_sv_undef;
+	} else {
+		g_signal_query (signal_id, &query);
+		RETVAL = newSVGSignalQuery (&query);
+	}
 	if (oclass)
 		g_type_class_unref (oclass);
     OUTPUT:
