@@ -925,6 +925,64 @@ gperl_new_object (GObject * object,
 	      gperl_object_package_from_type (G_OBJECT_TYPE (object)),
 	      SvRV (sv), SvREFCNT (SvRV (sv)));
 #endif
+
+	/*
+	 * special handling for objects that have a floating ref.  there are
+	 * three types of these objects that we can encounter:
+	 *
+	 * A: GInitiallyUnowned descendant, wrapped manually such that always
+	 *    own=1, with a custom sink func; prototype: Gtk2::Object
+	 * B: GInitiallyUnowned descendant, wrapped via introspection
+	 *    (i.e. always own=0 and no custom sink func); prototype:
+	 *    Gtk3::Object
+	 * C: GInitiallyUnowned descendant, wrapped manually, no special own
+	 *    handling, no custom sink func; prototype: ?
+	 *
+	 * then, with the code below, we have the following tables of changes
+	 * to object->ref_count:
+	 *
+	 *     A        own=1       own=0
+	 * floating=1    ±0        does not
+	 * floating=0    +1         happen
+	 *
+	 *     B        own=1       own=0
+	 * floating=1  does not      ±0
+	 * floating=0   happen       +1
+	 *
+	 *     C        own=1       own=0
+	 * floating=1    ±0          ±0
+	 * floating=0    ±0          +1
+	 *
+	 * These are the changes we want.
+	 *
+	 * There's also an alternative approach: Register a custom sink func
+	 * for GInitiallyUnowned that does ref_sink+unref, and then simply
+	 * enforce own=1 below for GInitiallyUnowned descendants.  This would
+	 * indeed be mostly equivalent to the current code, and would
+	 * conceptually be cleaner.  But I worry that their might be some weird
+	 * class out there that does not descend from GInitiallyUnowned to get
+	 * floating ref behavior but instead uses gobject's floating refs
+	 * manually, via g_object_force_floating.
+	 */
+#if GLIB_CHECK_VERSION (2, 10, 0)
+	if (g_object_is_floating (object)) {
+		/* clear the floating flag. */
+		g_object_ref_sink (object);
+		/* always assume ownership, irregardless of the ownership
+		 * setting that was passed in.  this is somewhat of a hack for
+		 * gobject-introspection: it always sets transfer=none for
+		 * GInitiallyUnowned descendants.  but Gtk2 effectively does
+		 * exactly the same thing for Gtk2::Object by always passing
+		 * own=1. */
+		g_object_unref (object);
+		/* we have already taken ownership, so don't try to do it
+		 * again.  for cases A and B from above,
+		 * gperl_object_take_ownership would do nothing, so this just
+		 * saves a few cycles.  but for case C, leaving own=1 would
+		 * result in the object being finalized prematurely. */
+		own = FALSE;
+	}
+#endif
 	if (own)
 		gperl_object_take_ownership (object);
 
