@@ -387,9 +387,12 @@ void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);
  * exported to perl.  if the file has MODULE = Foo::Bar, the boot symbol
  * would be boot_Foo__Bar.
  */
+#ifndef XS_EXTERNAL
+# define XS_EXTERNAL(name) XS(name)
+#endif
 #define GPERL_CALL_BOOT(name)	\
 	{						\
-		extern XS(name);			\
+		extern XS_EXTERNAL (name);		\
 		_gperl_call_XS (aTHX_ name, cv, mark);	\
 	}
 
