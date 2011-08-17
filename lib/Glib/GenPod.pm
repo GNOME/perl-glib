@@ -533,12 +533,106 @@ sub _podify_pspecs {
 		my $type = exists $basic_types{$p->{type}}
 		      ? $basic_types{$p->{type}}
 		      : $p->{type};
-		$str .= "=item '$p->{name}' ($type : $stat)\n\n";
+		my $default = _pspec_formatted_default($p);
+		$str .= "=item '$p->{name}' ($type : default $default : $stat)\n\n";
 		$str .= "$p->{descr}\n\n" if (exists ($p->{descr}));
 	}
 	$str .= "=back\n\n";
 
 	return $nmatch ? $str : undef;
+}
+
+# return a POD string which is the default value of $pspec, nicely formatted
+sub _pspec_formatted_default {
+  my ($pspec) = @_;
+  my $default = $pspec->get_default_value;
+  if (! defined $default) {
+    return 'undef';
+  }
+  my $pname = $pspec->get_name;
+  my $type = $pspec->get_value_type;
+
+  # Crib: "eq" here because Glib::Boolean->isa('Glib::Boolean') is false,
+  # it's not an actual perl module
+  if ($type eq 'Glib::Boolean') {
+    $default = ($default ? 'true' : 'false');
+
+  } elsif ($type->isa('Glib::Flags')) {
+    $default = join ",", @$default;
+
+  } elsif ($pspec->isa('Glib::Param::Unichar')) {
+    # $default is a single-char string, show as ordinal and string.
+    # $type is only Glib::UInt, so this must be before plain UInts below.
+    # Eg. Gtk2::Entry property "invisible-char".
+    $default = ord($default) . ' ' . Data::Dumper->new([$default])
+      ->Useqq(1)->Terse(1)->Indent(0)->Dump;
+
+  } elsif ($type eq 'Glib::Double' && $default == POSIX::DBL_MAX) {
+    # Show DBL_MAX symbolically.
+    # Eg. Gtk2::Range property "fill-level" is DBL_MAX.
+    $default = "DBL_MAX";
+  } elsif ($type eq 'Glib::Double' && $default == - POSIX::DBL_MAX) {
+    $default = "-DBL_MAX";
+  } elsif ($type eq 'Glib::Float' && $default == POSIX::FLT_MAX) {
+    $default = "FLT_MAX";
+  } elsif ($type eq 'Glib::Float' && $default == - POSIX::FLT_MAX) {
+    $default = "-FLT_MAX";
+
+  } elsif ($type eq 'Glib::Double' || $type eq 'Glib::Float') {
+    # Limit the decimals shown in floats,
+    # eg. Gtk2::Menu style property "arrow-scaling" is 0.7 and comes out as
+    # 0.6999999999 if not restricted a bit
+    $default = sprintf '%.6g', $default;
+
+  } elsif ($pname =~ /keyval/
+	   && $type eq 'Glib::UInt'
+	   && eval { require Gtk2; 1 }) {
+    # Keyvals in hex the same as gdkkeysyms.h, and show the symbol if known.
+    # The pspec type of keyvals is only UInt, must guess from the property
+    # name whether a uint is in fact a keyval.
+    # eg. Gtk2::Label property "mnemonic-keyval" is 0xFFFFFF=VoidSymbol
+    my $keyname = Gtk2::Gdk->keyval_name ($default);
+    $default = sprintf '0x%02X', $default;  # two or more hex digits
+    if (defined $keyname) {
+      $default = "$default $keyname";
+    }
+
+  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MAX) {
+    # Show INT_MAX symbolically
+    # eg. Gtk2::Paned property "max-position" is INT_MAX
+    $default = "INT_MAX";
+  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MIN) {
+    $default = "INT_MAX";
+  } elsif ($type eq 'Glib::UInt' && $default == POSIX::UINT_MAX) {
+    $default = "UINT_MAX";
+
+  } else {
+    # Strings quoted for clarity, unprintables shown backslashed
+    # eg. Gtk2::UIManager property "ui" has newlines
+    # eg. Gtk2::TreeView style property "tree-line-pattern" is bytes "\001\001"
+    $default = Data::Dumper->new([$default])
+      ->Useqq(1)->Terse(1)->Indent(0)->Dump;
+  }
+
+  # Escape "<" to E<lt> etc.
+  # eg. Gtk2::UIManager property "ui" is "<ui></ui>"
+  $default = _pod_escape($default);
+
+  return $default;
+}
+
+# Return $str with characters escaped ready to appear in pod.  This means
+# non-ascii escaped to E<123> and "<" to E<lt>.  Strictly speaking "<" only
+# has to be escaped if it would be B<... etc, but it's easier to do it
+# always and might help some of the pod formatters.  $str is assumed to have
+# no non-printables (control chars etc).
+# (ENHANCE-ME: Is there a module to do char->pod like this?  Pod::Escapes is
+# the converse pod->char ...)
+sub _pod_escape {
+  my ($str) = @_;
+  $str =~ s{([^[:ascii:]])|(<)}
+	   {defined $1 ? ('E<'.ord($1).'>') : 'E<lt>'}eg;
+  return $str;
 }
 
 =item $string = podify_child_properties ($packagename)
@@ -1446,7 +1540,7 @@ mcfarland hacked this module together via irc and email over the next few days.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003-2004, 2010 by the gtk2-perl team
+Copyright (C) 2003-2004, 2010, 2011 by the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 
