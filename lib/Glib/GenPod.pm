@@ -567,15 +567,15 @@ sub _pspec_formatted_default {
     $default = ord($default) . ' ' . Data::Dumper->new([$default])
       ->Useqq(1)->Terse(1)->Indent(0)->Dump;
 
-  } elsif ($type eq 'Glib::Double' && $default == POSIX::DBL_MAX) {
+  } elsif ($type eq 'Glib::Double' && $default == POSIX::DBL_MAX()) {
     # Show DBL_MAX symbolically.
     # Eg. Gtk2::Range property "fill-level" is DBL_MAX.
     $default = "DBL_MAX";
-  } elsif ($type eq 'Glib::Double' && $default == - POSIX::DBL_MAX) {
+  } elsif ($type eq 'Glib::Double' && $default == - POSIX::DBL_MAX()) {
     $default = "-DBL_MAX";
-  } elsif ($type eq 'Glib::Float' && $default == POSIX::FLT_MAX) {
+  } elsif ($type eq 'Glib::Float' && $default == POSIX::FLT_MAX()) {
     $default = "FLT_MAX";
-  } elsif ($type eq 'Glib::Float' && $default == - POSIX::FLT_MAX) {
+  } elsif ($type eq 'Glib::Float' && $default == - POSIX::FLT_MAX()) {
     $default = "-FLT_MAX";
 
   } elsif ($type eq 'Glib::Double' || $type eq 'Glib::Float') {
@@ -597,13 +597,13 @@ sub _pspec_formatted_default {
       $default = "$default $keyname";
     }
 
-  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MAX) {
+  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MAX()) {
     # Show INT_MAX symbolically
     # eg. Gtk2::Paned property "max-position" is INT_MAX
     $default = "INT_MAX";
-  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MIN) {
+  } elsif ($type eq 'Glib::Int' && $default == POSIX::INT_MIN()) {
     $default = "INT_MAX";
-  } elsif ($type eq 'Glib::UInt' && $default == POSIX::UINT_MAX) {
+  } elsif ($type eq 'Glib::UInt' && $default == POSIX::UINT_MAX()) {
     $default = "UINT_MAX";
 
   } else {
