@@ -9,6 +9,7 @@ G.+\.c$
 Makefile$
 Makefile\.old$
 MAINTAINERS$
+MYMETA\..+$
 \.o$
 \.spec$
 \.sw.$
