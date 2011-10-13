@@ -1,3 +1,22 @@
+Overview of changes in Glib 1.240
+=================================
+
+ Since 1.22x (the previous stable series)
+ ----------------------------------------
+  * Add Glib::Param::GType support.
+  * Add Glib::Log->set_default_handler() and
+    Glib::Log::default_handler().
+  * Add Glib::ParamSpec->override() and get_redirect_target().
+  * Add Glib::Param->get_default_value().
+  * Support the fundamental type Glib::GType.
+  * Correctly handle variables with "magic" attached, like tied
+    variables.
+  * Don't copy boxed objects when passing from Perl to C.
+
+ Since 1.233
+ -----------
+  * Nada.
+
 Overview of changes in Glib 1.233
 =================================
 
