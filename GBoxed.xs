@@ -647,6 +647,55 @@ static GPerlBoxedWrapperClass strv_wrapper_class = {
 #endif
 
 
+static SV*
+gstring_wrap (GType        gtype,
+	      const char * package,
+	      gpointer     boxed,
+	      gboolean     own)
+{
+	SV * sv;
+	GString *gstr;
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
+
+	if (!boxed)
+		return &PL_sv_undef;
+
+	gstr = (GString*) boxed;
+
+	sv = newSVpv (gstr->str, gstr->len);
+
+	if (own)
+		g_string_free (gstr, TRUE);
+
+	return sv;
+}
+
+static gpointer
+gstring_unwrap (GType        gtype,
+	        const char * package,
+	        SV         * sv)
+{
+	GString *gstr = NULL;
+	PERL_UNUSED_VAR (gtype);
+	PERL_UNUSED_VAR (package);
+
+	/* pass undef */
+	if (!gperl_sv_is_defined (sv))
+		return NULL;
+
+	gstr = gperl_alloc_temp (sizeof (GString));
+	gstr->str = SvPV (sv, gstr->len);
+	gstr->allocated_len = gstr->len;
+
+	return gstr;
+}
+
+static GPerlBoxedWrapperClass gstring_wrapper_class = {
+	gstring_wrap,
+	gstring_unwrap,
+	NULL
+};
 
 MODULE = Glib::Boxed	PACKAGE = Glib::Boxed
 
@@ -654,6 +703,7 @@ BOOT:
 	gperl_register_boxed (G_TYPE_BOXED, "Glib::Boxed", NULL);
 	gperl_register_boxed (G_TYPE_STRING, "Glib::String", NULL);
 	gperl_set_isa ("Glib::String", "Glib::Boxed");
+	gperl_register_boxed (G_TYPE_GSTRING, "Glib::GString", &gstring_wrapper_class);
 #if GLIB_CHECK_VERSION (2, 4, 0)
 	gperl_register_boxed (G_TYPE_STRV, "Glib::Strv", &strv_wrapper_class);
 	/*gperl_set_isa ("Glib::Strv", "Glib::Boxed");*/
