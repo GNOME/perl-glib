@@ -322,10 +322,10 @@ g_log_set_default_handler (class, SV * log_func, SV * user_data=NULL)
 		CV *cv = get_cv ("Glib::Log::default_handler", 0);
 		assert (cv);
 		RETVAL = newRV_inc ((SV*) cv);
-		SvREFCNT_inc_simple_void_NN (RETVAL);
+		SvREFCNT_inc (RETVAL);
 	} else if (old_func == gperl_log_func) {
 		RETVAL = old_callback->func;
-		SvREFCNT_inc_simple_void_NN (RETVAL);
+		SvREFCNT_inc (RETVAL);
 	}
 	if (old_callback) {
 		gperl_callback_destroy (old_callback);
