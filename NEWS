@@ -1,3 +1,12 @@
+Overview of changes in Glib 1.241
+=================================
+
+* Register the boxed type Glib::GString, based almost completely on a patch by
+  Emmanuel Rodriguez (https://bugzilla.gnome.org/show_bug.cgi?id=663881).
+* Fix linking against perl < 5.9.4 on some platforms; Do not use
+  SvREFCNT_inc_simple_void_NN as that was introduced in perl 5.9.4, which came
+  after the 5.8.0 we require.
+
 Overview of changes in Glib 1.240
 =================================
 
