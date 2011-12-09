@@ -135,6 +135,13 @@ _gperl_find_mg (SV * sv)
 	return NULL;
 }
 
+/* copied from ppport.h, needed for older perls (< 5.8.8?) */
+#ifndef SvMAGIC_set
+#  define SvMAGIC_set(sv, val)           \
+                STMT_START { assert(SvTYPE(sv) >= SVt_PVMG); \
+                (((XPVMG*) SvANY(sv))->xmg_magic = (val)); } STMT_END
+#endif
+
 /*
  * Remove the association between a pointer attached to C<sv> using
  * C<_gperl_attach_mg> and the C<sv>.
