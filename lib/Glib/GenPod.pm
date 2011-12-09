@@ -411,7 +411,6 @@ our %basic_types = (
 	bool     => 'boolean', # C++ keyword, but provided by the perl api
 	boolean  => 'boolean',
 	int      => 'integer',
-	char     => 'integer',
 	uint     => 'unsigned',
 	float    => 'double',
 	double   => 'double',
