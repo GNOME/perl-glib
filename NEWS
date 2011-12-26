@@ -1,3 +1,12 @@
+Overview of changes in Glib 1.242
+=================================
+
+* Glib::GenPod: fix typo in default pspec values
+  (https://bugzilla.gnome.org/show_bug.cgi?id=665331)
+* Glib::GenPod: delete a duplicate key in %basic_types
+  (https://bugzilla.gnome.org/show_bug.cgi?id=665332)
+* Change the FSF's address in all GPL license notices (RT#72664)
+
 Overview of changes in Glib 1.241
 =================================
 
