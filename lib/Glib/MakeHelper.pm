@@ -228,7 +228,7 @@ There is a special Makefile variable POD_DEPENDS that should be set to the
 list of files that need to be created before the doc.pl step is run, include
 files.
 
-There is also a variable BLIB_DONE which should be used as a dependancy
+There is also a variable BLIB_DONE which should be used as a dependency
 anywhere a rule needs to be sure that a loadable and working module resides in
 the blib directory before running.
 

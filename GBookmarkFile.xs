@@ -565,8 +565,8 @@ g_bookmark_file_set_app_info (bookmark_file, uri, name, exec, count, stamp)
 
 =for apidoc __gerror__
 =signature ($exec, $count, $stamp) = $bookmark_file->get_app_info ($uri, $name)
-Gets the registration informations of $name for the bookmark for
-$uri.  See Glib::BookmarkFile::set_app_info() for more informations about
+Gets the registration information of $name for the bookmark for
+$uri.  See Glib::BookmarkFile::set_app_info() for more information about
 the returned data.
 =cut
 void

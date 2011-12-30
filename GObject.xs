@@ -1699,7 +1699,7 @@ get_pointer (object)
 =for apidoc
 =for arg all if FALSE (or omitted) tie only properties for this object's class, if TRUE tie the properties of this and all parent classes.
 
-A special method avaiable to Glib::Object derivatives, it uses perl's tie
+A special method available to Glib::Object derivatives, it uses perl's tie
 facilities to associate hash keys with the properties of the object. For
 example:
 

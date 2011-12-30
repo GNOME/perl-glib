@@ -412,7 +412,7 @@ If $key is not found, it is created.
 =for apidoc Glib::KeyFile::set_string
 =arg value (gchar*)
 Sets a string value to $key inside $group_name.  The string will be escaped if
-it containes special characters.
+it contains special characters.
 If $key is not found, it is created.
 =cut
 
