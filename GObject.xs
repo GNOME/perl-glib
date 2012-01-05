@@ -776,8 +776,11 @@ gobject_destroy_wrapper (SV *obj)
 {
 	GPERL_SET_CONTEXT;
 
-	if (PL_in_clean_objs)
-        	return;
+	/* As of perl 5.16, this function needs to run even during global
+	 * destruction (i.e. when PL_in_clean_objs is true) since we might
+	 * otherwise end up with undead HVs hanging on to garbage.  Prior to
+	 * 5.16, this did not matter, but recent versions of perl will find
+	 * these HVs and call DESTROY on them. */
 
 #ifdef NOISY
         warn ("gobject_destroy_wrapper (%p)[%d]\n", obj,
@@ -1206,10 +1209,12 @@ BOOT:
 
 void
 DESTROY (SV *sv)
+    PREINIT:
+        GObject *object;
+        gboolean was_undead;
     CODE:
-	GObject *object = gperl_get_object (sv);
-
-        if (!object) /* Happens on object destruction. */
+        object = gperl_get_object (sv);
+        if (!object) /* Happens on GObject destruction. */
                 return;
 #ifdef NOISY
         warn ("DESTROY< (%p)[%d] => %s (%p)[%d]\n",
@@ -1217,14 +1222,13 @@ DESTROY (SV *sv)
               gperl_object_package_from_type (G_OBJECT_TYPE (object)),
               sv, SvREFCNT (SvRV(sv)));
 #endif
+        was_undead = IS_UNDEAD (g_object_get_qdata (object, wrapper_quark));
         /* gobject object still exists, so take back the refcount we lend it. */
         /* this operation does NOT change the refcount of the combined object. */
-
 	if (PL_in_clean_objs) {
                 /* be careful during global destruction. basically,
                  * don't bother, since refcounting is no longer meaningful. */
                 _gperl_remove_mg (SvRV (sv));
-
                 g_object_steal_qdata (object, wrapper_quark);
         } else {
                 SvREFCNT_inc (SvRV (sv));
@@ -1256,7 +1260,17 @@ DESTROY (SV *sv)
 		G_UNLOCK (perl_gobjects);
 	}
 #endif
-        g_object_unref (object);
+        /* As of perl 5.16, even HVs that are not referenced by any SV will get
+         * their DESTROY called during global destruction.  Such HVs can occur
+         * when the GObject outlives the HV, as for GtkWindow or GdkScreen.
+         * Here in DESTROY such an HV will be in the "undead" state and will
+         * not own a reference to the GObject anymore.  Thus we need to avoid
+         * calling unref in this case.  See
+         * <https://rt.perl.org/rt3//Public/Bug/Display.html?id=36347> for the
+         * perl change. */
+        if (!was_undead) {
+                g_object_unref (object);
+        }
 #ifdef NOISY
 	warn ("DESTROY> (%p) done\n", object);
 	/*
