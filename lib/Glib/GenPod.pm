@@ -1216,7 +1216,7 @@ sub convert_type {
 	              \s*$/x;				# trailing space
 	my $ctype   = $1 || '!!';
 	if ($ctype eq '!!') {
-		warn "Glib::GenPod: Unable to parse type `$typestr´";
+		warn "Glib::GenPod: Unable to parse type '$typestr'";
 	}
 
 	# variant type
