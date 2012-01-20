@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.250
+=================================
+
+* Add a fallback implementation of SvMAGIC_set; Bugzilla bug #665266
+* Avoid a syntax error on older perls
+* Glib::Object: make ref-counting compatible with perl >= 5.16 (RT#73650)
+* Fix some typos in POD (RT#73616)
+
 Overview of changes in Glib 1.242
 =================================
 

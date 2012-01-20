@@ -610,7 +610,7 @@ hacked up and documented by muppet.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2004 by the gtk2-perl team
+Copyright 2003-2004, 2012 by the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For 
