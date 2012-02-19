@@ -505,7 +505,36 @@ gperl_signal_emission_hook (GSignalInvocationHint * ihint,
 =cut
 
 
-MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
+MODULE = Glib::Signal	PACKAGE = Glib::Signal
+
+=for position DESCRIPTION
+
+=head1 DESCRIPTION
+
+This page describes some functions related to signals in Glib.  Since most
+things you can do with signals are tied to L<Glib::Object> instances, the
+majority of the signal functions are documented there.
+
+=head2 Thread safety
+
+Some libraries, most notably GStreamer, sometimes invoke signal handlers from a
+foreign thread that has no Perl interpreter associated with it.  When this
+happens, we have no choice but to hand the marshalling over to the main loop
+which in turn later wakes up the main thread and lets it handle the request.
+We cannot invoke the signal handler from the foreign thread since the Perl
+interpreter may not be used concurrently.
+
+The downside to this approach is that the foreign thread is blocked until the
+main thread has finished executing the signal handler.  This might lead to
+deadlocks.  It might help in this case to wrap the crucial parts of the signal
+handler inside a L<Glib::Idle> callback so that the signal handler can return
+directly.
+
+=cut
+
+=for see_also Glib::Object
+
+=cut
 
 BOOT:
 	gperl_register_fundamental (g_signal_flags_get_type (),
@@ -514,6 +543,9 @@ BOOT:
 =for flags Glib::SignalFlags
 
 =cut
+
+
+MODULE = Glib::Signal	PACKAGE = Glib::Object	PREFIX = g_
 
 ##
 ##/* --- typedefs --- */

@@ -2,7 +2,7 @@ Overview of changes in Glib <next>
 =================================
 
 * Make signal marshalling more thread-safe.  When a signal handler is invoked
-  from a foreign thread without asoociated Perl interpreter, hand the
+  from a foreign thread without associated Perl interpreter, hand the
   marshalling over to the main loop which in turn later wakes up the main
   thread and lets it handle the request.  Since this approach is experimental,
   there is debug print for now whenever it is used:
