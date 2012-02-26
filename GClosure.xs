@@ -38,6 +38,7 @@ GPerlCallback, below.
 #include <gobject/gvaluecollector.h>
 
 #include "gperl_marshal.h"
+#include "gperl-private.h"
 
 
 static void
@@ -60,6 +61,13 @@ gperl_closure_invalidate (gpointer data,
 		pc->data = NULL;
 	}
 }
+
+#ifdef PERL_IMPLICIT_CONTEXT
+# define INVOKED_FROM_FOREIGN_THREAD (!PERL_GET_CONTEXT)
+#else
+# define INVOKED_FROM_FOREIGN_THREAD \
+	(_gperl_get_main_tid () != g_thread_self ())
+#endif
 
 static void _closure_hand_to_main (GClosure * closure,
                                    GValue * return_value,
@@ -89,7 +97,7 @@ gperl_closure_marshal (GClosure * closure,
 	 * Perl interpreter is not thread-safe.  For the same reason, we cannot
 	 * use perl_clone to create a new Perl interpreter from the main one.
 	 */
-	if (!PERL_GET_CONTEXT) {
+	if (INVOKED_FROM_FOREIGN_THREAD) {
 		g_printerr ("*** GPerl asked to invoke callback from a foreign thread; "
 		            "handing it over to the main loop\n");
 		_closure_hand_to_main (closure, return_value,

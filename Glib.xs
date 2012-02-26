@@ -375,6 +375,25 @@ _gperl_get_master_interp (void)
 	return gperl_master_interp;
 }
 
+#ifndef PERL_IMPLICIT_CONTEXT
+/* If perl doesn't use thread-local storage, then we store the main thread's ID
+ * at BOOT time so that GClosure.xs can later find out whether we've been
+ * called from a foreign thread. */
+static GThread *gperl_main_tid = NULL;
+
+static void
+_gperl_fetch_main_tid (void)
+{
+	gperl_main_tid = g_thread_self ();
+}
+
+GThread *
+_gperl_get_main_tid (void)
+{
+	return gperl_main_tid;
+}
+#endif
+
 MODULE = Glib		PACKAGE = Glib		PREFIX = g_
 
 BOOT:
@@ -385,6 +404,9 @@ BOOT:
 #endif
 	g_type_init ();
 	_gperl_set_master_interp (PERL_GET_INTERP);
+#ifndef PERL_IMPLICIT_CONTEXT
+	_gperl_fetch_main_tid ();
+#endif
 	/* boot all in one go.  other modules may not want to do it this
 	 * way, if they prefer instead to perform demand loading. */
 	GPERL_CALL_BOOT (boot_Glib__Utils);

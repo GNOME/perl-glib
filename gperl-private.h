@@ -27,6 +27,11 @@ PerlInterpreter *_gperl_get_master_interp (void);
 		}			 				\
 	}
 
+
+#ifndef PERL_IMPLICIT_CONTEXT
+GThread * _gperl_get_main_tid (void);
+#endif
+
 /*
  * Misc. stuff
  */
