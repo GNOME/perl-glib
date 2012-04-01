@@ -85,6 +85,23 @@ SvGSignalFlags (SV * sv)
 	return gperl_convert_flags (g_signal_flags_get_type (), sv);
 }
 
+/* GConnectFlags doesn't come with a GType either.  We don't use it in Glib
+ * directly, but Glib::Object::Introspection-based bindings might need it. */
+static GType
+gperl_connect_flags_get_type (void)
+{
+  static GType etype = 0;
+  if ( etype == 0 ) {
+    static const GFlagsValue values[] = {
+      { G_CONNECT_AFTER,   "G_CONNECT_AFTER",   "after" },
+      { G_CONNECT_SWAPPED, "G_CONNECT_SWAPPED", "swapped" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("GConnectFlags", values);
+  }
+  return etype;
+}
+
 SV *
 newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
 {
@@ -539,6 +556,8 @@ directly.
 BOOT:
 	gperl_register_fundamental (g_signal_flags_get_type (),
 	                            "Glib::SignalFlags");
+	gperl_register_fundamental (gperl_connect_flags_get_type (),
+	                            "Glib::ConnectFlags");
 
 =for flags Glib::SignalFlags
 
