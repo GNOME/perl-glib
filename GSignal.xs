@@ -54,7 +54,7 @@ this by hand.  watch for fallen cruft.
 */
 
 static GType
-g_signal_flags_get_type (void)
+gperl_signal_flags_get_type (void)
 {
   static GType etype = 0;
   if ( etype == 0 ) {
@@ -76,13 +76,13 @@ g_signal_flags_get_type (void)
 SV *
 newSVGSignalFlags (GSignalFlags flags)
 {
-	return gperl_convert_back_flags (g_signal_flags_get_type (), flags);
+	return gperl_convert_back_flags (gperl_signal_flags_get_type (), flags);
 }
 
 GSignalFlags
 SvGSignalFlags (SV * sv)
 {
-	return gperl_convert_flags (g_signal_flags_get_type (), sv);
+	return gperl_convert_flags (gperl_signal_flags_get_type (), sv);
 }
 
 /* GConnectFlags doesn't come with a GType either.  We don't use it in Glib
@@ -554,7 +554,7 @@ directly.
 =cut
 
 BOOT:
-	gperl_register_fundamental (g_signal_flags_get_type (),
+	gperl_register_fundamental (gperl_signal_flags_get_type (),
 	                            "Glib::SignalFlags");
 	gperl_register_fundamental (gperl_connect_flags_get_type (),
 	                            "Glib::ConnectFlags");
