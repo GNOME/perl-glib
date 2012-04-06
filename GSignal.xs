@@ -86,7 +86,7 @@ SvGSignalFlags (SV * sv)
 }
 
 /* GConnectFlags doesn't come with a GType either.  We don't use it in Glib
- * directly, but Glib::Object::Introspection-based bindings might need it. */
+ * directly, but other bindings might need it. */
 static GType
 gperl_connect_flags_get_type (void)
 {
