@@ -1,4 +1,4 @@
-Overview of changes in Glib <next>
+Overview of changes in Glib 1.253
 =================================
 
 * Export the constants SOURCE_CONTINUE and SOURCE_REMOVE on request.
