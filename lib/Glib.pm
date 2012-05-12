@@ -594,6 +594,8 @@ you can also get all of them with the export tag "all".
 
   TRUE
   FALSE
+  SOURCE_CONTINUE
+  SOURCE_REMOVE
   G_PRIORITY_HIGH
   G_PRIORITY_DEFAULT
   G_PRIORITY_HIGH_IDLE
