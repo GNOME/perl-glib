@@ -170,7 +170,7 @@ WriteMakefile(
     META_MERGE => {
       configure_requires => \%PREREQ_PM,
       no_index => {
-        file => [@xs_files, qw/xsapi.pod.head xsapi.pod.foot/],
+        file => [@xs_files, qw/Makefile.PL xsapi.pod.head xsapi.pod.foot/],
         package => 'MY',
       },
     },
