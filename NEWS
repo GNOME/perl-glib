@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.260 (stable)
+==========================================
+
+* Tell CPAN to ignore POD fragments in Makefile.PL
+* Document that SOURCE_CONTINUE and _REMOVE can be exported
+
 Overview of changes in Glib 1.253
 =================================
 
