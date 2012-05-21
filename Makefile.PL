@@ -1,5 +1,5 @@
-# Copyright (C) 2003-2009 by the gtk2-perl team (see the file AUTHORS for the
-# full list)
+# Copyright (C) 2003-2009, 2012 by the gtk2-perl team (see the file AUTHORS
+# for the full list)
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Library General Public License as published by the Free
@@ -178,6 +178,7 @@ WriteMakefile(
     $glib ? $glib->get_makefile_vars : (),
 );
 
+=unstable
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
