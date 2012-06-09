@@ -1,8 +1,18 @@
 Overview of changes in Glib 1.260 (stable)
 ==========================================
 
-* Tell CPAN to ignore POD fragments in Makefile.PL
-* Document that SOURCE_CONTINUE and _REMOVE can be exported
+ Since 1.24x (the previous stable series)
+ ----------------------------------------
+ * Make Glib::Object ref-counting compatible with perl >= 5.16.
+ * Make signal marshalling more thread-safe.
+ * Export the constants SOURCE_CONTINUE and SOURCE_REMOVE on request.
+ * Create and register a GType for GConnectFlags.
+ * Increase compatibility with older perls.
+
+ Since 1.253
+ -----------
+ * Tell CPAN to ignore POD fragments in Makefile.PL.
+ * Document that SOURCE_CONTINUE and _REMOVE can be exported.
 
 Overview of changes in Glib 1.253
 =================================
