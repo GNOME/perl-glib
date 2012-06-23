@@ -1403,8 +1403,8 @@ g_object_get (object, ...)
 	int i;
     CODE:
 	/* Use CODE: instead of PPCODE: so we can handle the stack ourselves in
-	 * order to avoid that xsubs called by g_object_get_property overwrite
-	 * what we put on the stack. */
+	 * order to avoid that xsubs called by g_object_get_property or
+	 * _gperl_sv_from_value_internal overwrite what we put on the stack. */
 	PERL_UNUSED_VAR (ix);
 	for (i = 1; i < items; i++) {
 		char *name = SvPV_nolen (ST (i));

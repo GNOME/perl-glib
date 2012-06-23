@@ -122,8 +122,8 @@ gperl_closure_marshal (GClosure * closure,
 
 		/* the rest of the params should be quite straightforward. */
 		for (i = 1; i < n_param_values; i++) {
-			SV * arg;
-			arg = gperl_sv_from_value ((GValue*) param_values + i);
+			SV * arg = SAVED_STACK_SV (
+				gperl_sv_from_value ((GValue*) param_values + i));
 			/* make these mortal as they go onto the stack */
 			XPUSHs (sv_2mortal (arg));
 		}
@@ -488,7 +488,7 @@ gperl_callback_invoke (GPerlCallback * callback,
 				/* this won't return */
 				croak ("%s", SvPV_nolen (errstr));
 			}
-			sv = gperl_sv_from_value (&v);
+			sv = SAVED_STACK_SV (gperl_sv_from_value (&v));
 			g_value_unset (&v);
 			if (!sv) {
 				/* this should be very rare, too. */

@@ -126,6 +126,7 @@ This assumes that n_param_values > 1.
 */
 /* note -- keep an eye on the refcounts of instance and data! */
 #define GPERL_CLOSURE_MARSHAL_PUSH_INSTANCE(param_values)	\
+	PUTBACK;						\
 	if (GPERL_CLOSURE_SWAP_DATA (pc)) {			\
 		/* swap instance and data */			\
 		data     = gperl_sv_from_value (param_values);	\
@@ -135,6 +136,7 @@ This assumes that n_param_values > 1.
 		instance = gperl_sv_from_value (param_values);	\
 		data     = SvREFCNT_inc (pc->data);		\
 	}							\
+	SPAGAIN;						\
 	if (!instance)						\
 		instance = &PL_sv_undef;			\
 	/* the instance is always the first item in @_ */	\

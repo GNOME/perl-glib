@@ -177,9 +177,13 @@ gperl_value_from_sv (GValue * value,
  * Coerce whatever is in I<value> into a perl scalar and return it.
  * If I<copy_boxed> is true, boxed values will be copied.  Values of type
  * GPERL_TYPE_SV are always copied (since that is merely a ref).
- * 
+ *
  * Croaks if the code doesn't know how to perform the conversion.
- * 
+ *
+ * Might end up calling other Perl code.  So if you use this function in XS
+ * code for a generic GType, make sure the stack pointer is set up correctly
+ * before the call, and restore it after the call.
+ *
  * =cut
  */
 SV *
@@ -303,6 +307,10 @@ _gperl_sv_from_value_internal (const GValue * value,
 Coerce whatever is in I<value> into a perl scalar and return it.
 
 Croaks if the code doesn't know how to perform the conversion.
+
+Might end up calling other Perl code.  So if you use this function in XS code
+for a generic GType, make sure the stack pointer is set up correctly before the
+call, and restore it after the call.
 
 =cut
 SV *

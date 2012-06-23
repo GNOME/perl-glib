@@ -2,6 +2,9 @@ Overview of changes in Glib <next>
 ==================================
 
 * Correctly handle the boxed type for GError.
+* Make the stack handling of some marshallers more robust, in
+  preparation for custom Glib::Boxed converters that call back into Perl
+  code.
 
 Overview of changes in Glib 1.261 (stable)
 ==========================================

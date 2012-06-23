@@ -39,4 +39,23 @@ SV * _gperl_sv_from_value_internal (const GValue * value, gboolean copy_boxed);
 
 SV * _gperl_fetch_wrapper_key (GObject * object, const char * name, gboolean create);
 
+#define SAVED_STACK_SV(expr)			\
+	({					\
+		SV *_saved_stack_sv;		\
+		PUTBACK;			\
+		_saved_stack_sv = expr;		\
+		SPAGAIN;			\
+		_saved_stack_sv;		\
+	})
+#define SAVED_STACK_PUSHs(expr)					\
+	(void) ({						\
+		SV *_saved_stack_sv = SAVED_STACK_SV (expr);	\
+		PUSHs (_saved_stack_sv);			\
+	})
+#define SAVED_STACK_XPUSHs(expr)				\
+	(void) ({						\
+		SV *_saved_stack_sv = SAVED_STACK_SV (expr);	\
+		XPUSHs (_saved_stack_sv);			\
+	})
+
 #endif /* _GPERL_PRIVATE_H_ */

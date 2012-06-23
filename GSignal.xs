@@ -28,6 +28,7 @@
 /* #define NOISY */
 
 #include "gperl.h"
+#include "gperl-private.h" /* for SAVED_STACK_SV */
 
 /*
  * here's a nice G_LOCK-like front-end to GStaticRecMutex.  we need this 
@@ -663,7 +664,7 @@ g_signal_emit (instance, name, ...)
 		g_value_init (&ret, query.return_type);
 		g_signal_emitv (params, signal_id, detail, &ret);
 		EXTEND (SP, 1);
-		PUSHs (sv_2mortal (gperl_sv_from_value (&ret)));
+		SAVED_STACK_PUSHs (sv_2mortal (gperl_sv_from_value (&ret)));
 		g_value_unset (&ret);
 	} else {
 		g_signal_emitv (params, signal_id, detail, NULL);
@@ -1112,6 +1113,6 @@ g_signal_chain_from_overridden (GObject * instance, ...)
 	g_free (instance_and_params);
 
 	if (G_TYPE_NONE != (query.return_type & ~G_SIGNAL_TYPE_STATIC_SCOPE)) {
-		XPUSHs (sv_2mortal (gperl_sv_from_value (&return_value)));
+		SAVED_STACK_XPUSHs (sv_2mortal (gperl_sv_from_value (&return_value)));
 		g_value_unset (&return_value);
 	}

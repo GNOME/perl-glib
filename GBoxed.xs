@@ -442,6 +442,10 @@ the boxed structure should be destroyed when the wrapper is destroyed
 (controlled by I<own>; if the wrapper owns the object, the wrapper is in
 charge of destroying it's data).
 
+This function might end up calling other Perl code, so if you use it in XS code
+for a generic GType, make sure the stack pointer is set up correctly before the
+call, and restore it after the call.
+
 =cut
 SV *
 gperl_new_boxed (gpointer boxed,
@@ -815,7 +819,8 @@ copy (SV * sv)
 		       g_type_name (boxed_info->gtype), boxed_info->package);
 
 	boxed = class->unwrap (boxed_info->gtype, boxed_info->package, sv);
-	
+
+	/* No PUTBACK/SPAGAIN needed here. */
 	RETVAL = class->wrap (boxed_info->gtype, boxed_info->package, 
 	                      g_boxed_copy (boxed_info->gtype, boxed), TRUE);
     OUTPUT:

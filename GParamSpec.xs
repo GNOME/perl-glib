@@ -755,6 +755,7 @@ get_default_value (GParamSpec * pspec)
 
 	} else {
 	plain_gvalue:
+	  /* No PUTBACK/SPAGAIN needed here. */
 	  RETVAL = gperl_sv_from_value (&v);
 	}
 	g_value_unset (&v);
@@ -809,6 +810,7 @@ g_param_value_validate (GParamSpec * pspec, SV *value)
 
 	    retcount = 2;
 	    if (modify)
+		/* No PUTBACK/SPAGAIN needed here. */
 		ST(1) = sv_2mortal (_gperl_sv_from_value_internal(&v,TRUE));
 	}
 	g_value_unset (&v);

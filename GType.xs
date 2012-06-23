@@ -977,7 +977,7 @@ gperl_signal_class_closure_marshal (GClosure *closure,
 		 * objects. */
 		EXTEND (SP, (int)n_param_values);
 		for (i = 0; i < n_param_values; i++)
-			PUSHs (sv_2mortal (gperl_sv_from_value
+			SAVED_STACK_PUSHs (sv_2mortal (gperl_sv_from_value
 						((GValue*) &param_values[i])));
 
 		PUTBACK;
@@ -1091,8 +1091,8 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	PUSHMARK (SP);
 
 	PUSHs (sv_2mortal (newSVGSignalInvocationHint (ihint)));
-	PUSHs (sv_2mortal (gperl_sv_from_value (return_accu)));
-	PUSHs (sv_2mortal (gperl_sv_from_value (handler_return)));
+	SAVED_STACK_PUSHs (sv_2mortal (gperl_sv_from_value (return_accu)));
+	SAVED_STACK_PUSHs (sv_2mortal (gperl_sv_from_value (handler_return)));
 
 	if (callback->data)
 		XPUSHs (callback->data);
@@ -1624,7 +1624,7 @@ gperl_type_set_property (GObject * object,
 		SAVETMPS;
 		PUSHMARK (SP);
 		PUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
-		XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
+		SAVED_STACK_XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
 		PUTBACK;
 		call_sv (setter, G_VOID|G_DISCARD);
 		SPAGAIN;
@@ -1647,7 +1647,7 @@ gperl_type_set_property (GObject * object,
 		  PUSHMARK (SP);
 		  XPUSHs (sv_2mortal (gperl_new_object (object, FALSE)));
 		  XPUSHs (sv_2mortal (newSVGParamSpec (pspec)));
-		  XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
+		  SAVED_STACK_XPUSHs (sv_2mortal (gperl_sv_from_value (value)));
 		  PUTBACK;
 
 		  call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
