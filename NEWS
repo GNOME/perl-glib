@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.261 (stable)
+==========================================
+
+* Add NEWS entries comparing 1.260 to 1.24x
+* Add the 64 bit integer converters to the linker exports
+* updated README file similar to Cairo (RT#74870)
+* Created %meta_merge which follows v2 of meta-spec
+
 Overview of changes in Glib 1.260 (stable)
 ==========================================
 
