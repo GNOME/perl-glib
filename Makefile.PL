@@ -92,6 +92,40 @@ if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.12.0')) {
 	push @xs_files, 'GBookmarkFile.xs';
 }
 
+my %meta_merge = (
+        q(meta-spec)          => {
+            version => '2',
+            url     => 'http://search.cpan.org/perldoc?CPAN::Meta::Spec',
+        },
+        author              =>
+            ['gtk2-perl Team <gtk-perl-list at gnome dot org>'
+],
+        release_status      => 'stable',
+        # valid values: https://metacpan.org/module/CPAN::Meta::Spec#license
+        license             => 'lgpl_2_1',
+        resources => {
+            license     => 'http://www.gnu.org/licenses/lgpl-2.1.html',
+            homepage    => 'http://gtk2-perl.sourceforge.net',
+            x_MailingList =>
+                'https://mail.gnome.org/mailman/listinfo/gtk-perl-list',
+            bugtracker  => {
+                    web     =>
+                    'http://rt.cpan.org/Public/Dist/Display.html?Name=Glib',
+                    mailto  => 'bug-Glib [at] rt.cpan.org',
+            },
+            repository  => {
+                    url     => 'git://git.gnome.org/perl-Glib',
+                    type    => 'git',
+                    web     => 'http://git.gnome.org/browse/perl-Glib',
+            },
+        },
+        configure_requires => \%PREREQ_PM,
+        no_index => {
+            file => [@xs_files, qw/Makefile.PL xsapi.pod.head xsapi.pod.foot/],
+            package => 'MY',
+        },
+);
+
 our %pm_files = (
      'lib/Glib.pm'                 => '$(INST_LIBDIR)/Glib.pm',
      'lib/Glib/Object/Subclass.pm' => '$(INST_LIBDIR)/Glib/Object/Subclass.pm',
@@ -158,7 +192,7 @@ our @exports;
 require 'Glib.exports';
 
 WriteMakefile(
-    NAME		=> 'Glib',
+    NAME		    => 'Glib',
     VERSION_FROM	=> 'lib/Glib.pm', # finds $VERSION
     ABSTRACT_FROM	=> 'lib/Glib.pm', # retrieve abstract from module
     PREREQ_PM		=> \%PREREQ_PM,
@@ -167,14 +201,7 @@ WriteMakefile(
     FUNCLIST		=> \@exports,
     DL_FUNCS		=> { Glib => [] },
 
-    META_MERGE => {
-      configure_requires => \%PREREQ_PM,
-      no_index => {
-        file => [@xs_files, qw/Makefile.PL xsapi.pod.head xsapi.pod.foot/],
-        package => 'MY',
-      },
-    },
-
+    META_MERGE      => \%meta_merge,
     $glib ? $glib->get_makefile_vars : (),
 );
 
