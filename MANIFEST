@@ -53,6 +53,7 @@ t/9.t
 t/a.t
 t/b.t
 t/c.t
+t/constants.t
 t/d.t
 t/e.t
 t/f.t
