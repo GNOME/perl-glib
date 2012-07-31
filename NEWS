@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.262 (stable)
+==========================================
+
+* Properly specify our dependencies.
+* Distriubte a missing test file.
+
 Overview of changes in Glib 1.261 (stable)
 ==========================================
 
