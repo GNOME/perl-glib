@@ -98,8 +98,7 @@ my %meta_merge = (
             url     => 'http://search.cpan.org/perldoc?CPAN::Meta::Spec',
         },
         author              =>
-            ['gtk2-perl Team <gtk-perl-list at gnome dot org>'
-],
+            ['gtk2-perl Team <gtk-perl-list at gnome dot org>'],
         release_status      => 'stable',
         # valid values: https://metacpan.org/module/CPAN::Meta::Spec#license
         license             => 'lgpl_2_1',
@@ -119,7 +118,11 @@ my %meta_merge = (
                     web     => 'http://git.gnome.org/browse/perl-Glib',
             },
         },
-        configure_requires => \%PREREQ_PM,
+        prereqs => {
+            configure => {
+                requires => \%PREREQ_PM,
+            },
+        },
         no_index => {
             file => [@xs_files, qw/Makefile.PL xsapi.pod.head xsapi.pod.foot/],
             package => 'MY',
