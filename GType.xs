@@ -1234,12 +1234,9 @@ parse_signal_hash (GType instance_type,
 
 
 static void
-add_signals (GType instance_type, HV * signals)
+add_signals (GType instance_type, HV * signals, AV * interfaces)
 {
-	GObjectClass *oclass;
 	HE * he;
-
-	oclass = g_type_class_ref (instance_type);
 
 	hv_iterinit (signals);
 	while (NULL != (he = hv_iternext (signals))) {
@@ -1250,9 +1247,36 @@ add_signals (GType instance_type, HV * signals)
 
 		/* the key is the signal name */
 		signal_name = hv_iterkey (he, &keylen);
-		/* if the signal is defined at this point, we're going to
-		 * override the installed closure. */
-		signal_id = g_signal_lookup (signal_name, instance_type);
+
+		/* if, at this point, the signal is already defined in the
+		 * ancestry or the interfaces we just added to instance_type,
+		 * we can only override the installed closure.  trying to
+		 * create a new signal with the same name is an error.
+		 *
+		 * unfortunately, we cannot simply use instance_type to do the
+		 * lookup because g_signal_lookup would complain about it since
+		 * it hasn't been fully loaded yet.  see
+		 * <https://bugzilla.gnome.org/show_bug.cgi?id=691096>.
+		 *
+		 * FIXME: the "if (signal_id)" check in the hash ref block
+		 * below could be removed since g_signal_newv also checks this.
+		 * consequently, this lookup code could be moved into the class
+		 * closure block below. */
+		signal_id = g_signal_lookup (signal_name,
+		                             g_type_parent (instance_type));
+		if (!signal_id && interfaces) {
+			int i;
+			for (i = 0; i <= av_len (interfaces); i++) {
+				GType interface_type;
+				SV ** svp = av_fetch (interfaces, i, FALSE);
+				if (!svp || !gperl_sv_is_defined (*svp))
+					continue;
+				interface_type = gperl_object_type_from_package (SvPV_nolen (*svp));
+				signal_id = g_signal_lookup (signal_name, interface_type);
+				if (signal_id)
+					break;
+			}
+		}
 
 		/* parse the key's value... */
 		value = hv_iterval (signals, he);
@@ -1310,8 +1334,6 @@ add_signals (GType instance_type, HV * signals)
 			       signal_name);
 		}
 	}
-
-	g_type_class_unref (oclass);
 }
 
 typedef struct {
@@ -1407,12 +1429,9 @@ prop_handler_lookup (GType instance_type,
 }
 
 static void
-add_properties (GType instance_type, AV * properties)
+add_properties (GType instance_type, GObjectClass * oclass, AV * properties)
 {
-	GObjectClass *oclass;
 	int propid;
-
-	oclass = g_type_class_ref (instance_type);
 
 	for (propid = 0; propid <= av_len (properties); propid++) {
 		SV * sv = *av_fetch (properties, propid, 1);
@@ -1452,8 +1471,6 @@ add_properties (GType instance_type, AV * properties)
 		}
 		g_object_class_install_property (oclass, propid + 1, pspec);
 	}
-
-	g_type_class_unref (oclass);
 }
 
 /*
@@ -1776,12 +1793,26 @@ gperl_type_reg_quark (void)
 	return q;
 }
 
+typedef struct {
+	GType instance_type;
+	AV *interfaces;
+	AV *properties;
+	HV *signals;
+} GPerlClassData;
+
 static void
-gperl_type_class_init (GObjectClass * class)
+gperl_type_class_init (GObjectClass * class, GPerlClassData * class_data)
 {
 	class->finalize     = gperl_type_finalize;
 	class->get_property = gperl_type_get_property;
 	class->set_property = gperl_type_set_property;
+
+	if (class_data->properties)
+		add_properties (class_data->instance_type, class,
+		                class_data->properties);
+	if (class_data->signals)
+		add_signals (class_data->instance_type,
+		             class_data->signals, class_data->interfaces);
 }
 
 static void
@@ -2152,15 +2183,18 @@ g_type_register_object (class, parent_package, new_package, ...);
     PREINIT:
 	int i;
 	GTypeInfo type_info;
+	GPerlClassData class_data;
 	GTypeQuery query;
 	GType parent_type, new_type;
 	char * new_type_name;
     CODE:
 	/* start with a clean slate */
 	memset (&type_info, 0, sizeof (GTypeInfo));
+	memset (&class_data, 0, sizeof (GPerlClassData));
 	type_info.base_init = (GBaseInitFunc) gperl_type_base_init;
 	type_info.class_init = (GClassInitFunc) gperl_type_class_init;
 	type_info.instance_init = (GInstanceInitFunc) gperl_type_instance_init;
+	type_info.class_data = &class_data;
 
 	/* yeah, i could just call gperl_object_type_from_package directly,
 	 * but i want the error messages to be more informative. */
@@ -2196,28 +2230,42 @@ g_type_register_object (class, parent_package, new_package, ...);
 	/* mark this type as "one of ours". */
 	g_type_set_qdata (new_type, gperl_type_reg_quark (), (gpointer) TRUE);
 
-	/* now look for things we should initialize presently, e.g.
-	 * signals and properties and interfaces and such, things that
-	 * would generally go into a class_init. */
+	/* put it into the class data so that add_signals and add_properties
+	 * can use it. */
+	class_data.instance_type = new_type;
+
+	/* now look for things we should initialize, e.g. signals and
+	 * properties and interfaces.  put the corresponding data into the
+	 * class_data struct.  the interfaces will be handled directly further
+	 * below, while the properties and signals will be handled in the
+	 * class_init function so that they have access to the class instance.
+	 * this mimics the way things are supposed to be done in C: register
+	 * interfaces in the get_type function, and register properties and
+	 * signals in the class_init function. */
 	for (i = 3 ; i < items ; i += 2) {
 		char * key = SvPV_nolen (ST (i));
 		if (strEQ (key, "signals")) {
 			if (gperl_sv_is_hash_ref (ST (i+1)))
-				add_signals (new_type, (HV*)SvRV (ST (i+1)));
+				class_data.signals = (HV*)SvRV (ST (i+1));
 			else
 				croak ("signals must be a hash of signalname => signalspec pairs");
 		} else if (strEQ (key, "properties")) {
 			if (gperl_sv_is_array_ref (ST (i+1)))
-				add_properties (new_type, (AV*)SvRV (ST (i+1)));
+				class_data.properties = (AV*)SvRV (ST (i+1));
 			else
 				croak ("properties must be an array of GParamSpecs");
 		} else if (strEQ (key, "interfaces")) {
 			if (gperl_sv_is_array_ref (ST (i+1)))
-				add_interfaces (new_type, (AV*)SvRV (ST (i+1)));
+				class_data.interfaces = (AV*)SvRV (ST (i+1));
 			else
 				croak ("interfaces must be an array of package names");
 		}
 	}
+
+	/* add the interfaces to the type now before we create its class and
+	 * enter the class_init function. */
+	if (class_data.interfaces)
+		add_interfaces (new_type, class_data.interfaces);
 
 	/* instantiate the class right now.  perl doesn't let classes go
 	 * away once they've been defined, so we'll just leak this ref and
