@@ -76,6 +76,7 @@ gperl_param_spec_type_from_package
 gperl_prepend_isa
 gperl_register_boxed
 gperl_register_boxed_alias
+gperl_register_boxed_synonym
 gperl_register_error_domain
 gperl_register_fundamental
 gperl_register_fundamental_alias

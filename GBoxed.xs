@@ -117,7 +117,7 @@ struct _BoxedInfo {
 };
 
 
-BoxedInfo *
+static BoxedInfo *
 boxed_info_new (GType gtype,
 		const char * package,
 		GPerlBoxedWrapperClass * wrapper_class)
@@ -130,7 +130,16 @@ boxed_info_new (GType gtype,
 	return boxed_info;
 }
 
-void
+static BoxedInfo *
+boxed_info_copy (BoxedInfo * boxed_info)
+{
+	BoxedInfo * new_boxed_info;
+	new_boxed_info = g_new0 (BoxedInfo, 1);
+	memcpy (new_boxed_info, boxed_info, sizeof (BoxedInfo));
+	return new_boxed_info;
+}
+
+static void
 boxed_info_destroy (BoxedInfo * boxed_info)
 {
 	if (boxed_info) {
@@ -255,6 +264,42 @@ gperl_register_boxed_alias (GType gtype,
 	   free-function installed, so that's ok. */
 	g_hash_table_insert (info_by_package, (char *) package, boxed_info);
 	G_UNLOCK (info_by_package);
+}
+
+=item void gperl_register_boxed_synonym (GType registered_gtype, GType synonym_gtype)
+
+Registers I<synonym_gtype> as a synonym for I<registered_gtype>.  All boxed
+objects of type I<synonym_gtype> will then be treated as if they were of type
+I<registered_gtype>, and I<gperl_boxed_package_from_type> will return the
+package associated with I<registered_gtype>.
+
+I<registered_gtype> must have been registered with I<gperl_register_boxed>
+already.
+
+=cut
+
+void
+gperl_register_boxed_synonym (GType registered_gtype,
+                              GType synonym_gtype)
+{
+	BoxedInfo * registered_boxed_info, * synonym_boxed_info;
+
+	G_LOCK (info_by_gtype);
+
+	registered_boxed_info = (BoxedInfo *)
+		g_hash_table_lookup (info_by_gtype, (gpointer) registered_gtype);
+
+	if (!registered_boxed_info) {
+		croak ("cannot make %s synonymous to the unregistered type %s",
+		       g_type_name (synonym_gtype),
+		       g_type_name (registered_gtype));
+	}
+
+	synonym_boxed_info = boxed_info_copy (registered_boxed_info);
+	g_hash_table_insert (info_by_gtype, (gpointer) synonym_gtype,
+	                     synonym_boxed_info);
+
+	G_UNLOCK (info_by_gtype);
 }
 
 =item GType gperl_boxed_type_from_package (const char * package)

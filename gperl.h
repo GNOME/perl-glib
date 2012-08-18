@@ -165,6 +165,7 @@ void gperl_register_boxed (GType gtype,
 			   const char * package,
 			   GPerlBoxedWrapperClass * wrapper_class);
 void gperl_register_boxed_alias (GType gtype, const char * package);
+void gperl_register_boxed_synonym (GType registered_gtype, GType synonym_gtype);
 
 SV * gperl_new_boxed (gpointer boxed, GType gtype, gboolean own);
 SV * gperl_new_boxed_copy (gpointer boxed, GType gtype);

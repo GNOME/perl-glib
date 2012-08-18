@@ -7,6 +7,7 @@ Overview of changes in Glib <next>
 * Make the stack handling of some marshallers more robust, in
   preparation for custom Glib::Boxed converters that call back into Perl
   code.
+* Add new C API gperl_register_boxed_synonym.
 
 Overview of changes in Glib 1.261 (stable)
 ==========================================
