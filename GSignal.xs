@@ -208,6 +208,9 @@ I<instance_type>.  C<gperl_signal_connect> will look for marshallers
 registered here, and apply them to the GPerlClosure it creates for the given
 callback being connected.
 
+A canonical form of I<detailed_signal> will be used so that I<marshaller> is
+applied for all possible spellings of the signal name.
+
 Use the helper macros in gperl_marshal.h to help write your marshaller
 function.  That header, which is installed with the Glib module but not
 #included through gperl.h, includes commentary and examples which you
@@ -228,6 +231,15 @@ bugfixes.
 static GHashTable * marshallers_by_type = NULL;
 G_LOCK_DEFINE_STATIC (marshallers_by_type);
 
+/* gobject treats hyphens and underscores in signal names as equivalent.  We
+ * thus need to do this as well to ensure that a custom marshaller is used for
+ * all spellings of a signal name. */
+static char *
+canonicalize_signal_name (char * signal_name)
+{
+	return g_strdelimit (signal_name, "_", '-');
+}
+
 void
 gperl_signal_set_marshaller_for (GType instance_type,
                                  char * detailed_signal,
@@ -240,6 +252,7 @@ gperl_signal_set_marshaller_for (GType instance_type,
 		/* nothing to do */
 	} else {
 		GHashTable *marshallers_by_signal;
+		char *canonical_detailed_signal;
 		if (!marshallers_by_type)
 			marshallers_by_type =
 				g_hash_table_new_full (g_direct_hash,
@@ -260,14 +273,18 @@ gperl_signal_set_marshaller_for (GType instance_type,
 			                     (gpointer) instance_type,
 			                     marshallers_by_signal);
 		}
-		if (marshaller)
+		canonical_detailed_signal = canonicalize_signal_name (
+			g_strdup (detailed_signal));
+		if (marshaller) {
 			g_hash_table_insert
 					(marshallers_by_signal,
-					 g_strdup (detailed_signal),
+					 canonical_detailed_signal,
 					 marshaller);
-		else
+		} else {
 			g_hash_table_remove (marshallers_by_signal,
-			                     detailed_signal);
+			                     canonical_detailed_signal);
+			g_free (canonical_detailed_signal);
+		}
 	}
 	G_UNLOCK (marshallers_by_type);
 }
@@ -281,8 +298,14 @@ lookup_specific_marshaller (GType specific_type,
 		g_hash_table_lookup (marshallers_by_type,
 		                     (gpointer) specific_type);
 	if (marshallers_by_signal) {
-		return g_hash_table_lookup (marshallers_by_signal,
-		                            detailed_signal);
+		char *canonical_detailed_signal;
+		GClosureMarshal marshaller;
+		canonical_detailed_signal = canonicalize_signal_name (
+			g_strdup (detailed_signal));
+		marshaller = g_hash_table_lookup (marshallers_by_signal,
+		                                  canonical_detailed_signal);
+		g_free (canonical_detailed_signal);
+		return marshaller;
 	}
 	return NULL;
 }

@@ -2,6 +2,8 @@ Overview of changes in Glib <next>
 ==================================
 
 * Correctly handle the boxed type for GError.
+* Ensure that custom signal marshallers are always used irregardless of the
+  spelling used for the signal name.
 * Make the stack handling of some marshallers more robust, in
   preparation for custom Glib::Boxed converters that call back into Perl
   code.
