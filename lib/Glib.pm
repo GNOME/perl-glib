@@ -27,6 +27,8 @@ use Exporter;
 require DynaLoader;
 our @ISA = qw(DynaLoader Exporter);
 
+our $VERSION = '1.270';
+
 use constant {
 	TRUE  => 1,
 	FALSE => !1, # can't use !TRUE at this point
@@ -66,8 +68,6 @@ our %EXPORT_TAGS = (
 );
 our @EXPORT_OK = map { @$_ } values %EXPORT_TAGS;
 $EXPORT_TAGS{all} = \@EXPORT_OK;
-
-our $VERSION = '1.261';
 
 sub dl_load_flags { $^O eq 'darwin' ? 0x00 : 0x01 }
 
