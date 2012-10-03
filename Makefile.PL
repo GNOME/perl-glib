@@ -118,7 +118,7 @@ my %meta_merge = (
         },
         prereqs => {
             configure => {
-                requires => \%PREREQ_PM,
+                requires => {%PREREQ_PM}, # no direct ref for 5.14 compatibility
             },
         },
         no_index => {
