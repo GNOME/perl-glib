@@ -41,7 +41,7 @@ unless (eval "use ExtUtils::Depends '$PREREQ_PM{'ExtUtils::Depends'}';"
    WriteMakefile(
          NAME         => 'Glib',
          PREREQ_FATAL => 1,
-	 PREREQ_PM    => \%PREREQ_PM,
+         PREREQ_PM    => \%PREREQ_PM,
    );
    exit 1; # not reached
 }
@@ -55,8 +55,7 @@ mkdir 'build', 0777;
 # If the package can't be found, warn and exit with status 0 to indicate to
 # CPAN testers that their system is not supported.
 my %glibcfg;
-unless (eval { %glibcfg = ExtUtils::PkgConfig->find ("gobject-2.0 >= $build_reqs{glib}");
-	       1; })
+unless (eval { %glibcfg = ExtUtils::PkgConfig->find ("gobject-2.0 >= $build_reqs{glib}"); 1; })
 {
 	warn $@;
 	exit 0;
@@ -193,7 +192,7 @@ our @exports;
 require 'Glib.exports';
 
 WriteMakefile(
-    NAME		    => 'Glib',
+    NAME		=> 'Glib',
     VERSION_FROM	=> 'lib/Glib.pm', # finds $VERSION
     ABSTRACT_FROM	=> 'lib/Glib.pm', # retrieve abstract from module
     PREREQ_PM		=> \%PREREQ_PM,
@@ -201,12 +200,11 @@ WriteMakefile(
     MAN3PODS		=> $glib ? \%pod_files : {},
     FUNCLIST		=> \@exports,
     DL_FUNCS		=> { Glib => [] },
-
-    META_MERGE      => \%meta_merge,
+    META_MERGE		=> \%meta_merge,
     $glib ? $glib->get_makefile_vars : (),
 );
 
-#=unstable
+=unstable
 
 print <<__EOW__;
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -219,7 +217,7 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 __EOW__
 
-#=cut
+=cut
 
 =frozen
 
