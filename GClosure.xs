@@ -138,6 +138,7 @@ gperl_closure_marshal (GClosure * closure,
 	SPAGAIN;
 
 	GPERL_CLOSURE_MARSHAL_CALL (flags);
+	PERL_UNUSED_VAR (count);
 
 	if (want_return_value) {
 		gperl_value_from_sv (return_value, POPs);
