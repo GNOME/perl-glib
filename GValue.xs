@@ -60,7 +60,6 @@ gboolean
 gperl_value_from_sv (GValue * value,
 		     SV * sv)
 {
-	char* tmp;
 	GType type;
 	if (!gperl_sv_is_defined (sv))
 		return TRUE; /* use the GValue type's default */
@@ -75,13 +74,21 @@ gperl_value_from_sv (GValue * value,
     			g_value_set_object(value, gperl_get_object(sv));
 			break;
 		case G_TYPE_CHAR:
-			tmp = SvGChar (sv);
-			g_value_set_char (value, (char)(tmp ? tmp[0] : 0));
+		{
+			gchar *tmp = SvGChar (sv);
+#if GLIB_CHECK_VERSION(2, 32, 0)
+			g_value_set_schar (value, (gint8)(tmp ? tmp[0] : 0));
+#else
+			g_value_set_char (value, (gchar)(tmp ? tmp[0] : 0));
+#endif
 			break;
+		}
 		case G_TYPE_UCHAR:
-			tmp = SvPV_nolen (sv);
+		{
+			char *tmp = SvPV_nolen (sv);
 			g_value_set_uchar (value, (guchar)(tmp ? tmp[0] : 0));
 			break;
+		}
 		case G_TYPE_BOOLEAN:
 			/* undef is also false. */
 			g_value_set_boolean (value, SvTRUE (sv));
@@ -199,7 +206,11 @@ _gperl_sv_from_value_internal (const GValue * value,
 			   this breaks and i understand what they mean. */
 			return gperl_new_object (g_value_get_object (value), FALSE);
 		case G_TYPE_CHAR:
+#if GLIB_CHECK_VERSION(2, 32, 0)
+			return newSViv (g_value_get_schar (value));
+#else
 			return newSViv (g_value_get_char (value));
+#endif
 
 		case G_TYPE_UCHAR:
 			return newSVuv (g_value_get_uchar (value));
