@@ -223,16 +223,18 @@ do that.  Especially watch out for other classes in your ISA tree.
 *new = \&Glib::Object::new;
 
 sub import {
+   shift;  # $self
+
    # we seem to be imported by classes using classes which use us.
    # ignore anything that doesn't look like a registration attempt.
-   return unless @_ > 1;
+   return unless @_;
 
-   my ($self, $superclass, %arg) = @_;
+   my $superclass = shift;
    my $class = caller;
 
    Glib::Type->register_object(
       $superclass, $class,
-      %arg,
+      @_,
    );
 
    # ensure that we have a perlish new().  the old version of this
