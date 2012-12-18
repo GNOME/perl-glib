@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005, 2009 by the gtk2-perl team (see the file AUTHORS for
+ * Copyright (C) 2003-2005, 2009, 2012 by the gtk2-perl team (see the file AUTHORS for
  * the full list)
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -256,7 +256,7 @@ void g_log_default_handler (const gchar *log_domain, SV *log_level, const gchar 
 
 ##GLogFunc g_log_set_default_handler (GLogFunc log_func, gpointer user_data);
 =for apidoc
-=for signature prev_log_func = Glib->set_default_handler ($log_func, $user_data)
+=for signature prev_log_func = Glib::Log->set_default_handler ($log_func, $user_data)
 =arg log_func (subroutine) handler function or undef
 Install log_func as the default log handler.  log_func is called for
 anything which doesn't otherwise have a handler (either
