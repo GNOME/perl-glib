@@ -4,6 +4,8 @@ Overview of changes in Glib <next> (unstable)
 * Make Glib::Object subclassing more robust.  This should in particular fix
   issues revealed by the change to hash randomization introduced in perl
   5.17.6.
+* Correctly handle utf8-encoded strings in GPerlArgv.  This should fix issues
+  seen with utf8-encoded strings in @ARGV with, for example, Gtk2->init.
 
 Overview of changes in Glib 1.280 (stable)
 ==========================================

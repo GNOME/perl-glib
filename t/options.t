@@ -9,7 +9,7 @@ use Glib qw(TRUE FALSE);
 unless (Glib -> CHECK_VERSION (2, 6, 0)) {
   plan skip_all => 'the option stuff is new in 2.6';
 } else {
-  plan tests => 29;
+  plan tests => 33;
 }
 
 # --------------------------------------------------------------------------- #
@@ -153,6 +153,18 @@ my $entries = [
     is ($filename, '~/Foo');
     is_deeply ($string_array, [qw/aaa bbb/]);
     is_deeply ($filename_array, [qw(/usr/bin/bla ./harness)]);
+  }
+
+  # Test that there is no double-encoding for utf8-encoded strings.
+  {
+    @ARGV = qw(-s ❤ ❤);
+    $context -> parse();
+
+    is ($string, '❤');
+    is (length $string, 1);
+
+    is ($ARGV[0], '❤');
+    is (length $ARGV[0], 1);
   }
 }
 
