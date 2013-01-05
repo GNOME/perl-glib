@@ -405,7 +405,7 @@ guint    gperl_str_hash (gconstpointer key);
 typedef struct {
   int argc;
   char **argv;
-  char **shadow;
+  void *priv;
 } GPerlArgv;
 
 GPerlArgv * gperl_argv_new ();
