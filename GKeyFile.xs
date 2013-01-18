@@ -262,7 +262,7 @@ g_key_file_load_from_data_dirs (key_file, file, flags)
 	GKeyFileFlags flags
     PREINIT:
     	GError *err = NULL;
-	gchar *full_path;
+	gchar *full_path = NULL;
 	gboolean retval;
     PPCODE:
     	retval = g_key_file_load_from_data_dirs (key_file,
