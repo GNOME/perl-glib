@@ -123,7 +123,7 @@ gperl_log_handler (const gchar   *log_domain,
 
 	gboolean in_recursion = (log_level & G_LOG_FLAG_RECURSION) != 0;
 	gboolean is_fatal = (log_level & G_LOG_FLAG_FATAL) != 0;
-	user_data = user_data; /* unused */
+	PERL_UNUSED_VAR (user_data);
 
 	log_level &= G_LOG_LEVEL_MASK;
 
