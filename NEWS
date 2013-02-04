@@ -1,4 +1,4 @@
-Overview of changes in Glib <next> (unstable)
+Overview of changes in Glib 1.290 (unstable)
 ============================================
 
 * Make Glib::Object subclassing more robust.  This should in particular fix

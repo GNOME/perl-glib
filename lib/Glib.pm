@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2012 by the gtk2-perl team (see the file AUTHORS for
+# Copyright (C) 2003-2013 by the gtk2-perl team (see the file AUTHORS for
 # the full list)
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -27,7 +27,7 @@ use Exporter;
 require DynaLoader;
 our @ISA = qw(DynaLoader Exporter);
 
-our $VERSION = '1.280';
+our $VERSION = '1.290';
 
 use constant {
 	TRUE  => 1,
