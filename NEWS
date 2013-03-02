@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.291 (unstable)
+============================================
+
+* Ensure timely destruction of initial wrapper of custom subclasses
+* Start changing module version numbers in all Perl modules in the
+  distribution, not just lib/Glib.pm; (Bugzilla #690464)
+
 Overview of changes in Glib 1.290 (unstable)
 ============================================
 
