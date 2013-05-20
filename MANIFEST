@@ -63,6 +63,7 @@ t/g.t
 t/h.t
 t/lazy_loader.t
 t/make_helper.t
+t/module_versions.t
 t/options.t
 t/signal_emission_hooks.t
 t/signal_marshal.t
