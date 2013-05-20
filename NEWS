@@ -1,3 +1,19 @@
+Overview of changes in Glib 1.300 (stable)
+==========================================
+
+* Stable release to coincide with the release of Perl 5.18.0
+
+ Since 1.28x (The previous stable release)
+ -----------------------------------------
+ * Ensure timely destruction of initial wrapper of custom subclasses
+ * Start changing module version numbers in all Perl modules in the
+   distribution, not just lib/Glib.pm; (Bugzilla #690464)
+ * Make Glib::Object subclassing more robust.  This should in particular fix
+   issues revealed by the change to hash randomization introduced in perl
+   5.17.6.
+ * Correctly handle utf8-encoded strings in GPerlArgv.  This should fix issues
+   seen with utf8-encoded strings in @ARGV with, for example, Gtk2->init.
+
 Overview of changes in Glib 1.291 (unstable)
 ============================================
 
