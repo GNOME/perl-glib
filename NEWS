@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.301 (stable)
+==========================================
+
+* t/options.t: skip tests in non-UTF-8 locales; fixes RT#83490
+
 Overview of changes in Glib 1.300 (stable)
 ==========================================
 
