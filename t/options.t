@@ -156,7 +156,22 @@ my $entries = [
   }
 
   # Test that there is no double-encoding for utf8-encoded strings.
-  {
+SKIP:  {
+    my $codeset;
+    # This eval() was taken from <https://metacpan.org/module/I18N::Langinfo>
+    # and from a suggestion from Kevin Ryde
+    eval {
+        require I18N::Langinfo;
+        $codeset = I18N::Langinfo::langinfo(I18N::Langinfo::CODESET());
+    };
+    # If there was an error requiring I18N::Langinfo, then skip this block of
+    # tests; we need I18N::Langinfo to check LC_ALL/LANG
+    skip("Can't check LC_ALL/LANG, I18N::Langinfo unavailable; $@", 4)
+        if ( length($@) > 0 );
+    # If LC_ALL/LANG is not some variant of UTF-8 (8-bit, wide/multibyte
+    # characters), skip this block of tests
+    skip("Can't test parsing of wide-byte args (non-UTF-8 locale: $codeset)", 4)
+        if ( $codeset !~ /UTF-8|utf8/i );
     @ARGV = qw(-s ❤ ❤);
     $context -> parse();
 
