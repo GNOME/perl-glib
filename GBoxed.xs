@@ -136,6 +136,7 @@ boxed_info_copy (BoxedInfo * boxed_info)
 	BoxedInfo * new_boxed_info;
 	new_boxed_info = g_new0 (BoxedInfo, 1);
 	memcpy (new_boxed_info, boxed_info, sizeof (BoxedInfo));
+	new_boxed_info->package = g_strdup (boxed_info->package);
 	return new_boxed_info;
 }
 
