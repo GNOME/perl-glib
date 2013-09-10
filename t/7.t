@@ -84,23 +84,23 @@ use Glib::Object::Subclass
              flags         => 'run-last',
              return_type   => 'Glib::Scalar',
              accumulator   => sub {
-                 # the accumulator gets (ihint, return_accu, handler_return)
+                 my ($ihint, $return_accu, $handler_return) = @_;
                  # let's turn the return_accu into a list of all the handlers'
                  # return values.  this is weird, but the sort of thing you
                  # might actually want to do.
-                 print "# in accumulator, got $_[2], previously "
-		      . (defined ($_[1]) ? $_[1] : 'undef')
+                 print "# in accumulator, got $handler_return, previously "
+		      . (defined ($return_accu) ? $return_accu : 'undef')
 		      . "\n";
-                 if ('ARRAY' eq ref $_[1]) {
-                        push @{$_[1]}, $_[2];
+                 if ('ARRAY' eq ref $return_accu) {
+                        push @{$return_accu}, $handler_return;
                  } else {
-                        $_[1] = [$_[2]];
+                        $return_accu = [$handler_return];
                  }
                  # we must return two values --- a boolean that says whether
                  # the signal keeps emitting, and the accumulated return value.
                  # we'll stop emitting if the handler returns the magic 
                  # value 42.
-                 ($_[2] != 42, $_[1])
+                 ($handler_return != 42, $return_accu)
 	     },
 	  },
       },
