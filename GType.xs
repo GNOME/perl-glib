@@ -1105,9 +1105,8 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 	if (SvTRUE (ERRSV)) {
 		warn ("### WOAH!  unhandled exception in a signal accumulator!\n"
 		      "### this is really uncool, and for now i'm not even going to\n"
-		      "### try to recover.\n"
-		      "###    aborting");
-		abort ();
+		      "### try to recover.");
+		croak (Nullch);
 	}
 
 	if (n != 2) {
@@ -1119,10 +1118,9 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 		      "### your sub returned %d value%s\n"
 		      "###\n"
 		      "### there's no resonable way to recover from this.\n"
-		      "### you must fix this code.\n"
-		      "###    aborting",
+		      "### you must fix this code",
 		      n, n==1?"":"s");
-		abort ();
+		croak (Nullch);
 	}
 
 	SPAGAIN;
