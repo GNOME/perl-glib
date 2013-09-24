@@ -285,7 +285,7 @@ gperl_argv_update (GPerlArgv *pargv)
 		SV *sv;
 		const char *arg = pargv->argv[i];
 		gboolean utf8_flag = !!g_hash_table_lookup (priv->utf8_flags, arg);
-		sv = newSVpv (arg, PL_na);
+		sv = newSVpv (arg, 0);
 		if (utf8_flag)
 			SvUTF8_on (sv);
 		av_push (ARGV, sv);
