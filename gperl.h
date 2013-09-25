@@ -408,7 +408,7 @@ typedef struct {
   void *priv;
 } GPerlArgv;
 
-GPerlArgv * gperl_argv_new ();
+GPerlArgv * gperl_argv_new (void);
 void gperl_argv_update (GPerlArgv *pargv);
 void gperl_argv_free (GPerlArgv *pargv);
 
