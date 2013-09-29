@@ -1,4 +1,4 @@
-Overview of changes in Glib <next>
+Overview of changes in Glib 1.302 (stable)
 ==========================================
 
 * Avoid misusing the macro PL_na, thus preventing issues when Glib is used in
