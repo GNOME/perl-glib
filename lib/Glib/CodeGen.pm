@@ -609,8 +609,8 @@ muppet <scott at asofyet dot org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 by the gtk2-perl team (see the file AUTHORS for the
-full list)
+Copyright (C) 2003-2005, 2013 by the gtk2-perl team (see the file AUTHORS for
+the full list)
 
 This library is free software; you can redistribute it and/or modify it under
 the terms of the GNU Library General Public License as published by the Free

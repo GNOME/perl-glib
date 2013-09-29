@@ -1539,7 +1539,7 @@ mcfarland hacked this module together via irc and email over the next few days.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2003-2004, 2010-2012 by the gtk2-perl team
+Copyright (C) 2003-2004, 2010-2013 by the gtk2-perl team
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the Lesser General Public License (LGPL).  For
