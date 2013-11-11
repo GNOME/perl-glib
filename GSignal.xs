@@ -37,12 +37,19 @@
  * modifying it.
  */
 #ifdef G_THREADS_ENABLED
-# define GPERL_REC_LOCK_DEFINE_STATIC(name)	\
+# if GLIB_CHECK_VERSION (2, 32, 0)
+#  define GPERL_REC_LOCK_DEFINE_STATIC(name)    static GPERL_REC_LOCK_DEFINE (name)
+#  define GPERL_REC_LOCK_DEFINE(name)           GRecMutex G_LOCK_NAME (name)
+#  define GPERL_REC_LOCK(name)                  g_rec_mutex_lock (&G_LOCK_NAME (name))
+#  define GPERL_REC_UNLOCK(name)                g_rec_mutex_unlock (&G_LOCK_NAME (name))
+# else
+#  define GPERL_REC_LOCK_DEFINE_STATIC(name)	\
 	GStaticRecMutex G_LOCK_NAME (name) = G_STATIC_REC_MUTEX_INIT
-# define GPERL_REC_LOCK(name)	\
+#  define GPERL_REC_LOCK(name)	\
 	g_static_rec_mutex_lock (&G_LOCK_NAME (name))
-# define GPERL_REC_UNLOCK(name)	\
+#  define GPERL_REC_UNLOCK(name)	\
 	g_static_rec_mutex_unlock (&G_LOCK_NAME (name))
+# endif
 #else
 # define GPERL_REC_LOCK_DEFINE_STATIC(name) extern void glib_dummy_decl (void)
 # define GPERL_REC_LOCK(name)

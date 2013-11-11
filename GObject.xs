@@ -1123,7 +1123,8 @@ _inc_ref_and_count (GObject * key, gint value, gpointer user_data)
 {
 	PERL_UNUSED_VAR (user_data);
 	g_object_ref (key);
-	g_hash_table_replace (perl_gobjects, key, GINT_TO_POINTER (++value));
+	value += 1;
+	g_hash_table_replace (perl_gobjects, key, GINT_TO_POINTER (value));
 }
 #endif
 

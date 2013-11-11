@@ -436,12 +436,16 @@ _gperl_get_main_tid (void)
 MODULE = Glib		PACKAGE = Glib		PREFIX = g_
 
 BOOT:
-#if defined(G_THREADS_ENABLED) && !defined(GPERL_DISABLE_THREADSAFE)
+#if !GLIB_CHECK_VERSION (2, 32, 0) && defined(G_THREADS_ENABLED) && !defined(GPERL_DISABLE_THREADSAFE)
+	/* g_thread_init() is a deprecated no-op */
 	/*warn ("calling g_thread_init (NULL)");*/
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 #endif
+#if !GLIB_CHECK_VERSION (2, 36, 0)
+	/* g_type_init() is a deprecated no-op */
 	g_type_init ();
+#endif
 	_gperl_set_master_interp (PERL_GET_INTERP);
 #ifndef PERL_IMPLICIT_CONTEXT
 	_gperl_fetch_main_tid ();

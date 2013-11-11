@@ -1869,12 +1869,21 @@ gperl_type_base_init (gpointer class)
 	 * 
 	 * many thanks to Brett Kosinski for devising this evil^Wclever scheme.
 	 */
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	/* GRecMutex in static storage do not need initialization */
+	static GRecMutex base_init_lock;
+#else
 	static GStaticRecMutex base_init_lock = G_STATIC_REC_MUTEX_INIT;
+#endif /* 2.32 */
 	static GHashTable * seen = NULL;
 	GSList * types;
 	GType t;
 
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	g_rec_mutex_lock (&base_init_lock);
+#else
 	g_static_rec_mutex_lock (&base_init_lock);
+#endif /* 2.32 */
 
 	if (!seen)
 		seen = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -1938,7 +1947,11 @@ gperl_type_base_init (gpointer class)
 		}
 	}
 
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	g_rec_mutex_unlock (&base_init_lock);
+#else
 	g_static_rec_mutex_unlock (&base_init_lock);
+#endif /* 2.32 */
 }
 
 /* make sure we close the open list to keep from freaking out pod readers... */

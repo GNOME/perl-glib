@@ -189,6 +189,7 @@ _closure_hand_to_main (GClosure * closure,
                        gpointer marshal_data)
 {
 	MarshallerArgs args;
+
 	args.closure = closure;
 	args.return_value = return_value;
 	args.n_param_values = n_param_values;
@@ -198,16 +199,32 @@ _closure_hand_to_main (GClosure * closure,
 
 	/* We need to wait for the other thread to finish marshalling to avoid
 	 * gperl_closure_marshal returning prematurely. */
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	/* FIXME: we should put these on the stack, but it gets real ugly real fast */
+	args.done_cond = g_slice_new (GCond);
+	g_cond_init (args.done_cond);
+	args.done_mutex = g_slice_new (GMutex);
+	g_mutex_init (args.done_mutex);
+#else
 	args.done_cond = g_cond_new ();
 	args.done_mutex = g_mutex_new ();
+#endif /* 2.32 */
+
 	g_mutex_lock (args.done_mutex);
 		/* FIXME: Should we use a higher priority? */
 		g_idle_add (_closure_remarshal, &args);
 		g_cond_wait (args.done_cond, args.done_mutex);
 	g_mutex_unlock (args.done_mutex);
 
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	g_cond_clear (args.done_cond);
+	g_slice_free (GCond, args.done_cond);
+	g_mutex_clear (args.done_mutex);
+	g_slice_free (GMutex, args.done_mutex);
+#else
 	g_cond_free (args.done_cond);
 	g_mutex_free (args.done_mutex);
+#endif /* 2.32 */
 }
 
 =item GClosure * gperl_closure_new (SV * callback, SV * data, gboolean swap)
