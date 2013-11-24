@@ -1755,8 +1755,28 @@ gperl_type_instance_init (GObject * instance)
 	SV **slot;
 	g_assert (stash != NULL);
 
-	/* this SV will be freed below either via sv_2mortal or explicitly. */
-	obj = gperl_new_object (instance, FALSE);
+	/* we need to always create a wrapper, regardless of whether there is
+	 * an INIT_INSTANCE sub.  otherwise, the fallback mechanism in
+	 * GType.xs' SET_PROPERTY handler will not have an HV to store the
+	 * properties in.
+	 *
+	 * we also need to ensure that the wrapper we create is not immediately
+	 * destroyed when we return from gperl_type_instance_init.  otherwise,
+	 * instances of classes derived from GInitiallyUnowned might be
+	 * destroyed prematurely when code in INIT_INSTANCE manages to sink the
+	 * initial, floating reference.  example: in a container subclass'
+	 * INIT_INSTANCE, adding a child and then calling the child's
+	 * get_parent() method.  so we mortalize the wrapper before the
+	 * SAVETMPS/FREETMPS pair below.  this should ensure that the wrapper
+	 * survives long enough so that it is still intact when the call to the
+	 * Perl constructor returns.
+	 *
+	 * if we always sank floating references, or if we forbade doing things
+	 * as described in the example, we could simply free the SV before we
+	 * return from gperl_type_instance_init.  this would result in more
+	 * predictable reference counting. */
+	obj = sv_2mortal (gperl_new_object (instance, FALSE));
+
 	/* we need to re-bless the wrapper because classes change
 	 * during construction of an object. */
 	sv_bless (obj, stash);
@@ -1775,13 +1795,11 @@ gperl_type_instance_init (GObject * instance)
 		ENTER;
 		SAVETMPS;
 		PUSHMARK (SP);
-		XPUSHs (sv_2mortal (obj));	/* mortalize the SV */
+		XPUSHs (obj);
 		PUTBACK;
 		call_sv ((SV *)GvCV (*slot), G_VOID|G_DISCARD);
 		FREETMPS;
 		LEAVE;
-	} else {
-		SvREFCNT_dec (obj);		/* free the SV explicitly */
 	}
 }
 

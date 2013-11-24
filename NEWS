@@ -1,6 +1,9 @@
 Overview of changes in Glib <next>
 ==========================================
 
+* Revert the change to ref counting of initial wrappers of custom subclasses,
+  introduced in Glib 1.300.  It caused issues with subclasses inheriting from
+  Glib::InitiallyUnowned.
 * Fix a test failure with perl >= 5.19.4.
 * Create a GType for GSpawnFlags and register it with the bindings.
 
