@@ -5,7 +5,197 @@
 
 #include "gperl.h"
 
+/* --------------------------------------------------------------------------
+ * --- Enums/Flags: ---------------------------------------------------------
+ * -------------------------------------------------------------------------- */
+
+GType
+gperl_connect_flags_get_type (void)
+{
+  static GType etype = 0;
+  if ( etype == 0 ) {
+    static const GFlagsValue values[] = {
+      { G_CONNECT_AFTER,   "G_CONNECT_AFTER",   "after" },
+      { G_CONNECT_SWAPPED, "G_CONNECT_SWAPPED", "swapped" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("GConnectFlags", values);
+  }
+  return etype;
+}
+
 /* -------------------------------------------------------------------------- */
+
+#if GLIB_CHECK_VERSION (2, 6, 0)
+GType
+gperl_key_file_flags_get_type ()
+{
+  static GType type = 0;
+  if (! type) {
+    static const GFlagsValue values[] = {
+      { G_KEY_FILE_NONE,              "G_KEY_FILE_NONE",              "none" },
+      { G_KEY_FILE_KEEP_COMMENTS,     "G_KEY_FILE_KEEP_COMMENTS",     "keep-comments" },
+      { G_KEY_FILE_KEEP_TRANSLATIONS, "G_KEY_FILE_KEEP_TRANSLATIONS", "keep-translations" },
+      { 0, NULL, NULL }
+    };
+    type = g_flags_register_static ("GKeyFileFlags", values);
+  }
+  return type;
+}
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+GType
+gperl_log_level_flags_get_type (void)
+{
+  static GType etype = 0;
+  if ( etype == 0 ) {
+    static const GFlagsValue values[] = {
+      { G_LOG_FLAG_RECURSION,  "G_LOG_FLAG_RECURSION", "recursion" },
+      { G_LOG_FLAG_FATAL,      "G_LOG_FLAG_FATAL",     "fatal" },
+
+      { G_LOG_LEVEL_ERROR,     "G_LOG_LEVEL_ERROR",    "error" },
+      { G_LOG_LEVEL_CRITICAL,  "G_LOG_LEVEL_CRITICAL", "critical" },
+      { G_LOG_LEVEL_WARNING,   "G_LOG_LEVEL_WARNING",  "warning" },
+      { G_LOG_LEVEL_MESSAGE,   "G_LOG_LEVEL_MESSAGE",  "message" },
+      { G_LOG_LEVEL_INFO,      "G_LOG_LEVEL_INFO",     "info" },
+      { G_LOG_LEVEL_DEBUG,     "G_LOG_LEVEL_DEBUG",    "debug" },
+
+      { G_LOG_FATAL_MASK,      "G_LOG_FATAL_MASK",     "fatal-mask" },
+
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("GLogLevelFlags", values);
+  }
+  return etype;
+}
+
+/* -------------------------------------------------------------------------- */
+
+#if GLIB_CHECK_VERSION (2, 6, 0)
+GType
+gperl_option_arg_get_type (void)
+{
+  static GType t = 0;
+  if (t == 0) {
+    static const GEnumValue values[] = {
+      {G_OPTION_ARG_NONE,           "G_OPTION_ARG_NONE",           "none"},
+      {G_OPTION_ARG_STRING,         "G_OPTION_ARG_STRING",         "string"},
+      {G_OPTION_ARG_INT,            "G_OPTION_ARG_INT",            "int"},
+      {G_OPTION_ARG_CALLBACK,       "G_OPTION_ARG_CALLBACK",       "callback"},
+      {G_OPTION_ARG_FILENAME,       "G_OPTION_ARG_FILENAME",       "filename"},
+      {G_OPTION_ARG_STRING_ARRAY,   "G_OPTION_ARG_STRING_ARRAY",   "string-array"},
+      {G_OPTION_ARG_FILENAME_ARRAY, "G_OPTION_ARG_FILENAME_ARRAY", "filename-array"},
+#if GLIB_CHECK_VERSION (2, 12, 0)
+      {G_OPTION_ARG_DOUBLE,         "G_OPTION_ARG_DOUBLE",         "double"},
+      {G_OPTION_ARG_INT64,          "G_OPTION_ARG_INT64",          "int64"},
+#endif
+      {0, NULL, NULL}
+    };
+    t = g_enum_register_static ("GOptionArg", values);
+  }
+  return t;
+}
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#if GLIB_CHECK_VERSION (2, 6, 0)
+GType
+gperl_option_flags_get_type (void)
+{
+  static GType t = 0;
+  if (t == 0) {
+    static const GFlagsValue values[] = {
+      {G_OPTION_FLAG_HIDDEN,       "G_OPTION_FLAG_HIDDEN",       "hidden"},
+      {G_OPTION_FLAG_IN_MAIN,      "G_OPTION_FLAG_IN_MAIN",      "in-main"},
+      {G_OPTION_FLAG_REVERSE,      "G_OPTION_FLAG_REVERSE",      "reverse"},
+#if GLIB_CHECK_VERSION (2, 8, 0)
+      {G_OPTION_FLAG_NO_ARG,       "G_OPTION_FLAG_NO_ARG",       "no-arg"},
+      {G_OPTION_FLAG_FILENAME,     "G_OPTION_FLAG_FILENAME",     "filename"},
+      {G_OPTION_FLAG_OPTIONAL_ARG, "G_OPTION_FLAG_OPTIONAL_ARG", "optional-arg"},
+      {G_OPTION_FLAG_NOALIAS,      "G_OPTION_FLAG_NOALIAS",      "noalias"},
+#endif
+      {0, NULL, NULL}
+    };
+    t = g_flags_register_static ("GOptionFlags", values);
+  }
+  return t;
+}
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+/* the obvious GParamFlags is taken by GParamSpecFlags. */
+GType
+gperl_param_flags_get_type (void)
+{
+  static GType etype = 0;
+  if (etype == 0) {
+    static const GFlagsValue values[] = {
+      {G_PARAM_READABLE,       "G_PARAM_READABLE",       "readable"},
+      {G_PARAM_WRITABLE,       "G_PARAM_WRITABLE",       "writable"},
+      {G_PARAM_CONSTRUCT,      "G_PARAM_CONSTRUCT",      "construct"},
+      {G_PARAM_CONSTRUCT_ONLY, "G_PARAM_CONSTRUCT_ONLY", "construct-only"},
+      {G_PARAM_LAX_VALIDATION, "G_PARAM_LAX_VALIDATION", "lax-validation"},
+      {G_PARAM_PRIVATE,        "G_PARAM_PRIVATE",        "private"},
+      {0, NULL, NULL}
+    };
+    etype = g_flags_register_static ("GPerlParamFlags", values);
+  }
+  return etype;
+}
+
+/* -------------------------------------------------------------------------- */
+
+GType
+gperl_signal_flags_get_type (void)
+{
+  static GType etype = 0;
+  if ( etype == 0 ) {
+    static const GFlagsValue values[] = {
+      { G_SIGNAL_RUN_FIRST,    "G_SIGNAL_RUN_FIRST",   "run-first" },
+      { G_SIGNAL_RUN_LAST,     "G_SIGNAL_RUN_LAST",    "run-last" },
+      { G_SIGNAL_RUN_CLEANUP,  "G_SIGNAL_RUN_CLEANUP", "run-cleanup" },
+      { G_SIGNAL_NO_RECURSE,   "G_SIGNAL_NO_RECURSE",  "no-recurse" },
+      { G_SIGNAL_DETAILED,     "G_SIGNAL_DETAILED",    "detailed" },
+      { G_SIGNAL_ACTION,       "G_SIGNAL_ACTION",      "action" },
+      { G_SIGNAL_NO_HOOKS,     "G_SIGNAL_NO_HOOKS",    "no-hooks" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static ("GSignalFlags", values);
+  }
+  return etype;
+}
+
+/* -------------------------------------------------------------------------- */
+
+#if GLIB_CHECK_VERSION (2, 14, 0)
+GType gperl_user_directory_get_type (void)
+{
+  static GType etype = 0;
+  if (etype == 0) {
+    static const GEnumValue values[] = {
+      { G_USER_DIRECTORY_DESKTOP, "G_USER_DIRECTORY_DESKTOP", "desktop" },
+      { G_USER_DIRECTORY_DOCUMENTS, "G_USER_DIRECTORY_DOCUMENTS", "documents" },
+      { G_USER_DIRECTORY_DOWNLOAD, "G_USER_DIRECTORY_DOWNLOAD", "download" },
+      { G_USER_DIRECTORY_MUSIC, "G_USER_DIRECTORY_MUSIC", "music" },
+      { G_USER_DIRECTORY_PICTURES, "G_USER_DIRECTORY_PICTURES", "pictures" },
+      { G_USER_DIRECTORY_PUBLIC_SHARE, "G_USER_DIRECTORY_PUBLIC_SHARE", "public-share" },
+      { G_USER_DIRECTORY_TEMPLATES, "G_USER_DIRECTORY_TEMPLATES", "templates" },
+      { G_USER_DIRECTORY_VIDEOS, "G_USER_DIRECTORY_VIDEOS", "videos" },
+      { 0, NULL, NULL }
+    };
+    etype = g_enum_register_static ("GUserDirectory", values);
+  }
+  return etype;
+}
+#endif
+
+/* --------------------------------------------------------------------------
+ * --- Error values: --------------------------------------------------------
+ * -------------------------------------------------------------------------- */
 
 static const GEnumValue _gperl_convert_error_values[] = {
   { G_CONVERT_ERROR_NO_CONVERSION, "G_CONVERT_ERROR_NO_CONVERSION", "no-conversion" },
@@ -27,9 +217,6 @@ gperl_convert_error_get_type (void)
 
   return type;
 }
-
-#define GPERL_TYPE_CONVERT_ERROR gperl_convert_error_get_type()
-GType gperl_convert_error_get_type (void);
 
 /* -------------------------------------------------------------------------- */
 

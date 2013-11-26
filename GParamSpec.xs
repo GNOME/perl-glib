@@ -20,45 +20,19 @@
  */
 
 #include "gperl.h"
+#include "gperl-gtypes.h"
 #include "gperl-private.h" /* for _gperl_sv_from_value_internal() */
-
-/*
- * this isn't already done for us.  :-(
- *
- * interestingly, the obvious G_TYPE_PARAM_FLAGS is taken by the 
- * GParamSpecFlags.
- */
-
-static GType
-g_param_flags_get_type (void)
-{
-  static GType etype = 0;
-  if (etype == 0) {
-    static const GFlagsValue values[] = {
-      {G_PARAM_READABLE,       "G_PARAM_READABLE",       "readable"},
-      {G_PARAM_WRITABLE,       "G_PARAM_WRITABLE",       "writable"},
-      {G_PARAM_CONSTRUCT,      "G_PARAM_CONSTRUCT",      "construct"},
-      {G_PARAM_CONSTRUCT_ONLY, "G_PARAM_CONSTRUCT_ONLY", "construct-only"},
-      {G_PARAM_LAX_VALIDATION, "G_PARAM_LAX_VALIDATION", "lax-validation"},
-      {G_PARAM_PRIVATE,        "G_PARAM_PRIVATE",        "private"},
-      {0, NULL, NULL}
-    };
-    etype = g_flags_register_static ("GPerlParamFlags", values);
-  }
-  return etype;
-}
-
 
 SV *
 newSVGParamFlags (GParamFlags flags)
 {
-	return gperl_convert_back_flags (g_param_flags_get_type (), flags);
+	return gperl_convert_back_flags (GPERL_TYPE_PARAM_FLAGS, flags);
 }
 
 GParamFlags
 SvGParamFlags (SV * sv)
 {
-	return gperl_convert_flags (g_param_flags_get_type (), sv);
+	return gperl_convert_flags (GPERL_TYPE_PARAM_FLAGS, sv);
 }
 
 static GHashTable * param_package_by_type = NULL;
@@ -240,8 +214,7 @@ the underlying C libraries.
 =cut
 
 BOOT:
-	gperl_register_fundamental (g_param_flags_get_type (),
-	                            "Glib::ParamFlags");
+	gperl_register_fundamental (GPERL_TYPE_PARAM_FLAGS, "Glib::ParamFlags");
 	gperl_register_param_spec (G_TYPE_PARAM_CHAR, "Glib::Param::Char");
 	gperl_register_param_spec (G_TYPE_PARAM_UCHAR, "Glib::Param::UChar");
 	gperl_register_param_spec (G_TYPE_PARAM_UNICHAR, "Glib::Param::Unichar");

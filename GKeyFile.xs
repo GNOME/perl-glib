@@ -19,42 +19,18 @@
  */
 
 #include "gperl.h"
-
-#ifndef G_TYPE_KEY_FILE_FLAGS
-#define G_TYPE_KEY_FILE_FLAGS gperl_g_key_file_flags_get_type()
-static GType gperl_g_key_file_flags_get_type (void) G_GNUC_CONST;
-
-static const GFlagsValue _gperl_g_key_file_flags_values[] = {
-  { G_KEY_FILE_NONE, "G_KEY_FILE_NONE", "none" },
-  { G_KEY_FILE_KEEP_COMMENTS, "G_KEY_FILE_KEEP_COMMENTS", "keep-comments" },
-  { G_KEY_FILE_KEEP_TRANSLATIONS, "G_KEY_FILE_KEEP_TRANSLATIONS", "keep-translations" },
-  { 0, NULL, NULL }
-};
-
-static GType
-gperl_g_key_file_flags_get_type ()
-{
-  static GType type = 0;
-
-  if (! type)
-    type = g_flags_register_static ("GKeyFileFlags",
-		                    _gperl_g_key_file_flags_values);
-
-  return type;
-}
-
-#endif
+#include "gperl-gtypes.h"
 
 SV *
 newSVGKeyFileFlags (GKeyFileFlags flags)
 {
-	return gperl_convert_back_flags (G_TYPE_KEY_FILE_FLAGS, flags);
+	return gperl_convert_back_flags (GPERL_TYPE_KEY_FILE_FLAGS, flags);
 }
 
 GKeyFileFlags
 SvGKeyFileFlags (SV * sv)
 {
-	return gperl_convert_flags (G_TYPE_KEY_FILE_FLAGS, sv);
+	return gperl_convert_flags (GPERL_TYPE_KEY_FILE_FLAGS, sv);
 }
 
 SV *
@@ -133,7 +109,7 @@ key-value pairs, interspersed with comments.
 =cut
 
 BOOT:
-	gperl_register_fundamental (gperl_g_key_file_flags_get_type (),
+	gperl_register_fundamental (GPERL_TYPE_KEY_FILE_FLAGS,
 				    "Glib::KeyFileFlags");
 
 void

@@ -7,6 +7,7 @@
  */
 
 #include "gperl.h"
+#include "gperl-gtypes.h"
 
 /* ------------------------------------------------------------------------- */
 
@@ -75,30 +76,6 @@ gperl_option_group_get_type (void)
 
 /* ------------------------------------------------------------------------- */
 
-#define GPERL_TYPE_OPTION_FLAGS (g_option_flags_get_type ())
-
-static GType
-g_option_flags_get_type (void)
-{
-	static GType t = 0;
-	if (t == 0) {
-		static const GFlagsValue values[] = {
-			{G_OPTION_FLAG_HIDDEN,	     "G_OPTION_FLAG_HIDDEN",       "hidden"},
-			{G_OPTION_FLAG_IN_MAIN,	     "G_OPTION_FLAG_IN_MAIN",      "in-main"},
-			{G_OPTION_FLAG_REVERSE,	     "G_OPTION_FLAG_REVERSE",      "reverse"},
-#if GLIB_CHECK_VERSION (2, 8, 0)
-			{G_OPTION_FLAG_NO_ARG,       "G_OPTION_FLAG_NO_ARG",       "no-arg"},
-			{G_OPTION_FLAG_FILENAME,     "G_OPTION_FLAG_FILENAME",     "filename"},
-			{G_OPTION_FLAG_OPTIONAL_ARG, "G_OPTION_FLAG_OPTIONAL_ARG", "optional-arg"},
-			{G_OPTION_FLAG_NOALIAS,      "G_OPTION_FLAG_NOALIAS",      "noalias"},
-#endif
-			{0, NULL, NULL}
-		};
-		t = g_flags_register_static ("GOptionFlags", values);
-	}
-	return t;
-}
-
 #if 0
 static SV *
 newSVGOptionFlags (GOptionFlags flags)
@@ -114,33 +91,6 @@ SvGOptionFlags (SV *sv)
 }
 
 /* ------------------------------------------------------------------------- */
-
-#define GPERL_TYPE_OPTION_ARG (g_option_arg_get_type ())
-
-static GType
-g_option_arg_get_type (void)
-{
-	static GType t = 0;
-	if (t == 0) {
-		static const GEnumValue values[] = {
-			{G_OPTION_ARG_NONE,		"G_OPTION_ARG_NONE",		"none"},
-			{G_OPTION_ARG_STRING,		"G_OPTION_ARG_STRING",		"string"},
-			{G_OPTION_ARG_INT,		"G_OPTION_ARG_INT",		"int"},
-			/* Not supported:
-			{G_OPTION_ARG_CALLBACK,		"G_OPTION_ARG_CALLBACK",	"callback"}, */
-			{G_OPTION_ARG_FILENAME,		"G_OPTION_ARG_FILENAME",	"filename"},
-			{G_OPTION_ARG_STRING_ARRAY,	"G_OPTION_ARG_STRING_ARRAY",	"string-array"},
-			{G_OPTION_ARG_FILENAME_ARRAY,	"G_OPTION_ARG_FILENAME_ARRAY",	"filename-array"},
-#if GLIB_CHECK_VERSION (2, 12, 0)
-			{G_OPTION_ARG_DOUBLE,		"G_OPTION_ARG_DOUBLE",		"double"},
-			{G_OPTION_ARG_INT64,		"G_OPTION_ARG_INT64",		"int64"},
-#endif
-			{0, NULL, NULL}
-		};
-		t = g_enum_register_static ("GOptionArg", values);
-	}
-	return t;
-}
 
 #if 0
 static SV *

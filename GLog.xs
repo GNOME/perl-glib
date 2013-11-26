@@ -20,6 +20,7 @@
  */
 
 #include "gperl.h"
+#include "gperl-gtypes.h"
 #include "gperl-private.h" /* for GPERL_SET_CONTEXT */
 
 =head2 GLog
@@ -48,41 +49,16 @@ before GLib abort()s on them...]
 #define G_LOG_FATAL_MASK        (G_LOG_FLAG_RECURSION | G_LOG_LEVEL_ERROR)
 #endif
 
-GType
-g_log_level_flags_get_type (void)
-{
-  static GType etype = 0;
-  if ( etype == 0 ) {
-    static const GFlagsValue values[] = {
-      { G_LOG_FLAG_RECURSION,  "G_LOG_FLAG_RECURSION", "recursion" },
-      { G_LOG_FLAG_FATAL,      "G_LOG_FLAG_FATAL",     "fatal" },
-
-      { G_LOG_LEVEL_ERROR,     "G_LOG_LEVEL_ERROR",    "error" },
-      { G_LOG_LEVEL_CRITICAL,  "G_LOG_LEVEL_CRITICAL", "critical" },
-      { G_LOG_LEVEL_WARNING,   "G_LOG_LEVEL_WARNING",  "warning" },
-      { G_LOG_LEVEL_MESSAGE,   "G_LOG_LEVEL_MESSAGE",  "message" },
-      { G_LOG_LEVEL_INFO,      "G_LOG_LEVEL_INFO",     "info" },
-      { G_LOG_LEVEL_DEBUG,     "G_LOG_LEVEL_DEBUG",    "debug" },
-
-      { G_LOG_FATAL_MASK,      "G_LOG_FATAL_MASK",     "fatal-mask" },
-
-      { 0, NULL, NULL }
-    };
-    etype = g_flags_register_static ("GLogLevelFlags", values);
-  }
-  return etype;
-}
-
 SV *
 newSVGLogLevelFlags (GLogLevelFlags flags)
 {
-	return gperl_convert_back_flags (g_log_level_flags_get_type (), flags);
+	return gperl_convert_back_flags (GPERL_TYPE_LOG_LEVEL_FLAGS, flags);
 }
 
 GLogLevelFlags
 SvGLogLevelFlags (SV * sv)
 {
-	return gperl_convert_flags (g_log_level_flags_get_type (), sv);
+	return gperl_convert_flags (GPERL_TYPE_LOG_LEVEL_FLAGS, sv);
 }
 
 /* for GLogFunc style, to be invoked by gperl_log_func() below */
@@ -91,7 +67,7 @@ gperl_log_callback_new (SV *log_func, SV *user_data)
 {
 	GType param_types[3];
 	param_types[0] = G_TYPE_STRING;
-	param_types[1] = g_log_level_flags_get_type ();
+	param_types[1] = GPERL_TYPE_LOG_LEVEL_FLAGS;
 	param_types[2] = G_TYPE_STRING;
 	return gperl_callback_new (log_func, user_data,
 				   3, param_types, G_TYPE_NONE);
@@ -191,7 +167,7 @@ BOOT:
 	/* gperl_handle_logs_for ("main"); */
 	gperl_handle_logs_for ("GLib");
 	gperl_handle_logs_for ("GLib-GObject");
-	gperl_register_fundamental (g_log_level_flags_get_type (),
+	gperl_register_fundamental (GPERL_TYPE_LOG_LEVEL_FLAGS,
 	                            "Glib::LogLevelFlags");
 
 =for flags Glib::LogLevelFlags

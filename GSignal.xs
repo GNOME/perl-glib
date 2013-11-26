@@ -28,6 +28,7 @@
 /* #define NOISY */
 
 #include "gperl.h"
+#include "gperl-gtypes.h"
 #include "gperl-private.h" /* for SAVED_STACK_SV */
 
 /*
@@ -49,59 +50,18 @@
 #endif
 
 
-/*
-GLib doesn't include a GFlags type for GSignalFlags, so we have to do
-this by hand.  watch for fallen cruft.
-*/
-
-static GType
-gperl_signal_flags_get_type (void)
-{
-  static GType etype = 0;
-  if ( etype == 0 ) {
-    static const GFlagsValue values[] = {
-      { G_SIGNAL_RUN_FIRST,    "G_SIGNAL_RUN_FIRST",   "run-first" },
-      { G_SIGNAL_RUN_LAST,     "G_SIGNAL_RUN_LAST",    "run-last" },
-      { G_SIGNAL_RUN_CLEANUP,  "G_SIGNAL_RUN_CLEANUP", "run-cleanup" },
-      { G_SIGNAL_NO_RECURSE,   "G_SIGNAL_NO_RECURSE",  "no-recurse" },
-      { G_SIGNAL_DETAILED,     "G_SIGNAL_DETAILED",    "detailed" },
-      { G_SIGNAL_ACTION,       "G_SIGNAL_ACTION",      "action" },
-      { G_SIGNAL_NO_HOOKS,     "G_SIGNAL_NO_HOOKS",    "no-hooks" },
-      { 0, NULL, NULL }
-    };
-    etype = g_flags_register_static ("GSignalFlags", values);
-  }
-  return etype;
-}
-
 SV *
 newSVGSignalFlags (GSignalFlags flags)
 {
-	return gperl_convert_back_flags (gperl_signal_flags_get_type (), flags);
+	return gperl_convert_back_flags (GPERL_TYPE_SIGNAL_FLAGS, flags);
 }
 
 GSignalFlags
 SvGSignalFlags (SV * sv)
 {
-	return gperl_convert_flags (gperl_signal_flags_get_type (), sv);
+	return gperl_convert_flags (GPERL_TYPE_SIGNAL_FLAGS, sv);
 }
 
-/* GConnectFlags doesn't come with a GType either.  We don't use it in Glib
- * directly, but other bindings might need it. */
-static GType
-gperl_connect_flags_get_type (void)
-{
-  static GType etype = 0;
-  if ( etype == 0 ) {
-    static const GFlagsValue values[] = {
-      { G_CONNECT_AFTER,   "G_CONNECT_AFTER",   "after" },
-      { G_CONNECT_SWAPPED, "G_CONNECT_SWAPPED", "swapped" },
-      { 0, NULL, NULL }
-    };
-    etype = g_flags_register_static ("GConnectFlags", values);
-  }
-  return etype;
-}
 
 SV *
 newSVGSignalInvocationHint (GSignalInvocationHint * ihint)
@@ -578,9 +538,9 @@ directly.
 =cut
 
 BOOT:
-	gperl_register_fundamental (gperl_signal_flags_get_type (),
+	gperl_register_fundamental (GPERL_TYPE_SIGNAL_FLAGS,
 	                            "Glib::SignalFlags");
-	gperl_register_fundamental (gperl_connect_flags_get_type (),
+	gperl_register_fundamental (GPERL_TYPE_CONNECT_FLAGS,
 	                            "Glib::ConnectFlags");
 
 =for flags Glib::SignalFlags
