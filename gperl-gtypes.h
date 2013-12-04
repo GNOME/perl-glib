@@ -35,6 +35,9 @@ GType gperl_param_flags_get_type (void) G_GNUC_CONST;
 #define GPERL_TYPE_SIGNAL_FLAGS gperl_signal_flags_get_type ()
 GType gperl_signal_flags_get_type (void) G_GNUC_CONST;
 
+#define GPERL_TYPE_SPAWN_FLAGS gperl_spawn_flags_get_type ()
+GType gperl_spawn_flags_get_type (void) G_GNUC_CONST;
+
 #if GLIB_CHECK_VERSION (2, 14, 0)
 #define GPERL_TYPE_USER_DIRECTORY gperl_user_directory_get_type ()
 GType gperl_user_directory_get_type (void) G_GNUC_CONST;

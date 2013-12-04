@@ -171,6 +171,29 @@ gperl_signal_flags_get_type (void)
 
 /* -------------------------------------------------------------------------- */
 
+GType
+gperl_spawn_flags_get_type (void)
+{
+  static GType etype = 0;
+  if (G_UNLIKELY(etype == 0)) {
+    static const GFlagsValue values[] = {
+      { G_SPAWN_LEAVE_DESCRIPTORS_OPEN, "G_SPAWN_LEAVE_DESCRIPTORS_OPEN", "leave-descriptors-open" },
+      { G_SPAWN_DO_NOT_REAP_CHILD, "G_SPAWN_DO_NOT_REAP_CHILD", "do-not-reap-child" },
+      { G_SPAWN_SEARCH_PATH, "G_SPAWN_SEARCH_PATH", "search-path" },
+      { G_SPAWN_STDOUT_TO_DEV_NULL, "G_SPAWN_STDOUT_TO_DEV_NULL", "stdout-to-dev-null" },
+      { G_SPAWN_STDERR_TO_DEV_NULL, "G_SPAWN_STDERR_TO_DEV_NULL", "stderr-to-dev-null" },
+      { G_SPAWN_CHILD_INHERITS_STDIN, "G_SPAWN_CHILD_INHERITS_STDIN", "child-inherits-stdin" },
+      { G_SPAWN_FILE_AND_ARGV_ZERO, "G_SPAWN_FILE_AND_ARGV_ZERO", "file-and-argv-zero" },
+      { G_SPAWN_SEARCH_PATH_FROM_ENVP, "G_SPAWN_SEARCH_PATH_FROM_ENVP", "search-path-from-envp" },
+      { 0, NULL, NULL }
+    };
+    etype = g_flags_register_static (g_intern_static_string ("GSpawnFlags"), values);
+  }
+  return etype;
+}
+
+/* -------------------------------------------------------------------------- */
+
 #if GLIB_CHECK_VERSION (2, 14, 0)
 GType gperl_user_directory_get_type (void)
 {

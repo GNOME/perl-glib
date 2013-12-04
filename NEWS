@@ -5,6 +5,7 @@ Overview of changes in Glib 1.302 (stable)
   conjunction with certain XS modules, among them XML::Parser and
   String::Approx.
 * Avoid memory corruption when registering boxed synonyms repeatedly.
+* Create a GType for GSpawnFlags and register it with the bindings.
 
 Overview of changes in Glib 1.301 (stable)
 ==========================================

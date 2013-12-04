@@ -28,6 +28,7 @@
 #include "gperl.h"
 #include "gperl_marshal.h"
 
+#include "gperl-gtypes.h"
 #include "gperl-private.h" /* for _gperl_fetch_wrapper_key */
 
 /* for fundamental types */
@@ -1978,6 +1979,9 @@ BOOT:
 	 * only one mapping (the last and correct one) from type to package.
 	 */
 	gperl_register_fundamental_alias (G_TYPE_UINT, "Glib::Uint");
+
+	/* register custom GTypes that do not have a better home. */
+	gperl_register_fundamental (GPERL_TYPE_SPAWN_FLAGS, "Glib::SpawnFlags");
 
 
 =for apidoc
