@@ -177,6 +177,9 @@ gperl_spawn_flags_get_type (void)
   static GType etype = 0;
   if (G_UNLIKELY(etype == 0)) {
     static const GFlagsValue values[] = {
+#if GLIB_CHECK_VERSION (2, 38, 0)
+      { G_SPAWN_DEFAULT, "G_SPAWN_DEFAULT", "default" },
+#endif
       { G_SPAWN_LEAVE_DESCRIPTORS_OPEN, "G_SPAWN_LEAVE_DESCRIPTORS_OPEN", "leave-descriptors-open" },
       { G_SPAWN_DO_NOT_REAP_CHILD, "G_SPAWN_DO_NOT_REAP_CHILD", "do-not-reap-child" },
       { G_SPAWN_SEARCH_PATH, "G_SPAWN_SEARCH_PATH", "search-path" },
