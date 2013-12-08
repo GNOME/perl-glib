@@ -1,4 +1,4 @@
-Overview of changes in Glib <next>
+Overview of changes in Glib 1.303 (stable)
 ==========================================
 
 * Revert the change to ref counting of initial wrappers of custom subclasses,

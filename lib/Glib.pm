@@ -27,7 +27,7 @@ use Exporter;
 require DynaLoader;
 our @ISA = qw(DynaLoader Exporter);
 
-our $VERSION = '1.302';
+our $VERSION = '1.303';
 
 use constant {
 	TRUE  => 1,
