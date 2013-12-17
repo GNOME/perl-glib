@@ -187,7 +187,9 @@ gperl_spawn_flags_get_type (void)
       { G_SPAWN_STDERR_TO_DEV_NULL, "G_SPAWN_STDERR_TO_DEV_NULL", "stderr-to-dev-null" },
       { G_SPAWN_CHILD_INHERITS_STDIN, "G_SPAWN_CHILD_INHERITS_STDIN", "child-inherits-stdin" },
       { G_SPAWN_FILE_AND_ARGV_ZERO, "G_SPAWN_FILE_AND_ARGV_ZERO", "file-and-argv-zero" },
+#if GLIB_CHECK_VERSION (2, 34, 0)
       { G_SPAWN_SEARCH_PATH_FROM_ENVP, "G_SPAWN_SEARCH_PATH_FROM_ENVP", "search-path-from-envp" },
+#endif
       { 0, NULL, NULL }
     };
     etype = g_flags_register_static (g_intern_static_string ("GSpawnFlags"), values);
