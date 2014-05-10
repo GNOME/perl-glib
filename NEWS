@@ -1,3 +1,8 @@
+Overview of changes in Glib <next>
+==========================================
+
+* Disable the warning message when handing callbacks over to the main loop.
+
 Overview of changes in Glib 1.304 (stable)
 ==========================================
 

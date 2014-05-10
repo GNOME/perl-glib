@@ -98,8 +98,10 @@ gperl_closure_marshal (GClosure * closure,
 	 * use perl_clone to create a new Perl interpreter from the main one.
 	 */
 	if (INVOKED_FROM_FOREIGN_THREAD) {
+#ifdef NOISY
 		g_printerr ("*** GPerl asked to invoke callback from a foreign thread; "
 		            "handing it over to the main loop\n");
+#endif
 		_closure_hand_to_main (closure, return_value,
 		                       n_param_values, param_values,
 		                       invocation_hint, marshal_data);
