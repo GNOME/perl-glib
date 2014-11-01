@@ -210,16 +210,20 @@ if (Glib->CHECK_VERSION (2, 14, 0)) {
 
 
 {
+  my $skip_reason = undef;
   if (! $have_fork) {
-    print "ok 26 # skip, no fork: $fork_excuse\n";
-    print "ok 27 # skip\n";
-    print "ok 28 # skip\n";
-    print "ok 29 # skip\n";
-    print "ok 30 # skip\n";
-    goto SKIP_CHILD_TESTS;
+    $skip_reason = "no fork: $fork_excuse";
   }
   if (! Glib->CHECK_VERSION (2, 4, 0)) {
-    print "ok 26 # skip: need glib >= 2.4\n";
+    $skip_reason = 'need glib >= 2.4';
+  }
+  if ($^O eq 'freebsd' || $^O eq 'netbsd') {
+    if ($Config{ldflags} !~ m/-pthread\b/) {
+      $skip_reason = 'need a perl built with "-pthread" on freebsd/netbsd';
+    }
+  }
+  if (defined $skip_reason) {
+    print "ok 26 # skip: $skip_reason\n";
     print "ok 27 # skip\n";
     print "ok 28 # skip\n";
     print "ok 29 # skip\n";
