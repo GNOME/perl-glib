@@ -422,7 +422,7 @@ build/blib_done_ :: build/blib_done_dynamic
 
 build/doc.pl :: Makefile @xs_files
 	\$(NOECHO) \$(ECHO) Parsing XS files...
-	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
+	\$(NOECHO) \$(FULLPERLRUN) -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::ParseXSDoc \\
 		-e "xsdocparse (qw(@xs_files))" > \$@
 
 # passing all of these files through the single podindex file, which is 
@@ -432,18 +432,18 @@ build/doc.pl :: Makefile @xs_files
 
 build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl \$(POD_DEPENDS)
 	\$(NOECHO) \$(ECHO) Generating POD...
-	\$(NOECHO) $^X -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
+	\$(NOECHO) \$(FULLPERLRUN) -I \$(INST_LIB) -I \$(INST_ARCHLIB) -MGlib::GenPod -M\$(NAME) \\
 		-e "$docgen_code"
 
 \$(INST_LIB)/\$(FULLEXT)/:
-	$^X -MExtUtils::Command -e mkpath \$@
+	\$(FULLPERLRUN) -MExtUtils::Command -e mkpath \$@
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	\$(NOECHO) \$(ECHO) Creating POD index...
-	\$(NOECHO) $^X -e "print qq(\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n)" \\
+	\$(NOECHO) \$(FULLPERLRUN) -e "print qq(\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n)" \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	\$(NOECHO) $^X -ne "print q(=item L<) . (split q( ))[1] . qq(>\\n\\n);" < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
-	\$(NOECHO) $^X -e "print qq(=back\\n\\n);" >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	\$(NOECHO) \$(FULLPERLRUN) -ne "print q(=item L<) . (split q( ))[1] . qq(>\\n\\n);" < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
+	\$(NOECHO) \$(FULLPERLRUN) -e "print qq(=back\\n\\n);" >> \$(INST_LIB)/\$(FULLEXT)/index.pod
 __EOM__
 }
 
