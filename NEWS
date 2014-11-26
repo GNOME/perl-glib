@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.306 (stable)
+==========================================
+
+* Fix libpthread-related building issues on OpenBSD
+
 Overview of changes in Glib 1.305 (stable)
 ==========================================
 
