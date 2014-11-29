@@ -574,6 +574,23 @@ gperl_object_take_ownership (GObject * object)
 static void
 sink_initially_unowned (GObject *object)
 {
+	/* FIXME: This is not correct when the object is not floating.  The
+	 * sink function is supposed to effectively remove a reference, but
+	 * when the object is not floating, ref_sink+unref == ref+unref == nop.
+	 * Luckily, there do not seem to be functions of GInitiallyUnowned
+	 * descendants out there that transfer ownership of a non-floating
+	 * reference to the caller.  If we ever encounter one, this needs to be
+	 * revisited.
+	 *
+	 * One peculiar corner case is Glib::Object::Introspection's handling
+	 * of GtkWindow and its descendants.  G:O:I marks all constructors of
+	 * GInitiallyUnowned descendants as transferring ownership (to override
+	 * special-casing done by gobject-introspection).  This is thus
+	 * inadvertedly also applied to GtkWindow and its descendants even
+	 * though their constructors do not transfer ownership (because gtk+
+	 * keeps an internal reference to each window).  But due to this
+	 * incorrect code below, the ownership transfer is effectively ignored,
+	 * resulting in correct behavior. */
 	g_object_ref_sink (object);
 	g_object_unref (object);
 }
