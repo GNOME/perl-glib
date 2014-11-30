@@ -37,13 +37,18 @@
 #include <glib-object.h>
 
 /*
- * filenames
+ * --- filenames --------------------------------------------------------------
  */
+typedef gchar* GPerlFilename;
+typedef const gchar* GPerlFilename_const;
+typedef gchar* GPerlFilename_own;
+typedef GPerlFilename GPerlFilename_ornull;
+
 gchar *gperl_filename_from_sv (SV *sv);
 SV *gperl_sv_from_filename (const gchar *filename);
 
 /*
- * enums and flags
+ * --- enums and flags --------------------------------------------------------
  */
 gboolean gperl_try_convert_enum (GType type, SV * sv, gint * val);
 gint gperl_convert_enum (GType type, SV * val);
@@ -55,8 +60,9 @@ gint gperl_convert_flag_one (GType type, const char * val_p);
 gint gperl_convert_flags (GType type, SV * val);
 SV * gperl_convert_back_flags (GType type, gint val);
 
-/* register a fundamental type (enums, flags...) */
-
+/*
+ * --- fundamental types ------------------------------------------------------
+ */
 typedef struct _GPerlValueWrapperClass GPerlValueWrapperClass;
 
 typedef SV*  (*GPerlValueWrapFunc)   (const GValue * value);
@@ -77,7 +83,7 @@ const char * gperl_fundamental_package_from_type (GType gtype);
 GPerlValueWrapperClass * gperl_fundamental_wrapper_class_from_type (GType gtype);
 
 /*
- * GErrors as exception objects
+ * --- GErrors as exception objects -------------------------------------------
  */
 /* it is rare that you should ever want or need these two functions. */
 SV * gperl_sv_from_gerror (GError * error);
@@ -90,7 +96,7 @@ void gperl_register_error_domain (GQuark domain,
 void gperl_croak_gerror (const char * ignored, GError * err);
 
 /*
- * inheritance management
+ * --- inheritance management -------------------------------------------------
  */
 /* push @{$parent_package}::ISA, $child_package */
 void gperl_set_isa (const char * child_package, const char * parent_package);
@@ -103,45 +109,38 @@ void gperl_prepend_isa (const char * child_package, const char * parent_package)
 GType gperl_type_from_package (const char * package);
 const char * gperl_package_from_type (GType type);
 
-
 /*
- * we need a GBoxed wrapper for a generic SV, so we can store SVs
- * in GObjects reliably.
+ * --- gchar converters -------------------------------------------------------
  */
-#define GPERL_TYPE_SV	(gperl_sv_get_type ())
-GType gperl_sv_get_type (void) G_GNUC_CONST;
-SV * gperl_sv_copy (SV * sv);
-void gperl_sv_free (SV * sv);
+typedef gchar gchar_length; /* length in bytes */
+typedef gchar gchar_utf8_length; /* length in characters */
+typedef gchar gchar_own;
+typedef gchar gchar_ornull;
+typedef gchar gchar_own_ornull;
 
-
-/*
- * clean function wrappers for treating gchar* as UTF8 strings, in the
+/* clean function wrappers for treating gchar* as UTF8 strings, in the
  * same idiom as the rest of the cast macros.  these are wrapped up
- * as functions because comma expressions in macros get kinda tricky.
- */
+ * as functions because comma expressions in macros get kinda tricky. */
 /*const*/ gchar * SvGChar (SV * sv);
 SV * newSVGChar (const gchar * str);
 
-
 /*
- * 64 bit integer converters
+ * --- 64 bit integer converters ----------------------------------------------
  */
 gint64 SvGInt64 (SV *sv);
 SV * newSVGInt64 (gint64 value);
 guint64 SvGUInt64 (SV *sv);
 SV * newSVGUInt64 (guint64 value);
 
-
 /*
- * GValues
+ * --- GValue -----------------------------------------------------------------
  */
 gboolean gperl_value_from_sv (GValue * value, SV * sv);
 SV * gperl_sv_from_value (const GValue * value);
 
 /*
- * GBoxed
+ * --- GBoxed -----------------------------------------------------------------
  */
-
 typedef struct _GPerlBoxedWrapperClass GPerlBoxedWrapperClass;
 
 typedef SV*      (*GPerlBoxedWrapFunc)    (GType        gtype,
@@ -171,14 +170,28 @@ SV * gperl_new_boxed (gpointer boxed, GType gtype, gboolean own);
 SV * gperl_new_boxed_copy (gpointer boxed, GType gtype);
 gpointer gperl_get_boxed_check (SV * sv, GType gtype);
 
-
 GType gperl_boxed_type_from_package (const char * package);
 const char * gperl_boxed_package_from_type (GType type);
 
+/*
+ * we need a GBoxed wrapper for a generic SV, so we can store SVs
+ * in GObjects reliably.
+ */
+#define GPERL_TYPE_SV	(gperl_sv_get_type ())
+GType gperl_sv_get_type (void) G_GNUC_CONST;
+SV * gperl_sv_copy (SV * sv);
+void gperl_sv_free (SV * sv);
 
 /*
- * GObject
+ * --- GObject ----------------------------------------------------------------
  */
+typedef GObject GObject_ornull;
+typedef GObject GObject_noinc;
+#define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
+#define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
+#define SvGObject(sv)		(gperl_get_object_check (sv, G_TYPE_OBJECT))
+#define SvGObject_ornull(sv)	(gperl_sv_is_defined (sv) ? SvGObject (sv) : NULL)
+
 void gperl_register_object (GType gtype, const char * package);
 void gperl_register_object_alias (GType gtype, const char * package);
 
@@ -203,32 +216,8 @@ void _gperl_attach_mg (SV * sv, void * ptr);
 MAGIC * _gperl_find_mg (SV * sv);
 void _gperl_remove_mg (SV * sv);
 
-/* typedefs and macros for use with the typemap */
-typedef gchar gchar_length; /* length in bytes */
-typedef gchar gchar_utf8_length; /* length in characters */
-typedef gchar gchar_own;
-typedef gchar gchar_ornull;
-typedef gchar gchar_own_ornull;
-typedef char char_ornull;
-typedef char char_own;
-typedef char char_own_ornull;
-typedef GObject GObject_ornull;
-typedef GObject GObject_noinc;
-typedef gchar *GPerlFilename;
-typedef const gchar *GPerlFilename_const;
-typedef gchar *GPerlFilename_own;
-typedef GPerlFilename GPerlFilename_ornull;
-typedef GParamSpec GParamSpec_ornull;
-
-#define newSVGObject(obj)	(gperl_new_object ((obj), FALSE))
-#define newSVGObject_noinc(obj)	(gperl_new_object ((obj), TRUE))
-#define SvGObject(sv)		(gperl_get_object_check (sv, G_TYPE_OBJECT))
-#define SvGObject_ornull(sv)	(gperl_sv_is_defined (sv) ? SvGObject (sv) : NULL)
-#define newSVGParamSpec_ornull(sv)	newSVGParamSpec(sv)
-
-
 /*
- * GSignal.xs
+ * --- GSignal ----------------------------------------------------------------
  */
 SV * newSVGSignalFlags (GSignalFlags flags);
 GSignalFlags SvGSignalFlags (SV * sv);
@@ -244,9 +233,8 @@ gulong gperl_signal_connect          (SV              * instance,
                                       SV              * data,
                                       GConnectFlags     flags);
 
-
 /*
- * GClosure
+ * --- GClosure ---------------------------------------------------------------
  */
 typedef struct _GPerlClosure GPerlClosure;
 struct _GPerlClosure {
@@ -271,9 +259,8 @@ GClosure * gperl_closure_new_with_marshaller (SV              * callback,
                                               GClosureMarshal   marshaller);
 
 /*
- * GPerlCallback
+ * --- GPerlCallback ----------------------------------------------------------
  */
-
 typedef struct _GPerlCallback GPerlCallback;
 struct _GPerlCallback {
 	gint    n_params;
@@ -297,23 +284,25 @@ void            gperl_callback_invoke  (GPerlCallback * callback,
                                         ...);
 
 /*
- * exception handling
+ * --- exception handling -----------------------------------------------------
  */
-
 int  gperl_install_exception_handler (GClosure * closure);
 void gperl_remove_exception_handler  (guint tag);
 void gperl_run_exception_handlers    (void);
 
 /*
- * to be used by extensions...
+ * --- log handling for extensions --------------------------------------------
  */
 gint gperl_handle_logs_for (const gchar * log_domain);
 
 /*
- * gparamspec.h / GParamSpec.xs
+ * --- GParamSpec -------------------------------------------------------------
  */
+typedef GParamSpec GParamSpec_ornull;
 SV * newSVGParamSpec (GParamSpec * pspec);
 GParamSpec * SvGParamSpec (SV * sv);
+#define newSVGParamSpec_ornull(sv)	newSVGParamSpec(sv)
+
 SV * newSVGParamFlags (GParamFlags flags);
 GParamFlags SvGParamFlags (SV * sv);
 
@@ -322,7 +311,7 @@ const char * gperl_param_spec_package_from_type (GType gtype);
 GType gperl_param_spec_type_from_package (const char * package);
 
 /*
- * gkeyfile.h / GKeyFile.xs
+ * --- GKeyFile ---------------------------------------------------------------
  */
 #if GLIB_CHECK_VERSION (2, 6, 0)
 SV * newSVGKeyFile (GKeyFile * key_file);
@@ -332,18 +321,17 @@ GKeyFileFlags SvGKeyFileFlags (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 6, 0) */
 
 /*
- * gbookmarkfile.h / GBookmarkFile.xs
+ * --- GBookmarkFile ----------------------------------------------------------
  */
 #if GLIB_CHECK_VERSION (2, 12, 0)
 SV * newSVGBookmarkFile (GBookmarkFile * bookmark_file);
 GBookmarkFile * SvGBookmarkFile (SV * sv);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */
 
-#if GLIB_CHECK_VERSION (2, 6, 0)
-
 /*
- * GOption.xs
+ * --- GOption ----------------------------------------------------------------
  */
+#if GLIB_CHECK_VERSION (2, 6, 0)
 
 typedef GOptionContext GOptionContext_own;
 
@@ -366,7 +354,7 @@ GType gperl_option_group_get_type (void);
 #endif /* 2.6.0 */
 
 /*
- * gutils.h / GUtils.xs
+ * --- gutils.h / GUtils.xs ---------------------------------------------------
  */
 #if GLIB_CHECK_VERSION (2, 14, 0)
 GUserDirectory SvGUserDirectory (SV *sv);
@@ -376,6 +364,14 @@ SV * newSVGUserDirectory (GUserDirectory dir);
 /*
  * miscellaneous
  */
+/*
+ * --- miscellaneous ----------------------------------------------------------
+ */
+
+/* for use with the typemap */
+typedef char char_ornull;
+typedef char char_own;
+typedef char char_own_ornull;
 
 /* never use this function directly.  use GPERL_CALL_BOOT. */
 void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);

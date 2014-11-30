@@ -37,48 +37,51 @@ glong		T_IV
 gulong		T_UV
 gunichar	T_GUNICHAR
 gchar		T_IV
-gchar *		T_GCHAR
-const gchar *	T_GCHAR
-gchar_own *	T_GCHAR_OWN
-gchar_length *	T_GCHAR_LEN
-const gchar_length *	T_GCHAR_LEN
-gchar_utf8_length *	T_GCHAR_UTF8_LEN
-const gchar_utf8_length *	T_GCHAR_UTF8_LEN
-gchar_ornull *	T_GCHAR_ORNULL
-gchar_own_ornull *	T_GCHAR_OWN_ORNULL
-const gchar_ornull *	T_GCHAR_ORNULL
-char_ornull *	T_CHAR_ORNULL
-char_own *	T_CHAR_OWN
-char_own_ornull *	T_CHAR_OWN_ORNULL
-const char_ornull *	T_CHAR_ORNULL
 guchar		T_UV
-guchar *	T_GUCHAR
-const guchar *	T_GUCHAR
 gfloat		T_FLOAT
 gdouble		T_DOUBLE
 gsize		T_UV
 gssize		T_IV
 gpointer	T_PTR
 
-GObject*	T_GPERL_GENERIC_WRAPPER
-GObject_ornull*	T_GPERL_GENERIC_WRAPPER
-GObject_noinc*	T_GPERL_GENERIC_WRAPPER
+gchar *				T_GCHAR
+const gchar *			T_GCHAR
+gchar_own *			T_GCHAR_OWN
+gchar_length *			T_GCHAR_LEN
+const gchar_length *		T_GCHAR_LEN
+gchar_utf8_length *		T_GCHAR_UTF8_LEN
+const gchar_utf8_length *	T_GCHAR_UTF8_LEN
+gchar_ornull *			T_GCHAR_ORNULL
+gchar_own_ornull *		T_GCHAR_OWN_ORNULL
+const gchar_ornull *		T_GCHAR_ORNULL
 
-GParamSpec*	T_GPERL_GENERIC_WRAPPER
+char_ornull *			T_CHAR_ORNULL
+char_own *			T_CHAR_OWN
+char_own_ornull *		T_CHAR_OWN_ORNULL
+const char_ornull *		T_CHAR_ORNULL
+
+guchar *			T_GUCHAR
+const guchar *			T_GUCHAR
+
+GObject*		T_GPERL_GENERIC_WRAPPER
+GObject_ornull*		T_GPERL_GENERIC_WRAPPER
+GObject_noinc*		T_GPERL_GENERIC_WRAPPER
+
+GParamSpec*		T_GPERL_GENERIC_WRAPPER
 GParamSpec_ornull*	T_GPERL_GENERIC_WRAPPER
-GParamFlags	T_GPERL_GENERIC_WRAPPER
+GParamFlags		T_GPERL_GENERIC_WRAPPER
 
-GSignalFlags	T_GPERL_GENERIC_WRAPPER
+GSignalFlags		T_GPERL_GENERIC_WRAPPER
 
-GKeyFile*	T_GPERL_GENERIC_WRAPPER
-GKeyFileFlags	T_GPERL_GENERIC_WRAPPER
+GKeyFile*		T_GPERL_GENERIC_WRAPPER
+GKeyFileFlags		T_GPERL_GENERIC_WRAPPER
 
-GBookmarkFile*	T_GPERL_GENERIC_WRAPPER
+GBookmarkFile*		T_GPERL_GENERIC_WRAPPER
 
-GIOCondition	T_G_TYPE_IO_CONDITION
+GIOCondition		T_G_TYPE_IO_CONDITION
 
-GMainContext*	T_G_MAIN_CONTEXT
-GMainLoop*	T_G_MAIN_LOOP
+GMainContext*		T_G_MAIN_CONTEXT
+GMainLoop*		T_G_MAIN_LOOP
 
 GPerlFilename		T_GPERL_FILENAME
 GPerlFilename_const	T_GPERL_FILENAME
@@ -90,9 +93,9 @@ GOptionContext_own *	T_GPERL_GENERIC_WRAPPER
 GOptionGroup *		T_GPERL_GENERIC_WRAPPER
 GOptionGroup_own *	T_GPERL_GENERIC_WRAPPER
 
-GUserDirectory	T_GPERL_GENERIC_WRAPPER
+GUserDirectory		T_GPERL_GENERIC_WRAPPER
 
-#####
+###############################################################################
 INPUT
 
 # a general-purpose typemap... strips any trailing star and/or leading "const",
@@ -167,7 +170,7 @@ T_GPERL_FILENAME_ORNULL
 		 ? gperl_filename_from_sv ($arg)
 		 : NULL)
 
-######
+###############################################################################
 OUTPUT
 
 T_GPERL_GENERIC_WRAPPER
