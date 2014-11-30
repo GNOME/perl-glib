@@ -128,6 +128,8 @@ async_watcher_install (void)
 		async_watcher_prepare,
 		async_watcher_check,
 		async_watcher_dispatch,
+		NULL,
+		NULL,
 		NULL
 	};
 	/* FIXME: we never unref the watcher. */
