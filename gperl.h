@@ -372,6 +372,8 @@ SV * newSVGUserDirectory (GUserDirectory dir);
 typedef char char_ornull;
 typedef char char_own;
 typedef char char_own_ornull;
+typedef char char_byte;
+typedef char char_byte_ornull;
 
 /* never use this function directly.  use GPERL_CALL_BOOT. */
 void _gperl_call_XS (pTHX_ void (*subaddr) (pTHX_ CV *), CV * cv, SV ** mark);

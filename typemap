@@ -60,6 +60,11 @@ char_own *			T_CHAR_OWN
 char_own_ornull *		T_CHAR_OWN_ORNULL
 const char_ornull *		T_CHAR_ORNULL
 
+char_byte *			T_CHAR_BYTE
+const char_byte *		T_CHAR_BYTE
+char_byte_ornull *		T_CHAR_BYTE_ORNULL
+const char_byte_ornull *	T_CHAR_BYTE_ORNULL
+
 guchar *			T_GUCHAR
 const guchar *			T_GUCHAR
 
@@ -145,6 +150,16 @@ T_GUCHAR
 T_CHAR_ORNULL
 	if (gperl_sv_is_defined ($arg)) {
 		$var = ($type)SvPV_nolen ($arg);
+	} else {
+		$var = NULL;
+	}
+
+T_CHAR_BYTE
+	$var = ($type)SvPVbyte_nolen ($arg);
+
+T_CHAR_BYTE_ORNULL
+	if (gperl_sv_is_defined ($arg)) {
+		$var = ($type)SvPVbyte_nolen ($arg);
 	} else {
 		$var = NULL;
 	}

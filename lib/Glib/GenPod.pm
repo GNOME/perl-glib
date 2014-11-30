@@ -448,6 +448,8 @@ our %basic_types = (
 	gchar_length => 'string',
 	gchar_utf8_length => 'string',
 
+	char_byte => 'byte string',
+
 	FILE => 'file handle',
 	time_t => 'unix timestamp',
 
