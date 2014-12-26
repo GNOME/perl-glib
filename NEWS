@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.307 (stable)
+==========================================
+
+* Fix hang of t/9.t on FreeBSD/NetBSD perls not built with "-pthread"; 
+  closes RT#82349
+* Add code comments about the peculiar Glib::InitiallyUnowned sink handling
+
 Overview of changes in Glib 1.306 (stable)
 ==========================================
 
