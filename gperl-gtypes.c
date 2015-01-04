@@ -510,3 +510,42 @@ gperl_thread_error_get_type (void)
 
 #define GPERL_TYPE_THREAD_ERROR gperl_thread_error_get_type()
 GType gperl_thread_error_get_type (void);
+
+/* -------------------------------------------------------------------------- */
+
+#if GLIB_CHECK_VERSION (2, 24, 0)
+
+GType
+gperl_variant_parse_error_get_type (void)
+{
+  static GType type = 0;
+
+  if (!type) {
+    static const GEnumValue values[] = {
+      { G_VARIANT_PARSE_ERROR_FAILED, "G_VARIANT_PARSE_ERROR_FAILED", "failed" },
+      { G_VARIANT_PARSE_ERROR_BASIC_TYPE_EXPECTED, "G_VARIANT_PARSE_ERROR_BASIC_TYPE_EXPECTED", "basic-type-expected" },
+      { G_VARIANT_PARSE_ERROR_CANNOT_INFER_TYPE, "G_VARIANT_PARSE_ERROR_CANNOT_INFER_TYPE", "cannot-infer-type" },
+      { G_VARIANT_PARSE_ERROR_DEFINITE_TYPE_EXPECTED, "G_VARIANT_PARSE_ERROR_DEFINITE_TYPE_EXPECTED", "definite-type-expected" },
+      { G_VARIANT_PARSE_ERROR_INPUT_NOT_AT_END, "G_VARIANT_PARSE_ERROR_INPUT_NOT_AT_END", "input-not-at-end" },
+      { G_VARIANT_PARSE_ERROR_INVALID_CHARACTER, "G_VARIANT_PARSE_ERROR_INVALID_CHARACTER", "invalid-character" },
+      { G_VARIANT_PARSE_ERROR_INVALID_FORMAT_STRING, "G_VARIANT_PARSE_ERROR_INVALID_FORMAT_STRING", "invalid-format-string" },
+      { G_VARIANT_PARSE_ERROR_INVALID_OBJECT_PATH, "G_VARIANT_PARSE_ERROR_INVALID_OBJECT_PATH", "invalid-object-path" },
+      { G_VARIANT_PARSE_ERROR_INVALID_SIGNATURE, "G_VARIANT_PARSE_ERROR_INVALID_SIGNATURE", "invalid-signature" },
+      { G_VARIANT_PARSE_ERROR_INVALID_TYPE_STRING, "G_VARIANT_PARSE_ERROR_INVALID_TYPE_STRING", "invalid-type-string" },
+      { G_VARIANT_PARSE_ERROR_NO_COMMON_TYPE, "G_VARIANT_PARSE_ERROR_NO_COMMON_TYPE", "no-common-type" },
+      { G_VARIANT_PARSE_ERROR_NUMBER_OUT_OF_RANGE, "G_VARIANT_PARSE_ERROR_NUMBER_OUT_OF_RANGE", "number-out-of-range" },
+      { G_VARIANT_PARSE_ERROR_NUMBER_TOO_BIG, "G_VARIANT_PARSE_ERROR_NUMBER_TOO_BIG", "number-too-big" },
+      { G_VARIANT_PARSE_ERROR_TYPE_ERROR, "G_VARIANT_PARSE_ERROR_TYPE_ERROR", "type-error" },
+      { G_VARIANT_PARSE_ERROR_UNEXPECTED_TOKEN, "G_VARIANT_PARSE_ERROR_UNEXPECTED_TOKEN", "unexpected-token" },
+      { G_VARIANT_PARSE_ERROR_UNKNOWN_KEYWORD, "G_VARIANT_PARSE_ERROR_UNKNOWN_KEYWORD", "unknown-keyword" },
+      { G_VARIANT_PARSE_ERROR_UNTERMINATED_STRING_CONSTANT, "G_VARIANT_PARSE_ERROR_UNTERMINATED_STRING_CONSTANT", "unterminated-string-constant" },
+      { G_VARIANT_PARSE_ERROR_VALUE_EXPECTED, "G_VARIANT_PARSE_ERROR_VALUE_EXPECTED", "value-expected" },
+      { 0, NULL, NULL }
+    };
+    type = g_enum_register_static ("GVariantParseError", values);
+  }
+
+  return type;
+}
+
+#endif

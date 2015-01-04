@@ -470,6 +470,9 @@ BOOT:
 #if GLIB_CHECK_VERSION (2, 12, 0)
 	GPERL_CALL_BOOT (boot_Glib__BookmarkFile);
 #endif /* GLIB_CHECK_VERSION (2, 12, 0) */
+#if GLIB_CHECK_VERSION (2, 24, 0)
+	GPERL_CALL_BOOT (boot_Glib__Variant);
+#endif /* GLIB_CHECK_VERSION (2, 24, 0) */
 	/* make sure that we're running/linked against a version at least as 
 	 * new as we built against, otherwise bad things will happen. */
 	if ((((int)glib_major_version) < GLIB_MAJOR_VERSION)

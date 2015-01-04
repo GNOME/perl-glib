@@ -89,6 +89,10 @@ if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.12.0')) {
 	push @xs_files, 'GBookmarkFile.xs';
 }
 
+if (ExtUtils::PkgConfig->atleast_version ('glib-2.0', '2.24.0')) {
+	push @xs_files, 'GVariant.xs';
+}
+
 my %meta_merge = (
         q(meta-spec)          => {
             version => '2',

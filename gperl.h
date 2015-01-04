@@ -362,8 +362,22 @@ SV * newSVGUserDirectory (GUserDirectory dir);
 #endif
 
 /*
- * miscellaneous
+ * -- GVariant ----------------------------------------------------------------
  */
+#if GLIB_CHECK_VERSION (2, 24, 0)
+
+typedef GVariant GVariant_noinc;
+SV * newSVGVariant (GVariant * variant);
+SV * newSVGVariant_noinc (GVariant * variant);
+GVariant * SvGVariant (SV * sv);
+
+typedef GVariantType GVariantType_own;
+SV * newSVGVariantType (const GVariantType * type);
+SV * newSVGVariantType_own (const GVariantType * type);
+const GVariantType * SvGVariantType (SV * sv);
+
+#endif /* 2.24.0 */
+
 /*
  * --- miscellaneous ----------------------------------------------------------
  */

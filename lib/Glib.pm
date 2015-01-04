@@ -216,6 +216,155 @@ sub AUTOLOAD {
 	return $object_or_type->$method (@_);
 }
 
+package Glib::Variant;
+
+my %LEAF_HANDLERS = (
+  b => ['new_boolean', 'get_boolean'],
+  y => ['new_byte', 'get_byte'],
+  n => ['new_int16', 'get_int16'],
+  q => ['new_uint16', 'get_uint16'],
+  i => ['new_int32', 'get_int32'],
+  u => ['new_uint32', 'get_uint32'],
+  x => ['new_int64', 'get_int64'],
+  t => ['new_uint64', 'get_uint64'],
+  h => ['new_handle', 'get_handle'],
+  d => ['new_double', 'get_double'],
+  s => ['new_string', 'get_string'],
+  o => ['new_object_path', 'get_string'],
+  g => ['new_signature', 'get_string'],
+);
+
+# Documented in GVariant.xs.
+sub new {
+  my ($class, $format, @values) = @_;
+  if (!defined $format || $format eq '') {
+    return;
+  }
+
+  my ($ts, $format_rest) = Glib::VariantType::string_scan ($format);
+  my ($value, @values_rest) = @values;
+  my $t = Glib::VariantType->new ($ts);
+  my $v;
+
+  if ($t->is_basic) {
+    my $ctor = $LEAF_HANDLERS{$t->get_string}->[0];
+    $v = Glib::Variant->$ctor ($value);
+  }
+
+  elsif ($t->is_variant) {
+    $v = Glib::Variant->new_variant ($value);
+  }
+
+  elsif ($t->is_array) {
+    my $et = $t->element;
+    my @children;
+    if (eval { defined $#$value }) {
+      @children = map { Glib::Variant->new ($et->get_string, $_) } @$value;
+    } elsif ($et->is_dict_entry && eval { defined scalar %$value }) {
+      while (my ($ek, $ev) = each %$value) {
+        push @children, Glib::Variant->new ($et->get_string, [$ek, $ev]);
+      }
+    } else {
+      Carp::croak ('Expected an array ref');
+    }
+    $v = Glib::Variant->new_array ($et, \@children);
+  }
+
+  elsif ($t->is_maybe) {
+    my $et = $t->element;
+    my $child = defined $value ? Glib::Variant->new ($et->get_string, $value) : undef;
+    $v = Glib::Variant->new_maybe ($et, $child);
+  }
+
+  elsif ($t->is_tuple) {
+    my $n = $t->n_items;
+    if ($n && !eval { $#$value+1 == $n }) {
+      Carp::croak ("Expected an array ref with $n elements");
+    }
+    my @children;
+    for (my ($i, $et) = (0, $t->first); $et; $i++, $et = $et->next) {
+      push @children, Glib::Variant->new ($et->get_string, $value->[$i]);
+    }
+    $v = Glib::Variant->new_tuple (\@children);
+  }
+
+  elsif ($t->is_dict_entry) {
+    my $kt = $t->first;
+    my $vt = $kt->next;
+    my $kv = Glib::Variant->new ($kt->get_string, $value->[0]);
+    my $vv = Glib::Variant->new ($vt->get_string, $value->[1]);
+    $v = Glib::Variant->new_dict_entry ($kv, $vv);
+  }
+
+  else {
+    Carp::croak ("Cannot handle the part '$ts' in the format string '$format'");
+  }
+
+  return wantarray ? ($v, Glib::Variant->new ($format_rest, @values_rest)) : $v;
+}
+
+# Documented in GVariant.xs.
+sub get {
+  my ($v, $format) = @_;
+  if (!defined $format || $format eq '') {
+    return;
+  }
+
+  my ($ts, $format_rest) = Glib::VariantType::string_scan ($format);
+  if (defined $format_rest) {
+    Carp::carp ("Unhandled rest of format string detected: '$format_rest'");
+  }
+  my $t = Glib::VariantType->new ($ts);
+  my $value;
+
+  if ($t->is_basic) {
+    my $getter = $LEAF_HANDLERS{$t->get_string}->[1];
+    $value = $v->$getter;
+  }
+
+  elsif ($t->is_variant) {
+    $value = $v->get_variant;
+  }
+
+  elsif ($t->is_array) {
+    my $et = $t->element;
+    my @children;
+    foreach my $i (1 .. $v->n_children) {
+      push @children, $v->get_child_value ($i-1)->get ($et->get_string);
+    }
+    $value = \@children;
+  }
+
+  elsif ($t->is_maybe) {
+    my $et = $t->element;
+    my $wrapper = $v->get_maybe;
+    $value = defined $wrapper ? $wrapper->get ($et->get_string) : undef;
+  }
+
+  elsif ($t->is_tuple) {
+    my $n = $t->n_items;
+    my @children;
+    for (my ($i, $et) = (0, $t->first); $et; $i++, $et = $et->next) {
+      push @children, $v->get_child_value ($i)->get ($et->get_string);
+    }
+    $value = \@children;
+  }
+
+  elsif ($t->is_dict_entry) {
+    my $kt = $t->first;
+    my $vt = $kt->next;
+    my $kv = $v->get_child_value (0)->get ($kt->get_string);
+    my $vv = $v->get_child_value (1)->get ($vt->get_string);
+    $value = [$kv, $vv];
+  }
+
+  else {
+    Carp::croak ("Cannot handle the part '$ts' in the format string '$format'");
+  }
+
+  return $value;
+}
+
 package Glib;
 
 1;

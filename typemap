@@ -100,6 +100,14 @@ GOptionGroup_own *	T_GPERL_GENERIC_WRAPPER
 
 GUserDirectory		T_GPERL_GENERIC_WRAPPER
 
+GVariant *		T_GPERL_GENERIC_WRAPPER
+const GVariant *	T_GPERL_GENERIC_WRAPPER
+GVariant_noinc *	T_GPERL_GENERIC_WRAPPER
+
+GVariantType *		T_GPERL_GENERIC_WRAPPER
+const GVariantType *	T_GPERL_GENERIC_WRAPPER
+GVariantType_own *	T_GPERL_GENERIC_WRAPPER
+
 ###############################################################################
 INPUT
 

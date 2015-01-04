@@ -79,6 +79,11 @@ GType gperl_spawn_error_get_type (void) G_GNUC_CONST;
 #define GPERL_TYPE_THREAD_ERROR gperl_thread_error_get_type ()
 GType gperl_thread_error_get_type (void) G_GNUC_CONST;
 
+#if GLIB_CHECK_VERSION (2, 24, 0)
+#define GPERL_TYPE_VARIANT_PARSE_ERROR gperl_variant_parse_error_get_type ()
+GType gperl_variant_parse_error_get_type (void);
+#endif
+
 G_END_DECLS
 
 #endif /* __GPERL_GTYPES_H__ */
