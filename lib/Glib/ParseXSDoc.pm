@@ -13,7 +13,7 @@ our @EXPORT = qw(
 	xsdocparse
 );
 
-our $VERSION = '1.307';
+our $VERSION = '1.310';
 
 our $NOISY = $ENV{NOISYDOC};
 

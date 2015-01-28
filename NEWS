@@ -1,3 +1,11 @@
+Overview of changes in Glib 1.310 (unstable)
+============================================
+
+* Add Glib::Variant and Glib::VariantType
+* Add char_byte and char_byte_ornull typemaps
+* Reorder and reformat our header and typemap a little
+* Hush a compiler warning in GMainLoop.xs
+
 Overview of changes in Glib 1.307 (stable)
 ==========================================
 

@@ -5,7 +5,7 @@ use warnings;
 use Carp;
 use IO::File;
 
-our $VERSION = '1.307';
+our $VERSION = '1.310';
 
 # type handlers should look like this:
 #    sub gen_foo_stuff {
