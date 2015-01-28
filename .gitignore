@@ -2,6 +2,7 @@
 G*.c
 Glib.bs
 Makefile
+MANIFEST.bak
 MYMETA.*
 blib
 build
