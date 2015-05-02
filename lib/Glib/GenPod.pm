@@ -710,7 +710,7 @@ sub podify_signals {
 	my @sigs = Glib::Type->list_signals (shift);
 	return undef unless @sigs;
 	$str = "=over\n\n";
-	foreach (@sigs) {
+	foreach (sort {$a->{signal_name} cmp $b->{signal_name} } @sigs) {
 		$str .= '=item ';
 		$str .= convert_type ($_->{return_type}).' = '
 			if exists $_->{return_type};
