@@ -26,6 +26,8 @@ SvGParamSpec
 SvGSignalFlags
 SvGInt64
 SvGUInt64
+SvGVariant
+SvGVariantType
 _gperl_attach_mg
 _gperl_call_XS
 _gperl_find_mg
@@ -111,5 +113,9 @@ newSVGSignalInvocationHint
 newSVGSignalQuery
 newSVGInt64
 newSVGUInt64
+newSVGVariant
+newSVGVariant_noinc
+newSVGVariantType
+newSVGVariantType_own
 );
 1;
