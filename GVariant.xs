@@ -279,10 +279,14 @@ gboolean g_variant_is_container (GVariant *value);
 
 const char * g_variant_classify (GVariant *value);
     PREINIT:
-	GVariantClass vclass;
+	char vclass_char[2];
     CODE:
-	vclass = g_variant_classify (value);
-	RETVAL = (const char *) &vclass;
+	/* g_variant_classify's return value is of type GVariantClass, which is
+	 * probably wider than a char, so we must not treat its address as a
+	 * string on big-endian machines. */
+	vclass_char[0] = g_variant_classify (value);
+	vclass_char[1] = 0;
+	RETVAL = vclass_char;
     OUTPUT:
 	RETVAL
 
