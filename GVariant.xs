@@ -277,18 +277,7 @@ gboolean g_variant_is_of_type (GVariant *value, const GVariantType *type);
 
 gboolean g_variant_is_container (GVariant *value);
 
-const char * g_variant_classify (GVariant *value);
-    PREINIT:
-	char vclass_char[2];
-    CODE:
-	/* g_variant_classify's return value is of type GVariantClass, which is
-	 * probably wider than a char, so we must not treat its address as a
-	 * string on big-endian machines. */
-	vclass_char[0] = g_variant_classify (value);
-	vclass_char[1] = 0;
-	RETVAL = vclass_char;
-    OUTPUT:
-	RETVAL
+char g_variant_classify (GVariant *value);
 
 GVariant_noinc * g_variant_new_boolean (class, gboolean value);
     C_ARGS:
