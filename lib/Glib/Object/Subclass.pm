@@ -20,7 +20,7 @@
 
 package Glib::Object::Subclass;
 
-our $VERSION = '1.310';
+our $VERSION = '1.311';
 
 use Glib;
 
