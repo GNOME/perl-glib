@@ -1,3 +1,8 @@
+Overview of changes in Glib 1.312 (unstable)
+============================================
+
+* Fix incorrect version in Glib::GenPod
+
 Overview of changes in Glib 1.311 (unstable)
 ============================================
 
