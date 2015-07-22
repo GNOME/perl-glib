@@ -419,7 +419,7 @@ gperl_register_object (GType gtype,
 	g_hash_table_replace (types_by_package, class_info->package, class_info);
 	g_hash_table_insert (types_by_type,
 	                     (gpointer) class_info->gtype, class_info);
-	/* warn ("registered class %s to package %s\n", class_info->class, class_info->package); */
+	/* warn ("registered type %s to package %s\n", g_type_name (class_info->gtype), class_info->package); */
 
 	/* defer the actual ISA setup to Glib::Object::_LazyLoader */
 	gperl_set_isa (package, "Glib::Object::_LazyLoader");
@@ -772,10 +772,14 @@ gperl_object_type_from_package (const char * package)
 
 		G_UNLOCK (types_by_package);
 
-		if (class_info)
+		if (class_info) {
+			/* class_info_finish_loading calls us, so even if
+			 * !class_info->initialized, we should not call it to
+			 * avoid recursion. */
 			return class_info->gtype;
-		else
+		} else {
 			return 0;
+		}
 	} else
 		croak ("internal problem: gperl_object_type_from_package "
 		       "called before any classes were registered");
