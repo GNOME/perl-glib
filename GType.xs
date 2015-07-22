@@ -41,6 +41,10 @@ G_LOCK_DEFINE_STATIC (types_by_package);
 G_LOCK_DEFINE_STATIC (packages_by_type);
 G_LOCK_DEFINE_STATIC (wrapper_class_by_type);
 
+/* pre-declarations */
+static void gperl_type_enum_install_constants (GType flags_type, const char *package);
+static void gperl_type_flags_install_constants (GType flags_type, const char *package);
+
 /*
  * this is just like gtk_type_class --- it keeps a reference on the classes
  * it returns so they stick around.  this is most important for enums and
@@ -109,8 +113,12 @@ gperl_register_fundamental (GType gtype, const char * package)
 	G_UNLOCK (types_by_package);
 	G_UNLOCK (packages_by_type);
 
-	if (g_type_is_a (gtype, G_TYPE_FLAGS) && gtype != G_TYPE_FLAGS)
+	if (g_type_is_a (gtype, G_TYPE_ENUM) && gtype != G_TYPE_ENUM) {
+		gperl_type_enum_install_constants (gtype, package);
+	} else if (g_type_is_a (gtype, G_TYPE_FLAGS) && gtype != G_TYPE_FLAGS) {
+		gperl_type_flags_install_constants (gtype, package);
 		gperl_set_isa (package, "Glib::Flags");
+	}
 }
 
 =item void gperl_register_fundamental_alias (GType gtype, const char * package)
@@ -311,6 +319,51 @@ gperl_type_flags_get_values (GType flags_type)
 }
 
 
+static void
+gperl_type_enum_install_constants (GType enum_type, const char *package)
+{
+	HV *stash;
+	GEnumValue * vals;
+
+	g_return_if_fail (G_TYPE_IS_ENUM (enum_type));
+
+	stash = gv_stashpv (package, GV_ADD);
+	vals = gperl_type_enum_get_values (enum_type);
+	while (vals && vals->value_name && vals->value_nick) {
+		char *tmp, *constant_name = g_ascii_strup (vals->value_nick, -1);
+		for (tmp = constant_name; *tmp != '\0'; tmp++) {
+			if (*tmp == '-') *tmp = '_';
+		}
+		/* The new sub takes ownership of the SV. */
+		newCONSTSUB (stash, constant_name, newSViv (vals->value));
+		g_free (constant_name);
+		vals++;
+	}
+}
+
+static void
+gperl_type_flags_install_constants (GType flags_type, const char *package)
+{
+	HV *stash;
+	GFlagsValue * vals;
+
+	g_return_if_fail (G_TYPE_IS_FLAGS (flags_type));
+
+	stash = gv_stashpv (package, GV_ADD);
+	vals = gperl_type_flags_get_values (flags_type);
+	while (vals && vals->value_name && vals->value_nick) {
+		char *tmp, *constant_name = g_ascii_strup (vals->value_nick, -1);
+		for (tmp = constant_name; *tmp != '\0'; tmp++) {
+			if (*tmp == '-') *tmp = '_';
+		}
+		/* The new sub takes ownership of the SV. */
+		newCONSTSUB (stash, constant_name, newSVuv (vals->value));
+		g_free (constant_name);
+		vals++;
+	}
+}
+
+
 =item gboolean gperl_try_convert_enum (GType gtype, SV * sv, gint * val)
 
 return FALSE if I<sv> can't be mapped to a valid member of the registered
@@ -325,18 +378,36 @@ gperl_try_convert_enum (GType type,
 			SV * sv,
 			gint * val)
 {
-	GEnumValue * vals;
-	char *val_p = SvPV_nolen(sv);
+	GEnumValue * vals, * vals_iter;
+	char *val_p;
+	gint val_i;
+
+	/* first, try as a string */
+	val_p = SvPV_nolen(sv);
 	if (*val_p == '-') val_p++;
 	vals = gperl_type_enum_get_values (type);
-	while (vals && vals->value_nick && vals->value_name) {
-		if (gperl_str_eq (val_p, vals->value_nick) ||
-		    gperl_str_eq (val_p, vals->value_name)) {
-			*val = vals->value;
+	vals_iter = vals;
+	while (vals_iter && vals_iter->value_nick && vals_iter->value_name) {
+		if (gperl_str_eq (val_p, vals_iter->value_nick) ||
+		    gperl_str_eq (val_p, vals_iter->value_name)) {
+			*val = vals_iter->value;
 			return TRUE;
 		}
-		vals++;
+		vals_iter++;
 	}
+
+	/* then, try again as an integer */
+	val_i = SvIV (sv);
+	vals_iter = vals;
+	while (vals_iter && vals_iter->value_nick && vals_iter->value_name) {
+		if (vals_iter->value == val_i) {
+			*val = vals_iter->value;
+			return TRUE;
+		}
+		vals_iter++;
+	}
+
+	/* give up */
 	return FALSE;
 }
 
@@ -436,6 +507,45 @@ gperl_try_convert_flag (GType type,
 		}
 		vals++;
 	}
+	return FALSE;
+}
+
+static int
+uint_inv_compare (gconstpointer a, gconstpointer b)
+{
+	guint int_a = * ((guint *) a);
+	guint int_b = * ((guint *) b);
+	return - (int_a - int_b);
+}
+
+static gboolean
+gperl_check_flag_int (GType type,
+                      guint val_i)
+{
+	GFlagsValue * vals;
+	guint i, remainder = val_i;
+	GArray *vals_i;
+
+	vals = gperl_type_flags_get_values (type);
+	vals_i = g_array_new (FALSE, FALSE, sizeof (guint));
+	while (vals && vals->value_nick && vals->value_name) {
+		g_array_append_val (vals_i, vals->value);
+		vals++;
+	}
+
+	g_array_sort (vals_i, uint_inv_compare);
+
+	for (i = 0; i < vals_i->len; i++) {
+		guint candidate = g_array_index (vals_i, guint, i);
+		if (candidate <= remainder) {
+			remainder -= candidate;
+		}
+		if (remainder == 0) {
+			return TRUE;
+		}
+	}
+
+	g_array_free (vals_i, TRUE);
 
 	return FALSE;
 }
@@ -497,6 +607,12 @@ gperl_convert_flags (GType type,
 	}
 	if (SvPOK (val))
 		return gperl_convert_flag_one (type, SvPV_nolen (val));
+	if (SvIOK (val) || SvUOK (val) || SvNOK (val)) {
+		guint val_i = SvUV (val);
+		if (gperl_check_flag_int (type, val_i)) {
+			return val_i;
+		}
+	}
 
 	croak ("FATAL: invalid %s value %s, expecting a string scalar or an arrayref of strings",
 	       g_type_name (type), SvPV_nolen (val));

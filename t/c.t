@@ -10,10 +10,11 @@
 
 use strict;
 use warnings;
+use List::Util qw/sum/;
 
 #########################
 
-use Test::More tests => 57;
+use Test::More tests => 125;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -261,6 +262,62 @@ ok ($obj->get ('some_flags') != [qw/value-one/], '!= is overloaded');
 
 ok ($obj->get ('some_flags') eq [qw/value-one value-two/], 'eq is overloaded');
 ok ($obj->get ('some_flags') ne [qw/value-one/], 'ne is overloaded');
+
+#
+# Constants
+#
+{
+  no strict 'refs';
+
+  # Use numeric constants for an enum type.
+  my $obj = Tester->new;
+  $obj->set (some_enum => TestEnum::VALUE_TWO ());
+  is ($obj->get ('some_enum'), 'value-two',
+      'enum property, TestEnum::VALUE_TWO => value-two');
+  {
+    local $@;
+    eval { $obj->set (some_enum => 7); };
+    like ($@, qr/invalid/, 'enum property, invalid value dies');
+  }
+
+  # Use numeric constants for a flags type.  Try all possible combinations.
+  # http://stackoverflow.com/questions/994235/how-can-i-generate-all-subsets-of-a-list-in-perl
+  my @flag_values = (TestFlags::VALUE_ONE (),
+                     TestFlags::VALUE_TWO (),
+                     TestFlags::VALUE_THREE (),
+                     TestFlags::VALUE_FOUR (),
+                     TestFlags::VALUE_FIVE (),
+                     TestFlags::VALUE_SIX ());
+  foreach my $count (1 .. (1<<@flag_values)-1) {
+    my $flags = [ map $count & (1<<$_) ? $flag_values[$_] : (), 0..$#flag_values ];
+    my $flags_i = sum @$flags;
+    $obj->set (some_flags => $flags_i);
+    ok ($obj->get ('some_flags') == $flags_i,
+        "flags property, $flags_i OK");
+  }
+  {
+    local $@;
+    eval { $obj->set (some_flags => 2**3); };
+    like ($@, qr/invalid/, 'flags property, invalid value dies');
+  }
+
+  # Compare constants for a flags type.
+  my @value_infos = Glib::Type->list_values ('Glib::IOCondition');
+  my @subs = map { my $n = $_->{nick}; $n =~ s/-/_/g; uc $n } @value_infos;
+  my @values = map { $_->{value} } @value_infos;
+  is_deeply ([map { *{'Glib::IOCondition::' . $_}->() } @subs], \@values,
+             'Glib::IOCondition: the constants and Glib::Type->list_values agree');
+
+  skip 'new 2.14 stuff', 1
+    unless Glib->CHECK_VERSION (2, 14, 0);
+
+  # Compore constants for an enum type.
+  @value_infos = Glib::Type->list_values ('Glib::UserDirectory');
+  @subs = map { my $n = $_->{nick}; $n =~ s/-/_/g; uc $n } @value_infos;
+  @values = map { $_->{value} } @value_infos;
+  is_deeply ([map { *{'Glib::UserDirectory::' . $_}->() } @subs], \@values,
+             'Glib::UserDirectory: the constants and Glib::Type->list_values agree');
+}
 
 __END__
 

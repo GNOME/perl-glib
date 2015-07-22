@@ -508,6 +508,15 @@ access the flag values directly as strings (but you are not allowed to
 modify the array), and when stringified C<"$flags"> a flags value will
 output a human-readable version of its contents.
 
+Normally, there is no need to access the underlying numeric values of enum or
+flags values.  But for the rare cases where the numeric values are required,
+they are provided as constant subs accessible as C<Package::NICK_NAME> where
+the package is the one associated with the enum or flags, e.g.,
+"Glib::SpawnFlags", and the sub name is the nick name in upper case with '-'
+replaced by '_', e.g., "LEAVE_DESCRIPTORS_OPEN".  So the numeric value of
+G_SPAWN_LEAVE_DESCRIPTORS_OPEN is accessible as
+C<Glib::SpawnFlags::LEAVE_DESCRIPTORS_OPEN>.
+
 =head2 It's All the Same
 
 For the most part, the remaining bits of GLib are unchanged.  GMainLoop is now
