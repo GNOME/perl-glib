@@ -225,7 +225,9 @@ note ('printing and parsing');
     is (Glib::Variant::parse ('y', $text)->get_byte, 23);
   }
 
-  {
+  SKIP: {
+    skip 'parse error tests', 1
+      unless Glib->CHECK_VERSION (2, 28, 0);
     my $text = 'byte 0x17';
     eval { Glib::Variant::parse ('b', $text)->get_byte };
     ok (Glib::Error::matches ($@, 'Glib::Variant::ParseError', 'type-error'));

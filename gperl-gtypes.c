@@ -513,7 +513,8 @@ GType gperl_thread_error_get_type (void);
 
 /* -------------------------------------------------------------------------- */
 
-#if GLIB_CHECK_VERSION (2, 24, 0)
+/* The enum in its current form was added later than GVariant itself. */
+#if GLIB_CHECK_VERSION (2, 28, 0)
 
 GType
 gperl_variant_parse_error_get_type (void)

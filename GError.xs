@@ -369,7 +369,7 @@ BOOT:
 	gperl_register_error_domain (G_THREAD_ERROR,
 	                             GPERL_TYPE_THREAD_ERROR,
 	                             "Glib::Thread::Error");
-#if GLIB_CHECK_VERSION (2, 24, 0)
+#if GLIB_CHECK_VERSION (2, 28, 0)
 	/* gvariant.h */
 	gperl_register_error_domain (G_VARIANT_PARSE_ERROR,
 	                             GPERL_TYPE_VARIANT_PARSE_ERROR,
