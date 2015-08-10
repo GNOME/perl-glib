@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.313 (unstable)
+============================================
+
+* Fix compilation and test issues with Glib::Variant::ParseError
+* Add a short explanatory comment to the lazy-loading system
+
 Overview of changes in Glib 1.312 (unstable)
 ============================================
 
