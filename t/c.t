@@ -14,7 +14,7 @@ use List::Util qw/sum/;
 
 #########################
 
-use Test::More tests => 125;
+use Test::More tests => 126;
 BEGIN { use_ok('Glib') };
 
 #########################
@@ -307,6 +307,13 @@ ok ($obj->get ('some_flags') ne [qw/value-one/], 'ne is overloaded');
   my @values = map { $_->{value} } @value_infos;
   is_deeply ([map { *{'Glib::IOCondition::' . $_}->() } @subs], \@values,
              'Glib::IOCondition: the constants and Glib::Type->list_values agree');
+
+  # Check that using an incorrect enum string value still raises an exception.
+  {
+    local $@;
+    eval { Glib::get_user_special_dir ("desktopp") };
+    like ($@, qr/invalid/, 'invalid enum value dies');
+  }
 
   skip 'new 2.14 stuff', 1
     unless Glib->CHECK_VERSION (2, 14, 0);

@@ -397,14 +397,16 @@ gperl_try_convert_enum (GType type,
 	}
 
 	/* then, try again as an integer */
-	val_i = SvIV (sv);
-	vals_iter = vals;
-	while (vals_iter && vals_iter->value_nick && vals_iter->value_name) {
-		if (vals_iter->value == val_i) {
-			*val = vals_iter->value;
-			return TRUE;
+	if (SvIOK (sv) || SvUOK (sv) || SvNOK (sv)) {
+		val_i = SvIV (sv);
+		vals_iter = vals;
+		while (vals_iter && vals_iter->value_nick && vals_iter->value_name) {
+			if (vals_iter->value == val_i) {
+				*val = vals_iter->value;
+				return TRUE;
+			}
+			vals_iter++;
 		}
-		vals_iter++;
 	}
 
 	/* give up */
@@ -515,8 +517,7 @@ gperl_check_flag_int (GType type,
                       guint val_i)
 {
 	GFlagsValue * vals;
-	guint i, remainder;
-	GArray *vals_i;
+	guint remainder;
 	vals = gperl_type_flags_get_values (type);
 	remainder = val_i;
 	while (vals && vals->value_nick && vals->value_name) {
