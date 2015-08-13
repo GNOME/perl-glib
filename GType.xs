@@ -510,43 +510,24 @@ gperl_try_convert_flag (GType type,
 	return FALSE;
 }
 
-static int
-uint_inv_compare (gconstpointer a, gconstpointer b)
-{
-	guint int_a = * ((guint *) a);
-	guint int_b = * ((guint *) b);
-	return - (int_a - int_b);
-}
-
 static gboolean
 gperl_check_flag_int (GType type,
                       guint val_i)
 {
 	GFlagsValue * vals;
-	guint i, remainder = val_i;
+	guint i, remainder;
 	GArray *vals_i;
-
 	vals = gperl_type_flags_get_values (type);
-	vals_i = g_array_new (FALSE, FALSE, sizeof (guint));
+	remainder = val_i;
 	while (vals && vals->value_nick && vals->value_name) {
-		g_array_append_val (vals_i, vals->value);
-		vals++;
-	}
-
-	g_array_sort (vals_i, uint_inv_compare);
-
-	for (i = 0; i < vals_i->len; i++) {
-		guint candidate = g_array_index (vals_i, guint, i);
-		if (candidate <= remainder) {
-			remainder -= candidate;
+		if (remainder & vals->value) {
+			remainder &= ~vals->value;
 		}
 		if (remainder == 0) {
 			return TRUE;
 		}
+		vals++;
 	}
-
-	g_array_free (vals_i, TRUE);
-
 	return FALSE;
 }
 
