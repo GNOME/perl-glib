@@ -185,6 +185,8 @@ SvGParamSpec (SV * sv)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
+=for object Glib::ParamSpec encapsulates metadate needed to specify parameters
+
 void
 DESTROY (GParamSpec * pspec)
     CODE:
@@ -891,7 +893,7 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UChar
  ## similarly, all unsigned integer types
 
 
-=for object Glib::Param::UInt
+=for object Glib::Param::UInt Wrapper for uint parameters in GLib
 
 =for position post_hierarchy
 
@@ -962,7 +964,7 @@ get_maximum (GParamSpec * pspec)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Int64
 
-=for object Glib::Param::Int64
+=for object Glib::Param::Int64 Wrapper for int64 parameters in GLib
 
 =head1 DESCRIPTION
 
@@ -989,7 +991,7 @@ get_maximum (GParamSpec * pspec)
 
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::UInt64
 
-=for object Glib::Param::UInt64
+=for object Glib::Param::UInt64 Wrapper for uint64 parameters in GLib
 
 =head1 DESCRIPTION
 
@@ -1018,7 +1020,7 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::Float
 
  ## and again for the floating-point types
 
-=for object Glib::Param::Double
+=for object Glib::Param::Double Wrapper for double parameters in GLib
 
 =for position post_hierarchy
 
@@ -1035,6 +1037,21 @@ doubles, so all of these methods return NVs (that is, the C type "double"); the
 distinction of size is important to the underlying C library and also
 determines the data value range.
 
+=cut
+
+=for object Glib::Param::Boolean Wrapper for boolean parameters in GLib
+=cut
+
+=for object Glib::Param::Enum Wrapper for enum parameters in GLib
+=cut
+
+=for object Glib::Param::Flags Wrapper for flag parameters in GLib
+=cut
+
+=for object Glib::Param::String Wrapper for string parameters in GLib
+=cut
+
+=for object Glib::Param::Unichar Wrapper for unichar parameters in GLib
 =cut
 
 =for see_also Glib::ParamSpec
@@ -1121,6 +1138,8 @@ get_flags_class (GParamSpec * pspec_flags)
 MODULE = Glib::ParamSpec	PACKAGE = Glib::Param::GType
 
 #if GLIB_CHECK_VERSION(2, 10, 0)
+
+=for object Glib::Param::GType - Wrapper for type parameters in GLib
 
 =for section DESCRIPTION
 

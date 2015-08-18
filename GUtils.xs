@@ -469,6 +469,9 @@ CHECK_VERSION (class, guint required_major, guint required_minor, guint required
 
 MODULE = Glib::Utils	PACKAGE = Glib::Markup	PREFIX = g_markup_
 
+=for object Glib::Markup markup handling functions
+=cut
+
 =for apidoc __function__
 =cut
 # gchar* g_markup_escape_text (const gchar *text, gssize length);

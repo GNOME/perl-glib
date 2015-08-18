@@ -610,6 +610,14 @@ BOOT:
 	gperl_register_fundamental (GPERL_TYPE_OPTION_ARG, "Glib::OptionArg");
 	gperl_register_fundamental (GPERL_TYPE_OPTION_FLAGS, "Glib::OptionFlags");
 
+=for object Glib::OptionContext defines options accepted by the commandline option parser
+
+=cut
+
+=for object Glib::OptionGroup group of options for command line option parsing
+
+=cut
+
 =for position SYNOPSIS
 
 =head1 SYNOPSIS

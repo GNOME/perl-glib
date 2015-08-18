@@ -2746,6 +2746,8 @@ package_from_cname (class, const char * cname)
 
 MODULE = Glib::Type	PACKAGE = Glib::Flags
 
+=for object Glib::Flags methods and overloaded operators for flags
+
 =for position DESCRIPTION
 
 =head1 DESCRIPTION
