@@ -440,7 +440,7 @@ build/podindex :: \$(BLIB_DONE) Makefile build/doc.pl \$(POD_DEPENDS)
 
 \$(INST_LIB)/\$(FULLEXT)/index.pod :: \$(INST_LIB)/\$(FULLEXT)/ build/podindex
 	\$(NOECHO) \$(ECHO) Creating POD index...
-	\$(NOECHO) \$(FULLPERLRUN) -e "print qq(\\n=head1 NAME\\n\\n\$(NAME) - API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n)" \\
+	\$(NOECHO) \$(FULLPERLRUN) -e "print qq(\\n=head1 NAME\\n\\n\$(NAME) \\\\- API Reference Pod Index\\n\\n=head1 PAGES\\n\\n=over\\n\\n)" \\
 		> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	\$(NOECHO) \$(FULLPERLRUN) -ne "print q(=item L<) . (split q( ))[1] . qq(>\\n\\n);" < build/podindex >> \$(INST_LIB)/\$(FULLEXT)/index.pod
 	\$(NOECHO) \$(FULLPERLRUN) -e "print qq(=back\\n\\n);" >> \$(INST_LIB)/\$(FULLEXT)/index.pod
