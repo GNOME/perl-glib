@@ -362,7 +362,7 @@ SV * newSVGUserDirectory (GUserDirectory dir);
 #endif
 
 /*
- * -- GVariant ----------------------------------------------------------------
+ * --- GVariant ---------------------------------------------------------------
  */
 #if GLIB_CHECK_VERSION (2, 24, 0)
 
@@ -377,6 +377,16 @@ SV * newSVGVariantType_own (const GVariantType * type);
 const GVariantType * SvGVariantType (SV * sv);
 
 #endif /* 2.24.0 */
+
+/*
+ * --- GBytes -----------------------------------------------------------------
+ */
+#if GLIB_CHECK_VERSION (2, 32, 0)
+typedef GBytes GBytes_own;
+#define SvGBytes(sv)		(gperl_get_boxed_check ((sv), G_TYPE_BYTES))
+#define newSVGBytes(val)	(gperl_new_boxed ((gpointer) (val), G_TYPE_BYTES, FALSE))
+#define newSVGBytes_own(val)	(gperl_new_boxed ((gpointer) (val), G_TYPE_BYTES, TRUE))
+#endif
 
 /*
  * --- miscellaneous ----------------------------------------------------------

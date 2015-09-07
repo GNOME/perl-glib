@@ -100,6 +100,12 @@ sub domain { $_[0]->{domain} }
 sub value { $_[0]->{value} }
 sub code { $_[0]->{code} }
 
+package Glib::Bytes;
+
+use overload
+   '""' => sub { $_[0]->get_data },
+   fallback => 1;
+
 package Glib::Object::Property;
 
 use Carp;

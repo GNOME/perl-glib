@@ -811,6 +811,9 @@ BOOT:
 #if GLIB_CHECK_VERSION (2, 26, 0)
 	gperl_register_boxed (G_TYPE_ERROR, "Glib::Error", &gerror_wrapper_class);
 #endif
+#if GLIB_CHECK_VERSION (2, 32, 0)
+	gperl_register_boxed (G_TYPE_BYTES, "Glib::Bytes", NULL);
+#endif
 
 
 =for object Glib::Boxed Generic wrappers for C structures
@@ -902,3 +905,45 @@ DESTROY (sv)
 		: NULL;
 	if (destroy)
 		(*destroy) (sv);
+
+MODULE = Glib::Boxed	PACKAGE = Glib::Bytes	PREFIX = g_bytes_
+
+=for DESCRIPTION
+
+=head1 DESCRIPTION
+
+In addition to the low-level API documented below, L<Glib> also provides
+stringification overloading so that you can treat any C<Glib::Bytes> object as
+a normal Perl string.
+
+=cut
+
+GBytes_own *
+g_bytes_new (class, SV *data)
+    PREINIT:
+	const char *real_data;
+	STRLEN len;
+    CODE:
+	real_data = SvPVbyte (data, len);
+	RETVAL = g_bytes_new (real_data, len);
+    OUTPUT:
+	RETVAL
+
+SV *
+g_bytes_get_data (GBytes *bytes)
+    PREINIT:
+        gconstpointer data;
+	gsize size;
+    CODE:
+	data = g_bytes_get_data (bytes, &size);
+	RETVAL = newSVpv (data, size);
+    OUTPUT:
+	RETVAL
+
+gsize g_bytes_get_size (GBytes *bytes);
+
+guint g_bytes_hash (GBytes *bytes);
+
+gboolean g_bytes_equal (GBytes *bytes1, GBytes *bytes2);
+
+gint g_bytes_compare (GBytes *bytes1, GBytes *bytes2);
