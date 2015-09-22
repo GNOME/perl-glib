@@ -40,10 +40,15 @@ variant_to_sv (GVariant * variant, gboolean own)
 	if (own) {
 #if GLIB_CHECK_VERSION (2, 30, 0)
 		g_variant_take_ref (variant);
-#else
+#elif GLIB_CHECK_VERSION (2, 26, 0)
 		if (g_variant_is_floating (variant)) {
 			g_variant_ref_sink (variant);
 		}
+#else
+		/* In this case, we have no way of finding out whether the
+		 * variant has a floating ref, so we just always ref_sink even
+		 * if this might cause a leak in some cases. */
+		g_variant_ref_sink (variant);
 #endif
 	} else {
 		g_variant_ref (variant);
