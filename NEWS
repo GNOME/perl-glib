@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.314 (unstable)
+============================================
+
+* Fix compilation on libglib < 2.26
+* Add Glib::Bytes, a wrapper for GBytes
+* Sort the output of podify_signals in a deterministic way (BZ#743863)
+
 Overview of changes in Glib 1.313 (unstable)
 ============================================
 
