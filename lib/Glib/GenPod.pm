@@ -278,7 +278,14 @@ sub xsdoc2pod
 		# end.  But all the other =head1 below need a closing =cut.
 
 		print "=head1 NAME\n\n$package";
-		print ' - '.$pkgdata->{blurb} if (exists ($pkgdata->{blurb}));
+		if (exists ($pkgdata->{blurb})) {
+			print ' - '.$pkgdata->{blurb};
+		} else {
+			my $cname = convert_to_cname ($package);
+			if (defined $cname) {
+				print " - wrapper for $cname";
+			}
+		}
 		print "\n\n=cut\n\n";
 
 		#                   pods            , position 
@@ -1522,6 +1529,22 @@ sub mkdir_p {
 		mkdir $p or die "can't create dir $p: $!\n" unless -d $p;
 		$p = File::Spec->catdir ($p, shift @dirs);
 	} while (@dirs);
+}
+
+sub convert_to_cname {
+	my $perlname = shift;
+	my $cname = $perlname;
+	$cname =~ s/^Gtk2::Gdk::/Gdk/;
+	$cname =~ s/^Gtk2::/Gtk/;
+	$cname =~ s/^Gnome2::Bonobo::/Bonobo/;
+	$cname =~ s/^Gnome2::/Gnome/;
+	$cname =~ s/:://g;
+	my $tmp;
+	eval { $tmp = Glib::Type->package_from_cname($cname); };
+	if ($@ || $tmp ne $perlname) {
+		return;
+	}
+	return $cname;
 }
 
 1;
