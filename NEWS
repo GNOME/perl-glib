@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.320 (stable)
+============================================
+
+* Makefile.PL: added IRC link to metadata block
+* Glib::GenPod: supply default namespace blurbs (Bugzilla #753468)
+* Properly escape dash in generated API index POD (Bugzilla #753467)
+
 Overview of changes in Glib 1.314 (unstable)
 ============================================
 
@@ -29,6 +36,12 @@ Overview of changes in Glib 1.310 (unstable)
 * Add char_byte and char_byte_ornull typemaps
 * Reorder and reformat our header and typemap a little
 * Hush a compiler warning in GMainLoop.xs
+
+Overview of changes in Glib 1.308 (stable)
+==========================================
+
+* Release to replace stable version of Glib deleted from CPAN by accident;
+  closes RT#110119.  There are no code changes for this release.
 
 Overview of changes in Glib 1.307 (stable)
 ==========================================
