@@ -105,8 +105,9 @@ my %meta_merge = (
         # valid values: https://metacpan.org/module/CPAN::Meta::Spec#license
         license             => 'lgpl_2_1',
         resources => {
-            license     => 'http://www.gnu.org/licenses/lgpl-2.1.html',
-            homepage    => 'http://gtk2-perl.sourceforge.net',
+            license       => 'http://www.gnu.org/licenses/lgpl-2.1.html',
+            homepage      => 'http://gtk2-perl.sourceforge.net',
+            x_IRC         => "irc://irc.gimp.org/#gtk-perl",
             x_MailingList =>
                 'https://mail.gnome.org/mailman/listinfo/gtk-perl-list',
             bugtracker  => {
