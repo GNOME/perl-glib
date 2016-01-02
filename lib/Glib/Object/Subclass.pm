@@ -327,7 +327,7 @@ GLib pulls some fancy tricks with function pointers to implement methods
 in C.  This is not very language-binding-friendly, as you might guess.
 
 However, as described above, every signal allows a "class closure"; you
-may override thie class closure with your own function, and you can chain
+may override the class closure with your own function, and you can chain
 from the overridden method to the original.  This serves to implement
 virtual overrides for language bindings.
 

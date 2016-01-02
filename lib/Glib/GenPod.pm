@@ -1126,7 +1126,7 @@ So, in general, you will want to specify at least one of these, so that you
 don't credit your work to us under the LGPL.
 
 To set them do something similar to the following in the first part of your
-postamble section in Makefile.PL.  All occurences of <br> in the copyright
+postamble section in Makefile.PL.  All occurrences of <br> in the copyright
 are replaced with newlines, to make it easier to put in a multi-line string.
 
   POD_SET=Glib::GenPod::set_copyright(qq{Copyright 1999 team-foobar<br>LGPL});

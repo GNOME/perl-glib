@@ -453,7 +453,7 @@ Create and return the text of Makefile rules to manage building RPMs.
 You'd put this in your Makefile.PL's MY::postamble.
 
 I<HASH> is a set of search and replace keys for the spec file.  All 
-occurences of @I<key>@ in the spec file template perl-$(DISTNAME).spec.in
+occurrences of @I<key>@ in the spec file template perl-$(DISTNAME).spec.in
 will be replaced with I<value>.  'VERSION' and 'SOURCE' are supplied for
 you.  For example:
 
