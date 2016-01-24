@@ -906,6 +906,8 @@ DESTROY (sv)
 	if (destroy)
 		(*destroy) (sv);
 
+#if GLIB_CHECK_VERSION (2, 32, 0)
+
 MODULE = Glib::Boxed	PACKAGE = Glib::Bytes	PREFIX = g_bytes_
 
 =for DESCRIPTION
@@ -947,3 +949,5 @@ guint g_bytes_hash (GBytes *bytes);
 gboolean g_bytes_equal (GBytes *bytes1, GBytes *bytes2);
 
 gint g_bytes_compare (GBytes *bytes1, GBytes *bytes2);
+
+#endif
