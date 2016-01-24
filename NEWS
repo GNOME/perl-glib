@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.321 (stable)
+============================================
+
+* GBoxed.xs: Check Glib version prior to enabling GBoxed types; RT#111150;
+  patch submitted by Torsten Lüttgert <st-cpan at luettgert.de>
+
 Overview of changes in Glib 1.320 (stable)
 ============================================
 
