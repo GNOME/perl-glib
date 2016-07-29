@@ -1,3 +1,9 @@
+Overview of changes in Glib 1.322 (stable)
+============================================
+
+* Win32: only export the GVariant conversion symbols when available
+∗ Glib.exports: updated copyright date
+
 Overview of changes in Glib 1.321 (stable)
 ============================================
 

@@ -9,7 +9,7 @@
 
 package Glib::GenPod;
 
-our $VERSION = '1.321';
+our $VERSION = '1.322';
 
 use strict;
 use warnings;
