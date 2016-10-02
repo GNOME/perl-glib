@@ -179,7 +179,7 @@ is not to be modified.
 Turns I<sv> into its fundamental representation and stores the result in the
 pre-configured I<value>.  I<value> must not be overwritten; instead one of the
 various C<g_value_set_*()> functions must be used or the C<value-E<gt>data>
-pointer must be modifed directly.
+pointer must be modified directly.
 
   typedef void (*GPerlValueUnwrapFunc) (GValue       * value,
                                         SV           * sv);
@@ -1117,7 +1117,7 @@ gperl_real_signal_accumulator (GSignalInvocationHint *ihint,
 		      "###\n"
 		      "### your sub returned %d value%s\n"
 		      "###\n"
-		      "### there's no resonable way to recover from this.\n"
+		      "### there's no reasonable way to recover from this.\n"
 		      "### you must fix this code",
 		      n, n==1?"":"s");
 		croak (Nullch);

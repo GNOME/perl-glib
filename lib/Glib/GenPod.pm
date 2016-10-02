@@ -877,7 +877,7 @@ pod will be still be placed there.
 This function is called at all of the specified points through out the process
 of generating pod for a page. Any pod matching the I<position> passed will be
 returned, undef if no matches were found.  If I<position> is undef all pods
-without sepcific postion information will be returned. I<pods> is a reference
+without specific position information will be returned. I<pods> is a reference
 to an array of pod hashes.
 
 =over
