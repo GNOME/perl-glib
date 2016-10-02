@@ -584,6 +584,9 @@ g_variant_parse (const GVariantType *type, const gchar *text)
 
 MODULE = Glib::Variant	PACKAGE = Glib::VariantType	PREFIX = g_variant_type_
 
+=for object Glib::VariantType Utilities for dealing with the GVariant type system
+=cut
+
 =for see_also Glib::Variant
 =cut
 

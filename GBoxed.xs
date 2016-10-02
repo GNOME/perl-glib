@@ -910,7 +910,7 @@ DESTROY (sv)
 
 MODULE = Glib::Boxed	PACKAGE = Glib::Bytes	PREFIX = g_bytes_
 
-=for DESCRIPTION
+=for object Glib::Bytes Wrappers for bytes objects in GLib
 
 =head1 DESCRIPTION
 
