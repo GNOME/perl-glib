@@ -187,6 +187,8 @@ MODULE = Glib::ParamSpec	PACKAGE = Glib::ParamSpec	PREFIX = g_param_spec_
 
 =for object Glib::ParamSpec encapsulates metadate needed to specify parameters
 
+=cut
+
 void
 DESTROY (GParamSpec * pspec)
     CODE:
