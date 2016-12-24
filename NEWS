@@ -1,3 +1,10 @@
+Overview of changes in Glib 1.324 (stable)
+============================================
+
+* Fix a POD error in the Glib::ParamSpec whatis entry
+* Fix POD for the benefit of whatis (Bugzilla #772329)
+* Fix typos in error message and POD (Bugzilla #772328)
+
 Overview of changes in Glib 1.323 (stable)
 ============================================
 
