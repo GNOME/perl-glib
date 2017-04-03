@@ -65,7 +65,7 @@ sub do_pod_files
 	# try to get it from pwd first, then fall back to installed
 	# this is so Glib will get associated copy, and everyone else
 	# should use the installed glib copy
-	eval { require 'lib/Glib/ParseXSDoc.pm'; 1; } or require Glib::ParseXSDoc;
+	eval { require './lib/Glib/ParseXSDoc.pm'; 1; } or require Glib::ParseXSDoc;
 	$@ = undef;
 	import Glib::ParseXSDoc;
 

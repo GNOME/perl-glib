@@ -10,7 +10,7 @@ die "usage: $0 header footer xsfiles...\n"
 # load the data from xsdocparse...  predeclare its vars to keep perl
 # happy about "possible typo" warnings.
 our ($xspods, $data);
-require $data;
+require "./$data";
 
 $/ = undef;
 

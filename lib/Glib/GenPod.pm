@@ -244,7 +244,7 @@ sub xsdoc2pod
 	die "usage: $0 datafile [outdir]\n"
 		unless defined $datafile;
 
-	require $datafile;
+	require "./$datafile";
 
 	my @files = ();
 

@@ -48,7 +48,7 @@ unless (eval "use ExtUtils::Depends '$PREREQ_PM{'ExtUtils::Depends'}';"
 
 # client modules may use Glib::MakeHelper -- he's not installed at this
 # point, so we have to require him directly.
-require 'lib/Glib/MakeHelper.pm';
+require './lib/Glib/MakeHelper.pm';
 
 mkdir 'build', 0777;
 
@@ -195,7 +195,7 @@ $glib->save_config ('build/IFiles.pm');
 
 # exports list needed for win32, unused on others
 our @exports;
-require 'Glib.exports';
+require './Glib.exports';
 
 # On OpenBSD, any program that directly or indirectly wants to load
 # libpthread.so must do so from the start.  But when perl is built without
@@ -257,7 +257,7 @@ __EOW__
 # rule to build the documentation
 sub MY::postamble
 {
-	require 'lib/Glib/MakeHelper.pm';
+	require './lib/Glib/MakeHelper.pm';
 	# $glib will be undefined if any of our dependencies couldn't be found;
 	# don't do anything in this case.
 	return unless defined $glib;
