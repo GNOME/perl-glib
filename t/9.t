@@ -267,7 +267,13 @@ if (Glib->CHECK_VERSION (2, 14, 0)) {
                           'hello');
   $timer_id = Glib::Timeout->add
     (30_000, # 30 seconds should be more than enough for child exit
-     sub { die "Oops, child watch callback didn't run\n"; });
+     sub {
+       warn "*** Oops, child watch callback didn't run\n";
+       print "not ok 29\n";
+       print "not ok 30\n";
+       $loop->quit;
+       return Glib::SOURCE_CONTINUE;
+     });
   $loop->run;
   Glib::Source->remove ($timer_id);
 }
