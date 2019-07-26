@@ -84,7 +84,11 @@ SKIP: {
 	eq_array (\@bools, [FALSE, TRUE, FALSE]);
 
 	ok ($key_file->has_group('locales'));
-	is ($key_file->get_comment('locales', 'mystring'), "some string\n");
+	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	  is ($key_file->get_comment('locales', 'mystring'), "some string");
+	} else {
+	  is ($key_file->get_comment('locales', 'mystring'), "some string\n");
+	}
 	is ($key_file->get_string('locales', 'mystring'), 'Good morning');
 	is ($key_file->get_locale_string('locales', 'mystring', 'it'), 'Buongiorno');
 
@@ -94,11 +98,21 @@ SKIP: {
 	$key_file->set_string_list('listsection', 'stringlist', 'one', 'two', 'three');
 	$key_file->set_locale_string('locales', 'mystring', 'en', 'one');
 	$key_file->set_comment('locales', 'mystring', 'comment');
-	is ($key_file->get_comment('locales', 'mystring'), "comment\n");
-	$key_file->set_comment('locales', undef, "another comment\n");
-	is ($key_file->get_comment('locales', undef), "#another comment\n#");
+	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	  is ($key_file->get_comment('locales', 'mystring'), "comment");
+	  $key_file->set_comment('locales', undef, "another comment");
+	  is ($key_file->get_comment('locales', undef), "#another comment");
+	} else {
+	  is ($key_file->get_comment('locales', 'mystring'), "comment\n");
+	  $key_file->set_comment('locales', undef, "another comment\n");
+	  is ($key_file->get_comment('locales', undef), "#another comment\n#");
+	}
 	$key_file->set_comment(undef, undef, 'one comment more');
-	is ($key_file->get_comment(undef, undef), "one comment more\n");
+	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	  is ($key_file->get_comment(undef, undef), "one comment more");
+	} else {
+	  is ($key_file->get_comment(undef, undef), "one comment more\n");
+	}
 	$key_file->set_boolean($start_group, 'boolkey', FALSE);
 	$key_file->set_value($start_group, 'boolkey', '0');
 
