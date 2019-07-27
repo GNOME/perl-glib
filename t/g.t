@@ -84,7 +84,7 @@ SKIP: {
 	eq_array (\@bools, [FALSE, TRUE, FALSE]);
 
 	ok ($key_file->has_group('locales'));
-	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	if (! defined Glib->check_version (2, 59, 0)) {
 	  is ($key_file->get_comment('locales', 'mystring'), "some string");
 	} else {
 	  is ($key_file->get_comment('locales', 'mystring'), "some string\n");
@@ -98,7 +98,7 @@ SKIP: {
 	$key_file->set_string_list('listsection', 'stringlist', 'one', 'two', 'three');
 	$key_file->set_locale_string('locales', 'mystring', 'en', 'one');
 	$key_file->set_comment('locales', 'mystring', 'comment');
-	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	if (! defined Glib->check_version (2, 59, 0)) {
 	  is ($key_file->get_comment('locales', 'mystring'), "comment");
 	  $key_file->set_comment('locales', undef, "another comment");
 	  is ($key_file->get_comment('locales', undef), "#another comment");
@@ -108,7 +108,7 @@ SKIP: {
 	  is ($key_file->get_comment('locales', undef), "#another comment\n#");
 	}
 	$key_file->set_comment(undef, undef, 'one comment more');
-	if (Glib->CHECK_VERSION (2, 59, 0)) {
+	if (! defined Glib->check_version (2, 59, 0)) {
 	  is ($key_file->get_comment(undef, undef), "one comment more");
 	} else {
 	  is ($key_file->get_comment(undef, undef), "one comment more\n");
