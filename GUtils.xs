@@ -467,6 +467,18 @@ CHECK_VERSION (class, guint required_major, guint required_minor, guint required
     OUTPUT:
 	RETVAL
 
+=for apidoc
+Provides a mechanism for checking the version information that Glib is
+linked against. Essentially equivalent to the glib_check_version() function.
+=cut
+gchar *
+check_version (class, guint required_major, guint required_minor, guint required_micro)
+    CODE:
+	RETVAL = glib_check_version (required_major, required_minor,
+				    required_micro);
+    OUTPUT:
+	RETVAL
+
 MODULE = Glib::Utils	PACKAGE = Glib::Markup	PREFIX = g_markup_
 
 =for object Glib::Markup markup handling functions
