@@ -132,6 +132,7 @@ GType
 gperl_param_flags_get_type (void)
 {
   static GType etype = 0;
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   if (etype == 0) {
     static const GFlagsValue values[] = {
       {G_PARAM_READABLE,       "G_PARAM_READABLE",       "readable"},
@@ -140,10 +141,22 @@ gperl_param_flags_get_type (void)
       {G_PARAM_CONSTRUCT_ONLY, "G_PARAM_CONSTRUCT_ONLY", "construct-only"},
       {G_PARAM_LAX_VALIDATION, "G_PARAM_LAX_VALIDATION", "lax-validation"},
       {G_PARAM_PRIVATE,        "G_PARAM_PRIVATE",        "private"},
+#if GLIB_CHECK_VERSION (2, 8, 0)
+      {G_PARAM_STATIC_NAME,    "G_PARAM_STATIC_NAME",    "static-name"},
+      {G_PARAM_STATIC_NICK,    "G_PARAM_STATIC_NICK",    "static-nick"},
+      {G_PARAM_STATIC_BLURB,   "G_PARAM_STATIC_BLURB",   "static-blurb"},
+#endif
+#if GLIB_CHECK_VERSION (2, 42, 0)
+      {G_PARAM_EXPLICIT_NOTIFY, "G_PARAM_EXPLICIT_NOTIFY", "explicit-notify"},
+#endif
+#if GLIB_CHECK_VERSION (2, 26, 0)
+      {G_PARAM_DEPRECATED,     "G_PARAM_DEPRECATED",     "deprecated"},
+#endif
       {0, NULL, NULL}
     };
     etype = g_flags_register_static ("GPerlParamFlags", values);
   }
+  G_GNUC_END_IGNORE_DEPRECATIONS
   return etype;
 }
 
