@@ -465,12 +465,16 @@ GType gperl_shell_error_get_type (void);
 
 /* -------------------------------------------------------------------------- */
 
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 static const GEnumValue _gperl_spawn_error_values[] = {
   { G_SPAWN_ERROR_FORK, "G_SPAWN_ERROR_FORK", "fork" },
   { G_SPAWN_ERROR_READ, "G_SPAWN_ERROR_READ", "read" },
   { G_SPAWN_ERROR_CHDIR, "G_SPAWN_ERROR_CHDIR", "chdir" },
   { G_SPAWN_ERROR_ACCES, "G_SPAWN_ERROR_ACCES", "acces" },
   { G_SPAWN_ERROR_PERM, "G_SPAWN_ERROR_PERM", "perm" },
+#if GLIB_CHECK_VERSION (2, 32, 0)
+  { G_SPAWN_ERROR_TOO_BIG, "G_SPAWN_ERROR_TOO_BIG", "too-big" },
+#endif
   { G_SPAWN_ERROR_2BIG, "G_SPAWN_ERROR_2BIG", "2big" },
   { G_SPAWN_ERROR_NOEXEC, "G_SPAWN_ERROR_NOEXEC", "noexec" },
   { G_SPAWN_ERROR_NAMETOOLONG, "G_SPAWN_ERROR_NAMETOOLONG", "nametoolong" },
@@ -488,6 +492,7 @@ static const GEnumValue _gperl_spawn_error_values[] = {
   { G_SPAWN_ERROR_FAILED, "G_SPAWN_ERROR_FAILED", "failed" },
   { 0, NULL, NULL }
 };
+G_GNUC_END_IGNORE_DEPRECATIONS
 
 GType
 gperl_spawn_error_get_type (void)
