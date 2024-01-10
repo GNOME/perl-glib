@@ -6,15 +6,16 @@
 
   <name xml:lang="en">Glib</name>
   <shortdesc xml:lang="en">Perl wrappers for the GLib utility and Object libraries</shortdesc>
-  <homepage rdf:resource="http://gtk2-perl.sourceforge.net/" />
-  <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/gtk-perl-list" />
+  <homepage rdf:resource="https://gtk2-perl.sourceforge.net/" />
+  <developer-forum rdf:resource="https://discourse.gnome.org/tag/perl" />
+  <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/perl-glib/-/issues/" />
 
-  <maintainer>
+<!--  <maintainer>
     <foaf:Person>
       <foaf:name>muppet</foaf:name>
       <gnome:userid>sarringt</gnome:userid>
     </foaf:Person>
-  </maintainer>
+  </maintainer> -->
 
   <maintainer>
     <foaf:Person>
