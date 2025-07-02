@@ -232,6 +232,24 @@ void g_set_application_name (const gchar *application_name);
 #gchar*  g_find_program_in_path  (const gchar *program);
 
 =for apidoc __function__
+Quotes a string so that the shell (/bin/sh) will interpret the quoted string to mean unquoted_string.
+=cut
+gchar* g_shell_quote   (const gchar *unquoted_string);
+
+=for apidoc __function__
+Unquotes a string as the shell (/bin/sh) would.
+=cut
+gchar* g_shell_unquote (const gchar *quoted_string)
+    PREINIT:
+	GError *err = NULL;
+    CODE:
+	RETVAL = g_shell_unquote (quoted_string, &err);
+	if (err)
+		gperl_croak_gerror (NULL, err);
+    OUTPUT:
+	RETVAL
+
+=for apidoc __function__
 Return a string describing the given errno value, like "No such file
 or directory" for ENOENT.  This is translated into the user's
 preferred language and is a utf8 wide-char string (unlike a $!
